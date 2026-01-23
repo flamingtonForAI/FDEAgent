@@ -8,14 +8,17 @@
 
 import { Archetype, ArchetypeIndex } from '../../types/archetype';
 import { manufacturingMESArchetype } from './manufacturing-mes';
+import { manufacturingISA95Archetype } from './manufacturing-isa95';
 
 // 所有 Archetypes
 export const allArchetypes: Archetype[] = [
-  manufacturingMESArchetype,
+  manufacturingISA95Archetype,  // ISA-95 based comprehensive archetype (recommended)
+  manufacturingMESArchetype,     // Simpler MES-focused archetype
 ];
 
 // Archetype 映射 (by ID)
 export const archetypesById: Record<string, Archetype> = {
+  'manufacturing-isa95-mom': manufacturingISA95Archetype,
   'manufacturing-mes': manufacturingMESArchetype,
 };
 
@@ -85,4 +88,4 @@ export function searchArchetypes(query: string): ArchetypeIndex[] {
 }
 
 // 导出单个 Archetype
-export { manufacturingMESArchetype };
+export { manufacturingMESArchetype, manufacturingISA95Archetype };
