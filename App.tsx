@@ -11,13 +11,17 @@ import SystemMap from './components/SystemMap';
 import Settings from './components/Settings';
 import Academy from './components/Academy';
 import QualityPanel from './components/QualityPanel';
-import { LayoutDashboard, MessageSquare, Database, Zap, Languages, Network, Settings as SettingsIcon, RotateCcw, PenTool, Sparkles, GraduationCap, ShieldCheck, X } from 'lucide-react';
+import ArchetypeBrowser from './components/ArchetypeBrowser';
+import ArchetypeViewer from './components/ArchetypeViewer';
+import { getArchetypeById } from './content/archetypes';
+import { LayoutDashboard, MessageSquare, Database, Zap, Languages, Network, Settings as SettingsIcon, RotateCcw, PenTool, Sparkles, GraduationCap, ShieldCheck, X, Package } from 'lucide-react';
 
 const translations = {
   en: {
     title: "Ontology Architect",
     subtitle: "Intelligent OS Studio",
     academy: "Learning Center",
+    archetypes: "Archetypes",
     scouting: "Requirement Scouting",
     ontology: "Logical Ontology",
     actionDesigner: "Action Designer",
@@ -30,11 +34,13 @@ const translations = {
     mapping: "Mapping Entities, Relations & Intelligence",
     newSession: "New Session",
     confirmNewSession: "Start a new session? Current conversation and design will be cleared.",
+    applyArchetype: "Apply archetype to current project? This will replace existing ontology design.",
   },
   cn: {
     title: "本体架构师",
     subtitle: "智能操作系统工作室",
     academy: "学习中心",
+    archetypes: "行业原型",
     scouting: "需求勘察",
     ontology: "逻辑本体",
     actionDesigner: "Action 设计",
@@ -47,6 +53,7 @@ const translations = {
     mapping: "映射实体、关系与智能逻辑",
     newSession: "新建会话",
     confirmNewSession: "确定要开始新会话吗？当前的对话和设计将被清除。",
+    applyArchetype: "应用此原型到当前项目？这将替换现有的 Ontology 设计。",
   }
 };
 
@@ -85,7 +92,7 @@ const loadProjectState = (): ProjectState => {
 
 const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('cn');
-  const [activeTab, setActiveTab] = useState<'academy' | 'scouting' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview'>('scouting');
+  const [activeTab, setActiveTab] = useState<'academy' | 'archetypes' | 'archetypeViewer' | 'scouting' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview'>('scouting');
   const [project, setProject] = useState<ProjectState>(loadProjectState);
   const [isDesigning, setIsDesigning] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(loadChatMessages);
@@ -95,6 +102,9 @@ const App: React.FC = () => {
   const [aiSettings, setAiSettings] = useState<AISettings>(loadAISettings);
   const [showSettings, setShowSettings] = useState(false);
   const [showQualityPanel, setShowQualityPanel] = useState(false);
+
+  // Archetype状态
+  const [selectedArchetypeId, setSelectedArchetypeId] = useState<string | null>(null);
 
   const t = translations[lang];
   const aiService = useRef(new AIService(aiSettings));
@@ -270,6 +280,51 @@ const App: React.FC = () => {
     }));
   }, []);
 
+  // Archetype handlers
+  const handleSelectArchetype = useCallback((archetypeId: string) => {
+    setSelectedArchetypeId(archetypeId);
+    setActiveTab('archetypeViewer');
+  }, []);
+
+  const handleApplyArchetype = useCallback((archetypeId: string) => {
+    if (!window.confirm(t.applyArchetype)) return;
+
+    const archetype = getArchetypeById(archetypeId);
+    if (!archetype) return;
+
+    // Convert archetype ontology to project format
+    const objects = archetype.ontology.objects.map(obj => ({
+      ...obj,
+      actions: obj.actions || [],
+      properties: obj.properties || [],
+      aiFeatures: obj.aiFeatures || [],
+    }));
+
+    const links = archetype.ontology.links.map(link => ({
+      ...link,
+    }));
+
+    // Create integrations from connectors
+    const integrations = archetype.connectors.map(connector => ({
+      systemName: connector.sourceSystem,
+      dataPoints: connector.mappedObjects.map(m => m.sourceEntity),
+      mechanism: connector.sync.frequency === 'realtime' ? 'Webhook' as const : 'API' as const,
+      targetObjectId: connector.mappedObjects[0]?.objectId || '',
+    }));
+
+    setProject(prev => ({
+      ...prev,
+      industry: archetype.metadata.industry,
+      useCase: archetype.metadata.domain,
+      objects,
+      links,
+      integrations,
+      status: 'designing'
+    }));
+
+    setActiveTab('ontology');
+  }, [t.applyArchetype]);
+
   return (
     <div className="flex h-screen bg-black overflow-hidden text-gray-300">
       {/* Sidebar */}
@@ -291,6 +346,12 @@ const App: React.FC = () => {
             onClick={() => setActiveTab('academy')}
             icon={<GraduationCap size={16} />}
             label={t.academy}
+          />
+          <NavItem
+            active={activeTab === 'archetypes' || activeTab === 'archetypeViewer'}
+            onClick={() => { setActiveTab('archetypes'); setSelectedArchetypeId(null); }}
+            icon={<Package size={16} />}
+            label={t.archetypes}
           />
 
           <div className="h-px bg-white/[0.06] my-2" />
@@ -393,6 +454,21 @@ const App: React.FC = () => {
         <div className="flex-1 overflow-y-auto">
           {activeTab === 'academy' && (
             <Academy lang={lang} />
+          )}
+          {activeTab === 'archetypes' && (
+            <ArchetypeBrowser
+              lang={lang}
+              onSelectArchetype={handleSelectArchetype}
+              onApplyArchetype={handleApplyArchetype}
+            />
+          )}
+          {activeTab === 'archetypeViewer' && selectedArchetypeId && (
+            <ArchetypeViewer
+              lang={lang}
+              archetypeId={selectedArchetypeId}
+              onBack={() => { setActiveTab('archetypes'); setSelectedArchetypeId(null); }}
+              onApply={() => handleApplyArchetype(selectedArchetypeId)}
+            />
           )}
           {activeTab === 'scouting' && (
             <ChatInterface

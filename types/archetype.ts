@@ -10,7 +10,7 @@
  * - UI Templates（界面模板）
  */
 
-import { OntologyObject, OntologyLink, AIPAction } from './types';
+import { OntologyObject, OntologyLink } from '../types';
 
 // ============= Kinetic Layer - 数据连接层 =============
 
