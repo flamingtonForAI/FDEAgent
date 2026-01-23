@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Copy of Ontology Architect - Intelligent OS Designer",
+  "description": "A universal platform for designing high-fidelity data ontologies augmented with AI capabilities. Move from static data silos to intelligent systems that reason, predict, and act.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
