@@ -59,7 +59,7 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
           {currentTheme.name}
         </span>
         <svg
-          className={`w-3 h-3 text-[var(--color-text-muted)] transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-3 h-3 text-[var(--color-text-muted)] transition-transform ${isOpen ? '' : 'rotate-180'}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -68,10 +68,13 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
         </svg>
       </button>
 
-      {/* Dropdown */}
+      {/* Dropdown - opens upward */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-64 rounded-xl glass-card shadow-lg z-50 overflow-hidden animate-slideUp">
-          <div className="p-2">
+        <div
+          className="absolute right-0 bottom-full mb-2 w-64 rounded-xl shadow-xl z-[100] overflow-hidden border border-[var(--color-border)]"
+          style={{ backgroundColor: 'var(--color-bg-elevated)' }}
+        >
+          <div className="p-2 max-h-80 overflow-y-auto">
             <div className="text-xs text-[var(--color-text-muted)] px-3 py-2 uppercase tracking-wider">
               选择主题
             </div>
@@ -88,15 +91,15 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
                 {/* Color preview */}
                 <div className="flex-shrink-0 flex gap-0.5">
                   <div
-                    className="w-3 h-3 rounded-full"
+                    className="w-3 h-3 rounded-full border border-white/20"
                     style={{ backgroundColor: theme.colors.bgBase }}
                   />
                   <div
-                    className="w-3 h-3 rounded-full"
+                    className="w-3 h-3 rounded-full border border-black/10"
                     style={{ backgroundColor: theme.colors.accent }}
                   />
                   <div
-                    className="w-3 h-3 rounded-full"
+                    className="w-3 h-3 rounded-full border border-black/10"
                     style={{ backgroundColor: theme.colors.accentSecondary }}
                   />
                 </div>
