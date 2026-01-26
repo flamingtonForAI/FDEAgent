@@ -64,12 +64,26 @@
 }
 
 /* === Base Styles === */
+html {
+  color-scheme: dark;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--color-bg-base);
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Force dark backgrounds on form elements */
+input, select, textarea {
+  color-scheme: dark;
+}
+
+select option {
+  background-color: var(--color-bg-surface);
+  color: var(--color-text-primary);
 }
 
 /* === Typography Scale === */
