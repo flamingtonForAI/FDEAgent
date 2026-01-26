@@ -9,3 +9,6 @@ export type { ButtonProps, IconButtonProps } from './Button';
 // Input Components
 export { Input, Textarea, Select, Checkbox } from './Input';
 export type { InputProps, TextareaProps, SelectProps, CheckboxProps } from './Input';
+
+// Theme Components
+export { ThemeSwitcher } from './ThemeSwitcher';

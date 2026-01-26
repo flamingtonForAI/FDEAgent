@@ -15,6 +15,8 @@ import ArchetypeBrowser from './components/ArchetypeBrowser';
 import ArchetypeViewer from './components/ArchetypeViewer';
 import { getArchetypeById } from './content/archetypes';
 import { LayoutDashboard, MessageSquare, Database, Zap, Languages, Network, Settings as SettingsIcon, RotateCcw, PenTool, Sparkles, GraduationCap, ShieldCheck, X, Package } from 'lucide-react';
+import { ThemeSwitcher } from './components/ui';
+import { Theme, loadSavedTheme, applyTheme } from './lib/themes';
 
 const translations = {
   en: {
@@ -103,8 +105,16 @@ const App: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showQualityPanel, setShowQualityPanel] = useState(false);
 
+  // Theme state
+  const [currentTheme, setCurrentTheme] = useState<Theme>(loadSavedTheme);
+
   // Archetype状态
   const [selectedArchetypeId, setSelectedArchetypeId] = useState<string | null>(null);
+
+  // Apply theme on mount
+  useEffect(() => {
+    applyTheme(currentTheme);
+  }, []);
 
   const t = translations[lang];
   const aiService = useRef(new AIService(aiSettings));
@@ -400,6 +410,15 @@ const App: React.FC = () => {
         </nav>
 
         <div className="p-3 border-t border-white/[0.06] space-y-2">
+          {/* 主题切换 */}
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs text-gray-500">{lang === 'cn' ? '主题' : 'Theme'}</span>
+            <ThemeSwitcher
+              currentTheme={currentTheme}
+              onThemeChange={setCurrentTheme}
+            />
+          </div>
+
           {/* 设置按钮 */}
           <button
             onClick={() => setShowSettings(true)}

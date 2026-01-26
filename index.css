@@ -65,7 +65,7 @@
 
 /* === Base Styles === */
 html {
-  color-scheme: dark;
+  /* color-scheme is set dynamically via JavaScript based on theme */
 }
 
 body {
@@ -74,11 +74,12 @@ body {
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Force dark backgrounds on form elements */
+/* Form elements inherit color scheme from html */
 input, select, textarea {
-  color-scheme: dark;
+  color-scheme: inherit;
 }
 
 select option {
