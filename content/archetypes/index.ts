@@ -11,6 +11,8 @@ import { manufacturingMESArchetype } from './manufacturing-mes';
 import { manufacturingISA95Archetype } from './manufacturing-isa95';
 import { retailOmnichannelArchetype } from './retail-omnichannel';
 import { healthcareFHIRArchetype } from './healthcare-fhir';
+import { aquacultureFarmingArchetype } from './aquaculture-farming';
+import { aviationMROArchetype } from './aviation-mro';
 
 // 所有 Archetypes
 export const allArchetypes: Archetype[] = [
@@ -18,6 +20,8 @@ export const allArchetypes: Archetype[] = [
   manufacturingMESArchetype,     // Simpler MES-focused archetype
   retailOmnichannelArchetype,    // Retail omnichannel operations
   healthcareFHIRArchetype,       // Healthcare clinical operations (FHIR)
+  aquacultureFarmingArchetype,   // Smart aquaculture & livestock farming
+  aviationMROArchetype,          // Aviation MRO operations
 ];
 
 // Archetype 映射 (by ID)
@@ -26,6 +30,8 @@ export const archetypesById: Record<string, Archetype> = {
   'manufacturing-mes': manufacturingMESArchetype,
   'retail-omnichannel': retailOmnichannelArchetype,
   'healthcare-fhir-clinical': healthcareFHIRArchetype,
+  'aquaculture-smart-farming': aquacultureFarmingArchetype,
+  'aviation-mro-operations': aviationMROArchetype,
 };
 
 // 获取 Archetype 索引列表
@@ -98,5 +104,7 @@ export {
   manufacturingMESArchetype,
   manufacturingISA95Archetype,
   retailOmnichannelArchetype,
-  healthcareFHIRArchetype
+  healthcareFHIRArchetype,
+  aquacultureFarmingArchetype,
+  aviationMROArchetype
 };
