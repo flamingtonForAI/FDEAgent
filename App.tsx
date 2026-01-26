@@ -341,13 +341,13 @@ const App: React.FC = () => {
   return (
     <div className="flex h-screen overflow-hidden text-secondary" style={{ backgroundColor: 'var(--color-bg-base)' }}>
       {/* Sidebar */}
-      <aside className="w-64 glass-surface flex flex-col">
-        <div className="p-5 border-b border-white/[0.06]">
+      <aside className="w-64 glass-surface flex flex-col" style={{ borderRight: '1px solid var(--color-border)' }}>
+        <div className="p-5" style={{ borderBottom: '1px solid var(--color-border)' }}>
           <div className="flex items-center gap-2.5 mb-1">
-            <div className="w-7 h-7 btn-gradient rounded-lg flex items-center justify-center font-bold text-white text-xs">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-bg-base)' }}>
               <Sparkles size={14} />
             </div>
-            <h1 className="text-white font-medium tracking-tight text-sm">{t.title}</h1>
+            <h1 className="font-medium tracking-tight text-sm" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h1>
           </div>
           <p className="text-[10px] text-muted font-mono tracking-wide">{t.subtitle}</p>
         </div>
@@ -418,7 +418,7 @@ const App: React.FC = () => {
           />
         </nav>
 
-        <div className="p-3 border-t border-white/[0.06] space-y-2">
+        <div className="p-3 space-y-2" style={{ borderTop: '1px solid var(--color-border)' }}>
           {/* 主题切换 */}
           <div className="flex items-center justify-between px-1">
             <span className="text-xs text-muted">{lang === 'cn' ? '主题' : 'Theme'}</span>

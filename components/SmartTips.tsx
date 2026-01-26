@@ -289,24 +289,39 @@ const SmartTips: React.FC<SmartTipsProps> = ({
     switch (type) {
       case 'methodology':
         return {
-          bg: 'bg-purple-500/10',
-          border: 'border-purple-500/20',
-          text: 'text-purple-400',
-          badge: 'bg-purple-500/20 text-purple-300'
+          bg: '', // Use inline style instead
+          border: '',
+          text: '',
+          badge: '',
+          style: {
+            bg: 'var(--color-bg-surface)',
+            border: 'var(--color-border)',
+            accent: 'var(--color-accent-secondary)'
+          }
         };
       case 'case':
         return {
-          bg: 'bg-amber-500/10',
-          border: 'border-amber-500/20',
-          text: 'text-amber-400',
-          badge: 'bg-amber-500/20 text-amber-300'
+          bg: '',
+          border: '',
+          text: '',
+          badge: '',
+          style: {
+            bg: 'var(--color-bg-surface)',
+            border: 'var(--color-border)',
+            accent: 'var(--color-accent)'
+          }
         };
       case 'check':
         return {
-          bg: 'bg-amber-500/10',
-          border: 'border-amber-500/20',
-          text: 'text-amber-400',
-          badge: 'bg-amber-500/20 text-amber-300'
+          bg: '',
+          border: '',
+          text: '',
+          badge: '',
+          style: {
+            bg: 'var(--color-bg-surface)',
+            border: 'var(--color-border)',
+            accent: 'var(--color-warning)'
+          }
         };
     }
   };
@@ -331,7 +346,7 @@ const SmartTips: React.FC<SmartTipsProps> = ({
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex items-center gap-2 text-xs text-muted hover:text-muted transition-colors mb-2"
       >
-        <Lightbulb size={12} className="text-amber-400" />
+        <Lightbulb size={12} style={{ color: 'var(--color-accent)' }} />
         <span>{t.smartTips}</span>
         <span className="text-micro text-muted">({activeTips.length})</span>
         <ChevronRight
@@ -348,20 +363,30 @@ const SmartTips: React.FC<SmartTipsProps> = ({
             return (
               <div
                 key={tip.id}
-                className={`group relative flex items-start gap-3 p-3 rounded-xl ${styles.bg} border ${styles.border} transition-all hover:border-opacity-40`}
+                className="group relative flex items-start gap-3 p-3 rounded-xl border transition-all"
+                style={{
+                  backgroundColor: styles.style?.bg,
+                  borderColor: styles.style?.border
+                }}
               >
                 {/* Icon */}
-                <div className={`flex-shrink-0 w-7 h-7 rounded-lg ${styles.badge} flex items-center justify-center`}>
+                <div
+                  className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center"
+                  style={{ color: styles.style?.accent }}
+                >
                   {tip.icon}
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className={`text-micro px-1.5 py-0.5 rounded ${styles.badge}`}>
+                    <span
+                      className="text-micro px-1.5 py-0.5 rounded"
+                      style={{ color: styles.style?.accent }}
+                    >
                       {getTypeLabel(tip.type)}
                     </span>
-                    <h4 className={`text-xs font-medium ${styles.text}`}>
+                    <h4 className="text-xs font-medium" style={{ color: 'var(--color-text-primary)' }}>
                       {tip.title[lang]}
                     </h4>
                   </div>

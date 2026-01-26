@@ -527,7 +527,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     <div className="flex h-full bg-[var(--color-bg-elevated)]">
       {/* Main Chat Area */}
       <div className={`flex flex-col flex-1 transition-all duration-300 ${showExtractPanel || showCasePanel ? 'mr-80' : ''}`}>
-        <div className="px-6 py-4 border-b border-white/[0.06] flex justify-between items-center">
+        <div className="px-6 py-4 flex justify-between items-center" style={{ borderBottom: '1px solid var(--color-border)' }}>
           <div className="flex items-center gap-2">
             <Terminal size={14} className="text-amber-400" />
             <span className="text-xs text-muted">{t.terminal}</span>
@@ -651,7 +651,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         )}
       </div>
 
-      <div className="p-6 border-t border-white/[0.06]">
+      <div className="p-6" style={{ borderTop: '1px solid var(--color-border)' }}>
         {/* API Key 未配置提示 */}
         {!hasApiKey && (
           <div className="max-w-3xl mx-auto mb-4">

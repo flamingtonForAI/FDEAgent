@@ -77,6 +77,33 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* === Light Theme Overrides === */
+/* Override hardcoded white/dark colors for light color-scheme */
+html[style*="color-scheme: light"] .border-white\/\[0\.06\],
+html[style*="color-scheme: light"] .border-white\/\[0\.08\],
+html[style*="color-scheme: light"] .border-white\/\[0\.1\],
+html[style*="color-scheme: light"] .border-white\/10,
+html[style*="color-scheme: light"] .border-white\/20 {
+  border-color: var(--color-border) !important;
+}
+
+html[style*="color-scheme: light"] .bg-white\/\[0\.02\],
+html[style*="color-scheme: light"] .bg-white\/\[0\.04\],
+html[style*="color-scheme: light"] .bg-white\/5,
+html[style*="color-scheme: light"] .bg-white\/10 {
+  background-color: var(--color-bg-surface) !important;
+}
+
+html[style*="color-scheme: light"] .text-white {
+  color: var(--color-text-primary) !important;
+}
+
+html[style*="color-scheme: light"] .hover\:bg-white\/\[0\.04\]:hover,
+html[style*="color-scheme: light"] .hover\:bg-white\/5:hover,
+html[style*="color-scheme: light"] .hover\:bg-white\/10:hover {
+  background-color: var(--color-bg-hover) !important;
+}
+
 /* Form elements inherit color scheme from html */
 input, select, textarea {
   color-scheme: inherit;
@@ -175,12 +202,9 @@ select option {
 }
 
 /* === Utility Classes === */
+/* Glass surface uses bg-surface for theme compatibility */
 .glass-surface {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.03) 0%,
-    rgba(255, 255, 255, 0.01) 100%
-  );
+  background-color: var(--color-bg-surface);
   border: 1px solid var(--color-border);
 }
 
@@ -191,16 +215,13 @@ select option {
 /* Enhanced focus state for inputs */
 .glass-surface:focus-within {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(212, 166, 86, 0.15);
+  box-shadow: 0 0 0 3px var(--color-border-accent);
   outline: none;
 }
 
+/* Glass card uses bg-elevated for theme compatibility */
 .glass-card {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.04) 0%,
-    rgba(255, 255, 255, 0.01) 100%
-  );
+  background-color: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
   transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }

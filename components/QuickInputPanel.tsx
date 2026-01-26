@@ -260,31 +260,46 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
 
   return (
     <>
-      {/* Quick Add Buttons */}
+      {/* Quick Add Buttons - Simplified color scheme */}
       <div className="flex items-center gap-2 mb-3">
         <span className="text-xs text-muted">{t.quickAdd}:</span>
         <button
           onClick={() => setActiveModal('object')}
           disabled={disabled}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium hover:bg-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:opacity-80"
+          style={{
+            backgroundColor: 'var(--color-bg-surface)',
+            borderColor: 'var(--color-border-hover)',
+            color: 'var(--color-text-primary)'
+          }}
         >
-          <Box size={12} />
+          <Box size={12} style={{ color: 'var(--color-accent)' }} />
           {t.addObject}
         </button>
         <button
           onClick={() => setActiveModal('action')}
           disabled={disabled}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium hover:bg-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:opacity-80"
+          style={{
+            backgroundColor: 'var(--color-bg-surface)',
+            borderColor: 'var(--color-border-hover)',
+            color: 'var(--color-text-primary)'
+          }}
         >
-          <Zap size={12} />
+          <Zap size={12} style={{ color: 'var(--color-success)' }} />
           {t.addAction}
         </button>
         <button
           onClick={() => setActiveModal('integration')}
           disabled={disabled}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-medium hover:bg-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:opacity-80"
+          style={{
+            backgroundColor: 'var(--color-bg-surface)',
+            borderColor: 'var(--color-border-hover)',
+            color: 'var(--color-text-primary)'
+          }}
         >
-          <Database size={12} />
+          <Database size={12} style={{ color: 'var(--color-accent-secondary)' }} />
           {t.addIntegration}
         </button>
       </div>
