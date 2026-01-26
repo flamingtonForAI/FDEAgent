@@ -605,26 +605,24 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               </button>
             )}
 
-            {/* Synthesize Button */}
-            {messages.length > 2 && (
-              <button
-                onClick={handleValidateAndDesign}
-                disabled={isValidating}
-                className="flex items-center gap-2 btn-gradient px-5 py-2 rounded-lg text-xs font-medium disabled:opacity-70 transition-all"
-              >
-                {isValidating ? (
-                  <>
-                    <Loader2 size={14} className="animate-spin" />
-                    {t.validating}
-                  </>
-                ) : (
-                  <>
-                    <Sparkles size={14} />
-                    {t.generate}
-                  </>
-                )}
-              </button>
-            )}
+            {/* Synthesize Button - 始终显示，通过准备度检查判断 */}
+            <button
+              onClick={handleValidateAndDesign}
+              disabled={isValidating}
+              className="flex items-center gap-2 btn-gradient px-5 py-2 rounded-lg text-xs font-medium disabled:opacity-70 transition-all"
+            >
+              {isValidating ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" />
+                  {t.validating}
+                </>
+              ) : (
+                <>
+                  <Sparkles size={14} />
+                  {t.generate}
+                </>
+              )}
+            </button>
           </div>
         </div>
 
