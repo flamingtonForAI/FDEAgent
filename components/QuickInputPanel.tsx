@@ -262,7 +262,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
     <>
       {/* Quick Add Buttons */}
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-xs text-gray-600">{t.quickAdd}:</span>
+        <span className="text-xs text-gray-500">{t.quickAdd}:</span>
         <button
           onClick={() => setActiveModal('object')}
           disabled={disabled}

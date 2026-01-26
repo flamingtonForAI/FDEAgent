@@ -218,7 +218,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
             <div className="flex items-center gap-6">
               <div className="text-center">
                 <div className="text-3xl font-bold text-white">{report.score}</div>
-                <div className="text-[10px] text-gray-500">{t.score}</div>
+                <div className="text-micro text-gray-500">{t.score}</div>
               </div>
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold ${gradeColors[report.grade]}`}>
                 {report.grade}
@@ -229,15 +229,15 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
             <div className="flex items-center gap-4">
               <div className="text-center">
                 <div className="text-lg font-medium text-white">{report.totalChecks}</div>
-                <div className="text-[10px] text-gray-500">{t.checks}</div>
+                <div className="text-micro text-gray-500">{t.checks}</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-medium text-emerald-400">{report.passed}</div>
-                <div className="text-[10px] text-gray-500">{t.passed}</div>
+                <div className="text-micro text-gray-500">{t.passed}</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-medium text-amber-400">{report.issues.length}</div>
-                <div className="text-[10px] text-gray-500">{t.issues}</div>
+                <div className="text-micro text-gray-500">{t.issues}</div>
               </div>
             </div>
 
@@ -304,7 +304,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
                         return (
                           <span
                             key={sev}
-                            className={`px-1.5 py-0.5 rounded text-[10px] ${severityConfig[sev as Severity].bg} ${severityConfig[sev as Severity].color}`}
+                            className={`px-1.5 py-0.5 rounded text-micro ${severityConfig[sev as Severity].bg} ${severityConfig[sev as Severity].color}`}
                           >
                             {count}
                           </span>

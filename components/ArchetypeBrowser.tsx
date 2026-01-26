@@ -167,7 +167,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
           {archetype.tags.slice(0, 4).map(tag => (
             <span
               key={tag}
-              className={`text-[10px] px-2 py-0.5 rounded-full ${
+              className={`text-micro px-2 py-0.5 rounded-full ${
                 tag === 'ai-enabled' ? 'bg-purple-500/20 text-purple-400' :
                 tag === 'erp-integration' ? 'bg-blue-500/20 text-blue-400' :
                 tag === 'iot-enabled' ? 'bg-emerald-500/20 text-emerald-400' :
@@ -282,7 +282,7 @@ const StatBadge: React.FC<{ icon: React.ReactNode; value: number; label: string 
       {icon}
       <span className="text-sm font-medium text-white">{value}</span>
     </div>
-    <span className="text-[9px] text-gray-600 uppercase tracking-wide">{label}</span>
+    <span className="text-micro text-gray-500 uppercase tracking-wide">{label}</span>
   </div>
 );
 

@@ -276,9 +276,9 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                       {obj.properties?.slice(0, 8).map(prop => (
                         <div key={prop.name} className="glass-surface rounded-lg px-3 py-2 text-xs">
                           <span className="text-cyan-400 font-mono">{prop.name}</span>
-                          <span className="text-gray-600 ml-2">{prop.type}</span>
+                          <span className="text-gray-500 ml-2">{prop.type}</span>
                           {prop.isAIDerived && (
-                            <span className="ml-2 text-[9px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400">AI</span>
+                            <span className="ml-2 text-micro px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400">AI</span>
                           )}
                         </div>
                       ))}
@@ -296,7 +296,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                               <Zap size={12} className={action.type === 'generative' ? 'text-purple-400' : 'text-cyan-400'} />
                               <span className="text-sm text-white">{action.name}</span>
                               {action.type === 'generative' && (
-                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400">AI</span>
+                                <span className="text-micro px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400">AI</span>
                               )}
                             </div>
                             <p className="text-xs text-gray-500 mt-1">{action.description}</p>
@@ -381,9 +381,9 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                         {mappedObjects.length > 0 && mappedObjects.map((mapping: any, idx: number) => (
                           <div key={idx} className="glass-surface rounded px-2 py-1.5 text-xs">
                             <span className="text-gray-400">{mapping.sourceEntity}</span>
-                            <span className="text-gray-600 mx-2">→</span>
+                            <span className="text-gray-500 mx-2">→</span>
                             <span className="text-cyan-400">{mapping.objectId}</span>
-                            <span className="text-gray-600 ml-2">({mapping.fieldMappings?.length || 0} fields)</span>
+                            <span className="text-gray-500 ml-2">({mapping.fieldMappings?.length || 0} fields)</span>
                           </div>
                         ))}
                         {/* New structure: targetObjects + fieldMapping */}
@@ -396,16 +396,16 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                             </div>
                             {fieldMapping.length > 0 && (
                               <div className="space-y-1 mt-2">
-                                <h5 className="text-xs text-gray-600">Field Mappings:</h5>
+                                <h5 className="text-xs text-gray-500">Field Mappings:</h5>
                                 {fieldMapping.slice(0, 5).map((fm: any, idx: number) => (
                                   <div key={idx} className="glass-surface rounded px-2 py-1.5 text-xs">
                                     <span className="text-gray-400 font-mono">{fm.source}</span>
-                                    <span className="text-gray-600 mx-2">→</span>
+                                    <span className="text-gray-500 mx-2">→</span>
                                     <span className="text-cyan-400 font-mono">{fm.target}</span>
                                   </div>
                                 ))}
                                 {fieldMapping.length > 5 && (
-                                  <p className="text-xs text-gray-600">...and {fieldMapping.length - 5} more</p>
+                                  <p className="text-xs text-gray-500">...and {fieldMapping.length - 5} more</p>
                                 )}
                               </div>
                             )}
@@ -455,11 +455,11 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                     <div className="space-y-1">
                       {workflow.steps.map((step: any, idx: number) => (
                         <div key={step.id || idx} className="flex items-center gap-2 text-xs">
-                          <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px]">
+                          <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-micro">
                             {step.order || idx + 1}
                           </span>
                           <span className="text-white">{step.name}</span>
-                          <span className="text-gray-600">({step.type || step.action || 'action'})</span>
+                          <span className="text-gray-500">({step.type || step.action || 'action'})</span>
                         </div>
                       ))}
                     </div>
@@ -497,11 +497,11 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                         <div className="flex items-center gap-2 mb-2">
                           <AlertTriangle size={14} className="text-amber-400" />
                           <span className="text-sm text-white">{rule.name}</span>
-                          <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-400">{ruleType}</span>
+                          <span className="text-micro px-2 py-0.5 rounded bg-amber-500/20 text-amber-400">{ruleType}</span>
                         </div>
                         <p className="text-xs text-gray-400">{ruleDescription}</p>
                         {ruleExpression && (
-                          <code className="block mt-2 text-[10px] text-cyan-400 font-mono bg-black/30 rounded px-2 py-1">
+                          <code className="block mt-2 text-micro text-cyan-400 font-mono bg-black/30 rounded px-2 py-1">
                             {ruleExpression}
                           </code>
                         )}
@@ -567,7 +567,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                       <span className="text-xs text-gray-500">Input Objects:</span>
                       <div className="flex flex-wrap gap-1 mt-1">
                         {inputObjects.map((obj: string) => (
-                          <span key={obj} className="text-[10px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-400">{obj}</span>
+                          <span key={obj} className="text-micro px-2 py-0.5 rounded bg-blue-500/20 text-blue-400">{obj}</span>
                         ))}
                       </div>
                     </div>
@@ -579,7 +579,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                       <span className="text-xs text-gray-500">Output Properties:</span>
                       <div className="flex flex-wrap gap-1 mt-1">
                         {outputProperties.map((prop: string) => (
-                          <span key={prop} className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono">{prop}</span>
+                          <span key={prop} className="text-micro px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono">{prop}</span>
                         ))}
                       </div>
                     </div>
@@ -589,7 +589,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                   {enabledActions.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {enabledActions.map((action: string) => (
-                        <span key={action} className="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400">{action}</span>
+                        <span key={action} className="text-micro px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400">{action}</span>
                       ))}
                     </div>
                   )}
@@ -650,7 +650,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                       <div key={view.id} className="glass-surface rounded-lg p-4">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-sm text-white">{view.name}</span>
-                          <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">{view.type}</span>
+                          <span className="text-micro px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">{view.type}</span>
                         </div>
                         <p className="text-xs text-gray-500">{view.fields?.length || 0} fields · {view.objectId}</p>
                       </div>
@@ -778,7 +778,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                           <div key={env.name} className="glass-surface rounded-lg px-3 py-2 text-xs">
                             <div className="flex items-center gap-2">
                               <code className="text-cyan-400 font-mono">{env.name}</code>
-                              {env.required && <span className="text-[9px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400">required</span>}
+                              {env.required && <span className="text-micro px-1.5 py-0.5 rounded bg-red-500/20 text-red-400">required</span>}
                             </div>
                             <p className="text-gray-500 mt-1">{env.description}</p>
                           </div>
@@ -800,7 +800,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                             <span className="text-white font-medium">{role.role}</span>
                             <div className="flex flex-wrap gap-1 mt-1">
                               {role.permissions?.map((perm: string, idx: number) => (
-                                <span key={idx} className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400">{perm}</span>
+                                <span key={idx} className="text-micro px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400">{perm}</span>
                               ))}
                             </div>
                           </div>
@@ -823,7 +823,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                             <div className="flex items-center gap-3 text-gray-500">
                               <span>{point.direction}</span>
                               <span>{point.frequency}</span>
-                              {point.dataVolume && <span className="text-gray-600">{point.dataVolume}</span>}
+                              {point.dataVolume && <span className="text-gray-500">{point.dataVolume}</span>}
                             </div>
                           </div>
                         ))}
@@ -869,7 +869,7 @@ const StatCard: React.FC<{ label: string; value: string; icon: React.ReactNode }
 const MiniStatCard: React.FC<{ label: string; value: number; color: string }> = ({ label, value, color }) => (
   <div className="glass-surface rounded-lg p-3 text-center">
     <span className={`text-2xl font-bold text-${color}-400`}>{value}</span>
-    <p className="text-[10px] text-gray-500 uppercase mt-1">{label}</p>
+    <p className="text-micro text-gray-500 uppercase mt-1">{label}</p>
   </div>
 );
 

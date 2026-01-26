@@ -130,7 +130,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
         {/* 业务层 */}
         {hasBusinessLayer && (
           <div className="p-3 layer-business border rounded-lg">
-            <div className="flex items-center gap-2 text-blue-400 text-[10px] font-medium mb-2">
+            <div className="flex items-center gap-2 text-blue-400 text-micro font-medium mb-2">
               <Briefcase size={11} />
               {t.businessLayer}
             </div>
@@ -140,10 +140,10 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
               )}
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-gray-400">
                 {action.businessLayer!.targetObject && (
-                  <span><span className="text-gray-600">{t.targetObject}:</span> {action.businessLayer!.targetObject}</span>
+                  <span><span className="text-gray-500">{t.targetObject}:</span> {action.businessLayer!.targetObject}</span>
                 )}
                 {action.businessLayer!.executorRole && (
-                  <span><span className="text-gray-600">{t.executor}:</span> {action.businessLayer!.executorRole}</span>
+                  <span><span className="text-gray-500">{t.executor}:</span> {action.businessLayer!.executorRole}</span>
                 )}
               </div>
             </div>
@@ -153,29 +153,29 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
         {/* 逻辑层 */}
         {hasLogicLayer && (
           <div className="p-3 layer-logic border rounded-lg">
-            <div className="flex items-center gap-2 text-emerald-400 text-[10px] font-medium mb-2">
+            <div className="flex items-center gap-2 text-emerald-400 text-micro font-medium mb-2">
               <GitBranch size={11} />
               {t.logicLayer}
             </div>
             <div className="space-y-2 text-xs">
               {action.logicLayer!.preconditions?.length > 0 && (
                 <div>
-                  <span className="text-gray-500 text-[10px]">{t.preconditions}:</span>
+                  <span className="text-gray-500 text-micro">{t.preconditions}:</span>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {action.logicLayer!.preconditions.map((pre, i) => (
-                      <span key={i} className="px-2 py-0.5 bg-emerald-500/10 text-emerald-300 rounded text-[10px]">{pre}</span>
+                      <span key={i} className="px-2 py-0.5 bg-emerald-500/10 text-emerald-300 rounded text-micro">{pre}</span>
                     ))}
                   </div>
                 </div>
               )}
               {action.logicLayer!.parameters?.length > 0 && (
                 <div>
-                  <span className="text-gray-500 text-[10px]">{t.parameters}:</span>
+                  <span className="text-gray-500 text-micro">{t.parameters}:</span>
                   <div className="mt-1 space-y-1">
                     {action.logicLayer!.parameters.map((param, i) => (
-                      <div key={i} className="flex items-center gap-2 text-[10px]">
+                      <div key={i} className="flex items-center gap-2 text-micro">
                         <span className="text-gray-300 font-mono">{param.name}</span>
-                        <span className="text-gray-600">({param.type})</span>
+                        <span className="text-gray-500">({param.type})</span>
                       </div>
                     ))}
                   </div>
@@ -183,10 +183,10 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
               )}
               {action.logicLayer!.postconditions?.length > 0 && (
                 <div>
-                  <span className="text-gray-500 text-[10px]">{t.postconditions}:</span>
+                  <span className="text-gray-500 text-micro">{t.postconditions}:</span>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {action.logicLayer!.postconditions.map((post, i) => (
-                      <span key={i} className="px-2 py-0.5 bg-amber-500/10 text-amber-300 rounded text-[10px]">{post}</span>
+                      <span key={i} className="px-2 py-0.5 bg-amber-500/10 text-amber-300 rounded text-micro">{post}</span>
                     ))}
                   </div>
                 </div>
@@ -198,18 +198,18 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
         {/* 实现层 */}
         {hasImplementationLayer && (
           <div className="p-3 layer-impl border rounded-lg">
-            <div className="flex items-center gap-2 text-purple-400 text-[10px] font-medium mb-2">
+            <div className="flex items-center gap-2 text-purple-400 text-micro font-medium mb-2">
               <Code size={11} />
               {t.implementationLayer}
             </div>
             <div className="space-y-1 text-xs">
               {action.implementationLayer!.apiEndpoint && (
-                <code className="block px-2 py-1 bg-black/30 text-purple-300 rounded font-mono text-[10px]">
+                <code className="block px-2 py-1 bg-black/30 text-purple-300 rounded font-mono text-micro">
                   {action.implementationLayer!.apiMethod || 'POST'} {action.implementationLayer!.apiEndpoint}
                 </code>
               )}
               {action.implementationLayer!.agentToolSpec && (
-                <code className="block text-purple-300 font-mono text-[10px]">
+                <code className="block text-purple-300 font-mono text-micro">
                   {action.implementationLayer!.agentToolSpec.name}()
                 </code>
               )}
@@ -220,11 +220,11 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
         {/* 治理 */}
         {hasGovernance && (
           <div className="p-3 layer-gov border rounded-lg">
-            <div className="flex items-center gap-2 text-orange-400 text-[10px] font-medium mb-2">
+            <div className="flex items-center gap-2 text-orange-400 text-micro font-medium mb-2">
               <Shield size={11} />
               {t.governance}
             </div>
-            <div className="flex flex-wrap gap-3 text-[10px] text-gray-400">
+            <div className="flex flex-wrap gap-3 text-micro text-gray-400">
               {action.governance!.permissionTier && (
                 <span>Tier {action.governance!.permissionTier}</span>
               )}
@@ -271,33 +271,33 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
             {showLegend && (
               <div className="absolute right-0 top-full mt-2 p-4 glass-card rounded-xl z-10 w-80 animate-fadeIn">
                 <div className="space-y-3">
-                  <div className="text-[10px] text-gray-500 mb-2">{t.legendTip}</div>
+                  <div className="text-micro text-gray-500 mb-2">{t.legendTip}</div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded bg-blue-500/60"></span>
-                      <span className="text-[10px] text-gray-400">{t.businessLayer}</span>
+                      <span className="text-micro text-gray-400">{t.businessLayer}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded bg-emerald-500/60"></span>
-                      <span className="text-[10px] text-gray-400">{t.logicLayer}</span>
+                      <span className="text-micro text-gray-400">{t.logicLayer}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded bg-purple-500/60"></span>
-                      <span className="text-[10px] text-gray-400">{t.implementationLayer}</span>
+                      <span className="text-micro text-gray-400">{t.implementationLayer}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded bg-orange-500/60"></span>
-                      <span className="text-[10px] text-gray-400">{t.governance}</span>
+                      <span className="text-micro text-gray-400">{t.governance}</span>
                     </div>
                   </div>
                   <div className="pt-2 border-t border-white/[0.06] flex items-center gap-3">
                     <div className="flex items-center gap-1.5">
                       <Zap size={10} className="text-cyan-400" />
-                      <span className="text-[10px] text-gray-400">{t.aiAction}</span>
+                      <span className="text-micro text-gray-400">{t.aiAction}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Sparkles size={10} className="text-amber-400" />
-                      <span className="text-[10px] text-gray-400">{t.aiProp}</span>
+                      <span className="text-micro text-gray-400">{t.aiProp}</span>
                     </div>
                   </div>
                 </div>
@@ -319,11 +319,11 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
                 </div>
                 <div>
                   <h3 className="text-white font-medium">{obj.name}</h3>
-                  <p className="text-[10px] text-gray-600 font-mono">{obj.id}</p>
+                  <p className="text-micro text-gray-500 font-mono">{obj.id}</p>
                 </div>
               </div>
               {obj.aiFeatures.length > 0 && (
-                <span className="px-2 py-0.5 text-[9px] text-amber-400 bg-amber-500/10 rounded">
+                <span className="px-2 py-0.5 text-micro text-amber-400 bg-amber-500/10 rounded">
                   AI
                 </span>
               )}
@@ -338,12 +338,12 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
 
             {/* Attributes */}
             <div className="mb-4">
-              <span className="text-[10px] text-gray-600 block mb-2">{t.attributes}</span>
+              <span className="text-micro text-gray-500 block mb-2">{t.attributes}</span>
               <div className="flex flex-wrap gap-1.5">
                 {obj.properties.slice(0, 6).map((prop, idx) => (
                   <span
                     key={idx}
-                    className={`px-2 py-1 rounded text-[10px] ${
+                    className={`px-2 py-1 rounded text-micro ${
                       prop.isAIDerived
                         ? 'bg-amber-500/10 text-amber-400'
                         : 'bg-white/[0.04] text-gray-400'
@@ -353,7 +353,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
                   </span>
                 ))}
                 {obj.properties.length > 6 && (
-                  <span className="px-2 py-1 text-[10px] text-gray-600">
+                  <span className="px-2 py-1 text-micro text-gray-500">
                     +{obj.properties.length - 6}
                   </span>
                 )}
@@ -362,7 +362,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
 
             {/* Actions */}
             <div>
-              <span className="text-[10px] text-gray-600 block mb-2">{t.actions}</span>
+              <span className="text-micro text-gray-500 block mb-2">{t.actions}</span>
               <div className="space-y-1.5">
                 {obj.actions.map((action, idx) => {
                   const actionKey = `${obj.id}-${idx}`;
@@ -381,7 +381,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
                           {action.type === 'generative' ? (
                             <Zap size={12} className="text-cyan-400" />
                           ) : (
-                            <ChevronRight size={12} className="text-gray-600" />
+                            <ChevronRight size={12} className="text-gray-500" />
                           )}
                           <span className={action.type === 'generative' ? 'text-cyan-300' : 'text-gray-300'}>
                             {action.name}
@@ -390,7 +390,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
                         {hasDetails && (
                           <ChevronDown
                             size={14}
-                            className={`text-gray-600 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                            className={`text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                           />
                         )}
                       </div>
@@ -422,11 +422,11 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02] border border-white/[0.04]"
               >
                 <span className="text-xs text-cyan-400">{link.source}</span>
-                <span className="text-[10px] text-gray-600 px-2">
+                <span className="text-micro text-gray-500 px-2">
                   {link.isSemantic ? '—•—' : '———'}
                 </span>
-                <span className="text-[10px] text-gray-500">{link.label}</span>
-                <span className="text-[10px] text-gray-600 px-2">→</span>
+                <span className="text-micro text-gray-500">{link.label}</span>
+                <span className="text-micro text-gray-500 px-2">→</span>
                 <span className="text-xs text-cyan-400">{link.target}</span>
               </div>
             ))}

@@ -389,7 +389,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                                 <code className="text-sm text-cyan-300 font-mono">
                                   {getToolName(tool)}
                                 </code>
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-500/20 text-gray-400">
+                                <span className="text-micro px-1.5 py-0.5 rounded bg-gray-500/20 text-gray-400">
                                   {getParamCount(tool)} params
                                 </span>
                               </div>

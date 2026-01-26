@@ -169,7 +169,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
         <div className={`p-2 rounded-lg ${industryColors[caseItem.industry]}`}>
           {industryIcons[caseItem.industry]}
         </div>
-        <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${difficultyColors[caseItem.difficulty]}`}>
+        <span className={`px-2 py-0.5 rounded text-micro font-medium ${difficultyColors[caseItem.difficulty]}`}>
           {difficultyConfig[caseItem.difficulty].label[lang]}
         </span>
       </div>
@@ -181,7 +181,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
         {caseItem.description[lang]}
       </p>
 
-      <div className="flex items-center gap-3 text-[10px] text-gray-500">
+      <div className="flex items-center gap-3 text-micro text-gray-500">
         <span className="flex items-center gap-1">
           <Box size={10} />
           {caseItem.objectCount} {t.objects}
@@ -196,7 +196,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
         {caseItem.tags.slice(0, 3).map(tag => (
           <span
             key={tag}
-            className="px-1.5 py-0.5 rounded text-[9px] bg-white/[0.05] text-gray-400"
+            className="px-1.5 py-0.5 rounded text-micro bg-white/[0.05] text-gray-400"
           >
             {tagConfig[tag].label[lang]}
           </span>
@@ -293,7 +293,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
                       <Users size={12} className="text-purple-400" />
                       <div>
                         <span className="text-xs text-white">{s.role}</span>
-                        <p className="text-[10px] text-gray-500">{s.description[lang]}</p>
+                        <p className="text-micro text-gray-500">{s.description[lang]}</p>
                       </div>
                     </div>
                   ))}
@@ -314,19 +314,19 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
                 <div className="text-2xl font-bold text-cyan-400">
                   {selectedCase.ontology.objects.length}
                 </div>
-                <div className="text-[10px] text-gray-500">{t.objects}</div>
+                <div className="text-micro text-gray-500">{t.objects}</div>
               </div>
               <div className="glass-card rounded-lg p-3 text-center">
                 <div className="text-2xl font-bold text-emerald-400">
                   {selectedCase.ontology.objects.reduce((sum, o) => sum + (o.actions?.length || 0), 0)}
                 </div>
-                <div className="text-[10px] text-gray-500">{t.actions}</div>
+                <div className="text-micro text-gray-500">{t.actions}</div>
               </div>
               <div className="glass-card rounded-lg p-3 text-center">
                 <div className="text-2xl font-bold text-purple-400">
                   {selectedCase.ontology.links.length}
                 </div>
-                <div className="text-[10px] text-gray-500">{t.links}</div>
+                <div className="text-micro text-gray-500">{t.links}</div>
               </div>
             </div>
 
@@ -413,7 +413,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
                       </span>
                       <span className="text-sm text-white">{rc.title[lang]}</span>
                     </div>
-                    <p className="text-[10px] text-gray-500 line-clamp-1">{rc.description[lang]}</p>
+                    <p className="text-micro text-gray-500 line-clamp-1">{rc.description[lang]}</p>
                   </div>
                 ))}
               </div>
@@ -575,12 +575,12 @@ const ObjectCard: React.FC<{
           <span className="text-sm font-medium text-white">
             {lang === 'cn' && object.nameCn ? object.nameCn : object.name}
           </span>
-          <span className="text-[10px] text-gray-500">
+          <span className="text-micro text-gray-500">
             ({object.properties?.length || 0} props)
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400">
+          <span className="px-1.5 py-0.5 rounded text-micro bg-emerald-500/20 text-emerald-400">
             {object.actions?.length || 0} actions
           </span>
         </div>
@@ -602,12 +602,12 @@ const ObjectCard: React.FC<{
                     {lang === 'cn' && action.nameCn ? action.nameCn : action.name}
                   </span>
                   {action.aiCapability && (
-                    <span className="px-1 py-0.5 rounded text-[9px] bg-purple-500/20 text-purple-400">
+                    <span className="px-1 py-0.5 rounded text-micro bg-purple-500/20 text-purple-400">
                       AI: {action.aiCapability}
                     </span>
                   )}
                   {action.governance?.permissionTier && (
-                    <span className="px-1 py-0.5 rounded text-[9px] bg-orange-500/20 text-orange-400">
+                    <span className="px-1 py-0.5 rounded text-micro bg-orange-500/20 text-orange-400">
                       Tier {action.governance.permissionTier}
                     </span>
                   )}

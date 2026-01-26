@@ -132,7 +132,7 @@ const NounVerbPanel: React.FC<NounVerbPanelProps> = ({
                             <span className="text-sm font-medium text-white truncate">
                               {noun.name}
                             </span>
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${getConfidenceBg(noun.confidence)} ${getConfidenceColor(noun.confidence)}`}>
+                            <span className={`text-micro px-1.5 py-0.5 rounded ${getConfidenceBg(noun.confidence)} ${getConfidenceColor(noun.confidence)}`}>
                               {Math.round(noun.confidence * 100)}%
                             </span>
                           </div>
@@ -189,11 +189,11 @@ const NounVerbPanel: React.FC<NounVerbPanelProps> = ({
                               {verb.name}
                             </span>
                             {verb.targetObject && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300">
+                              <span className="text-micro px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300">
                                 → {verb.targetObject}
                               </span>
                             )}
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${getConfidenceBg(verb.confidence)} ${getConfidenceColor(verb.confidence)}`}>
+                            <span className={`text-micro px-1.5 py-0.5 rounded ${getConfidenceBg(verb.confidence)} ${getConfidenceColor(verb.confidence)}`}>
                               {Math.round(verb.confidence * 100)}%
                             </span>
                           </div>
@@ -229,7 +229,7 @@ const NounVerbPanel: React.FC<NounVerbPanelProps> = ({
       {/* Footer tip */}
       {(nouns.length > 0 || verbs.length > 0) && (
         <div className="px-4 py-2 border-t border-white/[0.06] bg-white/[0.02]">
-          <p className="text-[10px] text-gray-600 text-center">{t.tip}</p>
+          <p className="text-micro text-gray-500 text-center">{t.tip}</p>
         </div>
       )}
     </div>

@@ -68,7 +68,7 @@ const AIPLogicMatrix: React.FC<Props> = ({ lang, objects }) => {
               <div key={idx} className="p-4 bg-black/40 border border-white/5 rounded-xl hover:border-white/20 transition-all">
                 <div className="flex items-center gap-3 mb-2">
                   {getIcon(comp.type)}
-                  <span className="text-[10px] font-mono text-gray-500 uppercase tracking-tighter">
+                  <span className="text-micro font-mono text-gray-500 uppercase tracking-tighter">
                     {comp.parent} &raquo; {comp.type}
                   </span>
                 </div>

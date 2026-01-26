@@ -216,7 +216,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                     }`}
                 >
                   <div className="font-medium text-sm">{provider.name}</div>
-                  <div className="text-[10px] text-gray-500 mt-0.5">{provider.description}</div>
+                  <div className="text-micro text-gray-500 mt-0.5">{provider.description}</div>
                 </button>
               ))}
             </div>
@@ -234,7 +234,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                   href={providerLinks[localSettings.provider]}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[10px] text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                  className="text-micro text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
                 >
                   {t.getKey}
                   <ExternalLink size={10} />
@@ -247,7 +247,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                 value={localSettings.apiKey}
                 onChange={e => setLocalSettings(prev => ({ ...prev, apiKey: e.target.value }))}
                 placeholder={t.apiKeyPlaceholder}
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 pr-20"
+                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 pr-20"
               />
               <button
                 onClick={() => setShowApiKey(!showApiKey)}
@@ -270,7 +270,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                 value={localSettings.customBaseUrl || ''}
                 onChange={e => setLocalSettings(prev => ({ ...prev, customBaseUrl: e.target.value }))}
                 placeholder={t.customUrlPlaceholder}
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
           )}
@@ -283,7 +283,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                 {t.model}
               </label>
               {modelFetchStatus === 'success' && fetchedModels.length > 0 && (
-                <span className="text-[10px] text-green-400">
+                <span className="text-micro text-green-400">
                   {fetchedModels.length} {t.modelsLoaded}
                 </span>
               )}
@@ -334,7 +334,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                     value={localSettings.model}
                     onChange={e => setLocalSettings(prev => ({ ...prev, model: e.target.value }))}
                     placeholder={t.customModelPlaceholder}
-                    className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 ) : fetchedModels.length > 0 ? (
                   <div className="relative">

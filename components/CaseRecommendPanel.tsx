@@ -88,7 +88,7 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
           </div>
           <div>
             <h3 className="text-sm font-medium text-white">{t.title}</h3>
-            <p className="text-[10px] text-gray-500">{t.subtitle}</p>
+            <p className="text-micro text-gray-500">{t.subtitle}</p>
           </div>
         </div>
         <button
@@ -102,12 +102,12 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
       {/* Keywords */}
       {keywords.length > 0 && (
         <div className="px-4 py-3 border-b border-white/[0.06]">
-          <div className="text-[10px] text-gray-500 mb-2">{t.keywords}</div>
+          <div className="text-micro text-gray-500 mb-2">{t.keywords}</div>
           <div className="flex flex-wrap gap-1">
             {keywords.slice(0, 6).map((kw, i) => (
               <span
                 key={i}
-                className="px-2 py-0.5 rounded text-[10px] bg-cyan-500/20 text-cyan-400"
+                className="px-2 py-0.5 rounded text-micro bg-cyan-500/20 text-cyan-400"
               >
                 {kw}
               </span>
@@ -122,7 +122,7 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
           <div className="flex flex-col items-center justify-center h-full text-gray-500 px-4">
             <Lightbulb size={32} className="mb-3 opacity-30" />
             <p className="text-sm text-center">{t.noRecommendations}</p>
-            <p className="text-xs text-center mt-1 text-gray-600">{t.keepTalking}</p>
+            <p className="text-xs text-center mt-1 text-gray-500">{t.keepTalking}</p>
           </div>
         ) : (
           recommendedCases.map(caseData => {
@@ -146,10 +146,10 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
                     <h4 className="text-sm font-medium text-white line-clamp-1">
                       {caseData.metadata.title[lang]}
                     </h4>
-                    <p className="text-[10px] text-gray-500 line-clamp-1 mt-0.5">
+                    <p className="text-micro text-gray-500 line-clamp-1 mt-0.5">
                       {industryConfig[industry]?.label[lang] || industry}
                     </p>
-                    <div className="flex items-center gap-2 mt-1.5 text-[10px] text-gray-500">
+                    <div className="flex items-center gap-2 mt-1.5 text-micro text-gray-500">
                       <span>{caseData.ontology.objects.length} {t.objects}</span>
                       <span>•</span>
                       <span>
@@ -174,7 +174,7 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
 
                     {/* Highlights Preview */}
                     <div>
-                      <div className="text-[10px] text-gray-500 mb-1.5 flex items-center gap-1">
+                      <div className="text-micro text-gray-500 mb-1.5 flex items-center gap-1">
                         <BookOpen size={10} />
                         {t.highlights}
                       </div>
@@ -182,7 +182,7 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
                         {caseData.highlights.slice(0, 2).map((h, i) => (
                           <div
                             key={i}
-                            className="text-[10px] text-gray-400 flex items-start gap-1.5"
+                            className="text-micro text-gray-400 flex items-start gap-1.5"
                           >
                             <span className="text-amber-400 mt-0.5">•</span>
                             <span className="line-clamp-1">{h.title[lang]}</span>

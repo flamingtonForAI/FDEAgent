@@ -230,7 +230,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                     <span className="px-2 py-1 bg-cyan-500/20 text-cyan-300 rounded text-xs font-mono">
                       {mapping.action}
                     </span>
-                    <span className="text-gray-600">→</span>
+                    <span className="text-gray-500">→</span>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       mapping.method === 'POST' ? 'bg-emerald-500/20 text-emerald-300' :
                       mapping.method === 'DELETE' ? 'bg-red-500/20 text-red-300' :
@@ -255,7 +255,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                     <div className="w-3 h-3 rounded-full bg-red-500/60" />
                     <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
                     <div className="w-3 h-3 rounded-full bg-green-500/60" />
-                    <span className="text-xs text-gray-600 ml-2">tool-definition.json</span>
+                    <span className="text-xs text-gray-500 ml-2">tool-definition.json</span>
                   </div>
                   <pre className="p-4 text-sm text-gray-300 font-mono overflow-x-auto whitespace-pre">
                     {exData.code[lang]}
@@ -309,11 +309,11 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                       <span className="px-2 py-1 bg-white/[0.04] rounded text-gray-400 font-mono text-xs">
                         {trans.from}
                       </span>
-                      <span className="text-gray-600">→</span>
+                      <span className="text-gray-500">→</span>
                       <span className="px-2 py-1 bg-cyan-500/20 text-cyan-300 rounded text-xs font-medium">
                         {lang === 'cn' ? trans.cn_action : trans.action}
                       </span>
-                      <span className="text-gray-600">→</span>
+                      <span className="text-gray-500">→</span>
                       <span className="px-2 py-1 bg-white/[0.04] rounded text-gray-400 font-mono text-xs">
                         {trans.to}
                       </span>
@@ -459,7 +459,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                             ? 'border-emerald-500 bg-emerald-500 text-white'
                             : selectedAnswer === i
                             ? 'border-red-500 bg-red-500 text-white'
-                            : 'border-white/10 text-gray-600'
+                            : 'border-white/10 text-gray-500'
                         }`}>
                           {String.fromCharCode(65 + i)}
                         </div>

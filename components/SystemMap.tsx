@@ -43,13 +43,13 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
         {/* Header Labels */}
         <div className="grid grid-cols-3 gap-8 mb-8">
           <div className="text-center">
-            <span className="text-[10px] uppercase tracking-widest font-mono text-gray-500">{t.source}</span>
+            <span className="text-micro uppercase tracking-widest font-mono text-gray-500">{t.source}</span>
           </div>
           <div className="text-center">
-            <span className="text-[10px] uppercase tracking-widest font-mono text-gray-500">{t.logic}</span>
+            <span className="text-micro uppercase tracking-widest font-mono text-gray-500">{t.logic}</span>
           </div>
           <div className="text-center">
-            <span className="text-[10px] uppercase tracking-widest font-mono text-gray-500">{t.target}</span>
+            <span className="text-micro uppercase tracking-widest font-mono text-gray-500">{t.target}</span>
           </div>
         </div>
 
@@ -79,7 +79,7 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
                 <div className="flex flex-col items-center justify-center relative">
                   <div className="h-px w-full bg-gradient-to-r from-indigo-500/20 via-indigo-500/50 to-indigo-500/20 absolute top-1/2 -translate-y-1/2"></div>
                   <div className="bg-[#0a0a0a] px-3 py-1.5 border border-indigo-500/30 rounded-full flex flex-col items-center gap-0.5 z-10 shadow-xl">
-                    <span className="text-[9px] font-mono text-indigo-400 uppercase font-bold">{integration.mechanism}</span>
+                    <span className="text-micro font-mono text-indigo-400 uppercase font-bold">{integration.mechanism}</span>
                     {integration.mechanism === 'AI Parsing' && <Zap size={10} className="text-amber-500 animate-pulse" />}
                   </div>
                 </div>
@@ -91,7 +91,7 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-semibold text-white truncate">{targetObj?.name || 'Unknown Object'}</h4>
-                    <p className="text-[9px] text-gray-500 font-mono mt-1 italic">{targetObj?.id}</p>
+                    <p className="text-micro text-gray-500 font-mono mt-1 italic">{targetObj?.id}</p>
                   </div>
                 </div>
               </div>
@@ -120,7 +120,7 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
 };
 
 const TechCard = ({ icon, label }: { icon: React.ReactNode, label: string }) => (
-  <div className="flex items-center gap-2 p-3 bg-black/40 border border-white/5 rounded-lg text-[10px] font-mono uppercase tracking-widest text-gray-600">
+  <div className="flex items-center gap-2 p-3 bg-black/40 border border-white/5 rounded-lg text-micro font-mono uppercase tracking-widest text-gray-500">
     {icon}
     {label}
   </div>

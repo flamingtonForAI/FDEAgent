@@ -333,7 +333,7 @@ const SmartTips: React.FC<SmartTipsProps> = ({
       >
         <Lightbulb size={12} className="text-amber-400" />
         <span>{t.smartTips}</span>
-        <span className="text-[10px] text-gray-600">({activeTips.length})</span>
+        <span className="text-micro text-gray-500">({activeTips.length})</span>
         <ChevronRight
           size={12}
           className={`transform transition-transform ${isExpanded ? 'rotate-90' : ''}`}
@@ -358,7 +358,7 @@ const SmartTips: React.FC<SmartTipsProps> = ({
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded ${styles.badge}`}>
+                    <span className={`text-micro px-1.5 py-0.5 rounded ${styles.badge}`}>
                       {getTypeLabel(tip.type)}
                     </span>
                     <h4 className={`text-xs font-medium ${styles.text}`}>

@@ -310,7 +310,7 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
                             {Object.keys(item).filter(k => ['get', 'post', 'put', 'patch', 'delete'].includes(k)).map(method => (
                               <span
                                 key={method}
-                                className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                className={`px-2 py-0.5 rounded text-micro font-bold uppercase ${
                                   method === 'get' ? 'bg-emerald-500/20 text-emerald-400' :
                                   method === 'post' ? 'bg-cyan-500/20 text-cyan-400' :
                                   method === 'put' ? 'bg-amber-500/20 text-amber-400' :

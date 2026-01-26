@@ -577,7 +577,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   <>
                     <Lightbulb size={14} />
                     {recommendedCaseIds.length > 0 && (
-                      <span className="w-4 h-4 rounded-full bg-amber-500 text-black text-[10px] font-bold flex items-center justify-center">
+                      <span className="w-4 h-4 rounded-full bg-amber-500 text-black text-micro font-bold flex items-center justify-center">
                         {recommendedCaseIds.length}
                       </span>
                     )}
@@ -646,7 +646,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4">
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}>
-            <div className={`max-w-[75%] px-4 py-3 rounded-2xl ${
+            <div className={`message-bubble max-w-[75%] px-4 py-3 rounded-2xl ${
               msg.role === 'user'
                 ? 'bg-gradient-to-br from-cyan-500/20 to-emerald-500/10 text-gray-100 rounded-br-md'
                 : 'glass-card text-gray-300 rounded-bl-md'
@@ -656,12 +656,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </div>
         ))}
         {isLoading && (
-          <div className="flex justify-start">
-            <div className="glass-card px-4 py-3 rounded-2xl rounded-bl-md">
-              <div className="flex gap-1">
-                <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce"></div>
-                <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '75ms' }}></div>
-                <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+          <div className="flex justify-start animate-fadeIn">
+            <div className="glass-card px-4 py-4 rounded-2xl rounded-bl-md w-64">
+              <div className="space-y-2">
+                <div className="skeleton skeleton-text w-full"></div>
+                <div className="skeleton skeleton-text w-3/4"></div>
+                <div className="skeleton skeleton-text-sm w-1/2"></div>
               </div>
             </div>
           </div>
@@ -734,7 +734,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     <div className="flex-shrink-0">{icon}</div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm text-white truncate">{file.name}</div>
-                      <div className="text-[10px] text-gray-500">
+                      <div className="text-micro text-gray-500">
                         {file.size < 1024 * 1024
                           ? `${(file.size / 1024).toFixed(1)} KB`
                           : `${(file.size / 1024 / 1024).toFixed(1)} MB`}
@@ -772,7 +772,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               onPaste={handlePaste}
               placeholder={hasApiKey ? t.placeholder : (lang === 'cn' ? '请先配置 API Key...' : 'Please configure API Key first...')}
               disabled={!hasApiKey}
-              className={`flex-1 glass-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500/30 transition-colors placeholder:text-gray-600 ${!hasApiKey ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`flex-1 glass-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500/30 transition-colors placeholder:text-gray-500 ${!hasApiKey ? 'opacity-50 cursor-not-allowed' : ''}`}
             />
             <button
               onClick={handleSend}
@@ -860,7 +860,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                       </span>
                     ))
                   ) : (
-                    <span className="text-gray-600 text-xs">{t.none}</span>
+                    <span className="text-gray-500 text-xs">{t.none}</span>
                   )}
                 </div>
               </div>
@@ -876,7 +876,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                       </span>
                     ))
                   ) : (
-                    <span className="text-gray-600 text-xs">{t.none}</span>
+                    <span className="text-gray-500 text-xs">{t.none}</span>
                   )}
                 </div>
               </div>
