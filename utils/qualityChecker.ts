@@ -541,6 +541,168 @@ export const qualityRules: QualityRule[] = [
   }
 ];
 
+// ============= Action Three-Layer Completeness =============
+
+export interface ActionLayerStatus {
+  objectName: string;
+  actionName: string;
+  actionType: 'traditional' | 'generative';
+  businessLayer: {
+    complete: boolean;
+    score: number; // 0-100
+    hasDescription: boolean;
+    hasTargetObject: boolean;
+    hasExecutorRole: boolean;
+    hasTriggerCondition: boolean;
+  };
+  logicLayer: {
+    complete: boolean;
+    score: number;
+    hasPreconditions: boolean;
+    hasParameters: boolean;
+    hasPostconditions: boolean;
+    hasSideEffects: boolean;
+  };
+  implementationLayer: {
+    complete: boolean;
+    score: number;
+    hasApiEndpoint: boolean;
+    hasApiMethod: boolean;
+    hasAgentToolSpec: boolean;
+  };
+  overallScore: number;
+  overallStatus: 'complete' | 'partial' | 'minimal';
+}
+
+export interface ThreeLayerReport {
+  totalActions: number;
+  completeActions: number;
+  partialActions: number;
+  minimalActions: number;
+  averageScore: number;
+  actions: ActionLayerStatus[];
+  byLayer: {
+    business: { complete: number; partial: number; missing: number };
+    logic: { complete: number; partial: number; missing: number };
+    implementation: { complete: number; partial: number; missing: number };
+  };
+}
+
+export function checkActionThreeLayers(project: ProjectState): ThreeLayerReport {
+  const actions: ActionLayerStatus[] = [];
+
+  project.objects.forEach(obj => {
+    obj.actions?.forEach(action => {
+      // Check Business Layer
+      const bl = action.businessLayer;
+      const hasDescription = !!(bl?.description && bl.description.length >= 10);
+      const hasTargetObject = !!bl?.targetObject;
+      const hasExecutorRole = !!bl?.executorRole;
+      const hasTriggerCondition = !!bl?.triggerCondition;
+      const businessScore = [hasDescription, hasTargetObject, hasExecutorRole, hasTriggerCondition]
+        .filter(Boolean).length * 25;
+      const businessComplete = businessScore >= 75; // At least 3 of 4
+
+      // Check Logic Layer
+      const ll = action.logicLayer;
+      const hasPreconditions = !!(ll?.preconditions && ll.preconditions.length > 0);
+      const hasParameters = !!(ll?.parameters && ll.parameters.length > 0);
+      const hasPostconditions = !!(ll?.postconditions && ll.postconditions.length > 0);
+      const hasSideEffects = !!(ll?.sideEffects && ll.sideEffects.length > 0);
+      const logicScore = [hasPreconditions, hasParameters, hasPostconditions]
+        .filter(Boolean).length * 33 + (hasSideEffects ? 1 : 0);
+      const logicComplete = logicScore >= 66; // At least 2 of 3 required
+
+      // Check Implementation Layer
+      const il = action.implementationLayer;
+      const hasApiEndpoint = !!il?.apiEndpoint;
+      const hasApiMethod = !!il?.apiMethod;
+      const hasAgentToolSpec = !!(il?.agentToolSpec?.name);
+      const implScore = (hasApiEndpoint ? 50 : 0) + (hasApiMethod ? 25 : 0) + (hasAgentToolSpec ? 25 : 0);
+      const implComplete = implScore >= 50; // At least API endpoint
+
+      // Calculate overall
+      const overallScore = Math.round((businessScore + logicScore + implScore) / 3);
+      let overallStatus: 'complete' | 'partial' | 'minimal';
+      if (businessComplete && logicComplete && implComplete) {
+        overallStatus = 'complete';
+      } else if (businessComplete || logicComplete) {
+        overallStatus = 'partial';
+      } else {
+        overallStatus = 'minimal';
+      }
+
+      actions.push({
+        objectName: obj.name,
+        actionName: action.name,
+        actionType: action.type,
+        businessLayer: {
+          complete: businessComplete,
+          score: businessScore,
+          hasDescription,
+          hasTargetObject,
+          hasExecutorRole,
+          hasTriggerCondition
+        },
+        logicLayer: {
+          complete: logicComplete,
+          score: logicScore,
+          hasPreconditions,
+          hasParameters,
+          hasPostconditions,
+          hasSideEffects
+        },
+        implementationLayer: {
+          complete: implComplete,
+          score: implScore,
+          hasApiEndpoint,
+          hasApiMethod,
+          hasAgentToolSpec
+        },
+        overallScore,
+        overallStatus
+      });
+    });
+  });
+
+  // Aggregate stats
+  const completeActions = actions.filter(a => a.overallStatus === 'complete').length;
+  const partialActions = actions.filter(a => a.overallStatus === 'partial').length;
+  const minimalActions = actions.filter(a => a.overallStatus === 'minimal').length;
+  const averageScore = actions.length > 0
+    ? Math.round(actions.reduce((sum, a) => sum + a.overallScore, 0) / actions.length)
+    : 0;
+
+  // By layer stats
+  const byLayer = {
+    business: {
+      complete: actions.filter(a => a.businessLayer.complete).length,
+      partial: actions.filter(a => !a.businessLayer.complete && a.businessLayer.score > 0).length,
+      missing: actions.filter(a => a.businessLayer.score === 0).length
+    },
+    logic: {
+      complete: actions.filter(a => a.logicLayer.complete).length,
+      partial: actions.filter(a => !a.logicLayer.complete && a.logicLayer.score > 0).length,
+      missing: actions.filter(a => a.logicLayer.score === 0).length
+    },
+    implementation: {
+      complete: actions.filter(a => a.implementationLayer.complete).length,
+      partial: actions.filter(a => !a.implementationLayer.complete && a.implementationLayer.score > 0).length,
+      missing: actions.filter(a => a.implementationLayer.score === 0).length
+    }
+  };
+
+  return {
+    totalActions: actions.length,
+    completeActions,
+    partialActions,
+    minimalActions,
+    averageScore,
+    actions,
+    byLayer
+  };
+}
+
 // ============= Quality Check Runner =============
 
 export function runQualityCheck(project: ProjectState): QualityReport {

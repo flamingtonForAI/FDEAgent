@@ -6,12 +6,16 @@ import {
   QualityReport,
   QualityIssue,
   Severity,
-  Category
+  Category,
+  checkActionThreeLayers
 } from '../utils/qualityChecker';
+import ActionThreeLayerPanel from './ActionThreeLayerPanel';
+import MilestonePlanner from './MilestonePlanner';
+import DeliverableGenerator from './DeliverableGenerator';
 import {
   ShieldCheck, AlertTriangle, AlertCircle, Info,
   ChevronDown, ChevronRight, X, RefreshCw,
-  Box, Zap, Link2, Database, Layers
+  Box, Zap, Link2, Database, Layers, Flag, Download
 } from 'lucide-react';
 
 interface QualityPanelProps {
@@ -20,10 +24,16 @@ interface QualityPanelProps {
   onClose?: () => void;
 }
 
+type TabType = 'quality' | 'threelayer' | 'milestones' | 'deliverables';
+
 const translations = {
   en: {
     title: 'Quality Check',
     subtitle: 'Ontology design quality assessment',
+    tabQuality: 'Quality',
+    tabThreeLayer: '3-Layer',
+    tabMilestones: 'Milestones',
+    tabDeliverables: 'Export',
     score: 'Score',
     grade: 'Grade',
     checks: 'checks',
@@ -51,6 +61,10 @@ const translations = {
   cn: {
     title: '质量检查',
     subtitle: 'Ontology 设计质量评估',
+    tabQuality: '质量检查',
+    tabThreeLayer: '三层检查',
+    tabMilestones: '里程碑',
+    tabDeliverables: '导出',
     score: '得分',
     grade: '等级',
     checks: '项检查',
@@ -117,17 +131,20 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
   onClose
 }) => {
   const t = translations[lang];
+  const [activeTab, setActiveTab] = useState<TabType>('quality');
   const [report, setReport] = useState<QualityReport | null>(null);
   const [isChecking, setIsChecking] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Set<Category>>(new Set());
   const [filterSeverity, setFilterSeverity] = useState<Severity | 'all'>('all');
 
-  // Run initial check
-  useMemo(() => {
+  // Run check when project changes
+  React.useEffect(() => {
     if (project.objects.length > 0) {
       setReport(runQualityCheck(project));
+    } else {
+      setReport(null);
     }
-  }, []);
+  }, [project]);
 
   const handleRunCheck = () => {
     setIsChecking(true);
@@ -191,14 +208,16 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleRunCheck}
-            disabled={isChecking}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium btn-gradient disabled:opacity-50 transition-all"
-          >
-            <RefreshCw size={12} className={isChecking ? 'animate-spin' : ''} />
-            {t.runCheck}
-          </button>
+          {activeTab === 'quality' && (
+            <button
+              onClick={handleRunCheck}
+              disabled={isChecking}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium btn-gradient disabled:opacity-50 transition-all"
+            >
+              <RefreshCw size={12} className={isChecking ? 'animate-spin' : ''} />
+              {t.runCheck}
+            </button>
+          )}
           {onClose && (
             <button
               onClick={onClose}
@@ -210,6 +229,85 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
         </div>
       </div>
 
+      {/* Tab Switcher */}
+      <div className="flex border-b border-white/[0.06] px-4">
+        <button
+          onClick={() => setActiveTab('quality')}
+          className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
+            activeTab === 'quality'
+              ? 'text-emerald-400'
+              : 'text-gray-500 hover:text-white'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <ShieldCheck size={14} />
+            {t.tabQuality}
+          </div>
+          {activeTab === 'quality' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-400" />
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('threelayer')}
+          className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
+            activeTab === 'threelayer'
+              ? 'text-blue-400'
+              : 'text-gray-500 hover:text-white'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <Layers size={14} />
+            {t.tabThreeLayer}
+          </div>
+          {activeTab === 'threelayer' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-400" />
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('milestones')}
+          className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
+            activeTab === 'milestones'
+              ? 'text-purple-400'
+              : 'text-gray-500 hover:text-white'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <Flag size={14} />
+            {t.tabMilestones}
+          </div>
+          {activeTab === 'milestones' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-400" />
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('deliverables')}
+          className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
+            activeTab === 'deliverables'
+              ? 'text-orange-400'
+              : 'text-gray-500 hover:text-white'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <Download size={14} />
+            {t.tabDeliverables}
+          </div>
+          {activeTab === 'deliverables' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-400" />
+          )}
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'deliverables' ? (
+        <DeliverableGenerator lang={lang} project={project} />
+      ) : activeTab === 'milestones' ? (
+        <MilestonePlanner lang={lang} project={project} />
+      ) : activeTab === 'threelayer' ? (
+        <div className="flex-1 overflow-y-auto p-4">
+          <ActionThreeLayerPanel lang={lang} project={project} />
+        </div>
+      ) : (
+        <>
       {/* Score Display */}
       {report && (
         <div className="px-5 py-4 border-b border-white/[0.06] bg-white/[0.02]">
@@ -352,6 +450,8 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
           </div>
         )}
       </div>
+        </>
+      )}
     </div>
   );
 };
