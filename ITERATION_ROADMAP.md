@@ -29,7 +29,7 @@
 3. 中英双语支持
 
 缺失：
-- 方法论深度（四层架构、Action三重身份）
+- 方法论深度（三层架构 + AI 能力叠加、Action三重身份）
 - Action到API/Tool的转换
 - 培训引导功能
 - 质量检查逻辑
@@ -55,7 +55,7 @@
 **改动范围**: `services/geminiService.ts`
 
 **实际变更**:
-- 注入四层架构概念（Semantic/Kinetic/Dynamic/AI）
+- 注入三层架构概念（Semantic/Kinetic/Dynamic）+ AI 能力叠加
 - 强调Ontology vs 知识图谱的核心区别（Action）
 - 定义Action三重身份（业务层/逻辑层/实现层）
 - 升级需求勘察协议（5个关键要素）
@@ -253,7 +253,7 @@ export interface AIPAction {
 **实际变更**:
 - 新Tab "学习中心" 放在侧边栏最上方（与分隔线区分）
 - 4个Level学习路径：
-  - Level 1: 基础认知（Ontology概念、四层架构、Noun-Verb、Decision-First）
+  - Level 1: 基础认知（Ontology概念、三层架构 + AI 叠加、Noun-Verb、Decision-First）
   - Level 2: Action深度（三重身份、状态机、API映射、Tool映射）
   - Level 3: 落地实现（REST API、OpenAPI、Agent Tool、治理）
   - Level 4: 最佳实践（制造业/零售业/物流业案例、设计模式）
@@ -285,7 +285,7 @@ export interface AIPAction {
 ```
 Level 1: 基础认知
 ├── 1.1 什么是Ontology (vs 知识图谱)
-├── 1.2 四层架构详解
+├── 1.2 三层架构 + AI 能力叠加
 ├── 1.3 Noun-Verb框架
 └── 1.4 Decision-First原则
 ```

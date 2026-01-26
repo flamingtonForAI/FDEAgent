@@ -782,8 +782,8 @@ export const logisticsDeliveryCase: OntologyCase = {
         cn: '异常情况的人机协作'
       },
       explanation: {
-        en: 'While most operations are automated (Tier 3-4), maintenance scheduling requires human approval (Tier 2) because it impacts fleet capacity.',
-        cn: '虽然大多数操作是自动化的(Tier 3-4)，但维护调度需要人工批准(Tier 2)，因为它影响车队容量。'
+        en: 'Status tracking (Tier 1-2) is fully automated, while route reassignment (Tier 3) requires confirmation, and maintenance scheduling (Tier 4) needs multi-approval because it impacts fleet capacity.',
+        cn: '状态跟踪(Tier 1-2)完全自动化，而路线重新分配(Tier 3)需要确认，维护调度(Tier 4)需要多级审批，因为它影响车队容量。'
       }
     }
   ],

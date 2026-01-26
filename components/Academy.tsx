@@ -99,7 +99,7 @@ const translations = {
     level4Desc: "Real-world cases and design patterns",
     // Level 1 lessons
     l1_1: "What is Ontology (vs Knowledge Graph)",
-    l1_2: "Four-Layer Architecture",
+    l1_2: "3-Layer Architecture + AI Overlay",
     l1_3: "Noun-Verb Framework",
     l1_4: "Decision-First Principle",
     // Level 2 lessons
@@ -156,7 +156,7 @@ const translations = {
     level4Desc: "真实案例与设计模式",
     // Level 1 lessons
     l1_1: "什么是 Ontology（vs 知识图谱）",
-    l1_2: "四层架构详解",
+    l1_2: "三层架构 + AI 能力叠加",
     l1_3: "Noun-Verb 提取框架",
     l1_4: "Decision-First 原则",
     // Level 2 lessons

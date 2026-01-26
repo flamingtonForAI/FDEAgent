@@ -645,8 +645,8 @@ export const manufacturingProductionCase: OntologyCase = {
         cn: '治理分层'
       },
       explanation: {
-        en: 'Actions have different permission tiers: scheduling (Tier 2) requires more authorization than status updates (Tier 3), reflecting business risk levels.',
-        cn: '动作有不同的权限等级：排程(Tier 2)比状态更新(Tier 3)需要更多授权，反映了业务风险级别。'
+        en: 'Actions have different permission tiers: status updates (Tier 2) are auto-audited, while scheduling changes (Tier 3) and resource allocation (Tier 4) require human approval, reflecting increasing business risk.',
+        cn: '动作有不同的权限等级：状态更新(Tier 2)自动审计，而排程变更(Tier 3)和资源分配(Tier 4)需要人工批准，反映递增的业务风险。'
       }
     },
     {

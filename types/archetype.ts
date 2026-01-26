@@ -3,11 +3,26 @@
  * 原型类型定义
  *
  * Archetype 是 Palantir 将咨询能力产品化的核心载体
- * 它不是模板，而是 Ontology 的预配置视图，包含：
- * - Data Connectors（数据连接器）
- * - Object Definitions（对象定义）
- * - Business Logic（业务逻辑）
- * - UI Templates（界面模板）
+ * 它不是模板，而是 Ontology 的预配置视图
+ *
+ * ═══════════════════════════════════════════════════════════════════
+ * Palantir Ontology Architecture (3-Layer + AI Capability Overlay)
+ * ═══════════════════════════════════════════════════════════════════
+ *
+ * FOUNDRY ONTOLOGY (3 Core Layers):
+ * - Semantic Layer: Business concept definitions (Objects, Properties, Links)
+ * - Kinetic Layer: Data connectivity (Connectors, Sync, Mappings)
+ * - Dynamic Layer: Business operations (Actions, Workflows, Rules)
+ *
+ * AIP CAPABILITY OVERLAY (Not a 4th layer, but enablement across layers):
+ * - AI augments Semantic (smart properties, embeddings)
+ * - AI augments Dynamic (AI-assisted actions, generative ops)
+ * - AI provides Agent capabilities on top of Ontology
+ *
+ * This structure aligns with Palantir's official architecture:
+ * - Ontology = unified data model with executable actions
+ * - AIP = AI capabilities that leverage Ontology as substrate
+ * ═══════════════════════════════════════════════════════════════════
  */
 
 import { OntologyObject, OntologyLink } from '../types';
@@ -387,31 +402,45 @@ export interface ArchetypeMetadata {
  *
  * Archetype 是 Palantir 咨询能力产品化的核心：
  * 1. 从 FDE 现场经验中提炼
- * 2. 包含完整的 Ontology（语义+动力+动态+AI 四层）
+ * 2. 包含完整的 Ontology（语义+动力+动态 三层）+ AI 能力叠加
  * 3. 可在几天内部署，而非几个月
  * 4. 持续演进，吸收新的行业最佳实践
+ *
+ * 架构说明：
+ * - Ontology 三层是 Foundry 的核心数据模型
+ * - AI 能力是 AIP 提供的叠加能力(overlay)，不是第四层
+ * - AI 通过增强 Semantic(智能属性) 和 Dynamic(AI辅助动作) 发挥作用
  */
 export interface Archetype {
   metadata: ArchetypeMetadata;
 
+  // ═══════════════════════════════════════════════════════════════════
+  // FOUNDRY ONTOLOGY - 3 CORE LAYERS
+  // ═══════════════════════════════════════════════════════════════════
+
   // ===== Semantic Layer =====
-  // 业务概念模型
+  // 业务概念模型 - What things ARE
   ontology: {
     objects: OntologyObject[];
     links: OntologyLink[];
   };
 
   // ===== Kinetic Layer =====
-  // 数据连接层 - 连接概念到真实数据
+  // 数据连接层 - WHERE data comes from
   connectors: DataConnector[];
 
   // ===== Dynamic Layer =====
-  // 业务逻辑层 - 可执行的业务操作
+  // 业务逻辑层 - WHAT can be done (Actions, Workflows, Rules)
   workflows: BusinessWorkflow[];
   rules: BusinessRule[];
 
-  // ===== AI Layer =====
-  // AI 增强能力
+  // ═══════════════════════════════════════════════════════════════════
+  // AIP CAPABILITY OVERLAY (Not a 4th layer)
+  // AI capabilities that ENHANCE the 3 Ontology layers
+  // ═══════════════════════════════════════════════════════════════════
+
+  // AI 能力叠加层 - HOW AI augments Ontology
+  // These capabilities work THROUGH Semantic (smart properties) and Dynamic (AI actions)
   aiCapabilities: {
     id: string;
     name: string;

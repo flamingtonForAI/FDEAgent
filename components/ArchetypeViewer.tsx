@@ -2,7 +2,7 @@
  * Archetype Viewer Component
  * 原型详情查看器
  *
- * 展示 Archetype 的完整四层架构详情
+ * 展示 Archetype 的完整三层架构（Semantic/Kinetic/Dynamic）+ AI 能力叠加详情
  */
 
 import React, { useState, useMemo } from 'react';
@@ -318,15 +318,23 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                 badge={`${archetype.ontology.links.length} relationships`}
               >
                 <div className="space-y-2">
-                  {archetype.ontology.links.map(link => (
-                    <div key={link.id} className="glass-surface rounded-lg px-3 py-2 text-xs flex items-center gap-2">
-                      <span className="text-cyan-400">{link.source}</span>
-                      <span className="text-gray-500">→</span>
-                      <span className="text-emerald-400">{link.label}</span>
-                      <span className="text-gray-500">→</span>
-                      <span className="text-cyan-400">{link.target}</span>
-                    </div>
-                  ))}
+                  {archetype.ontology.links.map((link, idx) => {
+                    // Handle both old and new link structures
+                    const linkAny = link as any;
+                    const source = linkAny.source || linkAny.sourceId || 'unknown';
+                    const target = linkAny.target || linkAny.targetId || 'unknown';
+                    const label = linkAny.label || linkAny.relation || 'relates to';
+
+                    return (
+                      <div key={linkAny.id || idx} className="glass-surface rounded-lg px-3 py-2 text-xs flex items-center gap-2">
+                        <span className="text-cyan-400">{source}</span>
+                        <span className="text-gray-500">→</span>
+                        <span className="text-emerald-400">{label}</span>
+                        <span className="text-gray-500">→</span>
+                        <span className="text-cyan-400">{target}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </CollapsibleSection>
             )}
@@ -336,42 +344,79 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
         {/* Kinetic Layer Tab */}
         {activeTab === 'kinetic' && (
           <div className="space-y-4 animate-fadeIn">
-            {archetype.connectors.map(connector => (
-              <CollapsibleSection
-                key={connector.id}
-                title={connector.name}
-                subtitle={connector.description[lang === 'cn' ? 'cn' : 'en']}
-                isExpanded={expandedSections.has(connector.id)}
-                onToggle={() => toggleSection(connector.id)}
-                badge={`${connector.sourceType} · ${connector.sync.frequency}`}
-              >
-                <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4 text-xs">
-                    <div>
-                      <span className="text-gray-500">{t.sourceSystem}:</span>
-                      <span className="text-white ml-2">{connector.sourceSystem}</span>
+            {archetype.connectors.map(connector => {
+              // Handle both old and new connector structures
+              const connectorAny = connector as any;
+              const description = connectorAny.description?.cn || connectorAny.description?.en || '';
+              const syncFrequency = connectorAny.sync?.frequency || connectorAny.syncFrequency || 'N/A';
+              const sourceSystem = connectorAny.sourceSystem || connectorAny.configuration?.supportedSystems?.join(', ') || 'N/A';
+              const mappedObjects = connectorAny.mappedObjects || [];
+              const targetObjects = connectorAny.targetObjects || [];
+              const fieldMapping = connectorAny.fieldMapping || [];
+
+              return (
+                <CollapsibleSection
+                  key={connector.id}
+                  title={connector.name}
+                  subtitle={description}
+                  isExpanded={expandedSections.has(connector.id)}
+                  onToggle={() => toggleSection(connector.id)}
+                  badge={`${connector.sourceType} · ${syncFrequency}`}
+                >
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-4 text-xs">
+                      <div>
+                        <span className="text-gray-500">{t.sourceSystem}:</span>
+                        <span className="text-white ml-2">{sourceSystem}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">{t.syncFrequency}:</span>
+                        <span className="text-white ml-2">{syncFrequency}</span>
+                      </div>
                     </div>
                     <div>
-                      <span className="text-gray-500">{t.syncFrequency}:</span>
-                      <span className="text-white ml-2">{connector.sync.frequency}</span>
+                      <h4 className="text-xs text-gray-500 mb-2">{t.mappedObjects}</h4>
+                      <div className="space-y-1">
+                        {/* Old structure: mappedObjects */}
+                        {mappedObjects.length > 0 && mappedObjects.map((mapping: any, idx: number) => (
+                          <div key={idx} className="glass-surface rounded px-2 py-1.5 text-xs">
+                            <span className="text-gray-400">{mapping.sourceEntity}</span>
+                            <span className="text-gray-600 mx-2">→</span>
+                            <span className="text-cyan-400">{mapping.objectId}</span>
+                            <span className="text-gray-600 ml-2">({mapping.fieldMappings?.length || 0} fields)</span>
+                          </div>
+                        ))}
+                        {/* New structure: targetObjects + fieldMapping */}
+                        {mappedObjects.length === 0 && targetObjects.length > 0 && (
+                          <>
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              {targetObjects.map((obj: string, idx: number) => (
+                                <span key={idx} className="text-xs px-2 py-1 rounded bg-cyan-500/20 text-cyan-400">{obj}</span>
+                              ))}
+                            </div>
+                            {fieldMapping.length > 0 && (
+                              <div className="space-y-1 mt-2">
+                                <h5 className="text-xs text-gray-600">Field Mappings:</h5>
+                                {fieldMapping.slice(0, 5).map((fm: any, idx: number) => (
+                                  <div key={idx} className="glass-surface rounded px-2 py-1.5 text-xs">
+                                    <span className="text-gray-400 font-mono">{fm.source}</span>
+                                    <span className="text-gray-600 mx-2">→</span>
+                                    <span className="text-cyan-400 font-mono">{fm.target}</span>
+                                  </div>
+                                ))}
+                                {fieldMapping.length > 5 && (
+                                  <p className="text-xs text-gray-600">...and {fieldMapping.length - 5} more</p>
+                                )}
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <h4 className="text-xs text-gray-500 mb-2">{t.mappedObjects}</h4>
-                    <div className="space-y-1">
-                      {connector.mappedObjects.map((mapping, idx) => (
-                        <div key={idx} className="glass-surface rounded px-2 py-1.5 text-xs">
-                          <span className="text-gray-400">{mapping.sourceEntity}</span>
-                          <span className="text-gray-600 mx-2">→</span>
-                          <span className="text-cyan-400">{mapping.objectId}</span>
-                          <span className="text-gray-600 ml-2">({mapping.fieldMappings.length} fields)</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </CollapsibleSection>
-            ))}
+                </CollapsibleSection>
+              );
+            })}
           </div>
         )}
 
@@ -383,92 +428,174 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
               <Workflow size={14} className="text-purple-400" />
               {t.workflows}
             </h3>
-            {archetype.workflows.map(workflow => (
-              <CollapsibleSection
-                key={workflow.id}
-                title={workflow.name}
-                subtitle={workflow.description[lang === 'cn' ? 'cn' : 'en']}
-                isExpanded={expandedSections.has(workflow.id)}
-                onToggle={() => toggleSection(workflow.id)}
-                badge={`${workflow.steps.length} ${t.steps}`}
-              >
-                <div className="space-y-3">
-                  <div className="text-xs">
-                    <span className="text-gray-500">{t.trigger}:</span>
-                    <span className="text-white ml-2">{workflow.trigger.type}</span>
-                  </div>
-                  <div className="space-y-1">
-                    {workflow.steps.map((step, idx) => (
-                      <div key={step.id} className="flex items-center gap-2 text-xs">
-                        <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px]">
-                          {idx + 1}
-                        </span>
-                        <span className="text-white">{step.name}</span>
-                        <span className="text-gray-600">({step.type})</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CollapsibleSection>
-            ))}
+            {archetype.workflows.map(workflow => {
+              // Handle both old and new workflow structures
+              const workflowAny = workflow as any;
+              const description = workflowAny.description?.cn || workflowAny.description?.en || workflowAny.descriptionCn || workflowAny.nameCn || '';
+              const triggerType = workflowAny.trigger?.type || workflowAny.triggerType || 'N/A';
+              const triggerCondition = workflowAny.trigger?.config || workflowAny.triggerCondition || '';
 
-            {/* Rules */}
-            {archetype.rules.length > 0 && (
-              <>
-                <h3 className="text-sm font-medium text-white flex items-center gap-2 mt-6">
-                  <Shield size={14} className="text-amber-400" />
-                  {t.rules}
-                </h3>
-                {archetype.rules.map(rule => (
-                  <div key={rule.id} className="glass-card rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <AlertTriangle size={14} className="text-amber-400" />
-                      <span className="text-sm text-white">{rule.name}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-400">{rule.type}</span>
+              return (
+                <CollapsibleSection
+                  key={workflow.id}
+                  title={workflow.name}
+                  subtitle={description}
+                  isExpanded={expandedSections.has(workflow.id)}
+                  onToggle={() => toggleSection(workflow.id)}
+                  badge={`${workflow.steps.length} ${t.steps}`}
+                >
+                  <div className="space-y-3">
+                    <div className="text-xs">
+                      <span className="text-gray-500">{t.trigger}:</span>
+                      <span className="text-white ml-2">{triggerType}</span>
+                      {triggerCondition && typeof triggerCondition === 'string' && (
+                        <span className="text-gray-400 ml-2">({triggerCondition})</span>
+                      )}
                     </div>
-                    <p className="text-xs text-gray-400">{rule.description[lang === 'cn' ? 'cn' : 'en']}</p>
-                    <code className="block mt-2 text-[10px] text-cyan-400 font-mono bg-black/30 rounded px-2 py-1">
-                      {rule.expression}
-                    </code>
+                    <div className="space-y-1">
+                      {workflow.steps.map((step: any, idx: number) => (
+                        <div key={step.id || idx} className="flex items-center gap-2 text-xs">
+                          <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px]">
+                            {step.order || idx + 1}
+                          </span>
+                          <span className="text-white">{step.name}</span>
+                          <span className="text-gray-600">({step.type || step.action || 'action'})</span>
+                        </div>
+                      ))}
+                    </div>
+                    {/* SLA info */}
+                    {workflowAny.sla && (
+                      <div className="text-xs mt-2 pt-2 border-t border-white/[0.05]">
+                        <span className="text-gray-500">SLA:</span>
+                        <span className="text-emerald-400 ml-2">{workflowAny.sla.targetTime || workflowAny.sla.maxDuration}</span>
+                      </div>
+                    )}
                   </div>
-                ))}
-              </>
-            )}
+                </CollapsibleSection>
+              );
+            })}
+
+            {/* Rules - handle both 'rules' and 'businessRules' */}
+            {(() => {
+              const archetypeAny = archetype as any;
+              const rules = archetypeAny.rules || archetypeAny.businessRules || [];
+              if (rules.length === 0) return null;
+
+              return (
+                <>
+                  <h3 className="text-sm font-medium text-white flex items-center gap-2 mt-6">
+                    <Shield size={14} className="text-amber-400" />
+                    {t.rules}
+                  </h3>
+                  {rules.map((rule: any) => {
+                    const ruleDescription = rule.description?.cn || rule.description?.en || rule.action || '';
+                    const ruleType = rule.type || rule.category || 'rule';
+                    const ruleExpression = rule.expression || rule.condition || '';
+
+                    return (
+                      <div key={rule.id} className="glass-card rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <AlertTriangle size={14} className="text-amber-400" />
+                          <span className="text-sm text-white">{rule.name}</span>
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-400">{ruleType}</span>
+                        </div>
+                        <p className="text-xs text-gray-400">{ruleDescription}</p>
+                        {ruleExpression && (
+                          <code className="block mt-2 text-[10px] text-cyan-400 font-mono bg-black/30 rounded px-2 py-1">
+                            {ruleExpression}
+                          </code>
+                        )}
+                      </div>
+                    );
+                  })}
+                </>
+              );
+            })()}
           </div>
         )}
 
         {/* AI Layer Tab */}
         {activeTab === 'ai' && (
           <div className="space-y-4 animate-fadeIn">
-            {archetype.aiCapabilities.map(cap => (
-              <div key={cap.id} className="glass-card rounded-xl p-5">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                    <Bot size={20} className="text-purple-400" />
+            {archetype.aiCapabilities.map(cap => {
+              // Handle both old and new AI capability structures
+              const capAny = cap as any;
+              const description = capAny.description?.cn || capAny.description?.en || capAny.description || capAny.descriptionCn || '';
+              const modelConfig = capAny.modelConfig || capAny.modelDetails || null;
+              const enabledActions = capAny.enabledActions || [];
+              const inputObjects = capAny.inputObjects || [];
+              const outputProperties = capAny.outputProperties || [];
+
+              return (
+                <div key={cap.id} className="glass-card rounded-xl p-5">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                      <Bot size={20} className="text-purple-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-medium">{cap.name}</h3>
+                      <span className="text-xs text-purple-400">{cap.type}</span>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-white font-medium">{cap.name}</h3>
-                    <span className="text-xs text-purple-400">{cap.type}</span>
-                  </div>
+                  <p className="text-sm text-gray-400 mb-4">{description}</p>
+
+                  {/* Model details */}
+                  {modelConfig && (
+                    <div className="text-xs space-y-1 mb-3">
+                      <div>
+                        <span className="text-gray-500">{t.modelType}:</span>
+                        <span className="text-white ml-2">{modelConfig.modelType || modelConfig.algorithm || 'N/A'}</span>
+                      </div>
+                      {(modelConfig.trainingDataRequirements || modelConfig.trainingFrequency) && (
+                        <div>
+                          <span className="text-gray-500">Training:</span>
+                          <span className="text-gray-400 ml-2">{modelConfig.trainingDataRequirements || modelConfig.trainingFrequency}</span>
+                        </div>
+                      )}
+                      {modelConfig.accuracy && (
+                        <div>
+                          <span className="text-gray-500">Accuracy:</span>
+                          <span className="text-emerald-400 ml-2">{modelConfig.accuracy}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Input objects */}
+                  {inputObjects.length > 0 && (
+                    <div className="mb-3">
+                      <span className="text-xs text-gray-500">Input Objects:</span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {inputObjects.map((obj: string) => (
+                          <span key={obj} className="text-[10px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-400">{obj}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Output properties */}
+                  {outputProperties.length > 0 && (
+                    <div className="mb-3">
+                      <span className="text-xs text-gray-500">Output Properties:</span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {outputProperties.map((prop: string) => (
+                          <span key={prop} className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono">{prop}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Enabled actions */}
+                  {enabledActions.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {enabledActions.map((action: string) => (
+                        <span key={action} className="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400">{action}</span>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <p className="text-sm text-gray-400 mb-4">{cap.description[lang === 'cn' ? 'cn' : 'en']}</p>
-                {cap.modelConfig && (
-                  <div className="text-xs space-y-1">
-                    <div><span className="text-gray-500">{t.modelType}:</span> <span className="text-white">{cap.modelConfig.modelType}</span></div>
-                    {cap.modelConfig.trainingDataRequirements && (
-                      <div><span className="text-gray-500">Training Data:</span> <span className="text-gray-400">{cap.modelConfig.trainingDataRequirements}</span></div>
-                    )}
-                  </div>
-                )}
-                {cap.enabledActions.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {cap.enabledActions.map(action => (
-                      <span key={action} className="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400">{action}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -479,106 +606,248 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
               <LayoutDashboard size={14} className="text-cyan-400" />
               {t.dashboards}
             </h3>
-            {archetype.dashboards.map(dashboard => (
-              <div key={dashboard.id} className="glass-card rounded-xl p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-white font-medium">{dashboard.name}</h4>
-                  <span className="text-xs text-gray-500">{t.targetRole}: {dashboard.targetRole}</span>
-                </div>
-                <p className="text-sm text-gray-400 mb-4">{dashboard.description[lang === 'cn' ? 'cn' : 'en']}</p>
-                <div className="flex items-center gap-4 text-xs text-gray-500">
-                  <span>{dashboard.widgets.length} {t.widgets}</span>
-                  <span>{dashboard.gridColumns}x{dashboard.gridRows} grid</span>
-                </div>
-              </div>
-            ))}
+            {archetype.dashboards.map(dashboard => {
+              // Handle both old and new dashboard structures
+              const dashboardAny = dashboard as any;
+              const description = dashboardAny.description?.cn || dashboardAny.description?.en || dashboardAny.description || dashboardAny.nameCn || '';
+              const targetRole = dashboardAny.targetRole || (dashboardAny.targetAudience ? dashboardAny.targetAudience.join(', ') : 'N/A');
+              const layout = dashboardAny.gridColumns && dashboardAny.gridRows
+                ? `${dashboardAny.gridColumns}x${dashboardAny.gridRows} grid`
+                : dashboardAny.layout || 'flexible';
 
-            {archetype.views.length > 0 && (
-              <>
-                <h3 className="text-sm font-medium text-white flex items-center gap-2 mt-6">
-                  <Layers size={14} className="text-emerald-400" />
-                  {t.views}
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  {archetype.views.map(view => (
-                    <div key={view.id} className="glass-surface rounded-lg p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm text-white">{view.name}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">{view.type}</span>
-                      </div>
-                      <p className="text-xs text-gray-500">{view.fields.length} fields · {view.objectId}</p>
-                    </div>
-                  ))}
+              return (
+                <div key={dashboard.id} className="glass-card rounded-xl p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-white font-medium">{dashboard.name}</h4>
+                    <span className="text-xs text-gray-500">{t.targetRole}: {targetRole}</span>
+                  </div>
+                  <p className="text-sm text-gray-400 mb-4">{description}</p>
+                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <span>{dashboardAny.widgets?.length || 0} {t.widgets}</span>
+                    <span>{layout}</span>
+                    {dashboardAny.refreshInterval && (
+                      <span>Refresh: {dashboardAny.refreshInterval}s</span>
+                    )}
+                  </div>
                 </div>
-              </>
-            )}
+              );
+            })}
+
+            {/* Views - handle optional views array */}
+            {(() => {
+              const archetypeAny = archetype as any;
+              const views = archetypeAny.views || [];
+              if (views.length === 0) return null;
+
+              return (
+                <>
+                  <h3 className="text-sm font-medium text-white flex items-center gap-2 mt-6">
+                    <Layers size={14} className="text-emerald-400" />
+                    {t.views}
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {views.map((view: any) => (
+                      <div key={view.id} className="glass-surface rounded-lg p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-sm text-white">{view.name}</span>
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">{view.type}</span>
+                        </div>
+                        <p className="text-xs text-gray-500">{view.fields?.length || 0} fields · {view.objectId}</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              );
+            })()}
           </div>
         )}
 
         {/* Deployment Tab */}
         {activeTab === 'deployment' && (
           <div className="space-y-6 animate-fadeIn">
-            {/* Requirements */}
-            <div className="glass-card rounded-xl p-5">
-              <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-                <Server size={14} className="text-cyan-400" />
-                {t.requirements}
-              </h3>
-              <div className="grid grid-cols-2 gap-4 text-xs">
-                <div>
-                  <span className="text-gray-500">Platform:</span>
-                  <span className="text-white ml-2">{archetype.deployment.requirements.platform.join(', ')}</span>
-                </div>
-                {archetype.deployment.requirements.resources && (
-                  <>
-                    <div>
-                      <span className="text-gray-500">CPU:</span>
-                      <span className="text-white ml-2">{archetype.deployment.requirements.resources.cpu}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Memory:</span>
-                      <span className="text-white ml-2">{archetype.deployment.requirements.resources.memory}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Storage:</span>
-                      <span className="text-white ml-2">{archetype.deployment.requirements.resources.storage}</span>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
+            {(() => {
+              const deploymentAny = archetype.deployment as any;
+              const archetypeAny = archetype as any;
 
-            {/* Environment Variables */}
-            <div className="glass-card rounded-xl p-5">
-              <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-                <Settings size={14} className="text-amber-400" />
-                {t.envVariables}
-              </h3>
-              <div className="space-y-2">
-                {archetype.deployment.environmentVariables.map(env => (
-                  <div key={env.name} className="glass-surface rounded-lg px-3 py-2 text-xs">
-                    <div className="flex items-center gap-2">
-                      <code className="text-cyan-400 font-mono">{env.name}</code>
-                      {env.required && <span className="text-[9px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400">required</span>}
-                    </div>
-                    <p className="text-gray-500 mt-1">{env.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+              // Handle different deployment structures
+              const prerequisites = deploymentAny.prerequisites || [];
+              const requirements = deploymentAny.requirements || {};
+              const envVars = deploymentAny.environmentVariables || [];
+              const phases = deploymentAny.phases || [];
+              const roleConfig = deploymentAny.roleConfig || [];
+              const integrationPoints = deploymentAny.integrationPoints || [];
+              const documentation = archetypeAny.documentation || {};
 
-            {/* Quick Start */}
-            <div className="glass-card rounded-xl p-5">
-              <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-                <FileJson size={14} className="text-emerald-400" />
-                {t.quickStart}
-              </h3>
-              <div className="prose prose-invert prose-sm max-w-none">
-                <pre className="bg-black/30 rounded-lg p-4 text-xs text-gray-300 overflow-x-auto whitespace-pre-wrap">
-                  {archetype.documentation.quickStart[lang === 'cn' ? 'cn' : 'en']}
-                </pre>
-              </div>
-            </div>
+              return (
+                <>
+                  {/* Prerequisites (new structure) */}
+                  {prerequisites.length > 0 && (
+                    <div className="glass-card rounded-xl p-5">
+                      <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                        <CheckCircle size={14} className="text-emerald-400" />
+                        Prerequisites
+                      </h3>
+                      <ul className="space-y-2">
+                        {prerequisites.map((prereq: string, idx: number) => (
+                          <li key={idx} className="text-xs text-gray-400 flex items-start gap-2">
+                            <span className="text-emerald-400 mt-0.5">•</span>
+                            {prereq}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Requirements (old structure) */}
+                  {requirements.platform && (
+                    <div className="glass-card rounded-xl p-5">
+                      <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                        <Server size={14} className="text-cyan-400" />
+                        {t.requirements}
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4 text-xs">
+                        <div>
+                          <span className="text-gray-500">Platform:</span>
+                          <span className="text-white ml-2">{requirements.platform?.join(', ') || 'N/A'}</span>
+                        </div>
+                        {requirements.resources && (
+                          <>
+                            {requirements.resources.cpu && (
+                              <div>
+                                <span className="text-gray-500">CPU:</span>
+                                <span className="text-white ml-2">{requirements.resources.cpu}</span>
+                              </div>
+                            )}
+                            {requirements.resources.memory && (
+                              <div>
+                                <span className="text-gray-500">Memory:</span>
+                                <span className="text-white ml-2">{requirements.resources.memory}</span>
+                              </div>
+                            )}
+                            {requirements.resources.storage && (
+                              <div>
+                                <span className="text-gray-500">Storage:</span>
+                                <span className="text-white ml-2">{requirements.resources.storage}</span>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Deployment Phases (new structure) */}
+                  {phases.length > 0 && (
+                    <div className="glass-card rounded-xl p-5">
+                      <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                        <Workflow size={14} className="text-purple-400" />
+                        Deployment Phases
+                      </h3>
+                      <div className="space-y-4">
+                        {phases.map((phase: any) => (
+                          <div key={phase.phase} className="glass-surface rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs font-medium">
+                                  {phase.phase}
+                                </span>
+                                <span className="text-white font-medium">{phase.name}</span>
+                              </div>
+                              <span className="text-xs text-gray-500">{phase.duration}</span>
+                            </div>
+                            <ul className="space-y-1 ml-8">
+                              {phase.deliverables?.map((d: string, idx: number) => (
+                                <li key={idx} className="text-xs text-gray-400">• {d}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Environment Variables */}
+                  {envVars.length > 0 && (
+                    <div className="glass-card rounded-xl p-5">
+                      <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                        <Settings size={14} className="text-amber-400" />
+                        {t.envVariables}
+                      </h3>
+                      <div className="space-y-2">
+                        {envVars.map((env: any) => (
+                          <div key={env.name} className="glass-surface rounded-lg px-3 py-2 text-xs">
+                            <div className="flex items-center gap-2">
+                              <code className="text-cyan-400 font-mono">{env.name}</code>
+                              {env.required && <span className="text-[9px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400">required</span>}
+                            </div>
+                            <p className="text-gray-500 mt-1">{env.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Role Configuration (new structure) */}
+                  {roleConfig.length > 0 && (
+                    <div className="glass-card rounded-xl p-5">
+                      <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                        <Users size={14} className="text-blue-400" />
+                        Role Configuration
+                      </h3>
+                      <div className="space-y-2">
+                        {roleConfig.map((role: any) => (
+                          <div key={role.role} className="glass-surface rounded-lg px-3 py-2 text-xs">
+                            <span className="text-white font-medium">{role.role}</span>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {role.permissions?.map((perm: string, idx: number) => (
+                                <span key={idx} className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400">{perm}</span>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Integration Points (new structure) */}
+                  {integrationPoints.length > 0 && (
+                    <div className="glass-card rounded-xl p-5">
+                      <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                        <GitBranch size={14} className="text-cyan-400" />
+                        Integration Points
+                      </h3>
+                      <div className="space-y-2">
+                        {integrationPoints.map((point: any, idx: number) => (
+                          <div key={idx} className="glass-surface rounded-lg px-3 py-2 text-xs flex items-center justify-between">
+                            <span className="text-white">{point.system}</span>
+                            <div className="flex items-center gap-3 text-gray-500">
+                              <span>{point.direction}</span>
+                              <span>{point.frequency}</span>
+                              {point.dataVolume && <span className="text-gray-600">{point.dataVolume}</span>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Quick Start (old structure with documentation) */}
+                  {documentation.quickStart && (
+                    <div className="glass-card rounded-xl p-5">
+                      <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+                        <FileJson size={14} className="text-emerald-400" />
+                        {t.quickStart}
+                      </h3>
+                      <div className="prose prose-invert prose-sm max-w-none">
+                        <pre className="bg-black/30 rounded-lg p-4 text-xs text-gray-300 overflow-x-auto whitespace-pre-wrap">
+                          {documentation.quickStart[lang === 'cn' ? 'cn' : 'en'] || documentation.quickStart}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
         )}
       </div>

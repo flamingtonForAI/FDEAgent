@@ -25,11 +25,11 @@ Ontology Architect 是一个基于 AI 的企业智能系统设计工具，帮助
 - **多模态输入** - 支持上传 PDF、Excel、PPT、图片等文档，AI 直接分析
 
 ### 🏗️ 架构设计
-- **四层架构模型**
+- **Ontology 三层架构 + AI 能力叠加**
   - Semantic Layer（语义层）- 定义业务概念模型
   - Kinetic Layer（动力层）- 连接概念到数据源
   - Dynamic Layer（动态层）- 引入行为和状态管理
-  - AI Layer（智能层）- LLM 集成和智能属性
+  - AI Capability Overlay（AI 能力叠加）- 增强语义层和动态层，非独立第四层
 
 - **Action 三重身份**
   - 业务层 - 自然语言描述、执行角色、触发条件

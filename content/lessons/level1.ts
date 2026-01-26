@@ -161,70 +161,70 @@ export const level1Lessons: LessonContent[] = [
     ]
   },
 
-  // 1.2 四层架构详解
+  // 1.2 三层架构 + AI 能力叠加
   {
     id: 'l1_2',
     title: {
-      en: 'Four-Layer Architecture',
-      cn: '四层架构详解'
+      en: 'Three-Layer Architecture + AI Overlay',
+      cn: '三层架构 + AI 能力叠加'
     },
     sections: [
       {
         title: { en: 'Architecture Overview', cn: '架构概览' },
         content: {
-          en: 'The Ontology methodology is built on a four-layer architecture. Each layer has a specific purpose and builds upon the previous one.',
-          cn: 'Ontology 方法论建立在四层架构之上。每一层都有特定用途，并构建在前一层之上。'
+          en: 'The Ontology methodology is built on a three-layer core architecture (Foundry Ontology), with AI capabilities as an overlay that enhances these layers. This aligns with Palantir\'s official architecture.',
+          cn: 'Ontology 方法论建立在三层核心架构（Foundry Ontology）之上，AI 能力作为叠加层增强这些核心层。这与 Palantir 官方架构保持一致。'
         },
         type: 'text'
       },
       {
-        title: { en: 'The Four Layers', cn: '四个层级' },
+        title: { en: 'Core Three Layers + AI Overlay', cn: '核心三层 + AI 叠加' },
         content: { en: '', cn: '' },
         type: 'diagram',
         data: {
           layers: [
             {
-              name: { en: 'AI Layer', cn: 'AI 层' },
+              name: { en: 'AI Capability Overlay', cn: 'AI 能力叠加' },
               color: 'cyan',
               description: {
-                en: 'AI capabilities injected into Objects and Actions',
-                cn: 'AI 能力注入对象和动作'
+                en: 'NOT a 4th layer - AI enhances Semantic (smart properties) and Dynamic (AI-assisted actions)',
+                cn: '非第四层 - AI 增强语义层（智能属性）和动态层（AI 辅助动作）'
               },
               examples: {
-                en: ['Predictive Analytics', 'Intelligent Recommendations', 'Anomaly Detection'],
-                cn: ['预测分析', '智能推荐', '异常检测']
+                en: ['Smart Properties', 'AI-Assisted Actions', 'Agent Tools'],
+                cn: ['智能属性', 'AI 辅助动作', 'Agent 工具']
               }
             },
             {
               name: { en: 'Dynamic Layer', cn: '动态层' },
               color: 'purple',
               description: {
-                en: 'Workflows, state machines, business rules',
-                cn: '工作流、状态机、业务规则'
+                en: 'Actions, Workflows, Rules - what can be DONE',
+                cn: 'Actions、工作流、规则 —— 能做什么'
               },
               examples: {
-                en: ['Order State Machine', 'Approval Workflow', 'Escalation Rules'],
-                cn: ['订单状态机', '审批工作流', '升级规则']
+                en: ['Approve Order', 'Trigger Workflow', 'Escalation Rules'],
+                cn: ['审批订单', '触发工作流', '升级规则']
               }
             },
             {
-              name: { en: 'Kinetic Layer', cn: '动能层' },
+              name: { en: 'Kinetic Layer', cn: '动力层' },
               color: 'emerald',
               description: {
-                en: 'Actions - what can be done to Objects',
-                cn: 'Action —— 可以对对象执行的操作'
+                en: 'Data Connectivity - WHERE data comes from',
+                cn: '数据连接 —— 数据从哪里来'
               },
               examples: {
-                en: ['Create Order', 'Approve Request', 'Ship Product'],
-                cn: ['创建订单', '审批请求', '发货']
+                en: ['ERP Sync', 'API Integration', 'Database Mapping'],
+                cn: ['ERP 同步', 'API 集成', '数据库映射']
               }
             },
             {
               name: { en: 'Semantic Layer', cn: '语义层' },
               color: 'blue',
               description: {
-                en: 'Objects, Properties, and Relationships',
-                cn: '对象、属性和关系'
+                en: 'Objects, Properties, Links - WHAT things ARE',
+                cn: '对象、属性、关系 —— 业务概念是什么'
               },
               examples: {
                 en: ['Order', 'Customer', 'Product', 'Order contains Product'],
@@ -237,24 +237,24 @@ export const level1Lessons: LessonContent[] = [
       {
         title: { en: 'Layer Interaction', cn: '层级交互' },
         content: {
-          en: 'Each layer depends on and enhances the layer below it. The Semantic Layer provides the vocabulary, Kinetic Layer adds behaviors, Dynamic Layer orchestrates flows, and AI Layer injects intelligence.',
-          cn: '每一层都依赖并增强其下层。语义层提供词汇，动能层添加行为，动态层编排流程，AI 层注入智能。'
+          en: 'The three core layers form the Foundry Ontology: Semantic defines concepts, Kinetic connects to data, Dynamic enables operations. AI capabilities OVERLAY these layers, enhancing them without being a separate architectural layer.',
+          cn: '三个核心层构成 Foundry Ontology：语义层定义概念，动力层连接数据，动态层支持操作。AI 能力叠加在这些层之上，增强它们但不是独立的架构层。'
         },
         type: 'text'
       },
       {
-        title: { en: 'Why Four Layers?', cn: '为什么是四层？' },
+        title: { en: 'Why This Architecture?', cn: '为什么这样设计？' },
         content: {
-          en: 'This separation ensures:\n\n1. **Clarity**: Each concern is addressed at the right level\n2. **Reusability**: Lower layers can be reused across different workflows\n3. **Flexibility**: AI capabilities can be added without changing core logic\n4. **Governance**: Clear boundaries for permissions and audit',
-          cn: '这种分离确保了：\n\n1. **清晰性**：每个关注点在正确的层级处理\n2. **复用性**：底层可在不同工作流中复用\n3. **灵活性**：可以在不改变核心逻辑的情况下添加 AI 能力\n4. **治理性**：权限和审计有清晰的边界'
+          en: 'This architecture aligns with Palantir\'s approach:\n\n1. **Ontology is the core** - 3 layers define the unified data model\n2. **AI is enablement** - AIP capabilities enhance, not replace, Ontology\n3. **Human-in-the-loop** - Actions have governance tiers for controlled automation\n4. **Decision-first** - Model what drives decisions, not everything',
+          cn: '这个架构与 Palantir 方法保持一致：\n\n1. **Ontology 是核心** - 三层定义统一数据模型\n2. **AI 是赋能** - AIP 能力增强而非替代 Ontology\n3. **人在环中** - Action 有治理等级实现受控自动化\n4. **决策优先** - 建模驱动决策的内容，而非一切'
         },
         type: 'text'
       },
       {
-        title: { en: 'The Kinetic Layer is Key', cn: '动能层是关键' },
+        title: { en: 'Actions are the Key', cn: 'Action 是关键' },
         content: {
-          en: 'The Kinetic Layer (Actions) is what transforms a static data model into an operational system. Without Actions, you only have a database schema. With Actions, you have a complete operating system.',
-          cn: '动能层（Action）是将静态数据模型转化为可运营系统的关键。没有 Action，你只有数据库表结构；有了 Action，你才有完整的操作系统。'
+          en: 'Actions in the Dynamic Layer are what transform a static data model into an operational system. They connect business concepts to executable operations, and can be enhanced with AI capabilities.',
+          cn: '动态层中的 Action 是将静态数据模型转化为可运营系统的关键。它们连接业务概念和可执行操作，并可通过 AI 能力增强。'
         },
         type: 'keypoint'
       }

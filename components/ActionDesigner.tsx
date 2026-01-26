@@ -635,10 +635,10 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                         })}
                         className="w-full glass-surface rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500/30"
                       >
-                        <option value={1}>Tier 1 - Auto Execute</option>
-                        <option value={2}>Tier 2 - Confirm</option>
-                        <option value={3}>Tier 3 - Approve</option>
-                        <option value={4}>Tier 4 - Multi-Approve</option>
+                        <option value={1}>Tier 1 - Full Auto (Read/Low-risk writes)</option>
+                        <option value={2}>Tier 2 - Auto + Audit (Standard operations)</option>
+                        <option value={3}>Tier 3 - Human Confirm (Business critical)</option>
+                        <option value={4}>Tier 4 - Multi-Approve (High-risk/Irreversible)</option>
                       </select>
                     </div>
                     <div>

@@ -67,9 +67,15 @@ export interface AIPAction {
     };
   };
 
-  // === 治理属性 ===
+  // === 治理属性 (Palantir Human-in-the-Loop Governance) ===
+  // Permission Tiers align with Palantir's controlled automation philosophy:
+  //   Tier 1: Full Auto - Read operations, low-risk status changes (no human review)
+  //   Tier 2: Auto + Audit - Standard operations with audit trail (async review possible)
+  //   Tier 3: Human Confirm - Business-critical ops require human confirmation before execution
+  //   Tier 4: Multi-Approve - High-risk/irreversible operations need multiple approvals
+  // Higher tier = more human oversight, aligned with increasing business risk
   governance?: {
-    permissionTier: 1 | 2 | 3 | 4;  // 权限等级
+    permissionTier: 1 | 2 | 3 | 4;  // 权限等级 (1=最自动化, 4=最严格控制)
     requiresHumanApproval: boolean; // 是否需要人工审批
     auditLog: boolean;              // 是否记录审计日志
     riskLevel?: 'low' | 'medium' | 'high';  // 风险等级
