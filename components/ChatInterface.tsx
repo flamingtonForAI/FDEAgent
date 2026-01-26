@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { AIService } from '../services/aiService';
 import { ChatMessage, ProjectState, Language } from '../types';
 import { OntologyCase } from '../types/case';
@@ -10,6 +10,8 @@ import CaseRecommendPanel from './CaseRecommendPanel';
 import CaseBrowser from './CaseBrowser';
 import SmartTips from './SmartTips';
 import { FileUploadButton, UploadedFile } from './FileUpload';
+import ReadinessPanel from './ReadinessPanel';
+import { checkReadiness } from '../lib/readinessChecker';
 
 interface ExtractedNoun {
   name: string;
@@ -372,35 +374,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       return;
     }
 
-    setIsValidating(true);
-    try {
-      // Use historyRef for full content including file contents
-      console.log('Calling validateReadiness...');
-      const result = await aiService.validateReadiness(historyRef.current);
-      console.log('validateReadiness result:', result);
-      setValidationResult(result);
+    // 使用新的智能准备度检查器
+    const readinessReport = checkReadiness(project, historyRef.current, lang);
+    console.log('Readiness check result:', readinessReport);
 
-      if (result.ready) {
-        // 信息充足，直接生成
-        console.log('Validation passed, calling onDesignTrigger...');
-        onDesignTrigger();
-      } else {
-        // 信息不足，显示提示弹窗
-        console.log('Validation not ready, showing modal...');
-        setShowValidationModal(true);
-      }
-    } catch (error) {
-      console.error('Validation failed:', error);
-      // 验证失败时也显示弹窗
-      setValidationResult({
-        ready: false,
-        missing: ['验证服务暂时不可用'],
-        identified: { objects: [], actions: [] },
-        suggestion: '请稍后重试，或继续补充业务信息。'
-      });
+    if (readinessReport.level === 'excellent' || readinessReport.level === 'good') {
+      // 信息充足，直接生成
+      console.log('Readiness good, calling onDesignTrigger...');
+      onDesignTrigger();
+    } else {
+      // 显示准备度检查面板（允许用户决定是否继续）
+      console.log('Showing readiness panel...');
       setShowValidationModal(true);
-    } finally {
-      setIsValidating(false);
     }
   };
 
@@ -816,105 +801,20 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         </div>
       )}
 
-      {/* 验证结果弹窗 */}
-      {showValidationModal && validationResult && (
+      {/* 准备度检查弹窗 - 使用新的 ReadinessPanel */}
+      {showValidationModal && (
         <div className="fixed inset-0 bg-[var(--color-bg-base)]/90 z-50 flex items-center justify-center p-4">
-          <div className="glass-card rounded-2xl w-full max-w-md shadow-2xl animate-slideUp">
-            {/* Header */}
-            <div className="p-5 border-b border-white/[0.06] flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                  validationResult.ready ? 'bg-emerald-500/20' : 'bg-amber-500/20'
-                }`}>
-                  {validationResult.ready ? (
-                    <CheckCircle size={20} className="text-emerald-400" />
-                  ) : (
-                    <AlertCircle size={20} className="text-amber-400" />
-                  )}
-                </div>
-                <div>
-                  <h3 className="text-white font-medium">
-                    {validationResult.ready ? t.readyToGenerate : t.validationFailed}
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-0.5">{validationResult.suggestion || ''}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowValidationModal(false)}
-                className="text-gray-500 hover:text-white transition-colors"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="p-5 space-y-4">
-              {/* 已识别的对象 */}
-              <div>
-                <div className="text-xs text-gray-500 mb-2">{t.identifiedObjects}</div>
-                <div className="flex flex-wrap gap-2">
-                  {validationResult.identified?.objects?.length > 0 ? (
-                    validationResult.identified.objects.map((obj, i) => (
-                      <span key={i} className="px-2.5 py-1 bg-amber-500/15 text-amber-300 rounded-lg text-xs">
-                        {obj}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-gray-500 text-xs">{t.none}</span>
-                  )}
-                </div>
-              </div>
-
-              {/* 已识别的动作 */}
-              <div>
-                <div className="text-xs text-gray-500 mb-2">{t.identifiedActions}</div>
-                <div className="flex flex-wrap gap-2">
-                  {validationResult.identified?.actions?.length > 0 ? (
-                    validationResult.identified.actions.map((action, i) => (
-                      <span key={i} className="px-2.5 py-1 bg-emerald-500/15 text-emerald-300 rounded-lg text-xs">
-                        {action}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-gray-500 text-xs">{t.none}</span>
-                  )}
-                </div>
-              </div>
-
-              {/* 缺失信息 */}
-              {!validationResult.ready && validationResult.missing?.length > 0 && (
-                <div>
-                  <div className="text-xs text-gray-500 mb-2">{t.missingInfo}</div>
-                  <ul className="space-y-1.5">
-                    {validationResult.missing.map((item, i) => (
-                      <li key={i} className="flex items-center gap-2 text-amber-400 text-xs">
-                        <span className="w-1 h-1 bg-amber-400 rounded-full flex-shrink-0"></span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="p-5 border-t border-white/[0.06] flex justify-end gap-3">
-              <button
-                onClick={() => setShowValidationModal(false)}
-                className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                {t.continueChat}
-              </button>
-              <button
-                onClick={() => {
-                  setShowValidationModal(false);
-                  onDesignTrigger();
-                }}
-                className="btn-gradient px-4 py-2 rounded-lg text-sm font-medium transition-all"
-              >
-                {t.proceedAnyway}
-              </button>
-            </div>
+          <div className="w-full max-w-lg animate-slideUp">
+            <ReadinessPanel
+              lang={lang}
+              project={project}
+              chatMessages={historyRef.current}
+              onProceed={() => {
+                setShowValidationModal(false);
+                onDesignTrigger();
+              }}
+              onCancel={() => setShowValidationModal(false)}
+            />
           </div>
         </div>
       )}
