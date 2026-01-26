@@ -303,6 +303,7 @@ export const themes: Record<string, Theme> = {
   },
 
   // Nord Light - Using Snow Storm palette
+  // All text colors use Polar Night for good contrast
   nordLight: {
     id: 'nordLight',
     name: 'Nord Light',
@@ -314,31 +315,31 @@ export const themes: Record<string, Theme> = {
       bgSurface: '#d8dee9',   // nord4
       bgHover: '#c8ced9',
 
-      accent: '#5e81ac',      // nord10 - darker for light bg
-      accentLight: '#81a1c1', // nord9
-      accentSecondary: '#b48ead', // nord15
+      accent: '#4c6a92',      // Darker than nord10 for better contrast
+      accentLight: '#5e81ac', // nord10
+      accentSecondary: '#8c5c85', // Darker nord15
 
-      success: '#4d8c57',     // Darker green for contrast
-      warning: '#a67b1a',     // Darker yellow
-      error: '#a6333d',       // Darker red
+      success: '#3d7047',     // Darker green
+      warning: '#8c6610',     // Darker yellow
+      error: '#8c2d35',       // Darker red
 
       textPrimary: '#2e3440', // nord0
       textSecondary: '#3b4252', // nord1
-      textMuted: '#4c566a',   // nord3
+      textMuted: '#434c5e',   // nord2 (darker than nord3)
 
-      border: 'rgba(46, 52, 64, 0.12)',
-      borderHover: 'rgba(46, 52, 64, 0.2)',
-      borderAccent: 'rgba(94, 129, 172, 0.4)',
+      border: 'rgba(46, 52, 64, 0.15)',
+      borderHover: 'rgba(46, 52, 64, 0.25)',
+      borderAccent: 'rgba(76, 106, 146, 0.4)',
 
-      layerBusiness: '#5e81ac',
-      layerLogic: '#4d8c57',
-      layerImpl: '#8c6496',
-      layerGov: '#a67b1a',
+      layerBusiness: '#4c6a92',
+      layerLogic: '#3d7047',
+      layerImpl: '#8c5c85',
+      layerGov: '#8c6610',
 
-      shadowSm: '0 1px 2px rgba(46, 52, 64, 0.06)',
-      shadowMd: '0 4px 8px rgba(46, 52, 64, 0.08)',
-      shadowLg: '0 8px 24px rgba(46, 52, 64, 0.1)',
-      shadowGlow: '0 0 20px rgba(94, 129, 172, 0.1)',
+      shadowSm: '0 1px 2px rgba(46, 52, 64, 0.08)',
+      shadowMd: '0 4px 8px rgba(46, 52, 64, 0.12)',
+      shadowLg: '0 8px 24px rgba(46, 52, 64, 0.16)',
+      shadowGlow: '0 0 20px rgba(76, 106, 146, 0.15)',
     },
   },
 
@@ -384,6 +385,7 @@ export const themes: Record<string, Theme> = {
   },
 
   // Solarized Light - Based on Ethan Schoonover's specification
+  // Fixed textMuted for better contrast
   solarizedLight: {
     id: 'solarizedLight',
     name: 'Solarized Light',
@@ -399,31 +401,32 @@ export const themes: Record<string, Theme> = {
       accentLight: '#2aa198', // cyan
       accentSecondary: '#6c71c4', // violet
 
-      success: '#859900',     // green
-      warning: '#b58900',     // yellow
-      error: '#dc322f',       // red
+      success: '#5c7a00',     // Darker green for better contrast
+      warning: '#96730a',     // Darker yellow
+      error: '#c4271b',       // Darker red
 
       textPrimary: '#073642', // base02
-      textSecondary: '#586e75', // base01
-      textMuted: '#839496',   // base0
+      textSecondary: '#3f5a62', // Darker than base01
+      textMuted: '#586e75',   // Use base01 for muted (was base0 which is too light)
 
-      border: 'rgba(7, 54, 66, 0.12)',
-      borderHover: 'rgba(7, 54, 66, 0.2)',
+      border: 'rgba(7, 54, 66, 0.15)',
+      borderHover: 'rgba(7, 54, 66, 0.25)',
       borderAccent: 'rgba(38, 139, 210, 0.4)',
 
       layerBusiness: '#268bd2',
-      layerLogic: '#859900',
+      layerLogic: '#5c7a00',
       layerImpl: '#6c71c4',
-      layerGov: '#b58900',
+      layerGov: '#96730a',
 
-      shadowSm: '0 1px 2px rgba(7, 54, 66, 0.06)',
-      shadowMd: '0 4px 8px rgba(7, 54, 66, 0.08)',
-      shadowLg: '0 8px 24px rgba(7, 54, 66, 0.1)',
-      shadowGlow: '0 0 20px rgba(38, 139, 210, 0.1)',
+      shadowSm: '0 1px 2px rgba(7, 54, 66, 0.08)',
+      shadowMd: '0 4px 8px rgba(7, 54, 66, 0.12)',
+      shadowLg: '0 8px 24px rgba(7, 54, 66, 0.16)',
+      shadowGlow: '0 0 20px rgba(38, 139, 210, 0.15)',
     },
   },
 
   // One Light - Light version of One Dark
+  // Fixed for better contrast (WCAG 2.1 AA: 4.5:1 minimum)
   oneLight: {
     id: 'oneLight',
     name: 'One Light',
@@ -439,27 +442,27 @@ export const themes: Record<string, Theme> = {
       accentLight: '#526fff',
       accentSecondary: '#a626a4', // Purple
 
-      success: '#50a14f',
-      warning: '#c18401',
-      error: '#e45649',
+      success: '#2e7d32',     // Darker green for better contrast
+      warning: '#b36b00',     // Darker orange
+      error: '#c62828',       // Darker red
 
-      textPrimary: '#383a42',
-      textSecondary: '#696c77',
-      textMuted: '#a0a1a7',
+      textPrimary: '#24292f', // Much darker for high contrast
+      textSecondary: '#4b5158', // Darker - contrast ratio ~7:1
+      textMuted: '#656d76',   // Darker - contrast ratio ~4.6:1
 
-      border: 'rgba(56, 58, 66, 0.12)',
-      borderHover: 'rgba(56, 58, 66, 0.2)',
-      borderAccent: 'rgba(64, 120, 242, 0.3)',
+      border: 'rgba(36, 41, 47, 0.15)',
+      borderHover: 'rgba(36, 41, 47, 0.25)',
+      borderAccent: 'rgba(64, 120, 242, 0.4)',
 
       layerBusiness: '#4078f2',
-      layerLogic: '#50a14f',
+      layerLogic: '#2e7d32',
       layerImpl: '#a626a4',
-      layerGov: '#c18401',
+      layerGov: '#b36b00',
 
-      shadowSm: '0 1px 2px rgba(56, 58, 66, 0.06)',
-      shadowMd: '0 4px 8px rgba(56, 58, 66, 0.08)',
-      shadowLg: '0 8px 24px rgba(56, 58, 66, 0.1)',
-      shadowGlow: '0 0 20px rgba(64, 120, 242, 0.1)',
+      shadowSm: '0 1px 2px rgba(36, 41, 47, 0.08)',
+      shadowMd: '0 4px 8px rgba(36, 41, 47, 0.12)',
+      shadowLg: '0 8px 24px rgba(36, 41, 47, 0.16)',
+      shadowGlow: '0 0 20px rgba(64, 120, 242, 0.15)',
     },
   },
 };
