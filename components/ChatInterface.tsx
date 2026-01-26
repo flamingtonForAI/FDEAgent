@@ -539,12 +539,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   }
 
   return (
-    <div className="flex h-full bg-[#0a0a0a]">
+    <div className="flex h-full bg-[var(--color-bg-elevated)]">
       {/* Main Chat Area */}
       <div className={`flex flex-col flex-1 transition-all duration-300 ${showExtractPanel || showCasePanel ? 'mr-80' : ''}`}>
         <div className="px-6 py-4 border-b border-white/[0.06] flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <Terminal size={14} className="text-cyan-400" />
+            <Terminal size={14} className="text-amber-400" />
             <span className="text-xs text-gray-500">{t.terminal}</span>
           </div>
           <div className="flex items-center gap-2">
@@ -601,7 +601,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 disabled={isExtracting}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                   showExtractPanel
-                    ? 'bg-cyan-500/20 text-cyan-400'
+                    ? 'bg-amber-500/20 text-amber-400'
                     : 'glass-surface text-gray-400 hover:text-white'
                 }`}
                 title={showExtractPanel ? t.hidePanel : t.extractPanel}
@@ -648,7 +648,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}>
             <div className={`message-bubble max-w-[75%] px-4 py-3 rounded-2xl ${
               msg.role === 'user'
-                ? 'bg-gradient-to-br from-cyan-500/20 to-emerald-500/10 text-gray-100 rounded-br-md'
+                ? 'bg-gradient-to-br from-amber-500/20 to-amber-600/10 text-gray-100 rounded-br-md'
                 : 'glass-card text-gray-300 rounded-bl-md'
             }`}>
               <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
@@ -772,7 +772,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               onPaste={handlePaste}
               placeholder={hasApiKey ? t.placeholder : (lang === 'cn' ? '请先配置 API Key...' : 'Please configure API Key first...')}
               disabled={!hasApiKey}
-              className={`flex-1 glass-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500/30 transition-colors placeholder:text-gray-500 ${!hasApiKey ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`flex-1 glass-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/30 transition-colors placeholder:text-gray-500 ${!hasApiKey ? 'opacity-50 cursor-not-allowed' : ''}`}
             />
             <button
               onClick={handleSend}
@@ -818,7 +818,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       {/* 验证结果弹窗 */}
       {showValidationModal && validationResult && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[var(--color-bg-base)]/90 z-50 flex items-center justify-center p-4">
           <div className="glass-card rounded-2xl w-full max-w-md shadow-2xl animate-slideUp">
             {/* Header */}
             <div className="p-5 border-b border-white/[0.06] flex items-center justify-between">
@@ -855,7 +855,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 <div className="flex flex-wrap gap-2">
                   {validationResult.identified?.objects?.length > 0 ? (
                     validationResult.identified.objects.map((obj, i) => (
-                      <span key={i} className="px-2.5 py-1 bg-cyan-500/15 text-cyan-300 rounded-lg text-xs">
+                      <span key={i} className="px-2.5 py-1 bg-amber-500/15 text-amber-300 rounded-lg text-xs">
                         {obj}
                       </span>
                     ))

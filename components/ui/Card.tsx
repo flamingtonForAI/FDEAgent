@@ -68,7 +68,7 @@ export interface CardTitleProps {
 export const CardTitle: React.FC<CardTitleProps> = ({ children, icon, badge, className = '' }) => (
   <div className={`flex items-center gap-3 ${className}`}>
     {icon && (
-      <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500/20 to-emerald-500/10 flex items-center justify-center">
+      <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500/20 to-amber-600/10 flex items-center justify-center">
         {icon}
       </div>
     )}

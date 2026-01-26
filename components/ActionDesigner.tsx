@@ -227,12 +227,12 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
     { id: 'implementation', label: t.implementationLayer, icon: <Code size={14} />, color: 'purple' },
     { id: 'governance', label: t.governance, icon: <Shield size={14} />, color: 'orange' },
     { id: 'api', label: t.apiSpec, icon: <FileJson size={14} />, color: 'purple' },
-    { id: 'tool', label: t.toolSpec, icon: <Bot size={14} />, color: 'cyan' },
+    { id: 'tool', label: t.toolSpec, icon: <Bot size={14} />, color: 'amber' },
   ];
 
   if (objects.length === 0) {
     return (
-      <div className="p-8 h-full bg-[#0a0a0a] flex items-center justify-center">
+      <div className="p-8 h-full bg-[var(--color-bg-elevated)] flex items-center justify-center">
         <div className="text-center text-gray-500">
           <Zap size={40} className="mx-auto mb-4 opacity-30" />
           <p className="text-sm">{t.noObjects}</p>
@@ -242,7 +242,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
   }
 
   return (
-    <div className="h-full bg-[#0a0a0a] flex">
+    <div className="h-full bg-[var(--color-bg-elevated)] flex">
       {/* Left Panel - Object & Action List */}
       <div className="w-64 border-r border-white/[0.06] flex flex-col">
         {/* Object Selector */}
@@ -255,7 +255,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
               setSelectedActionIndex(null);
               setEditingAction(null);
             }}
-            className="w-full glass-surface rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/30"
+            className="w-full glass-surface rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/30"
           >
             {objects.map(obj => (
               <option key={obj.id} value={obj.id}>{obj.name}</option>
@@ -274,16 +274,16 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                   onClick={() => handleSelectAction(idx)}
                   className={`relative w-full text-left p-3 rounded-lg transition-colors ${
                     selectedActionIndex === idx
-                      ? 'bg-cyan-500/10 text-white'
+                      ? 'bg-amber-500/10 text-white'
                       : 'hover:bg-white/[0.04] text-gray-400'
                   }`}
                 >
                   {selectedActionIndex === idx && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 rounded-full bg-gradient-to-b from-cyan-400 to-emerald-400" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 rounded-full bg-gradient-to-b from-amber-400 to-amber-500" />
                   )}
                   <div className="flex items-center gap-2">
                     {action.type === 'generative' ? (
-                      <Zap size={14} className="text-cyan-400" />
+                      <Zap size={14} className="text-amber-400" />
                     ) : (
                       <ChevronRight size={14} className="text-gray-500" />
                     )}
@@ -305,8 +305,8 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
             {/* Header */}
             <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500/20 to-emerald-500/10 flex items-center justify-center">
-                  <Edit3 size={16} className="text-cyan-400" />
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500/20 to-amber-600/10 flex items-center justify-center">
+                  <Edit3 size={16} className="text-amber-400" />
                 </div>
                 <div>
                   <h2 className="text-base font-medium text-white">{editingAction.name}</h2>
@@ -452,12 +452,12 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                             value={param.name}
                             onChange={(e) => updateParameter(idx, { name: e.target.value })}
                             placeholder={t.paramName}
-                            className="w-32 bg-black/30 border border-white/[0.06] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none"
+                            className="w-32 bg-[var(--color-bg-base)]/30 border border-white/[0.06] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none"
                           />
                           <select
                             value={param.type}
                             onChange={(e) => updateParameter(idx, { type: e.target.value as any })}
-                            className="w-24 bg-black/30 border border-white/[0.06] rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none"
+                            className="w-24 bg-[var(--color-bg-base)]/30 border border-white/[0.06] rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none"
                           >
                             <option value="string">string</option>
                             <option value="number">number</option>
@@ -480,7 +480,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                             value={param.description}
                             onChange={(e) => updateParameter(idx, { description: e.target.value })}
                             placeholder={t.paramDescription}
-                            className="flex-1 bg-black/30 border border-white/[0.06] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none"
+                            className="flex-1 bg-[var(--color-bg-base)]/30 border border-white/[0.06] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none"
                           />
                           <button onClick={() => removeParameter(idx)} className="text-gray-500 hover:text-red-400 transition-colors">
                             <Trash2 size={14} />

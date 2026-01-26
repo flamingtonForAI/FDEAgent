@@ -55,7 +55,7 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
   };
 
   return (
-    <div className="p-8 h-full bg-[#0a0a0a] space-y-12 overflow-y-auto">
+    <div className="p-8 h-full bg-[var(--color-bg-elevated)] space-y-12 overflow-y-auto">
       <div className="flex justify-between items-start">
         <div>
           <h2 className="text-3xl font-bold text-white mb-4">{t.title}</h2>
@@ -106,7 +106,7 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
           <Terminal size={20} className="text-indigo-500" />
           <h3 className="text-xl font-semibold text-white">{t.definition}</h3>
         </div>
-        <div className="bg-black/60 p-6 rounded-xl border border-white/5 font-mono text-xs overflow-x-auto max-h-96">
+        <div className="bg-[var(--color-bg-base)]/60 p-6 rounded-xl border border-white/5 font-mono text-xs overflow-x-auto max-h-96">
           <pre className="text-indigo-300">
             {JSON.stringify(project, null, 2)}
           </pre>

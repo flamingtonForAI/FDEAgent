@@ -125,7 +125,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
       <div
         key={archetype.id}
         className={`glass-card rounded-xl p-5 transition-all cursor-pointer ${
-          isSelected ? 'ring-2 ring-cyan-500/50' : 'hover:bg-white/[0.02]'
+          isSelected ? 'ring-2 ring-amber-500/50' : 'hover:bg-white/[0.02]'
         }`}
         onClick={() => setSelectedArchetype(isSelected ? null : archetype.id)}
       >
@@ -212,12 +212,12 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#0a0a0a]">
+    <div className="h-full flex flex-col bg-[var(--color-bg-elevated)]">
       {/* Header */}
       <div className="px-6 py-5 border-b border-white/[0.06]">
         <div className="flex items-center gap-3 mb-1">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center">
-            <Package size={20} className="text-cyan-400" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-purple-500/20 flex items-center justify-center">
+            <Package size={20} className="text-amber-400" />
           </div>
           <div>
             <h1 className="text-xl font-semibold text-white">{t.title}</h1>
@@ -236,7 +236,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t.search}
-            className="w-full glass-surface rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-cyan-500/30"
+            className="w-full glass-surface rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
           />
         </div>
 

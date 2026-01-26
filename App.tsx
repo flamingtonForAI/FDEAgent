@@ -326,7 +326,7 @@ const App: React.FC = () => {
   }, [t.applyArchetype]);
 
   return (
-    <div className="flex h-screen bg-black overflow-hidden text-gray-300">
+    <div className="flex h-screen overflow-hidden text-gray-300" style={{ backgroundColor: 'var(--color-bg-base)' }}>
       {/* Sidebar */}
       <aside className="w-64 glass-surface flex flex-col">
         <div className="p-5 border-b border-white/[0.06]">
@@ -409,7 +409,7 @@ const App: React.FC = () => {
               <SettingsIcon size={14} />
               <span>{lang === 'cn' ? 'AI 设置' : 'AI Settings'}</span>
             </div>
-            <span className="text-[10px] text-cyan-400 truncate max-w-[80px]">
+            <span className="text-[10px] text-amber-400 truncate max-w-[80px]">
               {getCurrentModelName()}
             </span>
           </button>
@@ -442,10 +442,10 @@ const App: React.FC = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col relative overflow-hidden bg-[#0a0a0a]">
+      <main className="flex-1 flex flex-col relative overflow-hidden bg-[var(--color-bg-elevated)]">
         {isDesigning && (
-          <div className="absolute inset-0 bg-black/80 z-50 flex flex-col items-center justify-center">
-            <div className="w-12 h-12 border-2 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin mb-4"></div>
+          <div className="absolute inset-0 bg-[var(--color-bg-base)]/80 z-50 flex flex-col items-center justify-center">
+            <div className="w-12 h-12 border-2 border-amber-500/20 border-t-amber-400 rounded-full animate-spin mb-4"></div>
             <h2 className="text-lg font-medium text-white">{t.synthesizing}</h2>
             <p className="text-gray-500 mt-2 text-sm">{t.mapping}</p>
           </div>
@@ -506,7 +506,7 @@ const App: React.FC = () => {
       {project.objects.length > 0 && !showQualityPanel && (
         <button
           onClick={() => setShowQualityPanel(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 rounded-2xl btn-gradient shadow-lg shadow-cyan-500/20 flex items-center justify-center hover:scale-105 transition-transform z-40 group"
+          className="fixed bottom-6 right-6 w-14 h-14 rounded-2xl btn-gradient shadow-lg shadow-amber-500/20 flex items-center justify-center hover:scale-105 transition-transform z-40 group"
           title={lang === 'cn' ? '质量检查' : 'Quality Check'}
         >
           <ShieldCheck size={24} className="text-white" />
@@ -520,7 +520,7 @@ const App: React.FC = () => {
       {showQualityPanel && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-[var(--color-bg-base)]/60 backdrop-blur-sm"
             onClick={() => setShowQualityPanel(false)}
           />
           <div className="relative w-full max-w-lg h-full glass-surface animate-slide-in-right">
@@ -560,12 +560,12 @@ const NavItem: React.FC<{
       disabled
         ? 'opacity-30 cursor-not-allowed'
         : active
-        ? 'text-cyan-400 bg-cyan-400/[0.08]'
+        ? 'text-amber-400 bg-amber-400/[0.08]'
         : 'text-gray-400 hover:text-gray-200 hover:bg-white/[0.04]'
     }`}
   >
     {active && (
-      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-gradient-to-b from-cyan-400 to-emerald-400" />
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-gradient-to-b from-amber-400 to-amber-500" />
     )}
     {icon}
     {label}

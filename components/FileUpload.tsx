@@ -297,7 +297,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
           onDrop={handleDrop}
           className={`relative border-2 border-dashed rounded-xl p-4 transition-all ${
             isDragging
-              ? 'border-cyan-500/50 bg-cyan-500/5'
+              ? 'border-amber-500/50 bg-amber-500/5'
               : 'border-white/10 hover:border-white/20'
           } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           onClick={() => !disabled && inputRef.current?.click()}
@@ -315,15 +315,15 @@ const FileUpload: React.FC<FileUploadProps> = ({
           <div className="flex flex-col items-center gap-2 text-center">
             {isParsing ? (
               <>
-                <Loader2 size={24} className="text-cyan-400 animate-spin" />
+                <Loader2 size={24} className="text-amber-400 animate-spin" />
                 <span className="text-xs text-gray-400">{t.parsing}</span>
               </>
             ) : (
               <>
-                <Upload size={24} className={isDragging ? 'text-cyan-400' : 'text-gray-500'} />
+                <Upload size={24} className={isDragging ? 'text-amber-400' : 'text-gray-500'} />
                 <div className="text-xs">
                   <span className="text-gray-400">{t.dragDrop} </span>
-                  <span className="text-cyan-400 hover:text-cyan-300">{t.or} {t.browse}</span>
+                  <span className="text-amber-400 hover:text-amber-300">{t.or} {t.browse}</span>
                 </div>
                 <div className="text-micro text-gray-500">
                   {t.supportedFormats} • {t.maxSize} {maxSizeMB}MB
@@ -377,7 +377,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                     <>
                       <p className="text-[11px] text-gray-500 mt-1 line-clamp-2">{file.preview}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-micro text-cyan-500/70">{file.content.length.toLocaleString()} {t.chars}</span>
+                        <span className="text-micro text-amber-500/70">{file.content.length.toLocaleString()} {t.chars}</span>
                       </div>
                     </>
                   )}
@@ -511,7 +511,7 @@ export const FileUploadButton: React.FC<{
         disabled={disabled || isParsing || files.length >= 3}
         className={`p-3 rounded-xl transition-all ${
           files.length > 0
-            ? 'bg-cyan-500/20 text-cyan-400'
+            ? 'bg-amber-500/20 text-amber-400'
             : 'glass-surface text-gray-400 hover:text-white'
         } disabled:opacity-50 disabled:cursor-not-allowed`}
         title={t.uploadFile}

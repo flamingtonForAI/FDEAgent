@@ -4,37 +4,40 @@
    ============================================ */
 
 :root {
-  /* === Colors === */
-  --color-bg-base: #000000;
-  --color-bg-elevated: #0a0a0a;
-  --color-bg-surface: #111111;
-  --color-bg-hover: #1a1a1a;
+  /* === Palantir-Style Color Scheme === */
+  /* Deep blue-gray with gold accents - professional data platform feel */
 
-  /* Accent - Cyan to Emerald gradient spectrum */
-  --color-accent: #06b6d4;
-  --color-accent-light: #22d3ee;
-  --color-accent-secondary: #10b981;
+  /* Backgrounds - Deep slate with blue undertone */
+  --color-bg-base: #0d1117;           /* GitHub dark style base */
+  --color-bg-elevated: #161b22;       /* Slightly lighter for cards */
+  --color-bg-surface: #1c2128;        /* Surface elements */
+  --color-bg-hover: #252c35;          /* Hover states */
+
+  /* Accent - Gold/Amber primary with blue secondary */
+  --color-accent: #d4a656;            /* Palantir gold */
+  --color-accent-light: #e6be7a;      /* Lighter gold */
+  --color-accent-secondary: #4a9eff;  /* Blue secondary */
 
   /* Semantic */
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
+  --color-success: #3fb950;           /* Green */
+  --color-warning: #d29922;           /* Amber */
+  --color-error: #f85149;             /* Red */
 
-  /* Text - WCAG AA compliant contrast ratios */
-  --color-text-primary: #f5f5f5;      /* 15.8:1 contrast */
-  --color-text-secondary: #a1a1aa;    /* 5.4:1 contrast (was #a3a3a3) */
-  --color-text-muted: #71717a;        /* 4.5:1 contrast (was #525252) */
+  /* Text - High contrast for readability */
+  --color-text-primary: #e6edf3;      /* Almost white */
+  --color-text-secondary: #8b949e;    /* Medium gray */
+  --color-text-muted: #6e7681;        /* Subtle gray */
 
-  /* Borders */
-  --color-border: rgba(255, 255, 255, 0.06);
-  --color-border-hover: rgba(255, 255, 255, 0.12);
-  --color-border-accent: rgba(6, 182, 212, 0.3);
+  /* Borders - Subtle with blue tint */
+  --color-border: rgba(139, 148, 158, 0.15);
+  --color-border-hover: rgba(139, 148, 158, 0.3);
+  --color-border-accent: rgba(212, 166, 86, 0.4);
 
-  /* Layers (for Action Designer) */
-  --color-layer-business: #3b82f6;
-  --color-layer-logic: #10b981;
-  --color-layer-impl: #8b5cf6;
-  --color-layer-gov: #f97316;
+  /* Layers (for Action Designer) - Adjusted for new scheme */
+  --color-layer-business: #58a6ff;    /* Blue */
+  --color-layer-logic: #3fb950;       /* Green */
+  --color-layer-impl: #a371f7;        /* Purple */
+  --color-layer-gov: #d4a656;         /* Gold */
 
   /* === Spacing === */
   --space-xs: 0.25rem;
@@ -57,7 +60,7 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(6, 182, 212, 0.15);
+  --shadow-glow: 0 0 20px rgba(212, 166, 86, 0.15);
 }
 
 /* === Base Styles === */
@@ -120,7 +123,7 @@ body {
 /* Enhanced focus state for inputs */
 .glass-surface:focus-within {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+  box-shadow: 0 0 0 3px rgba(212, 166, 86, 0.15);
   outline: none;
 }
 
@@ -152,17 +155,18 @@ body {
   background-clip: text;
 }
 
-/* Gradient button */
+/* Gradient button - Gold to Blue */
 .btn-gradient {
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-secondary) 100%);
-  color: white;
-  font-weight: 500;
-  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  background: linear-gradient(135deg, var(--color-accent) 0%, #b8860b 100%);
+  color: #0d1117;
+  font-weight: 600;
+  transition: opacity var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .btn-gradient:hover {
-  opacity: 0.9;
+  opacity: 0.95;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 166, 86, 0.3);
 }
 
 .btn-gradient:active {
@@ -287,8 +291,8 @@ body {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.1); }
-  50% { box-shadow: 0 0 30px rgba(6, 182, 212, 0.2); }
+  0%, 100% { box-shadow: 0 0 20px rgba(212, 166, 86, 0.1); }
+  50% { box-shadow: 0 0 30px rgba(212, 166, 86, 0.2); }
 }
 
 .animate-fadeIn {

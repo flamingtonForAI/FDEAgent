@@ -107,7 +107,7 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
             {keywords.slice(0, 6).map((kw, i) => (
               <span
                 key={i}
-                className="px-2 py-0.5 rounded text-micro bg-cyan-500/20 text-cyan-400"
+                className="px-2 py-0.5 rounded text-micro bg-amber-500/20 text-amber-400"
               >
                 {kw}
               </span>
@@ -195,7 +195,7 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
                     {onViewCase && (
                       <button
                         onClick={() => onViewCase(caseData)}
-                        className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 transition-colors"
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 transition-colors"
                       >
                         {t.viewDetails}
                         <ExternalLink size={12} />

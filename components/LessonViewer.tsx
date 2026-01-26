@@ -55,13 +55,13 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
     switch (section.type) {
       case 'keypoint':
         return (
-          <div className="p-5 rounded-xl bg-gradient-to-br from-cyan-500/10 to-emerald-500/5 border border-cyan-500/20">
+          <div className="p-5 rounded-xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Lightbulb size={16} className="text-cyan-400" />
+              <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Lightbulb size={16} className="text-amber-400" />
               </div>
               <div>
-                <h4 className="text-cyan-400 font-medium mb-2">{t(section.title)}</h4>
+                <h4 className="text-amber-400 font-medium mb-2">{t(section.title)}</h4>
                 <p className="text-gray-300 leading-relaxed">{t(section.content)}</p>
               </div>
             </div>
@@ -116,18 +116,18 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
               <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
                 <div className="text-xs text-gray-500 mb-2">{t(exData.input.title)}</div>
                 <p className="text-gray-300 leading-relaxed" dangerouslySetInnerHTML={{
-                  __html: t(exData.input.text).replace(/\*\*(.*?)\*\*/g, '<span class="text-cyan-400 font-medium">$1</span>')
+                  __html: t(exData.input.text).replace(/\*\*(.*?)\*\*/g, '<span class="text-amber-400 font-medium">$1</span>')
                 }} />
               </div>
             )}
 
             {exData.output && (
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/20">
-                  <div className="text-xs text-cyan-400 mb-2">{lang === 'cn' ? '提取的对象' : 'Objects'}</div>
+                <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                  <div className="text-xs text-amber-400 mb-2">{lang === 'cn' ? '提取的对象' : 'Objects'}</div>
                   <div className="flex flex-wrap gap-2">
                     {exData.output.objects[lang].map((obj: string, i: number) => (
-                      <span key={i} className="px-2 py-1 bg-cyan-500/20 text-cyan-300 rounded text-sm">{obj}</span>
+                      <span key={i} className="px-2 py-1 bg-amber-500/20 text-amber-300 rounded text-sm">{obj}</span>
                     ))}
                   </div>
                 </div>
@@ -152,11 +152,11 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                     ))}
                   </div>
                 </div>
-                <div className="p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/20">
-                  <div className="text-xs text-cyan-400 mb-3">{t(exData.ontology.title)}</div>
+                <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                  <div className="text-xs text-amber-400 mb-3">{t(exData.ontology.title)}</div>
                   <div className="space-y-2">
                     {exData.ontology.items[lang].map((item: string, i: number) => (
-                      <div key={i} className="text-sm text-cyan-300 font-mono">{item}</div>
+                      <div key={i} className="text-sm text-amber-300 font-mono">{item}</div>
                     ))}
                   </div>
                 </div>
@@ -173,11 +173,11 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                     ))}
                   </div>
                 </div>
-                <div className="p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/20">
-                  <div className="text-xs text-cyan-400 mb-3">{t(exData.decisionFirst.title)}</div>
+                <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                  <div className="text-xs text-amber-400 mb-3">{t(exData.decisionFirst.title)}</div>
                   <div className="space-y-2">
                     {exData.decisionFirst.items[lang].map((item: string, i: number) => (
-                      <div key={i} className="text-sm text-cyan-300">{item}</div>
+                      <div key={i} className="text-sm text-amber-300">{item}</div>
                     ))}
                   </div>
                 </div>
@@ -191,21 +191,21 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                   <h5 className="text-sm font-medium text-white">{t(exData.title)}</h5>
                 )}
                 {exData.perspectives.map((perspective: any, i: number) => {
-                  const colors = ['cyan', 'emerald', 'purple'];
+                  const colors = ['amber', 'emerald', 'purple'];
                   const color = colors[i % colors.length];
                   return (
                     <div key={i} className={`p-4 rounded-xl bg-${color}-500/5 border border-${color}-500/20`}
                       style={{
-                        background: color === 'cyan' ? 'rgba(6, 182, 212, 0.05)' :
+                        background: color === 'amber' ? 'rgba(212, 166, 86, 0.05)' :
                                    color === 'emerald' ? 'rgba(16, 185, 129, 0.05)' :
                                    'rgba(168, 85, 247, 0.05)',
-                        borderColor: color === 'cyan' ? 'rgba(6, 182, 212, 0.2)' :
+                        borderColor: color === 'amber' ? 'rgba(212, 166, 86, 0.2)' :
                                      color === 'emerald' ? 'rgba(16, 185, 129, 0.2)' :
                                      'rgba(168, 85, 247, 0.2)'
                       }}
                     >
                       <div className={`text-xs mb-2 ${
-                        color === 'cyan' ? 'text-cyan-400' :
+                        color === 'amber' ? 'text-amber-400' :
                         color === 'emerald' ? 'text-emerald-400' : 'text-purple-400'
                       }`}>{t(perspective.name)}</div>
                       <div className="space-y-1">
@@ -227,7 +227,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                 )}
                 {exData.mappings.map((mapping: any, i: number) => (
                   <div key={i} className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center gap-3">
-                    <span className="px-2 py-1 bg-cyan-500/20 text-cyan-300 rounded text-xs font-mono">
+                    <span className="px-2 py-1 bg-amber-500/20 text-amber-300 rounded text-xs font-mono">
                       {mapping.action}
                     </span>
                     <span className="text-gray-500">→</span>
@@ -310,7 +310,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                         {trans.from}
                       </span>
                       <span className="text-gray-500">→</span>
-                      <span className="px-2 py-1 bg-cyan-500/20 text-cyan-300 rounded text-xs font-medium">
+                      <span className="px-2 py-1 bg-amber-500/20 text-amber-300 rounded text-xs font-medium">
                         {lang === 'cn' ? trans.cn_action : trans.action}
                       </span>
                       <span className="text-gray-500">→</span>
@@ -332,7 +332,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
               <div
                 key={i}
                 className={`p-4 rounded-xl border transition-all ${
-                  layer.color === 'cyan' ? 'bg-cyan-500/5 border-cyan-500/20' :
+                  layer.color === 'amber' ? 'bg-amber-500/5 border-amber-500/20' :
                   layer.color === 'purple' ? 'bg-purple-500/5 border-purple-500/20' :
                   layer.color === 'emerald' ? 'bg-emerald-500/5 border-emerald-500/20' :
                   'bg-blue-500/5 border-blue-500/20'
@@ -340,7 +340,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
               >
                 <div className="flex items-center justify-between mb-2">
                   <h5 className={`font-medium ${
-                    layer.color === 'cyan' ? 'text-cyan-400' :
+                    layer.color === 'amber' ? 'text-amber-400' :
                     layer.color === 'purple' ? 'text-purple-400' :
                     layer.color === 'emerald' ? 'text-emerald-400' :
                     'text-blue-400'
@@ -373,7 +373,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#0a0a0a]">
+    <div className="h-full flex flex-col bg-[var(--color-bg-elevated)]">
       {/* Header */}
       <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -406,9 +406,9 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
               key={i}
               className={`w-2 h-2 rounded-full transition-colors ${
                 i === currentSection && !showQuiz
-                  ? 'bg-cyan-400'
+                  ? 'bg-amber-400'
                   : i < currentSection || showQuiz
-                  ? 'bg-cyan-400/40'
+                  ? 'bg-amber-400/40'
                   : 'bg-white/10'
               }`}
             />

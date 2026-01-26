@@ -266,7 +266,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
         <button
           onClick={() => setActiveModal('object')}
           disabled={disabled}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-medium hover:bg-cyan-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium hover:bg-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           <Box size={12} />
           {t.addObject}
@@ -291,17 +291,17 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
 
       {/* Modal */}
       {activeModal && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[var(--color-bg-base)]/90 z-50 flex items-center justify-center p-4">
           <div className="glass-card rounded-2xl w-full max-w-lg shadow-2xl animate-slideUp max-h-[85vh] flex flex-col">
             {/* Header */}
             <div className="p-5 border-b border-white/[0.06] flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                  activeModal === 'object' ? 'bg-cyan-500/20' :
+                  activeModal === 'object' ? 'bg-amber-500/20' :
                   activeModal === 'action' ? 'bg-emerald-500/20' :
                   'bg-purple-500/20'
                 }`}>
-                  {activeModal === 'object' && <Box size={20} className="text-cyan-400" />}
+                  {activeModal === 'object' && <Box size={20} className="text-amber-400" />}
                   {activeModal === 'action' && <Zap size={20} className="text-emerald-400" />}
                   {activeModal === 'integration' && <Database size={20} className="text-purple-400" />}
                 </div>
@@ -335,7 +335,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       value={objectForm.name}
                       onChange={(e) => setObjectForm({ ...objectForm, name: e.target.value })}
                       placeholder={t.objectNamePlaceholder}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-cyan-500/50 focus:outline-none"
+                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-amber-500/50 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -345,7 +345,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       onChange={(e) => setObjectForm({ ...objectForm, description: e.target.value })}
                       placeholder={t.objectDescPlaceholder}
                       rows={2}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-cyan-500/50 focus:outline-none resize-none"
+                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-amber-500/50 focus:outline-none resize-none"
                     />
                   </div>
                   <div>
@@ -357,7 +357,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                           value={attr}
                           onChange={(e) => updateArrayItem(setObjectForm, 'attributes', i, e.target.value)}
                           placeholder={t.attributePlaceholder}
-                          className="flex-1 px-4 py-2 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-cyan-500/50 focus:outline-none"
+                          className="flex-1 px-4 py-2 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-amber-500/50 focus:outline-none"
                         />
                         {objectForm.attributes.length > 1 && (
                           <button
@@ -371,7 +371,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                     ))}
                     <button
                       onClick={() => addArrayItem(setObjectForm, 'attributes')}
-                      className="flex items-center gap-1.5 text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
+                      className="flex items-center gap-1.5 text-xs text-amber-400 hover:text-amber-300 transition-colors"
                     >
                       <Plus size={12} />
                       {t.addAttribute}
@@ -384,7 +384,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       value={objectForm.relationships}
                       onChange={(e) => setObjectForm({ ...objectForm, relationships: e.target.value })}
                       placeholder={t.relationshipsPlaceholder}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-cyan-500/50 focus:outline-none"
+                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-amber-500/50 focus:outline-none"
                     />
                   </div>
                 </>

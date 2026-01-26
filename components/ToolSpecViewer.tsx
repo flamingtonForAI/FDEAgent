@@ -223,8 +223,8 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
       {/* Header */}
       <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
-            <Bot size={20} className="text-cyan-400" />
+          <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+            <Bot size={20} className="text-amber-400" />
           </div>
           <div>
             <h3 className="text-white font-medium">{t.title}</h3>
@@ -249,7 +249,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
             onClick={() => setViewMode('full')}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               viewMode === 'full'
-                ? 'bg-cyan-500/20 text-cyan-400'
+                ? 'bg-amber-500/20 text-amber-400'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
@@ -260,7 +260,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
               onClick={() => setViewMode('object')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 viewMode === 'object'
-                  ? 'bg-cyan-500/20 text-cyan-400'
+                  ? 'bg-amber-500/20 text-amber-400'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
@@ -272,7 +272,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
               onClick={() => setViewMode('action')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 viewMode === 'action'
-                  ? 'bg-cyan-500/20 text-cyan-400'
+                  ? 'bg-amber-500/20 text-amber-400'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
@@ -300,7 +300,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
               onClick={() => setOutputMode('json')}
               className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                 outputMode === 'json'
-                  ? 'bg-cyan-500/20 text-cyan-400'
+                  ? 'bg-amber-500/20 text-amber-400'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
@@ -310,7 +310,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
               onClick={() => setOutputMode('python')}
               className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                 outputMode === 'python'
-                  ? 'bg-cyan-500/20 text-cyan-400'
+                  ? 'bg-amber-500/20 text-amber-400'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
@@ -321,7 +321,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                 onClick={() => setOutputMode('typescript')}
                 className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                   outputMode === 'typescript'
-                    ? 'bg-cyan-500/20 text-cyan-400'
+                    ? 'bg-amber-500/20 text-amber-400'
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
@@ -386,7 +386,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <code className="text-sm text-cyan-300 font-mono">
+                                <code className="text-sm text-amber-300 font-mono">
                                   {getToolName(tool)}
                                 </code>
                                 <span className="text-micro px-1.5 py-0.5 rounded bg-gray-500/20 text-gray-400">
@@ -423,7 +423,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                       <div className="grid grid-cols-3 gap-3 text-xs">
                         {(tools as LangChainTool[]).filter(tool => tool.metadata).map((tool, index) => (
                           <div key={index} className="glass-card rounded-lg p-2.5">
-                            <div className="font-mono text-cyan-300 text-[11px] mb-1.5 truncate">
+                            <div className="font-mono text-amber-300 text-[11px] mb-1.5 truncate">
                               {tool.name}
                             </div>
                             <div className="space-y-1 text-gray-400">
@@ -478,7 +478,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                 </button>
                 {expandedSections.has('code') && (
                   <div className="px-4 pb-4">
-                    <pre className="bg-black/30 rounded-lg p-4 overflow-x-auto text-xs text-gray-300 font-mono max-h-96">
+                    <pre className="bg-[var(--color-bg-base)]/30 rounded-lg p-4 overflow-x-auto text-xs text-gray-300 font-mono max-h-96">
                       {outputString}
                     </pre>
                   </div>

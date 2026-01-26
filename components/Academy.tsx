@@ -263,7 +263,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
       title: t.level1Title,
       description: t.level1Desc,
       icon: <BookOpen size={20} />,
-      color: 'cyan',
+      color: 'amber',
       unlocked: true,
       lessons: [
         { id: 'l1_1', title: t.l1_1, duration: '8', completed: completedLessons.has('l1_1') },
@@ -320,21 +320,21 @@ const Academy: React.FC<Props> = ({ lang }) => {
     if (!unlocked) return 'text-gray-500 bg-gray-500/5 border-gray-500/10';
 
     const colorMap: Record<string, string> = {
-      cyan: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20',
+      amber: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
       emerald: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
       purple: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
       orange: 'text-orange-400 bg-orange-500/10 border-orange-500/20',
     };
-    return colorMap[color] || colorMap.cyan;
+    return colorMap[color] || colorMap.amber;
   };
 
   return (
-    <div className="p-6 h-full bg-[#0a0a0a] overflow-y-auto">
+    <div className="p-6 h-full bg-[var(--color-bg-elevated)] overflow-y-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-emerald-500/10 flex items-center justify-center">
-            <GraduationCap size={24} className="text-cyan-400" />
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 flex items-center justify-center">
+            <GraduationCap size={24} className="text-amber-400" />
           </div>
           <div>
             <h1 className="text-xl font-medium text-white">{t.title}</h1>
@@ -362,7 +362,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
               </div>
               <div className="w-24 h-2 bg-white/[0.06] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-amber-500 to-amber-600 rounded-full transition-all duration-500"
                   style={{ width: `${stats.overallPercent}%` }}
                 />
               </div>
@@ -427,7 +427,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                         <div className="w-20 h-1.5 bg-white/[0.06] rounded-full mt-1 overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all ${
-                              level.color === 'cyan' ? 'bg-cyan-500' :
+                              level.color === 'amber' ? 'bg-amber-500' :
                               level.color === 'emerald' ? 'bg-emerald-500' :
                               level.color === 'purple' ? 'bg-purple-500' : 'bg-orange-500'
                             }`}
@@ -466,7 +466,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium ${
                           isLessonCompleted
                             ? 'bg-emerald-500/20 text-emerald-400'
-                            : 'bg-white/[0.04] text-gray-500 group-hover:bg-cyan-500/20 group-hover:text-cyan-400'
+                            : 'bg-white/[0.04] text-gray-500 group-hover:bg-amber-500/20 group-hover:text-amber-400'
                         }`}>
                           {isLessonCompleted ? <CheckCircle size={14} /> : lessonIdx + 1}
                         </div>
@@ -487,7 +487,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                         {/* Play Button */}
                         {hasContent && (
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Play size={16} className="text-cyan-400" />
+                            <Play size={16} className="text-amber-400" />
                           </div>
                         )}
                       </button>
@@ -551,7 +551,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                   <div className={`w-10 h-10 rounded-lg border flex items-center justify-center ${
                     unlocked
                       ? exercise.type === 'noun-verb'
-                        ? 'bg-cyan-500/10 border-cyan-500/20 text-cyan-400'
+                        ? 'bg-amber-500/10 border-amber-500/20 text-amber-400'
                         : 'bg-purple-500/10 border-purple-500/20 text-purple-400'
                       : 'bg-gray-500/5 border-gray-500/10 text-gray-500'
                   }`}>
@@ -577,7 +577,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                     onClick={() => setCurrentExercise(exercise)}
                     className={`w-full py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all ${
                       exercise.type === 'noun-verb'
-                        ? 'bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30'
+                        ? 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30'
                         : 'bg-purple-500/20 text-purple-300 hover:bg-purple-500/30'
                     }`}
                   >
@@ -599,7 +599,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
       <div className="mt-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-amber-500/10 flex items-center justify-center">
               <FolderOpen size={20} className="text-blue-400" />
             </div>
             <div>
@@ -733,7 +733,7 @@ const CasePreviewCard: React.FC<{
   return (
     <button
       onClick={onClick}
-      className="glass-card rounded-xl p-4 text-left hover:border-cyan-500/30 transition-all group"
+      className="glass-card rounded-xl p-4 text-left hover:border-amber-500/30 transition-all group"
     >
       <div className="flex items-start justify-between mb-3">
         <div className={`p-2 rounded-lg ${colorClasses[color]}`}>
@@ -741,7 +741,7 @@ const CasePreviewCard: React.FC<{
         </div>
         <span className="text-micro text-gray-500">{industry}</span>
       </div>
-      <h3 className="text-sm font-medium text-white mb-2 group-hover:text-cyan-400 transition-colors">
+      <h3 className="text-sm font-medium text-white mb-2 group-hover:text-amber-400 transition-colors">
         {title}
       </h3>
       <div className="flex items-center gap-3 text-micro text-gray-500">

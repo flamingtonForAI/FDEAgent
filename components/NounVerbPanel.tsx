@@ -113,7 +113,7 @@ const NounVerbPanel: React.FC<NounVerbPanelProps> = ({
                 className="flex items-center gap-2 w-full text-left mb-2"
               >
                 {expandedNouns ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                <Box size={14} className="text-cyan-400" />
+                <Box size={14} className="text-amber-400" />
                 <span className="text-xs font-medium text-gray-400">
                   {t.objects} ({nouns.length})
                 </span>
@@ -143,7 +143,7 @@ const NounVerbPanel: React.FC<NounVerbPanelProps> = ({
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => onAddNoun(noun)}
-                            className="p-1.5 rounded-lg bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 transition-colors"
+                            className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 transition-colors"
                             title={t.addToOntology}
                           >
                             <Plus size={12} />

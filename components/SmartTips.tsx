@@ -303,10 +303,10 @@ const SmartTips: React.FC<SmartTipsProps> = ({
         };
       case 'check':
         return {
-          bg: 'bg-cyan-500/10',
-          border: 'border-cyan-500/20',
-          text: 'text-cyan-400',
-          badge: 'bg-cyan-500/20 text-cyan-300'
+          bg: 'bg-amber-500/10',
+          border: 'border-amber-500/20',
+          text: 'text-amber-400',
+          badge: 'bg-amber-500/20 text-amber-300'
         };
     }
   };

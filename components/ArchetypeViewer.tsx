@@ -148,11 +148,11 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
 
   if (!archetype) {
     return (
-      <div className="h-full flex items-center justify-center bg-[#0a0a0a]">
+      <div className="h-full flex items-center justify-center bg-[var(--color-bg-elevated)]">
         <div className="text-center text-gray-500">
           <Package size={48} className="mx-auto mb-4 opacity-30" />
           <p>{t.notFound}</p>
-          <button onClick={onBack} className="mt-4 text-cyan-400 hover:underline">
+          <button onClick={onBack} className="mt-4 text-amber-400 hover:underline">
             {t.back}
           </button>
         </div>
@@ -171,7 +171,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
   ];
 
   return (
-    <div className="h-full flex flex-col bg-[#0a0a0a]">
+    <div className="h-full flex flex-col bg-[var(--color-bg-elevated)]">
       {/* Header */}
       <div className="px-6 py-4 border-b border-white/[0.06]">
         <div className="flex items-center justify-between">
@@ -231,7 +231,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
             {archetype.metadata.origin && (
               <div className="glass-card rounded-xl p-5">
                 <h3 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
-                  <Users size={14} className="text-cyan-400" />
+                  <Users size={14} className="text-amber-400" />
                   {t.origin}
                 </h3>
                 <div className="text-sm text-gray-400 space-y-2">
@@ -251,7 +251,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
               <MiniStatCard label={t.connectors} value={archetype.connectors.length} color="emerald" />
               <MiniStatCard label={t.workflows} value={archetype.workflows.length} color="purple" />
               <MiniStatCard label={t.aiCapabilities} value={archetype.aiCapabilities.length} color="amber" />
-              <MiniStatCard label={t.dashboards} value={archetype.dashboards.length} color="cyan" />
+              <MiniStatCard label={t.dashboards} value={archetype.dashboards.length} color="amber" />
             </div>
           </div>
         )}
@@ -275,7 +275,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                     <div className="grid grid-cols-2 gap-2">
                       {obj.properties?.slice(0, 8).map(prop => (
                         <div key={prop.name} className="glass-surface rounded-lg px-3 py-2 text-xs">
-                          <span className="text-cyan-400 font-mono">{prop.name}</span>
+                          <span className="text-amber-400 font-mono">{prop.name}</span>
                           <span className="text-gray-500 ml-2">{prop.type}</span>
                           {prop.isAIDerived && (
                             <span className="ml-2 text-micro px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400">AI</span>
@@ -293,7 +293,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                         {obj.actions.map((action, idx) => (
                           <div key={idx} className="glass-surface rounded-lg px-3 py-2">
                             <div className="flex items-center gap-2">
-                              <Zap size={12} className={action.type === 'generative' ? 'text-purple-400' : 'text-cyan-400'} />
+                              <Zap size={12} className={action.type === 'generative' ? 'text-purple-400' : 'text-amber-400'} />
                               <span className="text-sm text-white">{action.name}</span>
                               {action.type === 'generative' && (
                                 <span className="text-micro px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400">AI</span>
@@ -327,11 +327,11 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
 
                     return (
                       <div key={linkAny.id || idx} className="glass-surface rounded-lg px-3 py-2 text-xs flex items-center gap-2">
-                        <span className="text-cyan-400">{source}</span>
+                        <span className="text-amber-400">{source}</span>
                         <span className="text-gray-500">→</span>
                         <span className="text-emerald-400">{label}</span>
                         <span className="text-gray-500">→</span>
-                        <span className="text-cyan-400">{target}</span>
+                        <span className="text-amber-400">{target}</span>
                       </div>
                     );
                   })}
@@ -382,7 +382,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                           <div key={idx} className="glass-surface rounded px-2 py-1.5 text-xs">
                             <span className="text-gray-400">{mapping.sourceEntity}</span>
                             <span className="text-gray-500 mx-2">→</span>
-                            <span className="text-cyan-400">{mapping.objectId}</span>
+                            <span className="text-amber-400">{mapping.objectId}</span>
                             <span className="text-gray-500 ml-2">({mapping.fieldMappings?.length || 0} fields)</span>
                           </div>
                         ))}
@@ -391,7 +391,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                           <>
                             <div className="flex flex-wrap gap-2 mb-2">
                               {targetObjects.map((obj: string, idx: number) => (
-                                <span key={idx} className="text-xs px-2 py-1 rounded bg-cyan-500/20 text-cyan-400">{obj}</span>
+                                <span key={idx} className="text-xs px-2 py-1 rounded bg-amber-500/20 text-amber-400">{obj}</span>
                               ))}
                             </div>
                             {fieldMapping.length > 0 && (
@@ -401,7 +401,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                                   <div key={idx} className="glass-surface rounded px-2 py-1.5 text-xs">
                                     <span className="text-gray-400 font-mono">{fm.source}</span>
                                     <span className="text-gray-500 mx-2">→</span>
-                                    <span className="text-cyan-400 font-mono">{fm.target}</span>
+                                    <span className="text-amber-400 font-mono">{fm.target}</span>
                                   </div>
                                 ))}
                                 {fieldMapping.length > 5 && (
@@ -455,7 +455,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                     <div className="space-y-1">
                       {workflow.steps.map((step: any, idx: number) => (
                         <div key={step.id || idx} className="flex items-center gap-2 text-xs">
-                          <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-micro">
+                          <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-micro">
                             {step.order || idx + 1}
                           </span>
                           <span className="text-white">{step.name}</span>
@@ -501,7 +501,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                         </div>
                         <p className="text-xs text-gray-400">{ruleDescription}</p>
                         {ruleExpression && (
-                          <code className="block mt-2 text-micro text-cyan-400 font-mono bg-black/30 rounded px-2 py-1">
+                          <code className="block mt-2 text-micro text-amber-400 font-mono bg-[var(--color-bg-base)]/30 rounded px-2 py-1">
                             {ruleExpression}
                           </code>
                         )}
@@ -589,7 +589,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                   {enabledActions.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {enabledActions.map((action: string) => (
-                        <span key={action} className="text-micro px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400">{action}</span>
+                        <span key={action} className="text-micro px-2 py-0.5 rounded bg-amber-500/20 text-amber-400">{action}</span>
                       ))}
                     </div>
                   )}
@@ -603,7 +603,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
         {activeTab === 'ui' && (
           <div className="space-y-4 animate-fadeIn">
             <h3 className="text-sm font-medium text-white flex items-center gap-2">
-              <LayoutDashboard size={14} className="text-cyan-400" />
+              <LayoutDashboard size={14} className="text-amber-400" />
               {t.dashboards}
             </h3>
             {archetype.dashboards.map(dashboard => {
@@ -702,7 +702,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                   {requirements.platform && (
                     <div className="glass-card rounded-xl p-5">
                       <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-                        <Server size={14} className="text-cyan-400" />
+                        <Server size={14} className="text-amber-400" />
                         {t.requirements}
                       </h3>
                       <div className="grid grid-cols-2 gap-4 text-xs">
@@ -777,7 +777,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                         {envVars.map((env: any) => (
                           <div key={env.name} className="glass-surface rounded-lg px-3 py-2 text-xs">
                             <div className="flex items-center gap-2">
-                              <code className="text-cyan-400 font-mono">{env.name}</code>
+                              <code className="text-amber-400 font-mono">{env.name}</code>
                               {env.required && <span className="text-micro px-1.5 py-0.5 rounded bg-red-500/20 text-red-400">required</span>}
                             </div>
                             <p className="text-gray-500 mt-1">{env.description}</p>
@@ -813,7 +813,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                   {integrationPoints.length > 0 && (
                     <div className="glass-card rounded-xl p-5">
                       <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-                        <GitBranch size={14} className="text-cyan-400" />
+                        <GitBranch size={14} className="text-amber-400" />
                         Integration Points
                       </h3>
                       <div className="space-y-2">
@@ -839,7 +839,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                         {t.quickStart}
                       </h3>
                       <div className="prose prose-invert prose-sm max-w-none">
-                        <pre className="bg-black/30 rounded-lg p-4 text-xs text-gray-300 overflow-x-auto whitespace-pre-wrap">
+                        <pre className="bg-[var(--color-bg-base)]/30 rounded-lg p-4 text-xs text-gray-300 overflow-x-auto whitespace-pre-wrap">
                           {documentation.quickStart[lang === 'cn' ? 'cn' : 'en'] || documentation.quickStart}
                         </pre>
                       </div>

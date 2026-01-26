@@ -179,7 +179,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
       <input
         type="checkbox"
         id={checkboxId}
-        className="rounded border-white/20 bg-transparent text-cyan-500 focus:ring-cyan-500/30 focus:ring-offset-0"
+        className="rounded border-white/20 bg-transparent text-amber-500 focus:ring-amber-500/30 focus:ring-offset-0"
         {...props}
       />
       <span className="text-sm text-gray-400">{label}</span>

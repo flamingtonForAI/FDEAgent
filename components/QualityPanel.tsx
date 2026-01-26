@@ -96,7 +96,7 @@ const severityConfig: Record<Severity, { icon: React.ReactNode; color: string; b
 };
 
 const categoryConfig: Record<Category, { icon: React.ReactNode; color: string }> = {
-  object: { icon: <Box size={12} />, color: 'text-cyan-400' },
+  object: { icon: <Box size={12} />, color: 'text-amber-400' },
   action: { icon: <Zap size={12} />, color: 'text-emerald-400' },
   link: { icon: <Link2 size={12} />, color: 'text-purple-400' },
   integration: { icon: <Database size={12} />, color: 'text-orange-400' },
@@ -105,7 +105,7 @@ const categoryConfig: Record<Category, { icon: React.ReactNode; color: string }>
 
 const gradeColors: Record<string, string> = {
   A: 'text-emerald-400 bg-emerald-500/20',
-  B: 'text-cyan-400 bg-cyan-500/20',
+  B: 'text-amber-400 bg-amber-500/20',
   C: 'text-amber-400 bg-amber-500/20',
   D: 'text-orange-400 bg-orange-500/20',
   F: 'text-red-400 bg-red-500/20'
@@ -334,9 +334,9 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
                                 </p>
                               )}
                               {issue.suggestion && (
-                                <div className="mt-2 p-2 rounded-lg bg-white/[0.03] border-l-2 border-cyan-500/50">
+                                <div className="mt-2 p-2 rounded-lg bg-white/[0.03] border-l-2 border-amber-500/50">
                                   <p className="text-xs text-gray-400">
-                                    <span className="text-cyan-400">{t.suggestion}:</span> {issue.suggestion[lang]}
+                                    <span className="text-amber-400">{t.suggestion}:</span> {issue.suggestion[lang]}
                                   </p>
                                 </div>
                               )}

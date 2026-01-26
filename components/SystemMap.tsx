@@ -33,7 +33,7 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
   const t = translations[lang];
 
   return (
-    <div className="p-8 h-full bg-[#0a0a0a] space-y-12 overflow-y-auto">
+    <div className="p-8 h-full bg-[var(--color-bg-elevated)] space-y-12 overflow-y-auto">
       <div>
         <h2 className="text-2xl font-bold text-white mb-2">{t.title}</h2>
         <p className="text-gray-500 text-sm">{t.subtitle}</p>
@@ -78,7 +78,7 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
                 {/* Connection Logic */}
                 <div className="flex flex-col items-center justify-center relative">
                   <div className="h-px w-full bg-gradient-to-r from-indigo-500/20 via-indigo-500/50 to-indigo-500/20 absolute top-1/2 -translate-y-1/2"></div>
-                  <div className="bg-[#0a0a0a] px-3 py-1.5 border border-indigo-500/30 rounded-full flex flex-col items-center gap-0.5 z-10 shadow-xl">
+                  <div className="bg-[var(--color-bg-elevated)] px-3 py-1.5 border border-indigo-500/30 rounded-full flex flex-col items-center gap-0.5 z-10 shadow-xl">
                     <span className="text-micro font-mono text-indigo-400 uppercase font-bold">{integration.mechanism}</span>
                     {integration.mechanism === 'AI Parsing' && <Zap size={10} className="text-amber-500 animate-pulse" />}
                   </div>
@@ -120,7 +120,7 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
 };
 
 const TechCard = ({ icon, label }: { icon: React.ReactNode, label: string }) => (
-  <div className="flex items-center gap-2 p-3 bg-black/40 border border-white/5 rounded-lg text-micro font-mono uppercase tracking-widest text-gray-500">
+  <div className="flex items-center gap-2 p-3 bg-[var(--color-bg-base)]/40 border border-white/5 rounded-lg text-micro font-mono uppercase tracking-widest text-gray-500">
     {icon}
     {label}
   </div>

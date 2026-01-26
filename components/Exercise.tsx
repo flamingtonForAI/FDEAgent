@@ -254,7 +254,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
 
         {/* Nouns Selection */}
         <div>
-          <div className="text-sm text-cyan-400 mb-3">{t.selectNouns}</div>
+          <div className="text-sm text-amber-400 mb-3">{t.selectNouns}</div>
           <div className="flex flex-wrap gap-2">
             {allNouns.map(noun => {
               const isSelected = selectedNouns.has(noun);
@@ -282,8 +282,8 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
                           ? 'bg-red-500/20 text-red-300 border border-red-500/30'
                           : 'bg-white/[0.02] text-gray-500 border border-white/[0.06]'
                       : isSelected
-                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                        : 'bg-white/[0.04] text-gray-400 border border-white/[0.06] hover:border-cyan-500/30'
+                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                        : 'bg-white/[0.04] text-gray-400 border border-white/[0.06] hover:border-amber-500/30'
                   }`}
                 >
                   {noun}
@@ -417,7 +417,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
                   {!submitted && !showHint && (
                     <button
                       onClick={() => setShowHints(new Set([...showHints, blank.field]))}
-                      className="text-xs text-gray-500 hover:text-cyan-400 flex items-center gap-1"
+                      className="text-xs text-gray-500 hover:text-amber-400 flex items-center gap-1"
                     >
                       <Lightbulb size={12} />
                       {t.showHint}
@@ -426,7 +426,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
                 </div>
 
                 {showHint && !submitted && (
-                  <div className="text-xs text-cyan-400/80 bg-cyan-500/10 px-3 py-1.5 rounded">
+                  <div className="text-xs text-amber-400/80 bg-amber-500/10 px-3 py-1.5 rounded">
                     {t.hint}: {blank.hint[lang]}
                   </div>
                 )}
@@ -442,7 +442,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
                       ? correct
                         ? 'border-emerald-500/50 text-emerald-300'
                         : 'border-red-500/50 text-red-300'
-                      : 'border-white/[0.06] text-white focus:border-cyan-500/50 focus:outline-none'
+                      : 'border-white/[0.06] text-white focus:border-amber-500/50 focus:outline-none'
                   }`}
                 />
 
@@ -482,7 +482,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#0a0a0a]">
+    <div className="h-full flex flex-col bg-[var(--color-bg-elevated)]">
       {/* Header */}
       <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -515,7 +515,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
                   i < currentIndex
                     ? 'bg-emerald-400'
                     : i === currentIndex
-                    ? 'bg-cyan-400'
+                    ? 'bg-amber-400'
                     : 'bg-white/10'
                 }`}
               />
@@ -533,10 +533,10 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
 
       {/* Result overlay when all done */}
       {exercisesCompleted === exercises.length && submitted && (
-        <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
+        <div className="absolute inset-0 bg-[var(--color-bg-base)]/80 flex items-center justify-center z-50">
           <div className="glass-card rounded-2xl p-8 text-center max-w-sm mx-4 animate-fadeIn">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-              <Award size={32} className="text-cyan-400" />
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500/20 to-amber-600/20 flex items-center justify-center mx-auto mb-4">
+              <Award size={32} className="text-amber-400" />
             </div>
             <h3 className="text-xl font-medium text-white mb-2">{t.completed}</h3>
             <div className="text-3xl font-bold text-gradient mb-1">

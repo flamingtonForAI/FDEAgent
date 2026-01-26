@@ -233,7 +233,7 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
               onClick={() => setFormat('json')}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                 format === 'json'
-                  ? 'bg-cyan-500/20 text-cyan-400'
+                  ? 'bg-amber-500/20 text-amber-400'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
@@ -244,7 +244,7 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
               onClick={() => setFormat('yaml')}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                 format === 'yaml'
-                  ? 'bg-cyan-500/20 text-cyan-400'
+                  ? 'bg-amber-500/20 text-amber-400'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
@@ -312,7 +312,7 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
                                 key={method}
                                 className={`px-2 py-0.5 rounded text-micro font-bold uppercase ${
                                   method === 'get' ? 'bg-emerald-500/20 text-emerald-400' :
-                                  method === 'post' ? 'bg-cyan-500/20 text-cyan-400' :
+                                  method === 'post' ? 'bg-amber-500/20 text-amber-400' :
                                   method === 'put' ? 'bg-amber-500/20 text-amber-400' :
                                   method === 'patch' ? 'bg-purple-500/20 text-purple-400' :
                                   'bg-red-500/20 text-red-400'
@@ -378,7 +378,7 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
                 </button>
                 {expandedSections.has('raw') && (
                   <div className="px-4 pb-4">
-                    <pre className="bg-black/30 rounded-lg p-4 overflow-x-auto text-xs text-gray-300 font-mono max-h-96">
+                    <pre className="bg-[var(--color-bg-base)]/30 rounded-lg p-4 overflow-x-auto text-xs text-gray-300 font-mono max-h-96">
                       {specString}
                     </pre>
                   </div>

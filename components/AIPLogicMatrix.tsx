@@ -50,7 +50,7 @@ const AIPLogicMatrix: React.FC<Props> = ({ lang, objects }) => {
   };
 
   return (
-    <div className="p-8 h-full bg-[#0a0a0a] space-y-10 overflow-y-auto">
+    <div className="p-8 h-full bg-[var(--color-bg-elevated)] space-y-10 overflow-y-auto">
       <div>
         <h2 className="text-2xl font-bold text-white mb-2">{t.title}</h2>
         <p className="text-gray-500 text-sm italic">{t.subtitle}</p>
@@ -65,7 +65,7 @@ const AIPLogicMatrix: React.FC<Props> = ({ lang, objects }) => {
           </h3>
           <div className="space-y-4">
             {aiComponents.map((comp, idx) => (
-              <div key={idx} className="p-4 bg-black/40 border border-white/5 rounded-xl hover:border-white/20 transition-all">
+              <div key={idx} className="p-4 bg-[var(--color-bg-base)]/40 border border-white/5 rounded-xl hover:border-white/20 transition-all">
                 <div className="flex items-center gap-3 mb-2">
                   {getIcon(comp.type)}
                   <span className="text-micro font-mono text-gray-500 uppercase tracking-tighter">
@@ -88,7 +88,7 @@ const AIPLogicMatrix: React.FC<Props> = ({ lang, objects }) => {
             <div className="space-y-3">
               {objects.flatMap(obj => 
                 obj.properties.filter(p => p.isAIDerived).map((p, idx) => (
-                  <div key={idx} className="text-xs bg-black/40 p-3 rounded-lg border border-white/5 font-mono">
+                  <div key={idx} className="text-xs bg-[var(--color-bg-base)]/40 p-3 rounded-lg border border-white/5 font-mono">
                     <span className="text-amber-500">{t.attr}</span> {obj.name}.{p.name}
                     <div className="mt-2 text-gray-500">
                       <span className="text-gray-400">{t.prompt}</span> {p.logicDescription}
@@ -107,7 +107,7 @@ const AIPLogicMatrix: React.FC<Props> = ({ lang, objects }) => {
             <div className="space-y-3">
               {objects.flatMap(obj => 
                 obj.actions.filter(a => a.type === 'generative').map((a, idx) => (
-                  <div key={idx} className="text-xs bg-black/40 p-3 rounded-lg border border-white/5 font-mono">
+                  <div key={idx} className="text-xs bg-[var(--color-bg-base)]/40 p-3 rounded-lg border border-white/5 font-mono">
                     <span className="text-indigo-500">{t.flow}</span> {obj.name}.{a.name}
                     <div className="mt-2 text-gray-500">
                       <span className="text-gray-400">{t.guide}</span> {a.aiLogic}
