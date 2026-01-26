@@ -55,13 +55,13 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
     switch (section.type) {
       case 'keypoint':
         return (
-          <div className="p-5 rounded-xl bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20">
+          <div className="p-5 rounded-xl" style={{ background: 'linear-gradient(to bottom right, rgba(var(--color-accent-rgb), 0.1), rgba(var(--color-accent-rgb), 0.05))', borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(var(--color-accent-rgb), 0.2)' }}>
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Lightbulb size={16} className="text-amber-400" />
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ backgroundColor: 'rgba(var(--color-accent-rgb), 0.2)' }}>
+                <Lightbulb size={16} style={{ color: 'var(--color-accent)' }} />
               </div>
               <div>
-                <h4 className="text-amber-400 font-medium mb-2">{t(section.title)}</h4>
+                <h4 className="font-medium mb-2" style={{ color: 'var(--color-accent)' }}>{t(section.title)}</h4>
                 <p className="text-secondary leading-relaxed">{t(section.content)}</p>
               </div>
             </div>
@@ -71,15 +71,15 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
       case 'comparison':
         const compData = section.data;
         return (
-          <div className="rounded-xl border border-white/[0.06] overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-3 bg-white/[0.02] border-b border-white/[0.06]">
-              <Table2 size={16} className="text-purple-400" />
-              <h4 className="text-white font-medium">{t(section.title)}</h4>
+          <div className="rounded-xl overflow-hidden" style={{ borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
+            <div className="flex items-center gap-2 px-4 py-3" style={{ backgroundColor: 'var(--color-bg-hover)', borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
+              <Table2 size={16} style={{ color: 'var(--color-accent-secondary)' }} />
+              <h4 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{t(section.title)}</h4>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/[0.06]">
+                  <tr style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
                     {compData.headers[lang].map((header: string, i: number) => (
                       <th key={i} className="px-4 py-3 text-left text-xs text-muted font-medium">
                         {header}
@@ -89,7 +89,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                 </thead>
                 <tbody>
                   {compData.rows.map((row: any, i: number) => (
-                    <tr key={i} className="border-b border-white/[0.04] last:border-0">
+                    <tr key={i} className="last:border-0" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border-subtle)' }}>
                       {row[lang].map((cell: string, j: number) => (
                         <td key={j} className={`px-4 py-3 text-sm ${j === 0 ? 'text-muted' : 'text-secondary'}`}>
                           {cell}
@@ -108,34 +108,34 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
         return (
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <GitCompare size={16} className="text-emerald-400" />
-              <h4 className="text-white font-medium">{t(section.title)}</h4>
+              <GitCompare size={16} style={{ color: 'var(--color-success)' }} />
+              <h4 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{t(section.title)}</h4>
             </div>
 
             {exData.input && (
-              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+              <div className="p-4 rounded-xl" style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
                 <div className="text-xs text-muted mb-2">{t(exData.input.title)}</div>
                 <p className="text-secondary leading-relaxed" dangerouslySetInnerHTML={{
-                  __html: t(exData.input.text).replace(/\*\*(.*?)\*\*/g, '<span class="text-amber-400 font-medium">$1</span>')
+                  __html: t(exData.input.text).replace(/\*\*(.*?)\*\*/g, '<span style="color: var(--color-accent); font-weight: 500;">$1</span>')
                 }} />
               </div>
             )}
 
             {exData.output && (
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
-                  <div className="text-xs text-amber-400 mb-2">{lang === 'cn' ? '提取的对象' : 'Objects'}</div>
+                <div className="p-4 rounded-xl" style={{ backgroundColor: 'rgba(var(--color-accent-rgb), 0.05)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(var(--color-accent-rgb), 0.2)' }}>
+                  <div className="text-xs mb-2" style={{ color: 'var(--color-accent)' }}>{lang === 'cn' ? '提取的对象' : 'Objects'}</div>
                   <div className="flex flex-wrap gap-2">
                     {exData.output.objects[lang].map((obj: string, i: number) => (
-                      <span key={i} className="px-2 py-1 bg-amber-500/20 text-amber-300 rounded text-sm">{obj}</span>
+                      <span key={i} className="px-2 py-1 rounded text-sm" style={{ backgroundColor: 'rgba(var(--color-accent-rgb), 0.2)', color: 'var(--color-accent)' }}>{obj}</span>
                     ))}
                   </div>
                 </div>
-                <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
-                  <div className="text-xs text-emerald-400 mb-2">{lang === 'cn' ? '提取的动作' : 'Actions'}</div>
+                <div className="p-4 rounded-xl" style={{ backgroundColor: 'rgba(16, 185, 129, 0.05)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(16, 185, 129, 0.2)' }}>
+                  <div className="text-xs mb-2" style={{ color: 'var(--color-success)' }}>{lang === 'cn' ? '提取的动作' : 'Actions'}</div>
                   <div className="flex flex-wrap gap-2">
                     {exData.output.actions[lang].map((action: string, i: number) => (
-                      <span key={i} className="px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded text-sm">{action}</span>
+                      <span key={i} className="px-2 py-1 rounded text-sm" style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', color: 'var(--color-success)' }}>{action}</span>
                     ))}
                   </div>
                 </div>
@@ -144,7 +144,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
 
             {exData.knowledgeGraph && exData.ontology && (
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-gray-500/5 border border-gray-500/20">
+                <div className="p-4 rounded-xl" style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
                   <div className="text-xs text-muted mb-3">{t(exData.knowledgeGraph.title)}</div>
                   <div className="space-y-2">
                     {exData.knowledgeGraph.items[lang].map((item: string, i: number) => (
@@ -152,11 +152,11 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                     ))}
                   </div>
                 </div>
-                <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
-                  <div className="text-xs text-amber-400 mb-3">{t(exData.ontology.title)}</div>
+                <div className="p-4 rounded-xl" style={{ backgroundColor: 'rgba(var(--color-accent-rgb), 0.05)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(var(--color-accent-rgb), 0.2)' }}>
+                  <div className="text-xs mb-3" style={{ color: 'var(--color-accent)' }}>{t(exData.ontology.title)}</div>
                   <div className="space-y-2">
                     {exData.ontology.items[lang].map((item: string, i: number) => (
-                      <div key={i} className="text-sm text-amber-300 font-mono">{item}</div>
+                      <div key={i} className="text-sm font-mono" style={{ color: 'var(--color-accent)' }}>{item}</div>
                     ))}
                   </div>
                 </div>
@@ -165,7 +165,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
 
             {exData.traditional && exData.decisionFirst && (
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-gray-500/5 border border-gray-500/20">
+                <div className="p-4 rounded-xl" style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
                   <div className="text-xs text-muted mb-3">{t(exData.traditional.title)}</div>
                   <div className="space-y-2">
                     {exData.traditional.items[lang].map((item: string, i: number) => (
@@ -173,11 +173,11 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                     ))}
                   </div>
                 </div>
-                <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
-                  <div className="text-xs text-amber-400 mb-3">{t(exData.decisionFirst.title)}</div>
+                <div className="p-4 rounded-xl" style={{ backgroundColor: 'rgba(var(--color-accent-rgb), 0.05)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(var(--color-accent-rgb), 0.2)' }}>
+                  <div className="text-xs mb-3" style={{ color: 'var(--color-accent)' }}>{t(exData.decisionFirst.title)}</div>
                   <div className="space-y-2">
                     {exData.decisionFirst.items[lang].map((item: string, i: number) => (
-                      <div key={i} className="text-sm text-amber-300">{item}</div>
+                      <div key={i} className="text-sm" style={{ color: 'var(--color-accent)' }}>{item}</div>
                     ))}
                   </div>
                 </div>
@@ -188,26 +188,25 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
             {exData.perspectives && (
               <div className="space-y-4">
                 {exData.title && (
-                  <h5 className="text-sm font-medium text-white">{t(exData.title)}</h5>
+                  <h5 className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{t(exData.title)}</h5>
                 )}
                 {exData.perspectives.map((perspective: any, i: number) => {
-                  const colors = ['amber', 'emerald', 'purple'];
-                  const color = colors[i % colors.length];
+                  const colorStyles = [
+                    { bg: 'rgba(var(--color-accent-rgb), 0.05)', border: 'rgba(var(--color-accent-rgb), 0.2)', text: 'var(--color-accent)' },
+                    { bg: 'rgba(16, 185, 129, 0.05)', border: 'rgba(16, 185, 129, 0.2)', text: 'var(--color-success)' },
+                    { bg: 'rgba(var(--color-accent-secondary-rgb), 0.05)', border: 'rgba(var(--color-accent-secondary-rgb), 0.2)', text: 'var(--color-accent-secondary)' }
+                  ];
+                  const colorStyle = colorStyles[i % colorStyles.length];
                   return (
-                    <div key={i} className={`p-4 rounded-xl bg-${color}-500/5 border border-${color}-500/20`}
+                    <div key={i} className="p-4 rounded-xl"
                       style={{
-                        background: color === 'amber' ? 'rgba(212, 166, 86, 0.05)' :
-                                   color === 'emerald' ? 'rgba(16, 185, 129, 0.05)' :
-                                   'rgba(168, 85, 247, 0.05)',
-                        borderColor: color === 'amber' ? 'rgba(212, 166, 86, 0.2)' :
-                                     color === 'emerald' ? 'rgba(16, 185, 129, 0.2)' :
-                                     'rgba(168, 85, 247, 0.2)'
+                        backgroundColor: colorStyle.bg,
+                        borderWidth: '1px',
+                        borderStyle: 'solid',
+                        borderColor: colorStyle.border
                       }}
                     >
-                      <div className={`text-xs mb-2 ${
-                        color === 'amber' ? 'text-amber-400' :
-                        color === 'emerald' ? 'text-emerald-400' : 'text-purple-400'
-                      }`}>{t(perspective.name)}</div>
+                      <div className="text-xs mb-2" style={{ color: colorStyle.text }}>{t(perspective.name)}</div>
                       <div className="space-y-1">
                         {perspective.items[lang].map((item: string, j: number) => (
                           <div key={j} className="text-sm text-secondary">• {item}</div>
@@ -223,19 +222,20 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
             {exData.mappings && (
               <div className="space-y-3">
                 {exData.title && (
-                  <h5 className="text-sm font-medium text-white mb-4">{t(exData.title)}</h5>
+                  <h5 className="text-sm font-medium mb-4" style={{ color: 'var(--color-text-primary)' }}>{t(exData.title)}</h5>
                 )}
                 {exData.mappings.map((mapping: any, i: number) => (
-                  <div key={i} className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center gap-3">
-                    <span className="px-2 py-1 bg-amber-500/20 text-amber-300 rounded text-xs font-mono">
+                  <div key={i} className="p-3 rounded-lg flex items-center gap-3" style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
+                    <span className="px-2 py-1 rounded text-xs font-mono" style={{ backgroundColor: 'rgba(var(--color-accent-rgb), 0.2)', color: 'var(--color-accent)' }}>
                       {mapping.action}
                     </span>
-                    <span className="text-muted">→</span>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      mapping.method === 'POST' ? 'bg-emerald-500/20 text-emerald-300' :
-                      mapping.method === 'DELETE' ? 'bg-red-500/20 text-red-300' :
-                      'bg-yellow-500/20 text-yellow-300'
-                    }`}>
+                    <span className="text-muted">-&gt;</span>
+                    <span className="px-2 py-1 rounded text-xs font-medium" style={{
+                      backgroundColor: mapping.method === 'POST' ? 'rgba(16, 185, 129, 0.2)' :
+                        mapping.method === 'DELETE' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.2)',
+                      color: mapping.method === 'POST' ? 'var(--color-success)' :
+                        mapping.method === 'DELETE' ? 'var(--color-error)' : 'var(--color-warning)'
+                    }}>
                       {mapping.method}
                     </span>
                     <span className="text-muted font-mono text-sm flex-1">{mapping.url}</span>
@@ -248,13 +248,13 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
             {exData.code && (
               <div className="space-y-3">
                 {exData.title && (
-                  <h5 className="text-sm font-medium text-white">{t(exData.title)}</h5>
+                  <h5 className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{t(exData.title)}</h5>
                 )}
-                <div className="rounded-xl bg-[#0d0d0d] border border-white/[0.06] overflow-hidden">
-                  <div className="px-4 py-2 border-b border-white/[0.06] flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500/60" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
-                    <div className="w-3 h-3 rounded-full bg-green-500/60" />
+                <div className="rounded-xl overflow-hidden" style={{ backgroundColor: 'var(--color-bg-base)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
+                  <div className="px-4 py-2 flex items-center gap-2" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'rgba(239, 68, 68, 0.6)' }} />
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'rgba(245, 158, 11, 0.6)' }} />
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'rgba(16, 185, 129, 0.6)' }} />
                     <span className="text-xs text-muted ml-2">tool-definition.json</span>
                   </div>
                   <pre className="p-4 text-sm text-secondary font-mono overflow-x-auto whitespace-pre">
@@ -272,12 +272,12 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
         // State Machine diagram type (Level 2)
         if (diagData.type === 'stateMachine') {
           const colorMap: Record<string, { bg: string; border: string; text: string }> = {
-            gray: { bg: 'bg-gray-500/10', border: 'border-gray-500/30', text: 'text-muted' },
-            yellow: { bg: 'bg-yellow-500/10', border: 'border-yellow-500/30', text: 'text-yellow-400' },
-            blue: { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-400' },
-            purple: { bg: 'bg-purple-500/10', border: 'border-purple-500/30', text: 'text-purple-400' },
-            emerald: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', text: 'text-emerald-400' },
-            red: { bg: 'bg-red-500/10', border: 'border-red-500/30', text: 'text-red-400' },
+            gray: { bg: 'var(--color-bg-hover)', border: 'var(--color-border)', text: 'var(--color-text-muted)' },
+            yellow: { bg: 'rgba(245, 158, 11, 0.1)', border: 'rgba(245, 158, 11, 0.3)', text: 'var(--color-warning)' },
+            blue: { bg: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.3)', text: 'var(--color-info)' },
+            purple: { bg: 'rgba(var(--color-accent-secondary-rgb), 0.1)', border: 'rgba(var(--color-accent-secondary-rgb), 0.3)', text: 'var(--color-accent-secondary)' },
+            emerald: { bg: 'rgba(16, 185, 129, 0.1)', border: 'rgba(16, 185, 129, 0.3)', text: 'var(--color-success)' },
+            red: { bg: 'rgba(239, 68, 68, 0.1)', border: 'rgba(239, 68, 68, 0.3)', text: 'var(--color-error)' },
           };
 
           return (
@@ -291,7 +291,8 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                     return (
                       <span
                         key={i}
-                        className={`px-3 py-1.5 rounded-lg border ${colors.bg} ${colors.border} ${colors.text} text-sm font-medium`}
+                        className="px-3 py-1.5 rounded-lg text-sm font-medium"
+                        style={{ backgroundColor: colors.bg, borderWidth: '1px', borderStyle: 'solid', borderColor: colors.border, color: colors.text }}
                       >
                         {t(state.name)}
                       </span>
@@ -306,15 +307,15 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                 <div className="space-y-2">
                   {diagData.transitions.map((trans: any, i: number) => (
                     <div key={i} className="flex items-center gap-2 text-sm">
-                      <span className="px-2 py-1 bg-white/[0.04] rounded text-muted font-mono text-xs">
+                      <span className="px-2 py-1 rounded text-muted font-mono text-xs" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
                         {trans.from}
                       </span>
-                      <span className="text-muted">→</span>
-                      <span className="px-2 py-1 bg-amber-500/20 text-amber-300 rounded text-xs font-medium">
+                      <span className="text-muted">-&gt;</span>
+                      <span className="px-2 py-1 rounded text-xs font-medium" style={{ backgroundColor: 'rgba(var(--color-accent-rgb), 0.2)', color: 'var(--color-accent)' }}>
                         {lang === 'cn' ? trans.cn_action : trans.action}
                       </span>
-                      <span className="text-muted">→</span>
-                      <span className="px-2 py-1 bg-white/[0.04] rounded text-muted font-mono text-xs">
+                      <span className="text-muted">-&gt;</span>
+                      <span className="px-2 py-1 rounded text-muted font-mono text-xs" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
                         {trans.to}
                       </span>
                     </div>
@@ -326,45 +327,45 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
         }
 
         // Default layers diagram (Level 1)
+        const layerColorStyles: Record<string, { bg: string; border: string; text: string }> = {
+          amber: { bg: 'rgba(var(--color-accent-rgb), 0.05)', border: 'rgba(var(--color-accent-rgb), 0.2)', text: 'var(--color-accent)' },
+          purple: { bg: 'rgba(var(--color-accent-secondary-rgb), 0.05)', border: 'rgba(var(--color-accent-secondary-rgb), 0.2)', text: 'var(--color-accent-secondary)' },
+          emerald: { bg: 'rgba(16, 185, 129, 0.05)', border: 'rgba(16, 185, 129, 0.2)', text: 'var(--color-success)' },
+          blue: { bg: 'rgba(59, 130, 246, 0.05)', border: 'rgba(59, 130, 246, 0.2)', text: 'var(--color-info)' }
+        };
         return (
           <div className="space-y-3">
-            {diagData.layers.map((layer: any, i: number) => (
-              <div
-                key={i}
-                className={`p-4 rounded-xl border transition-all ${
-                  layer.color === 'amber' ? 'bg-amber-500/5 border-amber-500/20' :
-                  layer.color === 'purple' ? 'bg-purple-500/5 border-purple-500/20' :
-                  layer.color === 'emerald' ? 'bg-emerald-500/5 border-emerald-500/20' :
-                  'bg-blue-500/5 border-blue-500/20'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <h5 className={`font-medium ${
-                    layer.color === 'amber' ? 'text-amber-400' :
-                    layer.color === 'purple' ? 'text-purple-400' :
-                    layer.color === 'emerald' ? 'text-emerald-400' :
-                    'text-blue-400'
-                  }`}>{t(layer.name)}</h5>
-                  <span className="text-xs text-muted">Layer {diagData.layers.length - i}</span>
+            {diagData.layers.map((layer: any, i: number) => {
+              const colorStyle = layerColorStyles[layer.color] || layerColorStyles.blue;
+              return (
+                <div
+                  key={i}
+                  className="p-4 rounded-xl transition-all"
+                  style={{ backgroundColor: colorStyle.bg, borderWidth: '1px', borderStyle: 'solid', borderColor: colorStyle.border }}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h5 className="font-medium" style={{ color: colorStyle.text }}>{t(layer.name)}</h5>
+                    <span className="text-xs text-muted">Layer {diagData.layers.length - i}</span>
+                  </div>
+                  <p className="text-sm text-muted mb-2">{t(layer.description)}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {layer.examples[lang].map((ex: string, j: number) => (
+                      <span key={j} className="px-2 py-0.5 text-muted rounded text-xs" style={{ backgroundColor: 'var(--color-bg-hover)' }}>{ex}</span>
+                    ))}
+                  </div>
                 </div>
-                <p className="text-sm text-muted mb-2">{t(layer.description)}</p>
-                <div className="flex flex-wrap gap-2">
-                  {layer.examples[lang].map((ex: string, j: number) => (
-                    <span key={j} className="px-2 py-0.5 bg-white/[0.04] text-muted rounded text-xs">{ex}</span>
-                  ))}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         );
 
       default:
         return (
           <div className="prose prose-invert max-w-none">
-            <h4 className="text-white font-medium mb-3">{t(section.title)}</h4>
+            <h4 className="font-medium mb-3" style={{ color: 'var(--color-text-primary)' }}>{t(section.title)}</h4>
             <div className="text-secondary leading-relaxed whitespace-pre-line" dangerouslySetInnerHTML={{
               __html: t(section.content)
-                .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--color-text-primary);">$1</strong>')
                 .replace(/\n/g, '<br/>')
             }} />
           </div>
@@ -375,22 +376,25 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
   return (
     <div className="h-full flex flex-col bg-[var(--color-bg-elevated)]">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between">
+      <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="p-2 rounded-lg hover:bg-white/[0.04] transition-colors text-muted hover:text-primary"
+            className="p-2 rounded-lg transition-colors text-muted hover:text-primary"
+            style={{ backgroundColor: 'transparent' }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h2 className="text-base font-medium text-white">{t(lesson.title)}</h2>
+            <h2 className="text-base font-medium" style={{ color: 'var(--color-text-primary)' }}>{t(lesson.title)}</h2>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="text-xs text-muted">
                 {showQuiz ? (lang === 'cn' ? '测验' : 'Quiz') : `${currentSection + 1} / ${sections.length}`}
               </span>
               {isCompleted && (
-                <span className="flex items-center gap-1 text-xs text-emerald-400">
+                <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--color-success)' }}>
                   <CheckCircle size={12} />
                   {lang === 'cn' ? '已完成' : 'Completed'}
                 </span>
@@ -404,17 +408,18 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
           {sections.map((_, i) => (
             <div
               key={i}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                i === currentSection && !showQuiz
-                  ? 'bg-amber-400'
+              className="w-2 h-2 rounded-full transition-colors"
+              style={{
+                backgroundColor: i === currentSection && !showQuiz
+                  ? 'var(--color-accent)'
                   : i < currentSection || showQuiz
-                  ? 'bg-amber-400/40'
-                  : 'bg-white/10'
-              }`}
+                  ? 'rgba(var(--color-accent-rgb), 0.4)'
+                  : 'var(--color-border)'
+              }}
             />
           ))}
           {quiz && (
-            <div className={`w-2 h-2 rounded-full ml-1 ${showQuiz ? 'bg-purple-400' : 'bg-white/10'}`} />
+            <div className="w-2 h-2 rounded-full ml-1" style={{ backgroundColor: showQuiz ? 'var(--color-accent-secondary)' : 'var(--color-border)' }} />
           )}
         </div>
       </div>
@@ -429,8 +434,8 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
           ) : quiz && (
             <div className="animate-fadeIn">
               <div className="flex items-center gap-2 mb-6">
-                <HelpCircle size={20} className="text-purple-400" />
-                <h3 className="text-lg font-medium text-white">{lang === 'cn' ? '课后测验' : 'Quiz'}</h3>
+                <HelpCircle size={20} style={{ color: 'var(--color-accent-secondary)' }} />
+                <h3 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{lang === 'cn' ? '课后测验' : 'Quiz'}</h3>
               </div>
 
               <div className="glass-card rounded-xl p-6 mb-6">
@@ -441,35 +446,60 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                       key={i}
                       onClick={() => handleAnswerSelect(i)}
                       disabled={selectedAnswer !== null}
-                      className={`w-full text-left p-4 rounded-lg border transition-all ${
-                        selectedAnswer === null
-                          ? 'border-white/[0.06] hover:border-white/20 hover:bg-white/[0.02]'
+                      className="w-full text-left p-4 rounded-lg transition-all"
+                      style={{
+                        borderWidth: '1px',
+                        borderStyle: 'solid',
+                        borderColor: selectedAnswer === null
+                          ? 'var(--color-border)'
                           : i === quiz.correctIndex
-                          ? 'border-emerald-500/50 bg-emerald-500/10'
+                          ? 'rgba(16, 185, 129, 0.5)'
                           : selectedAnswer === i
-                          ? 'border-red-500/50 bg-red-500/10'
-                          : 'border-white/[0.06] opacity-50'
-                      }`}
+                          ? 'rgba(239, 68, 68, 0.5)'
+                          : 'var(--color-border)',
+                        backgroundColor: selectedAnswer === null
+                          ? 'transparent'
+                          : i === quiz.correctIndex
+                          ? 'rgba(16, 185, 129, 0.1)'
+                          : selectedAnswer === i
+                          ? 'rgba(239, 68, 68, 0.1)'
+                          : 'transparent',
+                        opacity: selectedAnswer !== null && i !== quiz.correctIndex && selectedAnswer !== i ? 0.5 : 1
+                      }}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-sm ${
-                          selectedAnswer === null
-                            ? 'border-white/20 text-muted'
-                            : i === quiz.correctIndex
-                            ? 'border-emerald-500 bg-emerald-500 text-white'
-                            : selectedAnswer === i
-                            ? 'border-red-500 bg-red-500 text-white'
-                            : 'border-white/10 text-muted'
-                        }`}>
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-sm"
+                          style={{
+                            borderWidth: '1px',
+                            borderStyle: 'solid',
+                            borderColor: selectedAnswer === null
+                              ? 'var(--color-border)'
+                              : i === quiz.correctIndex
+                              ? 'var(--color-success)'
+                              : selectedAnswer === i
+                              ? 'var(--color-error)'
+                              : 'var(--color-border-subtle)',
+                            backgroundColor: selectedAnswer === null
+                              ? 'transparent'
+                              : i === quiz.correctIndex
+                              ? 'var(--color-success)'
+                              : selectedAnswer === i
+                              ? 'var(--color-error)'
+                              : 'transparent',
+                            color: (selectedAnswer !== null && (i === quiz.correctIndex || selectedAnswer === i))
+                              ? 'var(--color-text-primary)'
+                              : 'var(--color-text-muted)'
+                          }}
+                        >
                           {String.fromCharCode(65 + i)}
                         </div>
-                        <span className={
-                          selectedAnswer !== null && i === quiz.correctIndex
-                            ? 'text-emerald-300'
+                        <span style={{
+                          color: selectedAnswer !== null && i === quiz.correctIndex
+                            ? 'var(--color-success)'
                             : selectedAnswer === i
-                            ? 'text-red-300'
-                            : 'text-secondary'
-                        }>
+                            ? 'var(--color-error)'
+                            : 'var(--color-text-secondary)'
+                        }}>
                           {t(option)}
                         </span>
                       </div>
@@ -479,25 +509,36 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
               </div>
 
               {showExplanation && (
-                <div className={`p-5 rounded-xl border animate-slideUp ${
-                  selectedAnswer === quiz.correctIndex
-                    ? 'bg-emerald-500/10 border-emerald-500/20'
-                    : 'bg-amber-500/10 border-amber-500/20'
-                }`}>
+                <div className="p-5 rounded-xl animate-slideUp"
+                  style={{
+                    backgroundColor: selectedAnswer === quiz.correctIndex
+                      ? 'rgba(16, 185, 129, 0.1)'
+                      : 'rgba(var(--color-accent-rgb), 0.1)',
+                    borderWidth: '1px',
+                    borderStyle: 'solid',
+                    borderColor: selectedAnswer === quiz.correctIndex
+                      ? 'rgba(16, 185, 129, 0.2)'
+                      : 'rgba(var(--color-accent-rgb), 0.2)'
+                  }}
+                >
                   <div className="flex items-start gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                      selectedAnswer === quiz.correctIndex ? 'bg-emerald-500/20' : 'bg-amber-500/20'
-                    }`}>
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{
+                        backgroundColor: selectedAnswer === quiz.correctIndex
+                          ? 'rgba(16, 185, 129, 0.2)'
+                          : 'rgba(var(--color-accent-rgb), 0.2)'
+                      }}
+                    >
                       {selectedAnswer === quiz.correctIndex ? (
-                        <CheckCircle size={16} className="text-emerald-400" />
+                        <CheckCircle size={16} style={{ color: 'var(--color-success)' }} />
                       ) : (
-                        <Lightbulb size={16} className="text-amber-400" />
+                        <Lightbulb size={16} style={{ color: 'var(--color-accent)' }} />
                       )}
                     </div>
                     <div>
-                      <h4 className={`font-medium mb-1 ${
-                        selectedAnswer === quiz.correctIndex ? 'text-emerald-400' : 'text-amber-400'
-                      }`}>
+                      <h4 className="font-medium mb-1"
+                        style={{ color: selectedAnswer === quiz.correctIndex ? 'var(--color-success)' : 'var(--color-accent)' }}
+                      >
                         {selectedAnswer === quiz.correctIndex
                           ? (lang === 'cn' ? '正确!' : 'Correct!')
                           : (lang === 'cn' ? '解释' : 'Explanation')}
@@ -513,11 +554,14 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
       </div>
 
       {/* Footer Navigation */}
-      <div className="px-6 py-4 border-t border-white/[0.06] flex items-center justify-between">
+      <div className="px-6 py-4 flex items-center justify-between" style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--color-border)' }}>
         <button
           onClick={handlePrev}
           disabled={currentSection === 0 && !showQuiz}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-muted hover:text-primary hover:bg-white/[0.04] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-muted hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          style={{ backgroundColor: 'transparent' }}
+          onMouseOver={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)'; }}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
         >
           <ArrowLeft size={16} />
           {lang === 'cn' ? '上一步' : 'Previous'}

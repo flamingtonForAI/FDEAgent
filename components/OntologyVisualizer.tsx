@@ -198,7 +198,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
         {/* 实现层 */}
         {hasImplementationLayer && (
           <div className="p-3 layer-impl border rounded-lg">
-            <div className="flex items-center gap-2 text-purple-400 text-micro font-medium mb-2">
+            <div className="flex items-center gap-2 text-micro font-medium mb-2" style={{ color: 'var(--color-accent-secondary)' }}>
               <Code size={11} />
               {t.implementationLayer}
             </div>
@@ -229,13 +229,13 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
                 <span>Tier {action.governance!.permissionTier}</span>
               )}
               {action.governance!.requiresHumanApproval && (
-                <span className="text-amber-400">{t.humanApproval}</span>
+                <span style={{ color: 'var(--color-accent)' }}>{t.humanApproval}</span>
               )}
               {action.governance!.riskLevel && (
-                <span className={
-                  action.governance!.riskLevel === 'high' ? 'text-red-400' :
-                  action.governance!.riskLevel === 'medium' ? 'text-amber-400' : 'text-emerald-400'
-                }>
+                <span style={{
+                  color: action.governance!.riskLevel === 'high' ? 'var(--color-error)' :
+                  action.governance!.riskLevel === 'medium' ? 'var(--color-warning)' : 'var(--color-success)'
+                }}>
                   {action.governance!.riskLevel} risk
                 </span>
               )}
@@ -251,19 +251,19 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-xl font-medium text-white mb-1">{t.title}</h2>
+          <h2 className="text-xl font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h2>
           <p className="text-muted text-sm">{t.subtitle}</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex gap-3 text-xs text-muted">
-            <span>{t.objCount}: <span className="text-amber-400">{objects.length}</span></span>
-            <span>{t.linkCount}: <span className="text-purple-400">{links.length}</span></span>
+            <span>{t.objCount}: <span style={{ color: 'var(--color-accent)' }}>{objects.length}</span></span>
+            <span>{t.linkCount}: <span style={{ color: 'var(--color-accent-secondary)' }}>{links.length}</span></span>
           </div>
           {/* Legend Toggle */}
           <div className="relative">
             <button
               onClick={() => setShowLegend(!showLegend)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-muted hover:text-secondary hover:bg-white/[0.04] transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-muted hover:text-secondary transition-colors"
             >
               <HelpCircle size={14} />
               {t.legend}
@@ -290,13 +290,13 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
                       <span className="text-micro text-muted">{t.governance}</span>
                     </div>
                   </div>
-                  <div className="pt-2 border-t border-white/[0.06] flex items-center gap-3">
+                  <div className="pt-2 flex items-center gap-3" style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--color-border)' }}>
                     <div className="flex items-center gap-1.5">
-                      <Zap size={10} className="text-amber-400" />
+                      <Zap size={10} style={{ color: 'var(--color-accent)' }} />
                       <span className="text-micro text-muted">{t.aiAction}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <Sparkles size={10} className="text-amber-400" />
+                      <Sparkles size={10} style={{ color: 'var(--color-accent)' }} />
                       <span className="text-micro text-muted">{t.aiProp}</span>
                     </div>
                   </div>
@@ -314,16 +314,16 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
             {/* Header */}
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500/20 to-amber-600/10 flex items-center justify-center">
-                  <Database size={18} className="text-amber-400" />
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
+                  <Database size={18} style={{ color: 'var(--color-accent)' }} />
                 </div>
                 <div>
-                  <h3 className="text-white font-medium">{obj.name}</h3>
+                  <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{obj.name}</h3>
                   <p className="text-micro text-muted font-mono">{obj.id}</p>
                 </div>
               </div>
               {obj.aiFeatures.length > 0 && (
-                <span className="px-2 py-0.5 text-micro text-amber-400 bg-amber-500/10 rounded">
+                <span className="px-2 py-0.5 text-micro rounded" style={{ color: 'var(--color-accent)', backgroundColor: 'var(--color-bg-hover)' }}>
                   AI
                 </span>
               )}
@@ -343,11 +343,11 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
                 {obj.properties.slice(0, 6).map((prop, idx) => (
                   <span
                     key={idx}
-                    className={`px-2 py-1 rounded text-micro ${
-                      prop.isAIDerived
-                        ? 'bg-amber-500/10 text-amber-400'
-                        : 'bg-white/[0.04] text-muted'
-                    }`}
+                    className="px-2 py-1 rounded text-micro"
+                    style={{
+                      backgroundColor: prop.isAIDerived ? 'var(--color-bg-hover)' : 'var(--color-bg-surface)',
+                      color: prop.isAIDerived ? 'var(--color-accent)' : 'var(--color-text-muted)'
+                    }}
                   >
                     {prop.name}
                   </span>
@@ -370,20 +370,19 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
                   const hasDetails = action.businessLayer || action.logicLayer || action.implementationLayer || action.governance;
 
                   return (
-                    <div key={idx} className="rounded-lg bg-white/[0.02] border border-white/[0.04] overflow-hidden">
+                    <div key={idx} className="rounded-lg overflow-hidden" style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
                       <div
                         onClick={() => hasDetails && toggleAction(actionKey)}
-                        className={`flex items-center justify-between text-xs px-3 py-2 transition-colors ${
-                          hasDetails ? 'hover:bg-white/[0.04] cursor-pointer' : ''
-                        } ${isExpanded ? 'bg-white/[0.04]' : ''}`}
+                        className={`flex items-center justify-between text-xs px-3 py-2 transition-colors ${hasDetails ? 'cursor-pointer' : ''}`}
+                        style={{ backgroundColor: isExpanded ? 'var(--color-bg-hover)' : 'transparent' }}
                       >
                         <div className="flex items-center gap-2">
                           {action.type === 'generative' ? (
-                            <Zap size={12} className="text-amber-400" />
+                            <Zap size={12} style={{ color: 'var(--color-accent)' }} />
                           ) : (
                             <ChevronRight size={12} className="text-muted" />
                           )}
-                          <span className={action.type === 'generative' ? 'text-amber-300' : 'text-secondary'}>
+                          <span style={{ color: action.type === 'generative' ? 'var(--color-accent)' : 'var(--color-text-secondary)' }}>
                             {action.name}
                           </span>
                         </div>
@@ -395,7 +394,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
                         )}
                       </div>
                       {isExpanded && (
-                        <div className="px-3 pb-3 border-t border-white/[0.04]">
+                        <div className="px-3 pb-3" style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--color-border)' }}>
                           {renderActionDetails(action)}
                         </div>
                       )}
@@ -411,23 +410,24 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
       {/* Links Section */}
       {links.length > 0 && (
         <div className="mt-8 glass-card rounded-xl p-6">
-          <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-            <LinkIcon size={16} className="text-purple-400" />
+          <h3 className="text-sm font-medium mb-4 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+            <LinkIcon size={16} style={{ color: 'var(--color-accent-secondary)' }} />
             {t.relationships}
           </h3>
           <div className="flex flex-wrap gap-3">
             {links.map((link) => (
               <div
                 key={link.id}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02] border border-white/[0.04]"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg"
+                style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}
               >
-                <span className="text-xs text-amber-400">{link.source}</span>
+                <span className="text-xs" style={{ color: 'var(--color-accent)' }}>{link.source}</span>
                 <span className="text-micro text-muted px-2">
                   {link.isSemantic ? '—•—' : '———'}
                 </span>
                 <span className="text-micro text-muted">{link.label}</span>
                 <span className="text-micro text-muted px-2">→</span>
-                <span className="text-xs text-amber-400">{link.target}</span>
+                <span className="text-xs" style={{ color: 'var(--color-accent)' }}>{link.target}</span>
               </div>
             ))}
           </div>

@@ -35,7 +35,7 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
   return (
     <div className="p-8 h-full bg-[var(--color-bg-elevated)] space-y-12 overflow-y-auto">
       <div>
-        <h2 className="text-2xl font-bold text-white mb-2">{t.title}</h2>
+        <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h2>
         <p className="text-muted text-sm">{t.subtitle}</p>
       </div>
 
@@ -61,15 +61,15 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
             return (
               <div key={idx} className="grid grid-cols-3 gap-8 items-center relative">
                 {/* Source Node */}
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-4 shadow-lg hover:border-indigo-500/30 transition-all group">
-                  <div className="w-10 h-10 bg-indigo-500/10 rounded-lg flex items-center justify-center border border-indigo-500/20">
-                    <Server size={20} className="text-indigo-400" />
+                <div className="rounded-xl p-4 flex items-center gap-4 shadow-lg transition-all group" style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-accent-secondary)' }}>
+                    <Server size={20} style={{ color: 'var(--color-accent-secondary)' }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-semibold text-white truncate">{integration.systemName}</h4>
+                    <h4 className="text-sm font-semibold truncate" style={{ color: 'var(--color-text-primary)' }}>{integration.systemName}</h4>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {integration.dataPoints.map((dp, i) => (
-                        <span key={i} className="text-[8px] bg-white/5 px-1.5 py-0.5 rounded text-muted border border-white/5">{dp}</span>
+                        <span key={i} className="text-[8px] px-1.5 py-0.5 rounded text-muted" style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>{dp}</span>
                       ))}
                     </div>
                   </div>
@@ -77,20 +77,20 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
 
                 {/* Connection Logic */}
                 <div className="flex flex-col items-center justify-center relative">
-                  <div className="h-px w-full bg-gradient-to-r from-indigo-500/20 via-indigo-500/50 to-indigo-500/20 absolute top-1/2 -translate-y-1/2"></div>
-                  <div className="bg-[var(--color-bg-elevated)] px-3 py-1.5 border border-indigo-500/30 rounded-full flex flex-col items-center gap-0.5 z-10 shadow-xl">
-                    <span className="text-micro font-mono text-indigo-400 uppercase font-bold">{integration.mechanism}</span>
-                    {integration.mechanism === 'AI Parsing' && <Zap size={10} className="text-amber-500 animate-pulse" />}
+                  <div className="h-px w-full absolute top-1/2 -translate-y-1/2" style={{ backgroundColor: 'var(--color-border)' }}></div>
+                  <div className="bg-[var(--color-bg-elevated)] px-3 py-1.5 rounded-full flex flex-col items-center gap-0.5 z-10 shadow-xl" style={{ borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-accent-secondary)' }}>
+                    <span className="text-micro font-mono uppercase font-bold" style={{ color: 'var(--color-accent-secondary)' }}>{integration.mechanism}</span>
+                    {integration.mechanism === 'AI Parsing' && <Zap size={10} className="animate-pulse" style={{ color: 'var(--color-accent)' }} />}
                   </div>
                 </div>
 
                 {/* Target Node */}
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-4 shadow-lg hover:border-indigo-500/30 transition-all">
-                  <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center border border-purple-500/20">
-                    <Database size={20} className="text-purple-400" />
+                <div className="rounded-xl p-4 flex items-center gap-4 shadow-lg transition-all" style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-accent-secondary)' }}>
+                    <Database size={20} style={{ color: 'var(--color-accent-secondary)' }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-semibold text-white truncate">{targetObj?.name || 'Unknown Object'}</h4>
+                    <h4 className="text-sm font-semibold truncate" style={{ color: 'var(--color-text-primary)' }}>{targetObj?.name || 'Unknown Object'}</h4>
                     <p className="text-micro text-muted font-mono mt-1 italic">{targetObj?.id}</p>
                   </div>
                 </div>
@@ -101,8 +101,8 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
 
         {/* Empty State */}
         {project.integrations.length === 0 && (
-          <div className="p-12 border-2 border-dashed border-white/5 rounded-3xl text-center">
-            <Activity className="mx-auto text-gray-700 mb-4" size={32} />
+          <div className="p-12 border-2 border-dashed rounded-3xl text-center" style={{ borderColor: 'var(--color-border)' }}>
+            <Activity className="mx-auto mb-4 text-muted" size={32} />
             <p className="text-muted text-sm italic">No external integrations identified. Add source systems in the scouting chat.</p>
           </div>
         )}
@@ -120,7 +120,7 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
 };
 
 const TechCard = ({ icon, label }: { icon: React.ReactNode, label: string }) => (
-  <div className="flex items-center gap-2 p-3 bg-[var(--color-bg-base)]/40 border border-white/5 rounded-lg text-micro font-mono uppercase tracking-widest text-muted">
+  <div className="flex items-center gap-2 p-3 rounded-lg text-micro font-mono uppercase tracking-widest text-muted" style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
     {icon}
     {label}
   </div>

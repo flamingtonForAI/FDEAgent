@@ -437,7 +437,7 @@ const App: React.FC = () => {
               <SettingsIcon size={14} />
               <span>{lang === 'cn' ? 'AI 设置' : 'AI Settings'}</span>
             </div>
-            <span className="text-[10px] text-amber-400 truncate max-w-[80px]">
+            <span className="text-[10px] truncate max-w-[80px]" style={{ color: 'var(--color-accent)' }}>
               {getCurrentModelName()}
             </span>
           </button>
@@ -460,8 +460,11 @@ const App: React.FC = () => {
           </div>
 
           {/* 状态指示器 */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02]">
-            <div className={`w-1.5 h-1.5 rounded-full ${aiSettings.apiKey ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
+            <div
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ backgroundColor: aiSettings.apiKey ? 'var(--color-success)' : 'var(--color-warning)' }}
+            />
             <span className="text-[10px] text-muted">
               {aiSettings.apiKey ? t.ready : (lang === 'cn' ? '需配置 API' : 'API Required')}
             </span>
@@ -473,8 +476,14 @@ const App: React.FC = () => {
       <main className="flex-1 flex flex-col relative overflow-hidden bg-[var(--color-bg-elevated)]">
         {isDesigning && (
           <div className="absolute inset-0 bg-[var(--color-bg-base)]/80 z-50 flex flex-col items-center justify-center">
-            <div className="w-12 h-12 border-2 border-amber-500/20 border-t-amber-400 rounded-full animate-spin mb-4"></div>
-            <h2 className="text-lg font-medium text-white">{t.synthesizing}</h2>
+            <div
+              className="w-12 h-12 border-2 rounded-full animate-spin mb-4"
+              style={{
+                borderColor: 'var(--color-border)',
+                borderTopColor: 'var(--color-accent)'
+              }}
+            />
+            <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{t.synthesizing}</h2>
             <p className="text-muted mt-2 text-sm">{t.mapping}</p>
           </div>
         )}
@@ -543,11 +552,22 @@ const App: React.FC = () => {
       {!showQualityPanel && (
         <button
           onClick={() => setShowQualityPanel(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 rounded-2xl btn-gradient shadow-lg shadow-amber-500/20 flex items-center justify-center hover:scale-105 transition-transform z-40 group"
+          className="fixed bottom-6 right-6 w-14 h-14 rounded-2xl shadow-lg flex items-center justify-center hover:scale-105 transition-transform z-40 group"
+          style={{
+            backgroundColor: 'var(--color-accent)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+          }}
           title={lang === 'cn' ? '质量检查' : 'Quality Check'}
         >
-          <ShieldCheck size={24} className="text-white" />
-          <div className="absolute -top-8 right-0 px-2 py-1 bg-gray-900 rounded text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          <ShieldCheck size={24} style={{ color: 'var(--color-bg-base)' }} />
+          <div
+            className="absolute -top-8 right-0 px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap"
+            style={{
+              backgroundColor: 'var(--color-bg-elevated)',
+              color: 'var(--color-text-primary)',
+              border: '1px solid var(--color-border)'
+            }}
+          >
             {lang === 'cn' ? '质量检查' : 'Quality Check'}
           </div>
         </button>
@@ -597,12 +617,26 @@ const NavItem: React.FC<{
       disabled
         ? 'opacity-30 cursor-not-allowed'
         : active
-        ? 'text-amber-400 bg-amber-400/[0.08]'
-        : 'text-muted hover:text-primary hover:bg-white/[0.04]'
+        ? ''
+        : 'text-muted hover:text-primary'
     }`}
+    style={
+      disabled
+        ? undefined
+        : active
+        ? {
+            color: 'var(--color-text-primary)',
+            backgroundColor: 'var(--color-bg-hover)',
+            fontWeight: 500
+          }
+        : undefined
+    }
   >
     {active && (
-      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-gradient-to-b from-amber-400 to-amber-500" />
+      <div
+        className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full"
+        style={{ backgroundColor: 'var(--color-accent)' }}
+      />
     )}
     {icon}
     {label}

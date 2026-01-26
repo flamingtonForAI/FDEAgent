@@ -529,7 +529,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       <div className={`flex flex-col flex-1 transition-all duration-300 ${showExtractPanel || showCasePanel ? 'mr-80' : ''}`}>
         <div className="px-6 py-4 flex justify-between items-center" style={{ borderBottom: '1px solid var(--color-border)' }}>
           <div className="flex items-center gap-2">
-            <Terminal size={14} className="text-amber-400" />
+            <Terminal size={14} style={{ color: 'var(--color-accent)' }} />
             <span className="text-xs text-muted">{t.terminal}</span>
           </div>
           <div className="flex items-center gap-2">
@@ -546,11 +546,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   }
                 }}
                 disabled={isAnalyzingCases}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                  showCasePanel
-                    ? 'bg-amber-500/20 text-amber-400'
-                    : 'glass-surface text-muted hover:text-primary'
-                } ${recommendedCaseIds.length > 0 ? 'ring-1 ring-amber-500/30' : ''}`}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all"
+                style={{
+                  backgroundColor: showCasePanel ? 'var(--color-bg-hover)' : 'var(--color-bg-surface)',
+                  borderWidth: '1px',
+                  borderStyle: 'solid',
+                  borderColor: showCasePanel ? 'var(--color-accent)' : 'var(--color-border)',
+                  color: showCasePanel ? 'var(--color-accent)' : 'var(--color-text-muted)',
+                  boxShadow: recommendedCaseIds.length > 0 ? '0 0 0 1px var(--color-accent)' : 'none'
+                }}
                 title={t.caseRecommend}
               >
                 {isAnalyzingCases ? (
@@ -562,7 +566,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   <>
                     <Lightbulb size={14} />
                     {recommendedCaseIds.length > 0 && (
-                      <span className="w-4 h-4 rounded-full bg-amber-500 text-black text-micro font-bold flex items-center justify-center">
+                      <span className="w-4 h-4 rounded-full text-micro font-bold flex items-center justify-center" style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-bg-base)' }}>
                         {recommendedCaseIds.length}
                       </span>
                     )}
@@ -584,11 +588,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   }
                 }}
                 disabled={isExtracting}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                  showExtractPanel
-                    ? 'bg-amber-500/20 text-amber-400'
-                    : 'glass-surface text-muted hover:text-primary'
-                }`}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all"
+                style={{
+                  backgroundColor: showExtractPanel ? 'var(--color-bg-hover)' : 'var(--color-bg-surface)',
+                  borderWidth: '1px',
+                  borderStyle: 'solid',
+                  borderColor: showExtractPanel ? 'var(--color-accent)' : 'var(--color-border)',
+                  color: showExtractPanel ? 'var(--color-accent)' : 'var(--color-text-muted)'
+                }}
                 title={showExtractPanel ? t.hidePanel : t.extractPanel}
               >
                 {isExtracting ? (
@@ -629,11 +636,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4">
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}>
-            <div className={`message-bubble max-w-[75%] px-4 py-3 rounded-2xl ${
-              msg.role === 'user'
-                ? 'bg-gradient-to-br from-amber-500/20 to-amber-600/10 text-primary rounded-br-md'
-                : 'glass-card text-secondary rounded-bl-md'
-            }`}>
+            <div
+              className={`message-bubble max-w-[75%] px-4 py-3 rounded-2xl ${msg.role === 'user' ? 'rounded-br-md' : 'glass-card text-secondary rounded-bl-md'}`}
+              style={msg.role === 'user' ? { backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-primary)' } : {}}
+            >
               <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
             </div>
           </div>
@@ -657,7 +663,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <div className="max-w-3xl mx-auto mb-4">
             <button
               onClick={onOpenSettings}
-              className="w-full flex items-center justify-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/15 transition-colors"
+              className="w-full flex items-center justify-center gap-3 p-3 rounded-xl transition-colors"
+              style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }}
             >
               <AlertCircle size={16} />
               <span className="text-sm">
@@ -716,7 +723,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   >
                     <div className="flex-shrink-0">{icon}</div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm text-white truncate">{file.name}</div>
+                      <div className="text-sm truncate" style={{ color: 'var(--color-text-primary)' }}>{file.name}</div>
                       <div className="text-micro text-muted">
                         {file.size < 1024 * 1024
                           ? `${(file.size / 1024).toFixed(1)} KB`
@@ -728,7 +735,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     </div>
                     <button
                       onClick={() => setUploadedFiles(prev => prev.filter(f => f.id !== file.id))}
-                      className="p-1 rounded hover:bg-white/[0.05] text-muted hover:text-primary transition-colors"
+                      className="p-1 rounded text-muted hover:text-primary transition-colors"
+                      style={{ backgroundColor: 'transparent' }}
                     >
                       <X size={14} />
                     </button>
@@ -762,7 +770,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               disabled={isLoading || !hasApiKey || (!input.trim() && uploadedFiles.length === 0)}
               className="btn-gradient p-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
-              <Send size={18} className="text-white" />
+              <Send size={18} style={{ color: 'var(--color-bg-base)' }} />
             </button>
           </div>
       </div>

@@ -316,14 +316,14 @@ const Academy: React.FC<Props> = ({ lang }) => {
     }
   ];
 
-  const getColorClasses = (color: string, unlocked: boolean) => {
-    if (!unlocked) return 'text-muted bg-gray-500/5 border-gray-500/10';
+  const getColorStyle = (color: string, unlocked: boolean): React.CSSProperties => {
+    if (!unlocked) return { color: 'var(--color-text-muted)', backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)' };
 
-    const colorMap: Record<string, string> = {
-      amber: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-      emerald: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-      purple: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
-      orange: 'text-orange-400 bg-orange-500/10 border-orange-500/20',
+    const colorMap: Record<string, React.CSSProperties> = {
+      amber: { color: 'var(--color-accent)', backgroundColor: 'var(--color-bg-hover)', borderColor: 'var(--color-accent)' },
+      emerald: { color: 'var(--color-success)', backgroundColor: 'var(--color-bg-hover)', borderColor: 'var(--color-success)' },
+      purple: { color: 'var(--color-accent-secondary)', backgroundColor: 'var(--color-bg-hover)', borderColor: 'var(--color-accent-secondary)' },
+      orange: { color: 'var(--color-warning)', backgroundColor: 'var(--color-bg-hover)', borderColor: 'var(--color-warning)' },
     };
     return colorMap[color] || colorMap.amber;
   };
@@ -333,11 +333,11 @@ const Academy: React.FC<Props> = ({ lang }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 flex items-center justify-center">
-            <GraduationCap size={24} className="text-amber-400" />
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
+            <GraduationCap size={24} style={{ color: 'var(--color-accent)' }} />
           </div>
           <div>
-            <h1 className="text-xl font-medium text-white">{t.title}</h1>
+            <h1 className="text-xl font-medium" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h1>
             <p className="text-sm text-muted">{t.subtitle}</p>
           </div>
         </div>
@@ -347,8 +347,8 @@ const Academy: React.FC<Props> = ({ lang }) => {
           {/* Streak */}
           {stats.streak > 0 && (
             <div className="glass-card rounded-xl px-4 py-3 flex items-center gap-2">
-              <Flame size={18} className="text-orange-400" />
-              <span className="text-orange-400 font-medium">{stats.streak}</span>
+              <Flame size={18} style={{ color: 'var(--color-warning)' }} />
+              <span className="font-medium" style={{ color: 'var(--color-warning)' }}>{stats.streak}</span>
               <span className="text-xs text-muted">{t.streak}</span>
             </div>
           )}
@@ -360,10 +360,10 @@ const Academy: React.FC<Props> = ({ lang }) => {
                 <div className="text-xs text-muted">{t.progress}</div>
                 <div className="text-lg font-medium text-gradient">{stats.overallPercent}%</div>
               </div>
-              <div className="w-24 h-2 bg-white/[0.06] rounded-full overflow-hidden">
+              <div className="w-24 h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
                 <div
-                  className="h-full bg-gradient-to-r from-amber-500 to-amber-600 rounded-full transition-all duration-500"
-                  style={{ width: `${stats.overallPercent}%` }}
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${stats.overallPercent}%`, backgroundColor: 'var(--color-accent)' }}
                 />
               </div>
             </div>
@@ -391,11 +391,12 @@ const Academy: React.FC<Props> = ({ lang }) => {
                 onClick={() => level.unlocked && setExpandedLevel(isExpanded ? null : level.id)}
                 disabled={!level.unlocked}
                 className={`w-full p-5 flex items-center gap-4 text-left transition-colors ${
-                  level.unlocked ? 'hover:bg-white/[0.02]' : 'cursor-not-allowed'
+                  level.unlocked ? '' : 'cursor-not-allowed'
                 }`}
+                style={level.unlocked ? {} : { opacity: 0.6 }}
               >
                 {/* Level Icon */}
-                <div className={`w-12 h-12 rounded-xl border flex items-center justify-center ${getColorClasses(level.color, level.unlocked)}`}>
+                <div className="w-12 h-12 rounded-xl border flex items-center justify-center" style={getColorStyle(level.color, level.unlocked)}>
                   {level.unlocked ? level.icon : <Lock size={20} />}
                 </div>
 
@@ -404,13 +405,13 @@ const Academy: React.FC<Props> = ({ lang }) => {
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-muted">Level {level.id}</span>
                     {completedInLevel === totalInLevel && level.unlocked && (
-                      <span className="flex items-center gap-1 text-micro text-emerald-400">
+                      <span className="flex items-center gap-1 text-micro" style={{ color: 'var(--color-success)' }}>
                         <CheckCircle size={10} />
                         {t.completed}
                       </span>
                     )}
                   </div>
-                  <h3 className={`font-medium ${level.unlocked ? 'text-white' : 'text-muted'}`}>
+                  <h3 className="font-medium" style={{ color: level.unlocked ? 'var(--color-text-primary)' : 'var(--color-text-muted)' }}>
                     {level.title}
                   </h3>
                   <p className="text-xs text-muted mt-0.5 line-clamp-1">{level.description}</p>
@@ -424,14 +425,15 @@ const Academy: React.FC<Props> = ({ lang }) => {
                         <div className="text-xs text-muted">
                           {completedInLevel}/{totalInLevel} {t.lessons}
                         </div>
-                        <div className="w-20 h-1.5 bg-white/[0.06] rounded-full mt-1 overflow-hidden">
+                        <div className="w-20 h-1.5 rounded-full mt-1 overflow-hidden" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
                           <div
-                            className={`h-full rounded-full transition-all ${
-                              level.color === 'amber' ? 'bg-amber-500' :
-                              level.color === 'emerald' ? 'bg-emerald-500' :
-                              level.color === 'purple' ? 'bg-purple-500' : 'bg-orange-500'
-                            }`}
-                            style={{ width: `${levelProgress}%` }}
+                            className="h-full rounded-full transition-all"
+                            style={{
+                              width: `${levelProgress}%`,
+                              backgroundColor: level.color === 'amber' ? 'var(--color-accent)' :
+                                level.color === 'emerald' ? 'var(--color-success)' :
+                                level.color === 'purple' ? 'var(--color-accent-secondary)' : 'var(--color-warning)'
+                            }}
                           />
                         </div>
                       </div>
@@ -448,7 +450,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
 
               {/* Lessons List */}
               {isExpanded && level.unlocked && (
-                <div className="border-t border-white/[0.06] p-4 space-y-2 animate-fadeIn">
+                <div className="p-4 space-y-2 animate-fadeIn" style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--color-border)' }}>
                   {level.lessons.map((lesson, lessonIdx) => {
                     const isLessonCompleted = completedLessons.has(lesson.id);
                     const hasContent = level.id === 1 || level.id === 2; // Level 1 and 2 have content
@@ -459,15 +461,17 @@ const Academy: React.FC<Props> = ({ lang }) => {
                         onClick={() => hasContent && handleStartLesson(lesson.id)}
                         disabled={!hasContent}
                         className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors text-left group ${
-                          hasContent ? 'hover:bg-white/[0.04]' : 'opacity-50 cursor-not-allowed'
+                          hasContent ? '' : 'opacity-50 cursor-not-allowed'
                         }`}
                       >
                         {/* Lesson Number/Status */}
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium ${
-                          isLessonCompleted
-                            ? 'bg-emerald-500/20 text-emerald-400'
-                            : 'bg-white/[0.04] text-muted group-hover:bg-amber-500/20 group-hover:text-amber-400'
-                        }`}>
+                        <div
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium"
+                          style={{
+                            backgroundColor: isLessonCompleted ? 'var(--color-bg-hover)' : 'var(--color-bg-surface)',
+                            color: isLessonCompleted ? 'var(--color-success)' : 'var(--color-text-muted)'
+                          }}
+                        >
                           {isLessonCompleted ? <CheckCircle size={14} /> : lessonIdx + 1}
                         </div>
 
@@ -487,7 +491,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                         {/* Play Button */}
                         {hasContent && (
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Play size={16} className="text-amber-400" />
+                            <Play size={16} style={{ color: 'var(--color-accent)' }} />
                           </div>
                         )}
                       </button>
@@ -515,7 +519,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
 
               {/* Connection Line */}
               {idx < levels.length - 1 && (
-                <div className="absolute left-[2.25rem] -bottom-4 w-0.5 h-4 bg-white/[0.06]" />
+                <div className="absolute left-[2.25rem] -bottom-4 w-0.5 h-4" style={{ backgroundColor: 'var(--color-border)' }} />
               )}
             </div>
           );
@@ -525,11 +529,11 @@ const Academy: React.FC<Props> = ({ lang }) => {
       {/* Practice Lab Section */}
       <div className="mt-8">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/10 flex items-center justify-center">
-            <FlaskConical size={20} className="text-purple-400" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
+            <FlaskConical size={20} style={{ color: 'var(--color-accent-secondary)' }} />
           </div>
           <div>
-            <h2 className="text-lg font-medium text-white">{t.practiceLab}</h2>
+            <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{t.practiceLab}</h2>
             <p className="text-xs text-muted">{t.practiceDesc}</p>
           </div>
         </div>
@@ -543,29 +547,28 @@ const Academy: React.FC<Props> = ({ lang }) => {
             return (
               <div
                 key={exercise.id}
-                className={`glass-card rounded-xl p-5 transition-all ${
-                  unlocked ? 'hover:border-purple-500/30' : 'opacity-60'
-                }`}
+                className={`glass-card rounded-xl p-5 transition-all ${unlocked ? '' : 'opacity-60'}`}
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div className={`w-10 h-10 rounded-lg border flex items-center justify-center ${
-                    unlocked
-                      ? exercise.type === 'noun-verb'
-                        ? 'bg-amber-500/10 border-amber-500/20 text-amber-400'
-                        : 'bg-purple-500/10 border-purple-500/20 text-purple-400'
-                      : 'bg-gray-500/5 border-gray-500/10 text-muted'
-                  }`}>
+                  <div
+                    className="w-10 h-10 rounded-lg border flex items-center justify-center"
+                    style={{
+                      backgroundColor: unlocked ? 'var(--color-bg-hover)' : 'var(--color-bg-surface)',
+                      borderColor: unlocked ? (exercise.type === 'noun-verb' ? 'var(--color-accent)' : 'var(--color-accent-secondary)') : 'var(--color-border)',
+                      color: unlocked ? (exercise.type === 'noun-verb' ? 'var(--color-accent)' : 'var(--color-accent-secondary)') : 'var(--color-text-muted)'
+                    }}
+                  >
                     {unlocked ? <Target size={18} /> : <Lock size={18} />}
                   </div>
                   {hasScore && (
                     <div className="flex items-center gap-1 text-xs">
-                      <CheckCircle size={12} className="text-emerald-400" />
-                      <span className="text-emerald-400">{score}%</span>
+                      <CheckCircle size={12} style={{ color: 'var(--color-success)' }} />
+                      <span style={{ color: 'var(--color-success)' }}>{score}%</span>
                     </div>
                   )}
                 </div>
 
-                <h3 className={`font-medium mb-1 ${unlocked ? 'text-white' : 'text-muted'}`}>
+                <h3 className="font-medium mb-1" style={{ color: unlocked ? 'var(--color-text-primary)' : 'var(--color-text-muted)' }}>
                   {exercise.title[lang]}
                 </h3>
                 <p className="text-xs text-muted mb-4">
@@ -575,11 +578,11 @@ const Academy: React.FC<Props> = ({ lang }) => {
                 {unlocked ? (
                   <button
                     onClick={() => setCurrentExercise(exercise)}
-                    className={`w-full py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all ${
-                      exercise.type === 'noun-verb'
-                        ? 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30'
-                        : 'bg-purple-500/20 text-purple-300 hover:bg-purple-500/30'
-                    }`}
+                    className="w-full py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all"
+                    style={{
+                      backgroundColor: 'var(--color-bg-hover)',
+                      color: exercise.type === 'noun-verb' ? 'var(--color-accent)' : 'var(--color-accent-secondary)'
+                    }}
                   >
                     <Play size={14} />
                     {hasScore ? t.continueLearning : t.startExercise}
@@ -599,17 +602,18 @@ const Academy: React.FC<Props> = ({ lang }) => {
       <div className="mt-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-amber-500/10 flex items-center justify-center">
-              <FolderOpen size={20} className="text-blue-400" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
+              <FolderOpen size={20} style={{ color: 'var(--color-accent-secondary)' }} />
             </div>
             <div>
-              <h2 className="text-lg font-medium text-white">{t.caseLibrary}</h2>
+              <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{t.caseLibrary}</h2>
               <p className="text-xs text-muted">{t.caseLibraryDesc}</p>
             </div>
           </div>
           <button
             onClick={() => setShowCaseBrowser(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-accent-secondary)' }}
           >
             {t.viewAllCases}
             <ChevronRight size={16} />
@@ -651,11 +655,11 @@ const Academy: React.FC<Props> = ({ lang }) => {
       {/* Achievements Section */}
       <div className="mt-8">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500/20 to-orange-500/10 flex items-center justify-center">
-            <Award size={20} className="text-yellow-400" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
+            <Award size={20} style={{ color: 'var(--color-warning)' }} />
           </div>
           <div>
-            <h2 className="text-lg font-medium text-white">{t.achievements}</h2>
+            <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{t.achievements}</h2>
             <p className="text-xs text-muted">{t.achievementsDesc}</p>
           </div>
         </div>
@@ -665,10 +669,11 @@ const Academy: React.FC<Props> = ({ lang }) => {
             {stats.achievements.map(achievement => (
               <div
                 key={achievement.id}
-                className="glass-card rounded-xl p-4 text-center border border-yellow-500/20 bg-gradient-to-br from-yellow-500/5 to-orange-500/5"
+                className="glass-card rounded-xl p-4 text-center"
+                style={{ borderColor: 'var(--color-accent)', backgroundColor: 'var(--color-bg-hover)' }}
               >
                 <div className="text-2xl mb-2">{achievement.icon}</div>
-                <h4 className="text-sm font-medium text-white mb-1">
+                <h4 className="text-sm font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>
                   {achievement.title[lang]}
                 </h4>
                 <p className="text-micro text-muted">
@@ -724,24 +729,24 @@ const CasePreviewCard: React.FC<{
   actions: number;
   onClick: () => void;
 }> = ({ icon, color, title, industry, objects, actions, onClick }) => {
-  const colorClasses = {
-    blue: 'text-blue-400 bg-blue-500/20 border-blue-500/20',
-    emerald: 'text-emerald-400 bg-emerald-500/20 border-emerald-500/20',
-    amber: 'text-amber-400 bg-amber-500/20 border-amber-500/20'
+  const colorStyles: Record<string, React.CSSProperties> = {
+    blue: { color: 'var(--color-accent-secondary)', backgroundColor: 'var(--color-bg-hover)' },
+    emerald: { color: 'var(--color-success)', backgroundColor: 'var(--color-bg-hover)' },
+    amber: { color: 'var(--color-accent)', backgroundColor: 'var(--color-bg-hover)' }
   };
 
   return (
     <button
       onClick={onClick}
-      className="glass-card rounded-xl p-4 text-left hover:border-amber-500/30 transition-all group"
+      className="glass-card rounded-xl p-4 text-left transition-all group"
     >
       <div className="flex items-start justify-between mb-3">
-        <div className={`p-2 rounded-lg ${colorClasses[color]}`}>
+        <div className="p-2 rounded-lg" style={colorStyles[color]}>
           {icon}
         </div>
         <span className="text-micro text-muted">{industry}</span>
       </div>
-      <h3 className="text-sm font-medium text-white mb-2 group-hover:text-amber-400 transition-colors">
+      <h3 className="text-sm font-medium mb-2 transition-colors" style={{ color: 'var(--color-text-primary)' }}>
         {title}
       </h3>
       <div className="flex items-center gap-3 text-micro text-muted">

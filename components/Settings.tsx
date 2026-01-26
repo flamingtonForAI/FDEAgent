@@ -183,15 +183,15 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
 
   return (
     <div className="fixed inset-0 bg-[var(--color-bg-base)]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl">
+      <div className="rounded-2xl w-full max-w-lg shadow-2xl" style={{ backgroundColor: 'var(--color-bg-elevated)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
         {/* Header */}
-        <div className="p-6 border-b border-white/10">
+        <div className="p-6" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-600/20 rounded-xl flex items-center justify-center">
-              <SettingsIcon size={20} className="text-indigo-400" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
+              <SettingsIcon size={20} style={{ color: 'var(--color-accent)' }} />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">{t.title}</h2>
+              <h2 className="text-lg font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h2>
               <p className="text-xs text-muted">{t.subtitle}</p>
             </div>
           </div>
@@ -210,10 +210,12 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                 <button
                   key={provider.id}
                   onClick={() => handleProviderChange(provider.id)}
-                  className={`p-3 rounded-lg border text-left transition-all ${localSettings.provider === provider.id
-                      ? 'bg-indigo-600/20 border-indigo-500/50 text-indigo-300'
-                      : 'bg-white/5 border-white/10 text-muted hover:bg-white/10'
-                    }`}
+                  className="p-3 rounded-lg border text-left transition-all"
+                  style={{
+                    backgroundColor: localSettings.provider === provider.id ? 'var(--color-bg-hover)' : 'var(--color-bg-surface)',
+                    borderColor: localSettings.provider === provider.id ? 'var(--color-accent)' : 'var(--color-border)',
+                    color: localSettings.provider === provider.id ? 'var(--color-accent)' : 'var(--color-text-muted)'
+                  }}
                 >
                   <div className="font-medium text-sm">{provider.name}</div>
                   <div className="text-micro text-muted mt-0.5">{provider.description}</div>
@@ -234,7 +236,8 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                   href={providerLinks[localSettings.provider]}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-micro text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                  className="text-micro flex items-center gap-1"
+                  style={{ color: 'var(--color-accent)' }}
                 >
                   {t.getKey}
                   <ExternalLink size={10} />
@@ -247,7 +250,8 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                 value={localSettings.apiKey}
                 onChange={e => setLocalSettings(prev => ({ ...prev, apiKey: e.target.value }))}
                 placeholder={t.apiKeyPlaceholder}
-                className="w-full bg-[#1c2128] border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-indigo-500 pr-20"
+                className="w-full rounded-lg px-4 py-3 text-sm placeholder:text-muted focus:outline-none focus:ring-1 pr-20"
+                style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
               />
               <button
                 onClick={() => setShowApiKey(!showApiKey)}
@@ -270,7 +274,8 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                 value={localSettings.customBaseUrl || ''}
                 onChange={e => setLocalSettings(prev => ({ ...prev, customBaseUrl: e.target.value }))}
                 placeholder={t.customUrlPlaceholder}
-                className="w-full bg-[#1c2128] border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-lg px-4 py-3 text-sm placeholder:text-muted focus:outline-none focus:ring-1"
+                style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
               />
             </div>
           )}
@@ -283,7 +288,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                 {t.model}
               </label>
               {modelFetchStatus === 'success' && fetchedModels.length > 0 && (
-                <span className="text-micro text-green-400">
+                <span className="text-micro" style={{ color: 'var(--color-success)' }}>
                   {fetchedModels.length} {t.modelsLoaded}
                 </span>
               )}
@@ -294,7 +299,8 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
               <button
                 onClick={fetchModels}
                 disabled={!localSettings.apiKey}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600/20 border border-indigo-500/30 rounded-lg text-sm text-indigo-300 hover:bg-indigo-600/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }}
               >
                 <RefreshCw size={14} />
                 {t.fetchModels}
@@ -303,7 +309,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
 
             {/* 获取中 */}
             {modelFetchStatus === 'fetching' && (
-              <div className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#1c2128] border border-white/10 rounded-lg text-sm text-muted">
+              <div className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm text-muted" style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
                 <Loader2 size={14} className="animate-spin" />
                 {t.fetchingModels}
               </div>
@@ -312,11 +318,12 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
             {/* 获取失败 */}
             {modelFetchStatus === 'failed' && (
               <div className="space-y-2">
-                <div className="text-xs text-red-400 mb-2">{modelFetchError}</div>
+                <div className="text-xs mb-2" style={{ color: 'var(--color-error)' }}>{modelFetchError}</div>
                 <button
                   onClick={fetchModels}
                   disabled={!localSettings.apiKey}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600/20 border border-red-500/30 rounded-lg text-sm text-red-300 hover:bg-red-600/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-error)', color: 'var(--color-error)' }}
                 >
                   <RefreshCw size={14} />
                   {t.refresh}
@@ -334,19 +341,20 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                     value={localSettings.model}
                     onChange={e => setLocalSettings(prev => ({ ...prev, model: e.target.value }))}
                     placeholder={t.customModelPlaceholder}
-                    className="w-full bg-[#1c2128] border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full rounded-lg px-4 py-3 text-sm placeholder:text-muted focus:outline-none focus:ring-1"
+                    style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                   />
                 ) : fetchedModels.length > 0 ? (
                   <div className="relative">
                     <select
                       value={localSettings.model}
                       onChange={e => setLocalSettings(prev => ({ ...prev, model: e.target.value }))}
-                      className="w-full bg-[#1c2128] border border-white/10 rounded-lg px-4 py-3 pr-10 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 appearance-none"
-                      style={{ colorScheme: 'dark' }}
+                      className="w-full rounded-lg px-4 py-3 pr-10 text-sm focus:outline-none focus:ring-1 appearance-none"
+                      style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     >
-                      <option value="" className="bg-[#1c2128] text-muted">{t.selectModel}</option>
+                      <option value="" className="text-muted" style={{ backgroundColor: 'var(--color-bg-surface)' }}>{t.selectModel}</option>
                       {fetchedModels.map(model => (
-                        <option key={model.id} value={model.id} className="bg-[#1c2128] text-white">
+                        <option key={model.id} value={model.id} style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-primary)' }}>
                           {model.name} {model.description && `- ${model.description}`}
                         </option>
                       ))}
@@ -372,19 +380,20 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
             <button
               onClick={handleTestConnection}
               disabled={testStatus === 'testing' || !localSettings.apiKey}
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-secondary hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}
             >
               {testStatus === 'testing' ? (
                 <Loader2 size={14} className="animate-spin" />
               ) : testStatus === 'success' ? (
-                <Check size={14} className="text-green-400" />
+                <Check size={14} style={{ color: 'var(--color-success)' }} />
               ) : testStatus === 'failed' ? (
-                <X size={14} className="text-red-400" />
+                <X size={14} style={{ color: 'var(--color-error)' }} />
               ) : null}
               {testStatus === 'testing' ? t.testing : t.testConnection}
             </button>
             {testStatus !== 'idle' && testStatus !== 'testing' && (
-              <span className={`text-xs ${testStatus === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+              <span className="text-xs" style={{ color: testStatus === 'success' ? 'var(--color-success)' : 'var(--color-error)' }}>
                 {testStatus === 'success' ? t.testSuccess : testMessage}
               </span>
             )}
@@ -392,7 +401,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-white/10 flex justify-end gap-3">
+        <div className="p-6 flex justify-end gap-3" style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--color-border)' }}>
           <button
             onClick={onClose}
             className="px-4 py-2 text-sm text-muted hover:text-primary transition-colors"
@@ -402,7 +411,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
           <button
             onClick={handleSave}
             disabled={!localSettings.apiKey || !localSettings.model}
-            className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-medium text-white transition-all"
+            className="px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-all btn-gradient"
           >
             {t.save}
           </button>

@@ -41,10 +41,10 @@ const AIPLogicMatrix: React.FC<Props> = ({ lang, objects }) => {
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'Parsing Pipeline (Unstructured to Structured)': return <FileText size={20} className="text-indigo-400" />;
-      case 'Smart Property (LLM Derived)': return <Cpu size={20} className="text-amber-400" />;
-      case 'Semantic Search (Vector Linking)': return <Search size={20} className="text-purple-400" />;
-      case 'Generative Action (AI Output)': return <Zap size={20} className="text-indigo-400" />;
+      case 'Parsing Pipeline (Unstructured to Structured)': return <FileText size={20} style={{ color: 'var(--color-accent-secondary)' }} />;
+      case 'Smart Property (LLM Derived)': return <Cpu size={20} style={{ color: 'var(--color-accent)' }} />;
+      case 'Semantic Search (Vector Linking)': return <Search size={20} style={{ color: 'var(--color-accent-secondary)' }} />;
+      case 'Generative Action (AI Output)': return <Zap size={20} style={{ color: 'var(--color-accent-secondary)' }} />;
       default: return <Cpu size={20} />;
     }
   };
@@ -52,20 +52,20 @@ const AIPLogicMatrix: React.FC<Props> = ({ lang, objects }) => {
   return (
     <div className="p-8 h-full bg-[var(--color-bg-elevated)] space-y-10 overflow-y-auto">
       <div>
-        <h2 className="text-2xl font-bold text-white mb-2">{t.title}</h2>
+        <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h2>
         <p className="text-muted text-sm italic">{t.subtitle}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Mapping Logic */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl">
-          <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-            <Cpu size={20} className="text-indigo-500" />
+        <div className="rounded-2xl p-6 shadow-xl" style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
+          <h3 className="text-lg font-semibold mb-6 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+            <Cpu size={20} style={{ color: 'var(--color-accent-secondary)' }} />
             {t.registry}
           </h3>
           <div className="space-y-4">
             {aiComponents.map((comp, idx) => (
-              <div key={idx} className="p-4 bg-[var(--color-bg-base)]/40 border border-white/5 rounded-xl hover:border-white/20 transition-all">
+              <div key={idx} className="p-4 rounded-xl transition-all" style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
                 <div className="flex items-center gap-3 mb-2">
                   {getIcon(comp.type)}
                   <span className="text-micro font-mono text-muted uppercase tracking-tighter">
@@ -80,16 +80,16 @@ const AIPLogicMatrix: React.FC<Props> = ({ lang, objects }) => {
 
         {/* Detailed Smart Logic */}
         <div className="space-y-8">
-          <div className="bg-gradient-to-br from-indigo-900/20 to-transparent border border-indigo-500/20 rounded-2xl p-6">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <Zap size={20} className="text-amber-500" />
+          <div className="rounded-2xl p-6" style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-accent-secondary)' }}>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+              <Zap size={20} style={{ color: 'var(--color-accent)' }} />
               {t.propertyLogic}
             </h3>
             <div className="space-y-3">
-              {objects.flatMap(obj => 
+              {objects.flatMap(obj =>
                 obj.properties.filter(p => p.isAIDerived).map((p, idx) => (
-                  <div key={idx} className="text-xs bg-[var(--color-bg-base)]/40 p-3 rounded-lg border border-white/5 font-mono">
-                    <span className="text-amber-500">{t.attr}</span> {obj.name}.{p.name}
+                  <div key={idx} className="text-xs p-3 rounded-lg font-mono" style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
+                    <span style={{ color: 'var(--color-accent)' }}>{t.attr}</span> {obj.name}.{p.name}
                     <div className="mt-2 text-muted">
                       <span className="text-muted">{t.prompt}</span> {p.logicDescription}
                     </div>
@@ -99,16 +99,16 @@ const AIPLogicMatrix: React.FC<Props> = ({ lang, objects }) => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-indigo-900/20 to-transparent border border-indigo-500/20 rounded-2xl p-6">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <MousePointerClick size={20} className="text-indigo-400" />
+          <div className="rounded-2xl p-6" style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-accent-secondary)' }}>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+              <MousePointerClick size={20} style={{ color: 'var(--color-accent-secondary)' }} />
               {t.workflows}
             </h3>
             <div className="space-y-3">
-              {objects.flatMap(obj => 
+              {objects.flatMap(obj =>
                 obj.actions.filter(a => a.type === 'generative').map((a, idx) => (
-                  <div key={idx} className="text-xs bg-[var(--color-bg-base)]/40 p-3 rounded-lg border border-white/5 font-mono">
-                    <span className="text-indigo-500">{t.flow}</span> {obj.name}.{a.name}
+                  <div key={idx} className="text-xs p-3 rounded-lg font-mono" style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
+                    <span style={{ color: 'var(--color-accent-secondary)' }}>{t.flow}</span> {obj.name}.{a.name}
                     <div className="mt-2 text-muted">
                       <span className="text-muted">{t.guide}</span> {a.aiLogic}
                     </div>

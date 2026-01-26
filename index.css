@@ -104,6 +104,28 @@ html[style*="color-scheme: light"] .hover\:bg-white\/10:hover {
   background-color: var(--color-bg-hover) !important;
 }
 
+/* Override amber/gold colors for better contrast on light themes */
+html[style*="color-scheme: light"] .text-amber-400,
+html[style*="color-scheme: light"] .text-amber-300 {
+  color: var(--color-accent) !important;
+}
+
+html[style*="color-scheme: light"] .bg-amber-400,
+html[style*="color-scheme: light"] .bg-amber-500 {
+  background-color: var(--color-accent) !important;
+}
+
+html[style*="color-scheme: light"] .border-amber-400,
+html[style*="color-scheme: light"] .border-amber-500 {
+  border-color: var(--color-accent) !important;
+}
+
+html[style*="color-scheme: light"] .bg-amber-500\/10,
+html[style*="color-scheme: light"] .bg-amber-500\/20,
+html[style*="color-scheme: light"] .bg-amber-400\/\[0\.08\] {
+  background-color: var(--color-bg-hover) !important;
+}
+
 /* Form elements inherit color scheme from html */
 input, select, textarea {
   color-scheme: inherit;

@@ -254,7 +254,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
 
         {/* Nouns Selection */}
         <div>
-          <div className="text-sm text-amber-400 mb-3">{t.selectNouns}</div>
+          <div className="text-sm mb-3" style={{ color: 'var(--color-accent)' }}>{t.selectNouns}</div>
           <div className="flex flex-wrap gap-2">
             {allNouns.map(noun => {
               const isSelected = selectedNouns.has(noun);
@@ -272,19 +272,24 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
                     setSelectedNouns(newSet);
                   }}
                   disabled={submitted}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                    showResult
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all border"
+                  style={{
+                    backgroundColor: showResult
                       ? correct
-                        ? isSelected
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                          : 'bg-emerald-500/10 text-emerald-400/60 border border-emerald-500/20'
-                        : isSelected
-                          ? 'bg-red-500/20 text-red-300 border border-red-500/30'
-                          : 'bg-white/[0.02] text-muted border border-white/[0.06]'
-                      : isSelected
-                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                        : 'bg-white/[0.04] text-muted border border-white/[0.06] hover:border-amber-500/30'
-                  }`}
+                        ? 'var(--color-bg-hover)'
+                        : isSelected ? 'var(--color-bg-hover)' : 'var(--color-bg-surface)'
+                      : isSelected ? 'var(--color-bg-hover)' : 'var(--color-bg-surface)',
+                    color: showResult
+                      ? correct
+                        ? 'var(--color-success)'
+                        : isSelected ? 'var(--color-error)' : 'var(--color-text-muted)'
+                      : isSelected ? 'var(--color-accent)' : 'var(--color-text-muted)',
+                    borderColor: showResult
+                      ? correct
+                        ? 'var(--color-success)'
+                        : isSelected ? 'var(--color-error)' : 'var(--color-border)'
+                      : isSelected ? 'var(--color-accent)' : 'var(--color-border)'
+                  }}
                 >
                   {noun}
                   {showResult && correct && <CheckCircle size={12} className="inline ml-1" />}
@@ -297,7 +302,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
 
         {/* Verbs Selection */}
         <div>
-          <div className="text-sm text-emerald-400 mb-3">{t.selectVerbs}</div>
+          <div className="text-sm mb-3" style={{ color: 'var(--color-success)' }}>{t.selectVerbs}</div>
           <div className="flex flex-wrap gap-2">
             {allVerbs.map(verb => {
               const isSelected = selectedVerbs.has(verb);
@@ -315,19 +320,24 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
                     setSelectedVerbs(newSet);
                   }}
                   disabled={submitted}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                    showResult
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all border"
+                  style={{
+                    backgroundColor: showResult
                       ? correct
-                        ? isSelected
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                          : 'bg-emerald-500/10 text-emerald-400/60 border border-emerald-500/20'
-                        : isSelected
-                          ? 'bg-red-500/20 text-red-300 border border-red-500/30'
-                          : 'bg-white/[0.02] text-muted border border-white/[0.06]'
-                      : isSelected
-                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                        : 'bg-white/[0.04] text-muted border border-white/[0.06] hover:border-emerald-500/30'
-                  }`}
+                        ? 'var(--color-bg-hover)'
+                        : isSelected ? 'var(--color-bg-hover)' : 'var(--color-bg-surface)'
+                      : isSelected ? 'var(--color-bg-hover)' : 'var(--color-bg-surface)',
+                    color: showResult
+                      ? correct
+                        ? 'var(--color-success)'
+                        : isSelected ? 'var(--color-error)' : 'var(--color-text-muted)'
+                      : isSelected ? 'var(--color-success)' : 'var(--color-text-muted)',
+                    borderColor: showResult
+                      ? correct
+                        ? 'var(--color-success)'
+                        : isSelected ? 'var(--color-error)' : 'var(--color-border)'
+                      : isSelected ? 'var(--color-success)' : 'var(--color-border)'
+                  }}
                 >
                   {verb}
                   {showResult && correct && <CheckCircle size={12} className="inline ml-1" />}
@@ -395,8 +405,8 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
         {/* Context */}
         <div className="glass-card rounded-xl p-5">
           <div className="flex items-center gap-2 mb-3">
-            <Zap size={16} className="text-purple-400" />
-            <span className="text-purple-400 font-medium">{exercise.actionName[lang]}</span>
+            <Zap size={16} style={{ color: 'var(--color-accent-secondary)' }} />
+            <span className="font-medium" style={{ color: 'var(--color-accent-secondary)' }}>{exercise.actionName[lang]}</span>
           </div>
           <div className="text-xs text-muted mb-2">{t.actionContext}</div>
           <p className="text-secondary leading-relaxed">{exercise.context[lang]}</p>
@@ -417,7 +427,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
                   {!submitted && !showHint && (
                     <button
                       onClick={() => setShowHints(new Set([...showHints, blank.field]))}
-                      className="text-xs text-muted hover:text-amber-400 flex items-center gap-1"
+                      className="text-xs text-muted flex items-center gap-1"
                     >
                       <Lightbulb size={12} />
                       {t.showHint}
@@ -426,7 +436,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
                 </div>
 
                 {showHint && !submitted && (
-                  <div className="text-xs text-amber-400/80 bg-amber-500/10 px-3 py-1.5 rounded">
+                  <div className="text-xs px-3 py-1.5 rounded" style={{ color: 'var(--color-accent)', backgroundColor: 'var(--color-bg-hover)' }}>
                     {t.hint}: {blank.hint[lang]}
                   </div>
                 )}
@@ -437,13 +447,16 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
                   onChange={e => setAnswers({ ...answers, [blank.field]: e.target.value })}
                   disabled={submitted}
                   placeholder={t.yourAnswer}
-                  className={`w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border text-sm transition-all ${
-                    showResult
-                      ? correct
-                        ? 'border-emerald-500/50 text-emerald-300'
-                        : 'border-red-500/50 text-red-300'
-                      : 'border-white/[0.06] text-white focus:border-amber-500/50 focus:outline-none'
-                  }`}
+                  className="w-full px-4 py-2.5 rounded-lg border text-sm transition-all focus:outline-none"
+                  style={{
+                    backgroundColor: 'var(--color-bg-surface)',
+                    borderColor: showResult
+                      ? correct ? 'var(--color-success)' : 'var(--color-error)'
+                      : 'var(--color-border)',
+                    color: showResult
+                      ? correct ? 'var(--color-success)' : 'var(--color-error)'
+                      : 'var(--color-text-primary)'
+                  }}
                 />
 
                 {showResult && !correct && (
@@ -484,16 +497,16 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
   return (
     <div className="h-full flex flex-col bg-[var(--color-bg-elevated)]">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between">
+      <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="p-2 rounded-lg hover:bg-white/[0.04] transition-colors text-muted hover:text-primary"
+            className="p-2 rounded-lg transition-colors text-muted hover:text-primary"
           >
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h2 className="text-base font-medium text-white">
+            <h2 className="text-base font-medium" style={{ color: 'var(--color-text-primary)' }}>
               {exerciseType === 'noun-verb' ? t.nounVerbTitle : t.actionDesignTitle}
             </h2>
             <p className="text-xs text-muted mt-0.5">
@@ -511,13 +524,14 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
             {exercises.map((_, i) => (
               <div
                 key={i}
-                className={`w-2 h-2 rounded-full ${
-                  i < currentIndex
-                    ? 'bg-emerald-400'
+                className="w-2 h-2 rounded-full"
+                style={{
+                  backgroundColor: i < currentIndex
+                    ? 'var(--color-success)'
                     : i === currentIndex
-                    ? 'bg-amber-400'
-                    : 'bg-white/10'
-                }`}
+                    ? 'var(--color-accent)'
+                    : 'var(--color-bg-hover)'
+                }}
               />
             ))}
           </div>
@@ -533,12 +547,12 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
 
       {/* Result overlay when all done */}
       {exercisesCompleted === exercises.length && submitted && (
-        <div className="absolute inset-0 bg-[var(--color-bg-base)]/80 flex items-center justify-center z-50">
+        <div className="absolute inset-0 flex items-center justify-center z-50" style={{ backgroundColor: 'rgba(var(--color-bg-base), 0.8)' }}>
           <div className="glass-card rounded-2xl p-8 text-center max-w-sm mx-4 animate-fadeIn">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500/20 to-amber-600/20 flex items-center justify-center mx-auto mb-4">
-              <Award size={32} className="text-amber-400" />
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
+              <Award size={32} style={{ color: 'var(--color-accent)' }} />
             </div>
-            <h3 className="text-xl font-medium text-white mb-2">{t.completed}</h3>
+            <h3 className="text-xl font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>{t.completed}</h3>
             <div className="text-3xl font-bold text-gradient mb-1">
               {Math.round((totalScore / exercises.length) * 100)}%
             </div>

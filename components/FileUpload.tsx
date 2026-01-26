@@ -80,7 +80,7 @@ const getFileTypeConfig = (mimeType: string, fileName: string): FileTypeConfig =
   if (mimeType.startsWith('text/') || ['json', 'md', 'markdown', 'txt', 'csv'].includes(ext)) {
     return {
       icon: <FileText size={16} />,
-      color: 'text-blue-400',
+      color: 'var(--color-info)',
       isText: true,
       label: { en: 'Text file', cn: '文本文件' }
     };
@@ -90,7 +90,7 @@ const getFileTypeConfig = (mimeType: string, fileName: string): FileTypeConfig =
   if (mimeType === 'application/pdf' || ext === 'pdf') {
     return {
       icon: <FileImage size={16} />,
-      color: 'text-red-400',
+      color: 'var(--color-error)',
       isText: false,
       label: { en: 'Document (AI vision)', cn: '文档 (AI 视觉)' }
     };
@@ -100,7 +100,7 @@ const getFileTypeConfig = (mimeType: string, fileName: string): FileTypeConfig =
   if (mimeType.includes('spreadsheet') || mimeType.includes('excel') || ['xlsx', 'xls', 'xlsm'].includes(ext)) {
     return {
       icon: <FileSpreadsheet size={16} />,
-      color: 'text-emerald-400',
+      color: 'var(--color-success)',
       isText: false,
       label: { en: 'Spreadsheet (AI vision)', cn: '表格 (AI 视觉)' }
     };
@@ -110,7 +110,7 @@ const getFileTypeConfig = (mimeType: string, fileName: string): FileTypeConfig =
   if (mimeType.includes('presentation') || mimeType.includes('powerpoint') || ['pptx', 'ppt'].includes(ext)) {
     return {
       icon: <Presentation size={16} />,
-      color: 'text-orange-400',
+      color: 'var(--color-warning)',
       isText: false,
       label: { en: 'Presentation (AI vision)', cn: '演示文稿 (AI 视觉)' }
     };
@@ -120,7 +120,7 @@ const getFileTypeConfig = (mimeType: string, fileName: string): FileTypeConfig =
   if (mimeType.startsWith('image/') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'].includes(ext)) {
     return {
       icon: <Image size={16} />,
-      color: 'text-purple-400',
+      color: 'var(--color-accent-secondary)',
       isText: false,
       label: { en: 'Image (AI vision)', cn: '图片 (AI 视觉)' }
     };
@@ -129,7 +129,7 @@ const getFileTypeConfig = (mimeType: string, fileName: string): FileTypeConfig =
   // Default - try as binary
   return {
     icon: <File size={16} />,
-    color: 'text-muted',
+      color: 'var(--color-text-muted)',
     isText: false,
     label: { en: 'Document', cn: '文档' }
   };
@@ -295,11 +295,15 @@ const FileUpload: React.FC<FileUploadProps> = ({
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`relative border-2 border-dashed rounded-xl p-4 transition-all ${
-            isDragging
-              ? 'border-amber-500/50 bg-amber-500/5'
-              : 'border-white/10 hover:border-white/20'
-          } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+          className={`relative border-2 border-dashed rounded-xl p-4 transition-all ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+          style={{
+            borderColor: isDragging
+              ? 'rgba(var(--color-accent-rgb), 0.5)'
+              : 'var(--color-border)',
+            backgroundColor: isDragging
+              ? 'rgba(var(--color-accent-rgb), 0.05)'
+              : 'transparent'
+          }}
           onClick={() => !disabled && inputRef.current?.click()}
         >
           <input
@@ -315,15 +319,15 @@ const FileUpload: React.FC<FileUploadProps> = ({
           <div className="flex flex-col items-center gap-2 text-center">
             {isParsing ? (
               <>
-                <Loader2 size={24} className="text-amber-400 animate-spin" />
+                <Loader2 size={24} className="animate-spin" style={{ color: 'var(--color-accent)' }} />
                 <span className="text-xs text-muted">{t.parsing}</span>
               </>
             ) : (
               <>
-                <Upload size={24} className={isDragging ? 'text-amber-400' : 'text-muted'} />
+                <Upload size={24} style={{ color: isDragging ? 'var(--color-accent)' : 'var(--color-text-muted)' }} />
                 <div className="text-xs">
                   <span className="text-muted">{t.dragDrop} </span>
-                  <span className="text-amber-400 hover:text-amber-300">{t.or} {t.browse}</span>
+                  <span style={{ color: 'var(--color-accent)' }}>{t.or} {t.browse}</span>
                 </div>
                 <div className="text-micro text-muted">
                   {t.supportedFormats} • {t.maxSize} {maxSizeMB}MB
@@ -336,10 +340,10 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
       {/* Error Message */}
       {error && (
-        <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 px-3 py-2 rounded-lg">
+        <div className="flex items-center gap-2 text-xs px-3 py-2 rounded-lg" style={{ color: 'var(--color-error)', backgroundColor: 'rgba(239, 68, 68, 0.1)' }}>
           <AlertCircle size={14} />
           {error}
-          <button onClick={() => setError(null)} className="ml-auto hover:text-red-300">
+          <button onClick={() => setError(null)} className="ml-auto" style={{ color: 'var(--color-error)' }}>
             <X size={12} />
           </button>
         </div>
@@ -353,22 +357,23 @@ const FileUpload: React.FC<FileUploadProps> = ({
             return (
               <div
                 key={file.id}
-                className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] group"
+                className="flex items-start gap-3 p-3 rounded-xl group"
+                style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}
               >
                 {/* File Icon */}
-                <div className={`flex-shrink-0 w-8 h-8 rounded-lg bg-white/[0.05] flex items-center justify-center ${config.color}`}>
+                <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-surface)', color: config.color }}>
                   {config.icon}
                 </div>
 
                 {/* File Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-white font-medium truncate">{file.name}</span>
+                    <span className="text-sm font-medium truncate" style={{ color: 'var(--color-text-primary)' }}>{file.name}</span>
                     <span className="text-micro text-muted">{formatSize(file.size)}</span>
                   </div>
                   {file.isBase64 ? (
                     <div className="flex items-center gap-2 mt-1">
-                      <span className={`text-micro px-1.5 py-0.5 rounded ${config.color} bg-white/[0.05]`}>
+                      <span className="text-micro px-1.5 py-0.5 rounded" style={{ color: config.color, backgroundColor: 'var(--color-bg-surface)' }}>
                         {config.label[lang]}
                       </span>
                       <span className="text-micro text-muted">{t.analyzing}</span>
@@ -377,7 +382,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                     <>
                       <p className="text-[11px] text-muted mt-1 line-clamp-2">{file.preview}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-micro text-amber-500/70">{file.content.length.toLocaleString()} {t.chars}</span>
+                        <span className="text-micro" style={{ color: 'rgba(var(--color-accent-rgb), 0.7)' }}>{file.content.length.toLocaleString()} {t.chars}</span>
                       </div>
                     </>
                   )}
@@ -386,7 +391,10 @@ const FileUpload: React.FC<FileUploadProps> = ({
                 {/* Remove Button */}
                 <button
                   onClick={() => removeFile(file.id)}
-                  className="flex-shrink-0 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-white/[0.05] text-muted hover:text-primary transition-all"
+                  className="flex-shrink-0 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 text-muted hover:text-primary transition-all"
+                  style={{ backgroundColor: 'transparent' }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--color-bg-surface)'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   title={t.removeFile}
                 >
                   <X size={14} />
@@ -509,11 +517,15 @@ export const FileUploadButton: React.FC<{
       <button
         onClick={() => inputRef.current?.click()}
         disabled={disabled || isParsing || files.length >= 3}
-        className={`p-3 rounded-xl transition-all ${
-          files.length > 0
-            ? 'bg-amber-500/20 text-amber-400'
-            : 'glass-surface text-muted hover:text-primary'
-        } disabled:opacity-50 disabled:cursor-not-allowed`}
+        className="p-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        style={{
+          backgroundColor: files.length > 0
+            ? 'rgba(var(--color-accent-rgb), 0.2)'
+            : 'var(--color-bg-surface)',
+          color: files.length > 0
+            ? 'var(--color-accent)'
+            : 'var(--color-text-muted)'
+        }}
         title={t.uploadFile}
       >
         {isParsing ? (

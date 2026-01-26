@@ -10,9 +10,9 @@ export interface CardProps {
 }
 
 const variantStyles = {
-  flat: 'bg-white/[0.02]',
+  flat: '', // Using inline style
   elevated: 'glass-card',
-  bordered: 'bg-transparent border border-white/[0.08]',
+  bordered: 'bg-transparent border', // Using inline style for border color
 };
 
 const paddingStyles = {
@@ -32,12 +32,19 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   const baseClasses = 'rounded-xl transition-all duration-200';
   const interactiveClasses = interactive
-    ? 'cursor-pointer hover:bg-white/[0.06] hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-md'
+    ? 'cursor-pointer hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-md'
     : '';
+
+  const variantInlineStyles: Record<string, React.CSSProperties> = {
+    flat: { backgroundColor: 'var(--color-bg-surface)' },
+    elevated: {},
+    bordered: { borderColor: 'var(--color-border)' },
+  };
 
   return (
     <div
       className={`${baseClasses} ${variantStyles[variant]} ${paddingStyles[padding]} ${interactiveClasses} ${className}`}
+      style={variantInlineStyles[variant]}
       onClick={onClick}
       role={interactive ? 'button' : undefined}
       tabIndex={interactive ? 0 : undefined}
@@ -68,12 +75,12 @@ export interface CardTitleProps {
 export const CardTitle: React.FC<CardTitleProps> = ({ children, icon, badge, className = '' }) => (
   <div className={`flex items-center gap-3 ${className}`}>
     {icon && (
-      <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500/20 to-amber-600/10 flex items-center justify-center">
+      <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
         {icon}
       </div>
     )}
     <div className="flex-1">
-      <h3 className="text-white font-medium">{children}</h3>
+      <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{children}</h3>
     </div>
     {badge}
   </div>
@@ -94,7 +101,7 @@ export interface CardFooterProps {
 }
 
 export const CardFooter: React.FC<CardFooterProps> = ({ children, className = '' }) => (
-  <div className={`mt-4 pt-4 border-t border-white/[0.06] ${className}`}>
+  <div className={`mt-4 pt-4 border-t ${className}`} style={{ borderColor: 'var(--color-border)' }}>
     {children}
   </div>
 );

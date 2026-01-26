@@ -309,19 +309,15 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
         <div className="fixed inset-0 bg-[var(--color-bg-base)]/90 z-50 flex items-center justify-center p-4">
           <div className="glass-card rounded-2xl w-full max-w-lg shadow-2xl animate-slideUp max-h-[85vh] flex flex-col">
             {/* Header */}
-            <div className="p-5 border-b border-white/[0.06] flex items-center justify-between flex-shrink-0">
+            <div className="p-5 flex items-center justify-between flex-shrink-0" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                  activeModal === 'object' ? 'bg-amber-500/20' :
-                  activeModal === 'action' ? 'bg-emerald-500/20' :
-                  'bg-purple-500/20'
-                }`}>
-                  {activeModal === 'object' && <Box size={20} className="text-amber-400" />}
-                  {activeModal === 'action' && <Zap size={20} className="text-emerald-400" />}
-                  {activeModal === 'integration' && <Database size={20} className="text-purple-400" />}
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
+                  {activeModal === 'object' && <Box size={20} style={{ color: 'var(--color-accent)' }} />}
+                  {activeModal === 'action' && <Zap size={20} style={{ color: 'var(--color-success)' }} />}
+                  {activeModal === 'integration' && <Database size={20} style={{ color: 'var(--color-accent-secondary)' }} />}
                 </div>
                 <div>
-                  <h3 className="text-white font-medium">
+                  <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
                     {activeModal === 'object' && t.objectTitle}
                     {activeModal === 'action' && t.actionTitle}
                     {activeModal === 'integration' && t.integrationTitle}
@@ -350,7 +346,8 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       value={objectForm.name}
                       onChange={(e) => setObjectForm({ ...objectForm, name: e.target.value })}
                       placeholder={t.objectNamePlaceholder}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-amber-500/50 focus:outline-none"
+                      className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
+                      style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
@@ -360,7 +357,8 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       onChange={(e) => setObjectForm({ ...objectForm, description: e.target.value })}
                       placeholder={t.objectDescPlaceholder}
                       rows={2}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-amber-500/50 focus:outline-none resize-none"
+                      className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none resize-none"
+                      style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
@@ -372,12 +370,14 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                           value={attr}
                           onChange={(e) => updateArrayItem(setObjectForm, 'attributes', i, e.target.value)}
                           placeholder={t.attributePlaceholder}
-                          className="flex-1 px-4 py-2 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-amber-500/50 focus:outline-none"
+                          className="flex-1 px-4 py-2 rounded-lg border text-sm focus:outline-none"
+                          style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                         />
                         {objectForm.attributes.length > 1 && (
                           <button
                             onClick={() => removeArrayItem(setObjectForm, 'attributes', i)}
-                            className="p-2 text-muted hover:text-red-400 transition-colors"
+                            className="p-2 text-muted transition-colors"
+                            style={{ color: 'var(--color-text-muted)' }}
                           >
                             <Trash2 size={14} />
                           </button>
@@ -386,7 +386,8 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                     ))}
                     <button
                       onClick={() => addArrayItem(setObjectForm, 'attributes')}
-                      className="flex items-center gap-1.5 text-xs text-amber-400 hover:text-amber-300 transition-colors"
+                      className="flex items-center gap-1.5 text-xs transition-colors"
+                      style={{ color: 'var(--color-accent)' }}
                     >
                       <Plus size={12} />
                       {t.addAttribute}
@@ -399,7 +400,8 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       value={objectForm.relationships}
                       onChange={(e) => setObjectForm({ ...objectForm, relationships: e.target.value })}
                       placeholder={t.relationshipsPlaceholder}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-amber-500/50 focus:outline-none"
+                      className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
+                      style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                 </>
@@ -415,7 +417,8 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       value={actionForm.name}
                       onChange={(e) => setActionForm({ ...actionForm, name: e.target.value })}
                       placeholder={t.actionNamePlaceholder}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-emerald-500/50 focus:outline-none"
+                      className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
+                      style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
@@ -425,7 +428,8 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       value={actionForm.targetObject}
                       onChange={(e) => setActionForm({ ...actionForm, targetObject: e.target.value })}
                       placeholder={t.targetObjectPlaceholder}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-emerald-500/50 focus:outline-none"
+                      className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
+                      style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
@@ -435,7 +439,8 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       onChange={(e) => setActionForm({ ...actionForm, description: e.target.value })}
                       placeholder={t.actionDescPlaceholder}
                       rows={2}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-emerald-500/50 focus:outline-none resize-none"
+                      className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none resize-none"
+                      style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
@@ -445,7 +450,8 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       value={actionForm.executor}
                       onChange={(e) => setActionForm({ ...actionForm, executor: e.target.value })}
                       placeholder={t.executorPlaceholder}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-emerald-500/50 focus:outline-none"
+                      className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
+                      style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
@@ -457,12 +463,14 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                           value={pre}
                           onChange={(e) => updateArrayItem(setActionForm, 'preconditions', i, e.target.value)}
                           placeholder={t.preconditionPlaceholder}
-                          className="flex-1 px-4 py-2 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-emerald-500/50 focus:outline-none"
+                          className="flex-1 px-4 py-2 rounded-lg border text-sm focus:outline-none"
+                          style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                         />
                         {actionForm.preconditions.length > 1 && (
                           <button
                             onClick={() => removeArrayItem(setActionForm, 'preconditions', i)}
-                            className="p-2 text-muted hover:text-red-400 transition-colors"
+                            className="p-2 text-muted transition-colors"
+                            style={{ color: 'var(--color-text-muted)' }}
                           >
                             <Trash2 size={14} />
                           </button>
@@ -471,7 +479,8 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                     ))}
                     <button
                       onClick={() => addArrayItem(setActionForm, 'preconditions')}
-                      className="flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
+                      className="flex items-center gap-1.5 text-xs transition-colors"
+                      style={{ color: 'var(--color-success)' }}
                     >
                       <Plus size={12} />
                       {t.addPrecondition}
@@ -484,7 +493,8 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       value={actionForm.postconditions}
                       onChange={(e) => setActionForm({ ...actionForm, postconditions: e.target.value })}
                       placeholder={t.postconditionPlaceholder}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-emerald-500/50 focus:outline-none"
+                      className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
+                      style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                 </>
@@ -500,7 +510,8 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       value={integrationForm.name}
                       onChange={(e) => setIntegrationForm({ ...integrationForm, name: e.target.value })}
                       placeholder={t.integrationNamePlaceholder}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-purple-500/50 focus:outline-none"
+                      className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
+                      style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
@@ -510,7 +521,8 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       value={integrationForm.type}
                       onChange={(e) => setIntegrationForm({ ...integrationForm, type: e.target.value })}
                       placeholder={t.integrationTypePlaceholder}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-purple-500/50 focus:outline-none"
+                      className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
+                      style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
@@ -520,7 +532,8 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       onChange={(e) => setIntegrationForm({ ...integrationForm, description: e.target.value })}
                       placeholder={t.integrationDescPlaceholder}
                       rows={2}
-                      className="w-full px-4 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-purple-500/50 focus:outline-none resize-none"
+                      className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none resize-none"
+                      style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
@@ -532,12 +545,14 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                           value={data}
                           onChange={(e) => updateArrayItem(setIntegrationForm, 'dataProvided', i, e.target.value)}
                           placeholder={t.dataProvidedPlaceholder}
-                          className="flex-1 px-4 py-2 rounded-lg bg-white/[0.02] border border-white/[0.06] text-white text-sm focus:border-purple-500/50 focus:outline-none"
+                          className="flex-1 px-4 py-2 rounded-lg border text-sm focus:outline-none"
+                          style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                         />
                         {integrationForm.dataProvided.length > 1 && (
                           <button
                             onClick={() => removeArrayItem(setIntegrationForm, 'dataProvided', i)}
-                            className="p-2 text-muted hover:text-red-400 transition-colors"
+                            className="p-2 text-muted transition-colors"
+                            style={{ color: 'var(--color-text-muted)' }}
                           >
                             <Trash2 size={14} />
                           </button>
@@ -546,7 +561,8 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                     ))}
                     <button
                       onClick={() => addArrayItem(setIntegrationForm, 'dataProvided')}
-                      className="flex items-center gap-1.5 text-xs text-purple-400 hover:text-purple-300 transition-colors"
+                      className="flex items-center gap-1.5 text-xs transition-colors"
+                      style={{ color: 'var(--color-accent-secondary)' }}
                     >
                       <Plus size={12} />
                       {t.addData}
@@ -557,7 +573,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
             </div>
 
             {/* Footer */}
-            <div className="p-5 border-t border-white/[0.06] flex justify-end gap-3 flex-shrink-0">
+            <div className="p-5 flex justify-end gap-3 flex-shrink-0" style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--color-border)' }}>
               <button
                 onClick={handleClose}
                 className="px-4 py-2 text-sm text-muted hover:text-primary transition-colors"

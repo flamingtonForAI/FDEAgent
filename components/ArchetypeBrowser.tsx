@@ -132,12 +132,12 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl bg-${industry?.color || 'gray'}-500/20 flex items-center justify-center text-${industry?.color || 'gray'}-400`}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-accent)' }}>
               {industry?.icon || <Package size={20} />}
             </div>
             <div>
-              <h3 className="text-white font-medium">{archetype.name}</h3>
-              <span className={`text-xs px-2 py-0.5 rounded-full bg-${industry?.color || 'gray'}-500/20 text-${industry?.color || 'gray'}-400`}>
+              <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{archetype.name}</h3>
+              <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-accent)' }}>
                 {industry?.label[lang] || archetype.industry}
               </span>
             </div>
@@ -167,12 +167,14 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
           {archetype.tags.slice(0, 4).map(tag => (
             <span
               key={tag}
-              className={`text-micro px-2 py-0.5 rounded-full ${
-                tag === 'ai-enabled' ? 'bg-purple-500/20 text-purple-400' :
-                tag === 'erp-integration' ? 'bg-blue-500/20 text-blue-400' :
-                tag === 'iot-enabled' ? 'bg-emerald-500/20 text-emerald-400' :
-                'bg-gray-500/20 text-muted'
-              }`}
+              className="text-micro px-2 py-0.5 rounded-full"
+              style={{
+                backgroundColor: 'var(--color-bg-hover)',
+                color: tag === 'ai-enabled' ? 'var(--color-accent-secondary)' :
+                       tag === 'erp-integration' ? 'var(--color-accent-secondary)' :
+                       tag === 'iot-enabled' ? 'var(--color-success)' :
+                       'var(--color-text-muted)'
+              }}
             >
               {tag === 'ai-enabled' ? t.aiEnabled :
                tag === 'erp-integration' ? t.erpIntegration :
@@ -184,7 +186,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
 
         {/* Actions - shown when selected */}
         {isSelected && (
-          <div className="flex gap-2 pt-3 border-t border-white/[0.06] animate-fadeIn">
+          <div className="flex gap-2 pt-3 animate-fadeIn" style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--color-border)' }}>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -214,20 +216,20 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
   return (
     <div className="h-full flex flex-col bg-[var(--color-bg-elevated)]">
       {/* Header */}
-      <div className="px-6 py-5 border-b border-white/[0.06]">
+      <div className="px-6 py-5" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
         <div className="flex items-center gap-3 mb-1">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-purple-500/20 flex items-center justify-center">
-            <Package size={20} className="text-amber-400" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
+            <Package size={20} style={{ color: 'var(--color-accent)' }} />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-white">{t.title}</h1>
+            <h1 className="text-xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h1>
             <p className="text-sm text-muted">{t.subtitle}</p>
           </div>
         </div>
       </div>
 
       {/* Toolbar */}
-      <div className="px-6 py-4 border-b border-white/[0.06] flex items-center gap-4">
+      <div className="px-6 py-4 flex items-center gap-4" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
         {/* Search */}
         <div className="flex-1 relative">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
@@ -236,7 +238,8 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t.search}
-            className="w-full glass-surface rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
+            className="w-full glass-surface rounded-lg pl-10 pr-4 py-2.5 text-sm placeholder-gray-500 focus:outline-none focus:ring-1"
+            style={{ color: 'var(--color-text-primary)' }}
           />
         </div>
 
@@ -246,7 +249,8 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
           <select
             value={selectedIndustry || ''}
             onChange={(e) => setSelectedIndustry(e.target.value || null)}
-            className="glass-surface rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none"
+            className="glass-surface rounded-lg px-3 py-2.5 text-sm focus:outline-none"
+            style={{ color: 'var(--color-text-primary)' }}
           >
             <option value="">{t.allIndustries}</option>
             {industries.map(ind => (
@@ -280,7 +284,7 @@ const StatBadge: React.FC<{ icon: React.ReactNode; value: number; label: string 
   <div className="text-center">
     <div className="flex items-center justify-center gap-1 text-muted mb-0.5">
       {icon}
-      <span className="text-sm font-medium text-white">{value}</span>
+      <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{value}</span>
     </div>
     <span className="text-micro text-muted uppercase tracking-wide">{label}</span>
   </div>

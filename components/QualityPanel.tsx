@@ -91,38 +91,38 @@ const translations = {
   }
 };
 
-const severityConfig: Record<Severity, { icon: React.ReactNode; color: string; bg: string }> = {
+const severityConfig: Record<Severity, { icon: React.ReactNode; colorVar: string; bgVar: string }> = {
   error: {
     icon: <AlertCircle size={14} />,
-    color: 'text-red-400',
-    bg: 'bg-red-500/20'
+    colorVar: 'var(--color-error)',
+    bgVar: 'var(--color-bg-hover)'
   },
   warning: {
     icon: <AlertTriangle size={14} />,
-    color: 'text-amber-400',
-    bg: 'bg-amber-500/20'
+    colorVar: 'var(--color-warning)',
+    bgVar: 'var(--color-bg-hover)'
   },
   info: {
     icon: <Info size={14} />,
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/20'
+    colorVar: 'var(--color-accent-secondary)',
+    bgVar: 'var(--color-bg-hover)'
   }
 };
 
-const categoryConfig: Record<Category, { icon: React.ReactNode; color: string }> = {
-  object: { icon: <Box size={12} />, color: 'text-amber-400' },
-  action: { icon: <Zap size={12} />, color: 'text-emerald-400' },
-  link: { icon: <Link2 size={12} />, color: 'text-purple-400' },
-  integration: { icon: <Database size={12} />, color: 'text-orange-400' },
-  architecture: { icon: <Layers size={12} />, color: 'text-pink-400' }
+const categoryConfig: Record<Category, { icon: React.ReactNode; colorVar: string }> = {
+  object: { icon: <Box size={12} />, colorVar: 'var(--color-accent)' },
+  action: { icon: <Zap size={12} />, colorVar: 'var(--color-success)' },
+  link: { icon: <Link2 size={12} />, colorVar: 'var(--color-accent-secondary)' },
+  integration: { icon: <Database size={12} />, colorVar: 'var(--color-warning)' },
+  architecture: { icon: <Layers size={12} />, colorVar: 'var(--color-accent-secondary)' }
 };
 
-const gradeColors: Record<string, string> = {
-  A: 'text-emerald-400 bg-emerald-500/20',
-  B: 'text-amber-400 bg-amber-500/20',
-  C: 'text-amber-400 bg-amber-500/20',
-  D: 'text-orange-400 bg-orange-500/20',
-  F: 'text-red-400 bg-red-500/20'
+const gradeColorVars: Record<string, { color: string; bg: string }> = {
+  A: { color: 'var(--color-success)', bg: 'var(--color-bg-hover)' },
+  B: { color: 'var(--color-warning)', bg: 'var(--color-bg-hover)' },
+  C: { color: 'var(--color-warning)', bg: 'var(--color-bg-hover)' },
+  D: { color: 'var(--color-warning)', bg: 'var(--color-bg-hover)' },
+  F: { color: 'var(--color-error)', bg: 'var(--color-bg-hover)' }
 };
 
 const QualityPanel: React.FC<QualityPanelProps> = ({
@@ -197,13 +197,13 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
   return (
     <div className="glass-card rounded-2xl overflow-hidden h-full flex flex-col">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
+      <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-            <ShieldCheck size={20} className="text-emerald-400" />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
+            <ShieldCheck size={20} style={{ color: 'var(--color-success)' }} />
           </div>
           <div>
-            <h3 className="text-white font-medium">{t.title}</h3>
+            <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h3>
             <p className="text-xs text-muted">{t.subtitle}</p>
           </div>
         </div>
@@ -230,69 +230,57 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
       </div>
 
       {/* Tab Switcher */}
-      <div className="flex border-b border-white/[0.06] px-4">
+      <div className="flex px-4" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
         <button
           onClick={() => setActiveTab('quality')}
-          className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
-            activeTab === 'quality'
-              ? 'text-emerald-400'
-              : 'text-muted hover:text-primary'
-          }`}
+          className="px-4 py-2.5 text-sm font-medium transition-colors relative"
+          style={{ color: activeTab === 'quality' ? 'var(--color-success)' : 'var(--color-text-muted)' }}
         >
           <div className="flex items-center gap-2">
             <ShieldCheck size={14} />
             {t.tabQuality}
           </div>
           {activeTab === 'quality' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-400" />
+            <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--color-success)' }} />
           )}
         </button>
         <button
           onClick={() => setActiveTab('threelayer')}
-          className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
-            activeTab === 'threelayer'
-              ? 'text-blue-400'
-              : 'text-muted hover:text-primary'
-          }`}
+          className="px-4 py-2.5 text-sm font-medium transition-colors relative"
+          style={{ color: activeTab === 'threelayer' ? 'var(--color-accent-secondary)' : 'var(--color-text-muted)' }}
         >
           <div className="flex items-center gap-2">
             <Layers size={14} />
             {t.tabThreeLayer}
           </div>
           {activeTab === 'threelayer' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-400" />
+            <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--color-accent-secondary)' }} />
           )}
         </button>
         <button
           onClick={() => setActiveTab('milestones')}
-          className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
-            activeTab === 'milestones'
-              ? 'text-purple-400'
-              : 'text-muted hover:text-primary'
-          }`}
+          className="px-4 py-2.5 text-sm font-medium transition-colors relative"
+          style={{ color: activeTab === 'milestones' ? 'var(--color-accent-secondary)' : 'var(--color-text-muted)' }}
         >
           <div className="flex items-center gap-2">
             <Flag size={14} />
             {t.tabMilestones}
           </div>
           {activeTab === 'milestones' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-400" />
+            <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--color-accent-secondary)' }} />
           )}
         </button>
         <button
           onClick={() => setActiveTab('deliverables')}
-          className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
-            activeTab === 'deliverables'
-              ? 'text-orange-400'
-              : 'text-muted hover:text-primary'
-          }`}
+          className="px-4 py-2.5 text-sm font-medium transition-colors relative"
+          style={{ color: activeTab === 'deliverables' ? 'var(--color-warning)' : 'var(--color-text-muted)' }}
         >
           <div className="flex items-center gap-2">
             <Download size={14} />
             {t.tabDeliverables}
           </div>
           {activeTab === 'deliverables' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-400" />
+            <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--color-warning)' }} />
           )}
         </button>
       </div>
@@ -310,15 +298,15 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
         <>
       {/* Score Display */}
       {report && (
-        <div className="px-5 py-4 border-b border-white/[0.06] bg-white/[0.02]">
+        <div className="px-5 py-4" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-surface)' }}>
           <div className="flex items-center justify-between">
             {/* Score */}
             <div className="flex items-center gap-6">
               <div className="text-center">
-                <div className="text-3xl font-bold text-white">{report.score}</div>
+                <div className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{report.score}</div>
                 <div className="text-micro text-muted">{t.score}</div>
               </div>
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold ${gradeColors[report.grade]}`}>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold" style={{ color: gradeColorVars[report.grade].color, backgroundColor: gradeColorVars[report.grade].bg }}>
                 {report.grade}
               </div>
             </div>
@@ -326,15 +314,15 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
             {/* Stats */}
             <div className="flex items-center gap-4">
               <div className="text-center">
-                <div className="text-lg font-medium text-white">{report.totalChecks}</div>
+                <div className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{report.totalChecks}</div>
                 <div className="text-micro text-muted">{t.checks}</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-medium text-emerald-400">{report.passed}</div>
+                <div className="text-lg font-medium" style={{ color: 'var(--color-success)' }}>{report.passed}</div>
                 <div className="text-micro text-muted">{t.passed}</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-medium text-amber-400">{report.issues.length}</div>
+                <div className="text-lg font-medium" style={{ color: 'var(--color-warning)' }}>{report.issues.length}</div>
                 <div className="text-micro text-muted">{t.issues}</div>
               </div>
             </div>
@@ -345,11 +333,11 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
                 <button
                   key={sev}
                   onClick={() => setFilterSeverity(filterSeverity === sev ? 'all' : sev)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all ${
-                    filterSeverity === sev
-                      ? severityConfig[sev].bg + ' ' + severityConfig[sev].color
-                      : 'glass-surface text-muted hover:text-primary'
-                  }`}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all glass-surface"
+                  style={{
+                    backgroundColor: filterSeverity === sev ? severityConfig[sev].bgVar : undefined,
+                    color: filterSeverity === sev ? severityConfig[sev].colorVar : 'var(--color-text-muted)'
+                  }}
                 >
                   {severityConfig[sev].icon}
                   <span>{report.bySeverity[sev]}</span>
@@ -368,7 +356,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
             <p className="text-sm">{t.runCheck}</p>
           </div>
         ) : report.issues.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-emerald-400">
+          <div className="flex flex-col items-center justify-center h-full" style={{ color: 'var(--color-success)' }}>
             <ShieldCheck size={40} className="mb-4" />
             <p className="text-sm">{t.noIssues}</p>
           </div>
@@ -385,12 +373,12 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
                 <div key={category} className="glass-surface rounded-xl overflow-hidden">
                   <button
                     onClick={() => toggleCategory(category)}
-                    className="w-full px-4 py-3 flex items-center justify-between hover:bg-white/[0.02] transition-colors"
+                    className="w-full px-4 py-3 flex items-center justify-between transition-colors"
                   >
                     <div className="flex items-center gap-2">
                       {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                      <span className={config.color}>{config.icon}</span>
-                      <span className="text-sm font-medium text-white">
+                      <span style={{ color: config.colorVar }}>{config.icon}</span>
+                      <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                         {t.categories[category]}
                       </span>
                       <span className="text-xs text-muted">({categoryIssues.length})</span>
@@ -402,7 +390,8 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
                         return (
                           <span
                             key={sev}
-                            className={`px-1.5 py-0.5 rounded text-micro ${severityConfig[sev as Severity].bg} ${severityConfig[sev as Severity].color}`}
+                            className="px-1.5 py-0.5 rounded text-micro"
+                            style={{ backgroundColor: severityConfig[sev as Severity].bgVar, color: severityConfig[sev as Severity].colorVar }}
                           >
                             {count}
                           </span>
@@ -419,11 +408,11 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
                           className="glass-card rounded-lg p-3"
                         >
                           <div className="flex items-start gap-2">
-                            <div className={`mt-0.5 ${severityConfig[issue.severity].color}`}>
+                            <div className="mt-0.5" style={{ color: severityConfig[issue.severity].colorVar }}>
                               {severityConfig[issue.severity].icon}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm text-white">
+                              <p className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
                                 {issue.message[lang]}
                               </p>
                               {issue.target && (
@@ -432,9 +421,9 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
                                 </p>
                               )}
                               {issue.suggestion && (
-                                <div className="mt-2 p-2 rounded-lg bg-white/[0.03] border-l-2 border-amber-500/50">
+                                <div className="mt-2 p-2 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)', borderLeftWidth: '2px', borderLeftStyle: 'solid', borderLeftColor: 'var(--color-accent)' }}>
                                   <p className="text-xs text-muted">
-                                    <span className="text-amber-400">{t.suggestion}:</span> {issue.suggestion[lang]}
+                                    <span style={{ color: 'var(--color-accent)' }}>{t.suggestion}:</span> {issue.suggestion[lang]}
                                   </p>
                                 </div>
                               )}
