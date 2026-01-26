@@ -221,6 +221,9 @@ interface ButtonProps {
 | 日期 | Phase | 变更内容 | 状态 |
 |------|-------|---------|------|
 | 2026-01-26 | - | 创建优化计划文档 | ✅ |
-| | 1.1 | 色彩对比度修复 | 待开始 |
-| | 1.2 | 字体层级统一 | 待开始 |
-| | 1.3 | 交互反馈增强 | 待开始 |
+| 2026-01-26 | 1.1 | 色彩对比度修复 - WCAG AA compliant | ✅ |
+| 2026-01-26 | 1.2 | 字体层级统一 - 添加 text-micro 等类 | ✅ |
+| 2026-01-26 | 1.3 | 交互反馈增强 - skeleton, hover, focus | ✅ |
+| 2026-01-26 | 2.1 | 创建 Card 组件 (Card, CardHeader, etc.) | ✅ |
+| 2026-01-26 | 2.2 | 创建 Input 组件 (Input, Textarea, Select, Checkbox) | ✅ |
+| 2026-01-26 | 2.3 | 创建 Button 组件 (Button, IconButton) | ✅ |
