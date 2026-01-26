@@ -11,10 +11,11 @@ import SystemMap from './components/SystemMap';
 import Settings from './components/Settings';
 import Academy from './components/Academy';
 import QualityPanel from './components/QualityPanel';
+import StructuringWorkbench from './components/StructuringWorkbench';
 import ArchetypeBrowser from './components/ArchetypeBrowser';
 import ArchetypeViewer from './components/ArchetypeViewer';
 import { getArchetypeById } from './content/archetypes';
-import { LayoutDashboard, MessageSquare, Database, Zap, Languages, Network, Settings as SettingsIcon, RotateCcw, PenTool, Sparkles, GraduationCap, ShieldCheck, X, Package } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Database, Zap, Languages, Network, Settings as SettingsIcon, RotateCcw, PenTool, Sparkles, GraduationCap, ShieldCheck, X, Package, ClipboardList } from 'lucide-react';
 import { ThemeSwitcher } from './components/ui';
 import { Theme, loadSavedTheme, applyTheme } from './lib/themes';
 
@@ -25,6 +26,7 @@ const translations = {
     academy: "Learning Center",
     archetypes: "Archetypes",
     scouting: "Requirement Scouting",
+    workbench: "Structuring Workbench",
     ontology: "Logical Ontology",
     actionDesigner: "Action Designer",
     systemMap: "Architecture Map",
@@ -44,6 +46,7 @@ const translations = {
     academy: "学习中心",
     archetypes: "行业原型",
     scouting: "需求勘察",
+    workbench: "结构化工作台",
     ontology: "逻辑本体",
     actionDesigner: "Action 设计",
     systemMap: "架构拓扑图",
@@ -94,7 +97,7 @@ const loadProjectState = (): ProjectState => {
 
 const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('cn');
-  const [activeTab, setActiveTab] = useState<'academy' | 'archetypes' | 'archetypeViewer' | 'scouting' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview'>('scouting');
+  const [activeTab, setActiveTab] = useState<'academy' | 'archetypes' | 'archetypeViewer' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview'>('scouting');
   const [project, setProject] = useState<ProjectState>(loadProjectState);
   const [isDesigning, setIsDesigning] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(loadChatMessages);
@@ -373,6 +376,12 @@ const App: React.FC = () => {
             label={t.scouting}
           />
           <NavItem
+            active={activeTab === 'workbench'}
+            onClick={() => setActiveTab('workbench')}
+            icon={<ClipboardList size={16} />}
+            label={t.workbench}
+          />
+          <NavItem
             active={activeTab === 'ontology'}
             onClick={() => setActiveTab('ontology')}
             icon={<Database size={16} />}
@@ -503,6 +512,15 @@ const App: React.FC = () => {
               setMessages={setChatMessages}
             />
           )}
+          {activeTab === 'workbench' && (
+            <StructuringWorkbench
+              lang={lang}
+              project={project}
+              setProject={setProject}
+              chatMessages={chatHistoryRef.current}
+              onNavigateToOntology={() => setActiveTab('ontology')}
+            />
+          )}
           {activeTab === 'ontology' && (
             <OntologyVisualizer lang={lang} objects={project.objects} links={project.links} />
           )}
@@ -521,8 +539,8 @@ const App: React.FC = () => {
         </div>
       </main>
 
-      {/* Quality Check Floating Button */}
-      {project.objects.length > 0 && !showQualityPanel && (
+      {/* Quality Check Floating Button - Always visible for guidance */}
+      {!showQualityPanel && (
         <button
           onClick={() => setShowQualityPanel(true)}
           className="fixed bottom-6 right-6 w-14 h-14 rounded-2xl btn-gradient shadow-lg shadow-amber-500/20 flex items-center justify-center hover:scale-105 transition-transform z-40 group"

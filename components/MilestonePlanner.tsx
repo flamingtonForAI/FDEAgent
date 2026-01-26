@@ -104,12 +104,12 @@ function evaluateMilestones(project: ProjectState, lang: Language): Milestone[] 
     (actionCount > 0 ? 20 : 0)
   );
 
-  // Design Phase
+  // Design Phase - Support lightweight bootcamp (1 object is enough to start)
   const designProgress = Math.min(100,
-    (objectCount >= 3 ? 25 : objectCount * 8) +
-    (linkCount > 0 ? 25 : 0) +
-    (businessLayerComplete > 0 ? 25 : 0) +
-    (actionCount >= 3 ? 25 : actionCount * 8)
+    (objectCount >= 1 ? 25 : 0) +
+    (linkCount > 0 ? 20 : 0) +
+    (businessLayerComplete > 0 ? 30 : 0) +
+    (actionCount >= 1 ? 25 : 0)
   );
 
   // Validation Phase
@@ -165,8 +165,6 @@ function evaluateMilestones(project: ProjectState, lang: Language): Milestone[] 
       progress: designProgress,
       blockers: discoveryProgress < 60 ? [
         { cn: '请先完成发现阶段', en: 'Complete discovery phase first' }
-      ] : objectCount < 2 ? [
-        { cn: '建议定义 2+ 个业务对象', en: 'Recommend defining 2+ business objects' }
       ] : undefined
     },
     {
@@ -242,16 +240,16 @@ function getNextSteps(milestones: Milestone[], lang: Language): { cn: string; en
   const discovery = milestones.find(m => m.id === 'discovery');
   if (discovery?.status === 'in_progress' && discovery.progress < 50) {
     steps.push({
-      cn: '通过访谈向导收集更多业务信息',
-      en: 'Collect more business information using Interview Guide'
+      cn: '在需求勘察中与 AI 对话，收集更多业务信息',
+      en: 'Chat with AI in Requirement Scouting to collect more business info'
     });
   }
 
   const design = milestones.find(m => m.id === 'design');
   if (design?.status === 'in_progress' && design.progress < 50) {
     steps.push({
-      cn: '在结构化工作台中完善对象定义',
-      en: 'Complete object definitions in Structuring Workbench'
+      cn: '在结构化工作台中整理和完善对象定义',
+      en: 'Organize and complete object definitions in Structuring Workbench'
     });
   }
 

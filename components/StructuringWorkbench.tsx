@@ -23,6 +23,9 @@ import {
 interface StructuringWorkbenchProps {
   lang: Language;
   project: ProjectState;
+  setProject?: React.Dispatch<React.SetStateAction<ProjectState>>;
+  chatMessages?: Array<{ role: string; content: string }>;
+  onNavigateToOntology?: () => void;
   onEditObject?: (objectId: string) => void;
   onAddObject?: () => void;
   onAddAction?: (objectId: string) => void;
@@ -160,6 +163,9 @@ function calculateActionCompleteness(action: any): {
 const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
   lang,
   project,
+  setProject,
+  chatMessages,
+  onNavigateToOntology,
   onEditObject,
   onAddObject,
   onAddAction
@@ -254,7 +260,9 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
 
     md += `## Links (${project.links?.length || 0})\n\n`;
     (project.links || []).forEach(link => {
-      md += `- ${link.sourceId} → ${link.targetId} (${link.type})\n`;
+      const sourceName = project.objects?.find(o => o.id === link.source)?.name || link.source;
+      const targetName = project.objects?.find(o => o.id === link.target)?.name || link.target;
+      md += `- ${sourceName} → ${targetName} (${link.label})\n`;
     });
 
     const blob = new Blob([md], { type: 'text/markdown' });

@@ -143,10 +143,11 @@ function generateAPISpec(project: ProjectState): string {
   };
 
   // Generate paths and schemas for each object
+  // Decision-First: Only generate APIs for objects with defined Actions
   project.objects.forEach(obj => {
     const basePath = `/${obj.name.toLowerCase().replace(/\s+/g, '-')}s`;
 
-    // Generate schema
+    // Generate schema (always useful for reference)
     const properties: any = {};
     const required: string[] = ['id'];
 
@@ -167,104 +168,35 @@ function generateAPISpec(project: ProjectState): string {
       required
     };
 
-    // Generate CRUD paths
-    spec.paths[basePath] = {
-      get: {
-        tags: [obj.name],
-        summary: `List all ${obj.name}s`,
-        operationId: `list${obj.name}s`,
-        parameters: [
-          { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
-          { name: 'offset', in: 'query', schema: { type: 'integer', default: 0 } }
-        ],
-        responses: {
-          '200': {
-            description: 'Successful response',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    data: { type: 'array', items: { $ref: `#/components/schemas/${obj.name}` } },
-                    total: { type: 'integer' }
-                  }
+    // Decision-First: Skip API generation if no Actions defined
+    // Only generate GET by ID for reference (read-only)
+    if (!obj.actions || obj.actions.length === 0) {
+      // Minimal read endpoint for reference only
+      spec.paths[`${basePath}/{id}`] = {
+        get: {
+          tags: [obj.name],
+          summary: `Get ${obj.name} by ID (read-only reference)`,
+          operationId: `get${obj.name}ById`,
+          parameters: [
+            { name: 'id', in: 'path', required: true, schema: { type: 'string' } }
+          ],
+          responses: {
+            '200': {
+              description: 'Successful response',
+              content: {
+                'application/json': {
+                  schema: { $ref: `#/components/schemas/${obj.name}` }
                 }
               }
-            }
+            },
+            '404': { description: 'Not found' }
           }
         }
-      },
-      post: {
-        tags: [obj.name],
-        summary: `Create a new ${obj.name}`,
-        operationId: `create${obj.name}`,
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: { $ref: `#/components/schemas/${obj.name}` }
-            }
-          }
-        },
-        responses: {
-          '201': { description: 'Created successfully' }
-        }
-      }
-    };
+      };
+      return; // Skip to next object - no CRUD, no action endpoints
+    }
 
-    spec.paths[`${basePath}/{id}`] = {
-      get: {
-        tags: [obj.name],
-        summary: `Get ${obj.name} by ID`,
-        operationId: `get${obj.name}ById`,
-        parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string' } }
-        ],
-        responses: {
-          '200': {
-            description: 'Successful response',
-            content: {
-              'application/json': {
-                schema: { $ref: `#/components/schemas/${obj.name}` }
-              }
-            }
-          },
-          '404': { description: 'Not found' }
-        }
-      },
-      put: {
-        tags: [obj.name],
-        summary: `Update ${obj.name}`,
-        operationId: `update${obj.name}`,
-        parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string' } }
-        ],
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: { $ref: `#/components/schemas/${obj.name}` }
-            }
-          }
-        },
-        responses: {
-          '200': { description: 'Updated successfully' }
-        }
-      },
-      delete: {
-        tags: [obj.name],
-        summary: `Delete ${obj.name}`,
-        operationId: `delete${obj.name}`,
-        parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string' } }
-        ],
-        responses: {
-          '204': { description: 'Deleted successfully' }
-        }
-      }
-    };
-
-    // Generate action endpoints
+    // Generate action endpoints only (Decision-First approach)
     obj.actions?.forEach(action => {
       const actionPath = `${basePath}/{id}/actions/${action.name.toLowerCase().replace(/\s+/g, '-')}`;
       const il = action.implementationLayer;
