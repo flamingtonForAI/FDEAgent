@@ -129,7 +129,7 @@ const getFileTypeConfig = (mimeType: string, fileName: string): FileTypeConfig =
   // Default - try as binary
   return {
     icon: <File size={16} />,
-    color: 'text-gray-400',
+    color: 'text-muted',
     isText: false,
     label: { en: 'Document', cn: '文档' }
   };
@@ -316,16 +316,16 @@ const FileUpload: React.FC<FileUploadProps> = ({
             {isParsing ? (
               <>
                 <Loader2 size={24} className="text-amber-400 animate-spin" />
-                <span className="text-xs text-gray-400">{t.parsing}</span>
+                <span className="text-xs text-muted">{t.parsing}</span>
               </>
             ) : (
               <>
-                <Upload size={24} className={isDragging ? 'text-amber-400' : 'text-gray-500'} />
+                <Upload size={24} className={isDragging ? 'text-amber-400' : 'text-muted'} />
                 <div className="text-xs">
-                  <span className="text-gray-400">{t.dragDrop} </span>
+                  <span className="text-muted">{t.dragDrop} </span>
                   <span className="text-amber-400 hover:text-amber-300">{t.or} {t.browse}</span>
                 </div>
-                <div className="text-micro text-gray-500">
+                <div className="text-micro text-muted">
                   {t.supportedFormats} • {t.maxSize} {maxSizeMB}MB
                 </div>
               </>
@@ -364,18 +364,18 @@ const FileUpload: React.FC<FileUploadProps> = ({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-white font-medium truncate">{file.name}</span>
-                    <span className="text-micro text-gray-500">{formatSize(file.size)}</span>
+                    <span className="text-micro text-muted">{formatSize(file.size)}</span>
                   </div>
                   {file.isBase64 ? (
                     <div className="flex items-center gap-2 mt-1">
                       <span className={`text-micro px-1.5 py-0.5 rounded ${config.color} bg-white/[0.05]`}>
                         {config.label[lang]}
                       </span>
-                      <span className="text-micro text-gray-500">{t.analyzing}</span>
+                      <span className="text-micro text-muted">{t.analyzing}</span>
                     </div>
                   ) : (
                     <>
-                      <p className="text-[11px] text-gray-500 mt-1 line-clamp-2">{file.preview}</p>
+                      <p className="text-[11px] text-muted mt-1 line-clamp-2">{file.preview}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-micro text-amber-500/70">{file.content.length.toLocaleString()} {t.chars}</span>
                       </div>
@@ -386,7 +386,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                 {/* Remove Button */}
                 <button
                   onClick={() => removeFile(file.id)}
-                  className="flex-shrink-0 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-white/[0.05] text-gray-500 hover:text-white transition-all"
+                  className="flex-shrink-0 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-white/[0.05] text-muted hover:text-primary transition-all"
                   title={t.removeFile}
                 >
                   <X size={14} />
@@ -512,7 +512,7 @@ export const FileUploadButton: React.FC<{
         className={`p-3 rounded-xl transition-all ${
           files.length > 0
             ? 'bg-amber-500/20 text-amber-400'
-            : 'glass-surface text-gray-400 hover:text-white'
+            : 'glass-surface text-muted hover:text-primary'
         } disabled:opacity-50 disabled:cursor-not-allowed`}
         title={t.uploadFile}
       >

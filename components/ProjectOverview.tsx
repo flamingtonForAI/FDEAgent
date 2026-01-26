@@ -79,24 +79,24 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-          <h3 className="text-gray-500 text-xs font-mono uppercase tracking-widest mb-4">{t.orchestration}</h3>
+          <h3 className="text-muted text-xs font-mono uppercase tracking-widest mb-4">{t.orchestration}</h3>
           <div className="p-4 bg-indigo-500/10 rounded-xl border border-indigo-500/20 text-indigo-400 font-medium text-sm">
             Model-Agnostic Decision Layer
-            <p className="text-micro text-gray-500 mt-1 uppercase font-mono">{t.orchestrationSub}</p>
+            <p className="text-micro text-muted mt-1 uppercase font-mono">{t.orchestrationSub}</p>
           </div>
         </div>
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-          <h3 className="text-gray-500 text-xs font-mono uppercase tracking-widest mb-4">{t.ontology}</h3>
+          <h3 className="text-muted text-xs font-mono uppercase tracking-widest mb-4">{t.ontology}</h3>
           <div className="p-4 bg-purple-500/10 rounded-xl border border-purple-500/20 text-purple-400 font-medium text-sm">
             {project.objects.length} Entities & {project.links.length} Relations
-            <p className="text-micro text-gray-500 mt-1 uppercase font-mono">{t.ontologySub}</p>
+            <p className="text-micro text-muted mt-1 uppercase font-mono">{t.ontologySub}</p>
           </div>
         </div>
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-          <h3 className="text-gray-500 text-xs font-mono uppercase tracking-widest mb-4">{t.operational}</h3>
+          <h3 className="text-muted text-xs font-mono uppercase tracking-widest mb-4">{t.operational}</h3>
           <div className="p-4 bg-amber-500/10 rounded-xl border border-amber-500/20 text-amber-400 font-medium text-sm">
             {project.objects.reduce((acc, obj) => acc + obj.actions.length, 0)} Augmented Workflows
-            <p className="text-micro text-gray-500 mt-1 uppercase font-mono">{t.operationalSub}</p>
+            <p className="text-micro text-muted mt-1 uppercase font-mono">{t.operationalSub}</p>
           </div>
         </div>
       </div>
@@ -114,8 +114,8 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
       </div>
 
       <div className="p-12 border-2 border-dashed border-white/5 rounded-3xl text-center">
-        <h3 className="text-xl font-light text-gray-400 mb-6">{t.quote}</h3>
-        <p className="text-xs font-mono text-gray-500 uppercase tracking-widest">{t.role}</p>
+        <h3 className="text-xl font-light text-muted mb-6">{t.quote}</h3>
+        <p className="text-xs font-mono text-muted uppercase tracking-widest">{t.role}</p>
       </div>
     </div>
   );

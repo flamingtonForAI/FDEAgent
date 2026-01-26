@@ -23,13 +23,13 @@ export const Input: React.FC<InputProps> = ({
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={inputId} className="block text-xs text-gray-500 mb-2">
+        <label htmlFor={inputId} className="block text-xs text-muted mb-2">
           {label}
         </label>
       )}
       <div className="relative">
         {leftIcon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
             {leftIcon}
           </div>
         )}
@@ -47,13 +47,13 @@ export const Input: React.FC<InputProps> = ({
           {...props}
         />
         {rightIcon && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted">
             {rightIcon}
           </div>
         )}
       </div>
       {(error || hint) && (
-        <p className={`mt-1.5 text-xs ${error ? 'text-red-400' : 'text-gray-500'}`}>
+        <p className={`mt-1.5 text-xs ${error ? 'text-red-400' : 'text-muted'}`}>
           {error || hint}
         </p>
       )}
@@ -81,7 +81,7 @@ export const Textarea: React.FC<TextareaProps> = ({
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={textareaId} className="block text-xs text-gray-500 mb-2">
+        <label htmlFor={textareaId} className="block text-xs text-muted mb-2">
           {label}
         </label>
       )}
@@ -98,7 +98,7 @@ export const Textarea: React.FC<TextareaProps> = ({
         {...props}
       />
       {(error || hint) && (
-        <p className={`mt-1.5 text-xs ${error ? 'text-red-400' : 'text-gray-500'}`}>
+        <p className={`mt-1.5 text-xs ${error ? 'text-red-400' : 'text-muted'}`}>
           {error || hint}
         </p>
       )}
@@ -127,7 +127,7 @@ export const Select: React.FC<SelectProps> = ({
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={selectId} className="block text-xs text-gray-500 mb-2">
+        <label htmlFor={selectId} className="block text-xs text-muted mb-2">
           {label}
         </label>
       )}
@@ -154,7 +154,7 @@ export const Select: React.FC<SelectProps> = ({
         ))}
       </select>
       {(error || hint) && (
-        <p className={`mt-1.5 text-xs ${error ? 'text-red-400' : 'text-gray-500'}`}>
+        <p className={`mt-1.5 text-xs ${error ? 'text-red-400' : 'text-muted'}`}>
           {error || hint}
         </p>
       )}
@@ -182,7 +182,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
         className="rounded border-white/20 bg-transparent text-amber-500 focus:ring-amber-500/30 focus:ring-offset-0"
         {...props}
       />
-      <span className="text-sm text-gray-400">{label}</span>
+      <span className="text-sm text-muted">{label}</span>
     </label>
   );
 };

@@ -177,11 +177,11 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
       <h3 className="text-white font-medium mb-1 group-hover:text-amber-400 transition-colors">
         {caseItem.title[lang]}
       </h3>
-      <p className="text-xs text-gray-500 mb-3 line-clamp-2">
+      <p className="text-xs text-muted mb-3 line-clamp-2">
         {caseItem.description[lang]}
       </p>
 
-      <div className="flex items-center gap-3 text-micro text-gray-500">
+      <div className="flex items-center gap-3 text-micro text-muted">
         <span className="flex items-center gap-1">
           <Box size={10} />
           {caseItem.objectCount} {t.objects}
@@ -196,7 +196,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
         {caseItem.tags.slice(0, 3).map(tag => (
           <span
             key={tag}
-            className="px-1.5 py-0.5 rounded text-micro bg-white/[0.05] text-gray-400"
+            className="px-1.5 py-0.5 rounded text-micro bg-white/[0.05] text-muted"
           >
             {tagConfig[tag].label[lang]}
           </span>
@@ -215,7 +215,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
         <div className="px-6 py-4 border-b border-white/[0.06] flex items-center gap-4">
           <button
             onClick={() => setSelectedCase(null)}
-            className="p-2 rounded-lg hover:bg-white/[0.05] transition-colors text-gray-400 hover:text-white"
+            className="p-2 rounded-lg hover:bg-white/[0.05] transition-colors text-muted hover:text-primary"
           >
             <ArrowLeft size={18} />
           </button>
@@ -226,7 +226,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
               </div>
               <div>
                 <h2 className="text-white font-medium">{selectedCase.metadata.title[lang]}</h2>
-                <div className="flex items-center gap-2 text-xs text-gray-500">
+                <div className="flex items-center gap-2 text-xs text-muted">
                   <span>{industryConfig[selectedCase.metadata.industry].label[lang]}</span>
                   <span>•</span>
                   <span className={difficultyColors[selectedCase.metadata.difficulty].split(' ')[0]}>
@@ -246,7 +246,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Description */}
-          <p className="text-gray-400 text-sm">{selectedCase.metadata.description[lang]}</p>
+          <p className="text-muted text-sm">{selectedCase.metadata.description[lang]}</p>
 
           {/* Scenario */}
           <section className="glass-surface rounded-xl p-5">
@@ -257,15 +257,15 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
 
             <div className="space-y-4">
               <div>
-                <h4 className="text-xs text-gray-500 mb-2">{t.background}</h4>
-                <p className="text-sm text-gray-300">{selectedCase.scenario.background[lang]}</p>
+                <h4 className="text-xs text-muted mb-2">{t.background}</h4>
+                <p className="text-sm text-secondary">{selectedCase.scenario.background[lang]}</p>
               </div>
 
               <div>
-                <h4 className="text-xs text-gray-500 mb-2">{t.challenges}</h4>
+                <h4 className="text-xs text-muted mb-2">{t.challenges}</h4>
                 <ul className="space-y-1">
                   {selectedCase.scenario.challenges[lang].map((c, i) => (
-                    <li key={i} className="text-sm text-gray-300 flex items-start gap-2">
+                    <li key={i} className="text-sm text-secondary flex items-start gap-2">
                       <span className="text-red-400 mt-1">•</span>
                       {c}
                     </li>
@@ -274,10 +274,10 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
               </div>
 
               <div>
-                <h4 className="text-xs text-gray-500 mb-2">{t.goals}</h4>
+                <h4 className="text-xs text-muted mb-2">{t.goals}</h4>
                 <ul className="space-y-1">
                   {selectedCase.scenario.goals[lang].map((g, i) => (
-                    <li key={i} className="text-sm text-gray-300 flex items-start gap-2">
+                    <li key={i} className="text-sm text-secondary flex items-start gap-2">
                       <span className="text-emerald-400 mt-1">•</span>
                       {g}
                     </li>
@@ -286,14 +286,14 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
               </div>
 
               <div>
-                <h4 className="text-xs text-gray-500 mb-2">{t.stakeholders}</h4>
+                <h4 className="text-xs text-muted mb-2">{t.stakeholders}</h4>
                 <div className="flex flex-wrap gap-2">
                   {selectedCase.scenario.stakeholders.map((s, i) => (
                     <div key={i} className="glass-card rounded-lg p-2 flex items-center gap-2">
                       <Users size={12} className="text-purple-400" />
                       <div>
                         <span className="text-xs text-white">{s.role}</span>
-                        <p className="text-micro text-gray-500">{s.description[lang]}</p>
+                        <p className="text-micro text-muted">{s.description[lang]}</p>
                       </div>
                     </div>
                   ))}
@@ -314,19 +314,19 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
                 <div className="text-2xl font-bold text-amber-400">
                   {selectedCase.ontology.objects.length}
                 </div>
-                <div className="text-micro text-gray-500">{t.objects}</div>
+                <div className="text-micro text-muted">{t.objects}</div>
               </div>
               <div className="glass-card rounded-lg p-3 text-center">
                 <div className="text-2xl font-bold text-emerald-400">
                   {selectedCase.ontology.objects.reduce((sum, o) => sum + (o.actions?.length || 0), 0)}
                 </div>
-                <div className="text-micro text-gray-500">{t.actions}</div>
+                <div className="text-micro text-muted">{t.actions}</div>
               </div>
               <div className="glass-card rounded-lg p-3 text-center">
                 <div className="text-2xl font-bold text-purple-400">
                   {selectedCase.ontology.links.length}
                 </div>
-                <div className="text-micro text-gray-500">{t.links}</div>
+                <div className="text-micro text-muted">{t.links}</div>
               </div>
             </div>
 
@@ -340,7 +340,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
             {/* Integrations */}
             {selectedCase.ontology.integrations.length > 0 && (
               <div className="mt-4">
-                <h4 className="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                <h4 className="text-xs text-muted mb-2 flex items-center gap-1">
                   <Database size={12} />
                   {t.integrations}
                 </h4>
@@ -369,7 +369,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
               {selectedCase.highlights.map((h, i) => (
                 <div key={i} className="glass-card rounded-lg p-3">
                   <h4 className="text-sm text-white font-medium mb-1">{h.title[lang]}</h4>
-                  <p className="text-xs text-gray-400">{h.description[lang]}</p>
+                  <p className="text-xs text-muted">{h.description[lang]}</p>
                 </div>
               ))}
             </div>
@@ -386,7 +386,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
               {selectedCase.learningPoints.map((lp, i) => (
                 <div key={i} className="glass-card rounded-lg p-3">
                   <h4 className="text-sm text-amber-400 font-medium mb-1">{lp.concept[lang]}</h4>
-                  <p className="text-xs text-gray-400">{lp.explanation[lang]}</p>
+                  <p className="text-xs text-muted">{lp.explanation[lang]}</p>
                 </div>
               ))}
             </div>
@@ -413,7 +413,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
                       </span>
                       <span className="text-sm text-white">{rc.title[lang]}</span>
                     </div>
-                    <p className="text-micro text-gray-500 line-clamp-1">{rc.description[lang]}</p>
+                    <p className="text-micro text-muted line-clamp-1">{rc.description[lang]}</p>
                   </div>
                 ))}
               </div>
@@ -432,12 +432,12 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-white font-medium text-lg">{t.title}</h2>
-            <p className="text-xs text-gray-500">{t.subtitle}</p>
+            <p className="text-xs text-muted">{t.subtitle}</p>
           </div>
           {onClose && (
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-white/[0.05] transition-colors text-gray-400"
+              className="p-2 rounded-lg hover:bg-white/[0.05] transition-colors text-muted"
             >
               <X size={18} />
             </button>
@@ -447,7 +447,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
         {/* Search */}
         <div className="flex items-center gap-3">
           <div className="flex-1 relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
             <input
               type="text"
               value={searchQuery}
@@ -459,7 +459,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
-              showFilters ? 'bg-amber-500/20 text-amber-400' : 'glass-surface text-gray-400 hover:text-white'
+              showFilters ? 'bg-amber-500/20 text-amber-400' : 'glass-surface text-muted hover:text-primary'
             }`}
           >
             <Filter size={14} />
@@ -472,7 +472,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
           <div className="mt-4 p-4 glass-card rounded-xl space-y-4">
             {/* Industry filter */}
             <div>
-              <h4 className="text-xs text-gray-500 mb-2">{t.industry}</h4>
+              <h4 className="text-xs text-muted mb-2">{t.industry}</h4>
               <div className="flex flex-wrap gap-2">
                 <FilterChip
                   active={selectedIndustry === 'all'}
@@ -494,7 +494,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
 
             {/* Difficulty filter */}
             <div>
-              <h4 className="text-xs text-gray-500 mb-2">{t.difficulty}</h4>
+              <h4 className="text-xs text-muted mb-2">{t.difficulty}</h4>
               <div className="flex flex-wrap gap-2">
                 <FilterChip
                   active={selectedDifficulty === 'all'}
@@ -519,7 +519,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
       {/* Case grid */}
       <div className="flex-1 overflow-y-auto p-6">
         {filteredCases.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+          <div className="flex flex-col items-center justify-center h-full text-muted">
             <Search size={40} className="mb-4 opacity-30" />
             <p className="text-sm">{t.noCases}</p>
           </div>
@@ -548,7 +548,7 @@ const FilterChip: React.FC<{
     className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all ${
       active
         ? color || 'bg-amber-500/20 text-amber-400'
-        : 'glass-surface text-gray-400 hover:text-white'
+        : 'glass-surface text-muted hover:text-primary'
     }`}
   >
     {icon}
@@ -575,7 +575,7 @@ const ObjectCard: React.FC<{
           <span className="text-sm font-medium text-white">
             {lang === 'cn' && object.nameCn ? object.nameCn : object.name}
           </span>
-          <span className="text-micro text-gray-500">
+          <span className="text-micro text-muted">
             ({object.properties?.length || 0} props)
           </span>
         </div>
@@ -588,7 +588,7 @@ const ObjectCard: React.FC<{
 
       {expanded && (
         <div className="px-4 pb-4 space-y-3">
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-muted">
             {lang === 'cn' && object.descriptionCn ? object.descriptionCn : object.description}
           </p>
 
@@ -598,7 +598,7 @@ const ObjectCard: React.FC<{
               {object.actions.map((action: any, idx: number) => (
                 <div key={idx} className="flex items-center gap-2 text-xs">
                   <Zap size={10} className="text-emerald-400" />
-                  <span className="text-gray-300">
+                  <span className="text-secondary">
                     {lang === 'cn' && action.nameCn ? action.nameCn : action.name}
                   </span>
                   {action.aiCapability && (

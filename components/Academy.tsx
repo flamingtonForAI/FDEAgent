@@ -317,7 +317,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
   ];
 
   const getColorClasses = (color: string, unlocked: boolean) => {
-    if (!unlocked) return 'text-gray-500 bg-gray-500/5 border-gray-500/10';
+    if (!unlocked) return 'text-muted bg-gray-500/5 border-gray-500/10';
 
     const colorMap: Record<string, string> = {
       amber: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
@@ -338,7 +338,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
           </div>
           <div>
             <h1 className="text-xl font-medium text-white">{t.title}</h1>
-            <p className="text-sm text-gray-500">{t.subtitle}</p>
+            <p className="text-sm text-muted">{t.subtitle}</p>
           </div>
         </div>
 
@@ -349,7 +349,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
             <div className="glass-card rounded-xl px-4 py-3 flex items-center gap-2">
               <Flame size={18} className="text-orange-400" />
               <span className="text-orange-400 font-medium">{stats.streak}</span>
-              <span className="text-xs text-gray-500">{t.streak}</span>
+              <span className="text-xs text-muted">{t.streak}</span>
             </div>
           )}
 
@@ -357,7 +357,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
           <div className="glass-card rounded-xl px-5 py-3">
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <div className="text-xs text-gray-500">{t.progress}</div>
+                <div className="text-xs text-muted">{t.progress}</div>
                 <div className="text-lg font-medium text-gradient">{stats.overallPercent}%</div>
               </div>
               <div className="w-24 h-2 bg-white/[0.06] rounded-full overflow-hidden">
@@ -402,7 +402,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                 {/* Level Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">Level {level.id}</span>
+                    <span className="text-xs text-muted">Level {level.id}</span>
                     {completedInLevel === totalInLevel && level.unlocked && (
                       <span className="flex items-center gap-1 text-micro text-emerald-400">
                         <CheckCircle size={10} />
@@ -410,10 +410,10 @@ const Academy: React.FC<Props> = ({ lang }) => {
                       </span>
                     )}
                   </div>
-                  <h3 className={`font-medium ${level.unlocked ? 'text-white' : 'text-gray-500'}`}>
+                  <h3 className={`font-medium ${level.unlocked ? 'text-white' : 'text-muted'}`}>
                     {level.title}
                   </h3>
-                  <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{level.description}</p>
+                  <p className="text-xs text-muted mt-0.5 line-clamp-1">{level.description}</p>
                 </div>
 
                 {/* Level Progress */}
@@ -421,7 +421,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                   {level.unlocked ? (
                     <>
                       <div className="text-right">
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-muted">
                           {completedInLevel}/{totalInLevel} {t.lessons}
                         </div>
                         <div className="w-20 h-1.5 bg-white/[0.06] rounded-full mt-1 overflow-hidden">
@@ -437,11 +437,11 @@ const Academy: React.FC<Props> = ({ lang }) => {
                       </div>
                       <ChevronRight
                         size={20}
-                        className={`text-gray-500 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                        className={`text-muted transition-transform ${isExpanded ? 'rotate-90' : ''}`}
                       />
                     </>
                   ) : (
-                    <span className="text-xs text-gray-500">{t.locked}</span>
+                    <span className="text-xs text-muted">{t.locked}</span>
                   )}
                 </div>
               </button>
@@ -466,20 +466,20 @@ const Academy: React.FC<Props> = ({ lang }) => {
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium ${
                           isLessonCompleted
                             ? 'bg-emerald-500/20 text-emerald-400'
-                            : 'bg-white/[0.04] text-gray-500 group-hover:bg-amber-500/20 group-hover:text-amber-400'
+                            : 'bg-white/[0.04] text-muted group-hover:bg-amber-500/20 group-hover:text-amber-400'
                         }`}>
                           {isLessonCompleted ? <CheckCircle size={14} /> : lessonIdx + 1}
                         </div>
 
                         {/* Lesson Info */}
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                          <h4 className="text-sm text-secondary group-hover:text-primary transition-colors">
                             {lesson.title}
                           </h4>
                         </div>
 
                         {/* Duration */}
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <div className="flex items-center gap-1 text-xs text-muted">
                           <Clock size={12} />
                           {lesson.duration} {t.minutes}
                         </div>
@@ -530,7 +530,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
           </div>
           <div>
             <h2 className="text-lg font-medium text-white">{t.practiceLab}</h2>
-            <p className="text-xs text-gray-500">{t.practiceDesc}</p>
+            <p className="text-xs text-muted">{t.practiceDesc}</p>
           </div>
         </div>
 
@@ -553,7 +553,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                       ? exercise.type === 'noun-verb'
                         ? 'bg-amber-500/10 border-amber-500/20 text-amber-400'
                         : 'bg-purple-500/10 border-purple-500/20 text-purple-400'
-                      : 'bg-gray-500/5 border-gray-500/10 text-gray-500'
+                      : 'bg-gray-500/5 border-gray-500/10 text-muted'
                   }`}>
                     {unlocked ? <Target size={18} /> : <Lock size={18} />}
                   </div>
@@ -565,10 +565,10 @@ const Academy: React.FC<Props> = ({ lang }) => {
                   )}
                 </div>
 
-                <h3 className={`font-medium mb-1 ${unlocked ? 'text-white' : 'text-gray-500'}`}>
+                <h3 className={`font-medium mb-1 ${unlocked ? 'text-white' : 'text-muted'}`}>
                   {exercise.title[lang]}
                 </h3>
-                <p className="text-xs text-gray-500 mb-4">
+                <p className="text-xs text-muted mb-4">
                   {exercise.description[lang]}
                 </p>
 
@@ -585,7 +585,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                     {hasScore ? t.continueLearning : t.startExercise}
                   </button>
                 ) : (
-                  <div className="text-xs text-gray-500 text-center py-2">
+                  <div className="text-xs text-muted text-center py-2">
                     {t.exerciseLocked.replace('{level}', String(exercise.levelRequired))}
                   </div>
                 )}
@@ -604,7 +604,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
             </div>
             <div>
               <h2 className="text-lg font-medium text-white">{t.caseLibrary}</h2>
-              <p className="text-xs text-gray-500">{t.caseLibraryDesc}</p>
+              <p className="text-xs text-muted">{t.caseLibraryDesc}</p>
             </div>
           </div>
           <button
@@ -656,7 +656,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
           </div>
           <div>
             <h2 className="text-lg font-medium text-white">{t.achievements}</h2>
-            <p className="text-xs text-gray-500">{t.achievementsDesc}</p>
+            <p className="text-xs text-muted">{t.achievementsDesc}</p>
           </div>
         </div>
 
@@ -671,7 +671,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                 <h4 className="text-sm font-medium text-white mb-1">
                   {achievement.title[lang]}
                 </h4>
-                <p className="text-micro text-gray-500">
+                <p className="text-micro text-muted">
                   {achievement.description[lang]}
                 </p>
               </div>
@@ -687,8 +687,8 @@ const Academy: React.FC<Props> = ({ lang }) => {
                   className="glass-card rounded-xl p-4 text-center opacity-40"
                 >
                   <div className="text-2xl mb-2 grayscale">{achievement.icon}</div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">???</h4>
-                  <p className="text-micro text-gray-500">
+                  <h4 className="text-sm font-medium text-muted mb-1">???</h4>
+                  <p className="text-micro text-muted">
                     {lang === 'cn' ? '待解锁' : 'Locked'}
                   </p>
                 </div>
@@ -697,7 +697,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
         ) : (
           <div className="glass-card rounded-xl p-8 text-center">
             <div className="text-3xl mb-3 opacity-40">🏆</div>
-            <p className="text-sm text-gray-500">{t.noAchievements}</p>
+            <p className="text-sm text-muted">{t.noAchievements}</p>
           </div>
         )}
       </div>
@@ -739,12 +739,12 @@ const CasePreviewCard: React.FC<{
         <div className={`p-2 rounded-lg ${colorClasses[color]}`}>
           {icon}
         </div>
-        <span className="text-micro text-gray-500">{industry}</span>
+        <span className="text-micro text-muted">{industry}</span>
       </div>
       <h3 className="text-sm font-medium text-white mb-2 group-hover:text-amber-400 transition-colors">
         {title}
       </h3>
-      <div className="flex items-center gap-3 text-micro text-gray-500">
+      <div className="flex items-center gap-3 text-micro text-muted">
         <span>{objects} Objects</span>
         <span>•</span>
         <span>{actions} Actions</span>

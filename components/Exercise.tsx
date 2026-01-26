@@ -248,8 +248,8 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
       <div className="space-y-6">
         {/* Scenario */}
         <div className="glass-card rounded-xl p-5">
-          <div className="text-xs text-gray-500 mb-2">{t.scenario}</div>
-          <p className="text-gray-300 leading-relaxed">{exercise.scenario[lang]}</p>
+          <div className="text-xs text-muted mb-2">{t.scenario}</div>
+          <p className="text-secondary leading-relaxed">{exercise.scenario[lang]}</p>
         </div>
 
         {/* Nouns Selection */}
@@ -280,10 +280,10 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
                           : 'bg-emerald-500/10 text-emerald-400/60 border border-emerald-500/20'
                         : isSelected
                           ? 'bg-red-500/20 text-red-300 border border-red-500/30'
-                          : 'bg-white/[0.02] text-gray-500 border border-white/[0.06]'
+                          : 'bg-white/[0.02] text-muted border border-white/[0.06]'
                       : isSelected
                         ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                        : 'bg-white/[0.04] text-gray-400 border border-white/[0.06] hover:border-amber-500/30'
+                        : 'bg-white/[0.04] text-muted border border-white/[0.06] hover:border-amber-500/30'
                   }`}
                 >
                   {noun}
@@ -323,10 +323,10 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
                           : 'bg-emerald-500/10 text-emerald-400/60 border border-emerald-500/20'
                         : isSelected
                           ? 'bg-red-500/20 text-red-300 border border-red-500/30'
-                          : 'bg-white/[0.02] text-gray-500 border border-white/[0.06]'
+                          : 'bg-white/[0.02] text-muted border border-white/[0.06]'
                       : isSelected
                         ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                        : 'bg-white/[0.04] text-gray-400 border border-white/[0.06] hover:border-emerald-500/30'
+                        : 'bg-white/[0.04] text-muted border border-white/[0.06] hover:border-emerald-500/30'
                   }`}
                 >
                   {verb}
@@ -398,13 +398,13 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
             <Zap size={16} className="text-purple-400" />
             <span className="text-purple-400 font-medium">{exercise.actionName[lang]}</span>
           </div>
-          <div className="text-xs text-gray-500 mb-2">{t.actionContext}</div>
-          <p className="text-gray-300 leading-relaxed">{exercise.context[lang]}</p>
+          <div className="text-xs text-muted mb-2">{t.actionContext}</div>
+          <p className="text-secondary leading-relaxed">{exercise.context[lang]}</p>
         </div>
 
         {/* Fill in blanks */}
         <div className="space-y-4">
-          <div className="text-sm text-gray-400">{t.fillBlanks}:</div>
+          <div className="text-sm text-muted">{t.fillBlanks}:</div>
           {exercise.blanks.map(blank => {
             const showResult = submitted;
             const correct = isFieldCorrect(blank.field);
@@ -413,11 +413,11 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
             return (
               <div key={blank.field} className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm text-gray-300">{blank.label[lang]}</label>
+                  <label className="text-sm text-secondary">{blank.label[lang]}</label>
                   {!submitted && !showHint && (
                     <button
                       onClick={() => setShowHints(new Set([...showHints, blank.field]))}
-                      className="text-xs text-gray-500 hover:text-amber-400 flex items-center gap-1"
+                      className="text-xs text-muted hover:text-amber-400 flex items-center gap-1"
                     >
                       <Lightbulb size={12} />
                       {t.showHint}
@@ -447,7 +447,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
                 />
 
                 {showResult && !correct && (
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted">
                     {lang === 'cn' ? '参考答案：' : 'Accepted: '}{blank.correctAnswers.slice(0, 2).join(' / ')}
                   </div>
                 )}
@@ -488,7 +488,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="p-2 rounded-lg hover:bg-white/[0.04] transition-colors text-gray-400 hover:text-white"
+            className="p-2 rounded-lg hover:bg-white/[0.04] transition-colors text-muted hover:text-primary"
           >
             <ArrowLeft size={20} />
           </button>
@@ -496,7 +496,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
             <h2 className="text-base font-medium text-white">
               {exerciseType === 'noun-verb' ? t.nounVerbTitle : t.actionDesignTitle}
             </h2>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="text-xs text-muted mt-0.5">
               {exerciseType === 'noun-verb' ? t.nounVerbDesc : t.actionDesignDesc}
             </p>
           </div>
@@ -504,7 +504,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
 
         {/* Progress */}
         <div className="flex items-center gap-4">
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-muted">
             {currentIndex + 1} / {exercises.length}
           </div>
           <div className="flex gap-1">
@@ -542,7 +542,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
             <div className="text-3xl font-bold text-gradient mb-1">
               {Math.round((totalScore / exercises.length) * 100)}%
             </div>
-            <div className="text-sm text-gray-500 mb-6">{t.accuracy}</div>
+            <div className="text-sm text-muted mb-6">{t.accuracy}</div>
             <button
               onClick={() => onComplete(exerciseId, Math.round((totalScore / exercises.length) * 100))}
               className="btn-gradient px-6 py-2.5 rounded-lg text-sm font-medium"

@@ -731,7 +731,7 @@ const ActionCard: React.FC<{
 const LayerBadge: React.FC<{ label: string; active: boolean }> = ({ label, active }) => (
   <span
     className={`text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1 ${
-      active ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-500'
+      active ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-muted'
     }`}
   >
     {active ? <CheckCircle2 className="w-2.5 h-2.5" /> : <AlertCircle className="w-2.5 h-2.5" />}

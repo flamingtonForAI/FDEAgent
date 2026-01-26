@@ -233,7 +233,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
   if (objects.length === 0) {
     return (
       <div className="p-8 h-full bg-[var(--color-bg-elevated)] flex items-center justify-center">
-        <div className="text-center text-gray-500">
+        <div className="text-center text-muted">
           <Zap size={40} className="mx-auto mb-4 opacity-30" />
           <p className="text-sm">{t.noObjects}</p>
         </div>
@@ -247,7 +247,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
       <div className="w-64 border-r border-white/[0.06] flex flex-col">
         {/* Object Selector */}
         <div className="p-4 border-b border-white/[0.06]">
-          <label className="text-micro text-gray-500 block mb-2">{t.selectObject}</label>
+          <label className="text-micro text-muted block mb-2">{t.selectObject}</label>
           <select
             value={selectedObjectId || ''}
             onChange={(e) => {
@@ -265,7 +265,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
 
         {/* Action List */}
         <div className="flex-1 overflow-y-auto p-4">
-          <label className="text-micro text-gray-500 block mb-2">{t.selectAction}</label>
+          <label className="text-micro text-muted block mb-2">{t.selectAction}</label>
           {selectedObject && selectedObject.actions.length > 0 ? (
             <div className="space-y-1.5">
               {selectedObject.actions.map((action, idx) => (
@@ -275,7 +275,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                   className={`relative w-full text-left p-3 rounded-lg transition-colors ${
                     selectedActionIndex === idx
                       ? 'bg-amber-500/10 text-white'
-                      : 'hover:bg-white/[0.04] text-gray-400'
+                      : 'hover:bg-white/[0.04] text-muted'
                   }`}
                 >
                   {selectedActionIndex === idx && (
@@ -285,7 +285,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                     {action.type === 'generative' ? (
                       <Zap size={14} className="text-amber-400" />
                     ) : (
-                      <ChevronRight size={14} className="text-gray-500" />
+                      <ChevronRight size={14} className="text-muted" />
                     )}
                     <span className="text-sm">{action.name}</span>
                   </div>
@@ -293,7 +293,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-sm">{t.noActions}</p>
+            <p className="text-muted text-sm">{t.noActions}</p>
           )}
         </div>
       </div>
@@ -310,7 +310,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                 </div>
                 <div>
                   <h2 className="text-base font-medium text-white">{editingAction.name}</h2>
-                  <p className="text-xs text-gray-500">{t.subtitle}</p>
+                  <p className="text-xs text-muted">{t.subtitle}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -352,7 +352,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
               {activeTab === 'business' && (
                 <div className="space-y-4 animate-fadeIn">
                   <div>
-                    <label className="text-xs text-gray-500 block mb-2">{t.description}</label>
+                    <label className="text-xs text-muted block mb-2">{t.description}</label>
                     <textarea
                       value={editingAction.businessLayer?.description || ''}
                       onChange={(e) => updateEditingAction({
@@ -365,7 +365,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-gray-500 block mb-2">{t.targetObject}</label>
+                      <label className="text-xs text-muted block mb-2">{t.targetObject}</label>
                       <input
                         type="text"
                         value={editingAction.businessLayer?.targetObject || ''}
@@ -377,7 +377,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500 block mb-2">{t.executorRole}</label>
+                      <label className="text-xs text-muted block mb-2">{t.executorRole}</label>
                       <input
                         type="text"
                         value={editingAction.businessLayer?.executorRole || ''}
@@ -390,7 +390,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs text-gray-500 block mb-2">{t.triggerCondition}</label>
+                    <label className="text-xs text-muted block mb-2">{t.triggerCondition}</label>
                     <input
                       type="text"
                       value={editingAction.businessLayer?.triggerCondition || ''}
@@ -410,7 +410,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                   {/* Preconditions */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <label className="text-xs text-gray-500">{t.preconditions}</label>
+                      <label className="text-xs text-muted">{t.preconditions}</label>
                       <button onClick={() => addToArray('preconditions')} className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
                         <Plus size={12} /> {t.addItem}
                       </button>
@@ -425,13 +425,13 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                             className="flex-1 glass-surface rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500/30"
                             placeholder={lang === 'cn' ? '输入前置条件...' : 'Enter precondition...'}
                           />
-                          <button onClick={() => removeArrayItem('preconditions', idx)} className="text-gray-500 hover:text-red-400 p-2 transition-colors">
+                          <button onClick={() => removeArrayItem('preconditions', idx)} className="text-muted hover:text-red-400 p-2 transition-colors">
                             <Trash2 size={14} />
                           </button>
                         </div>
                       ))}
                       {(editingAction.logicLayer?.preconditions || []).length === 0 && (
-                        <p className="text-xs text-gray-500">{lang === 'cn' ? '暂无前置条件' : 'No preconditions yet'}</p>
+                        <p className="text-xs text-muted">{lang === 'cn' ? '暂无前置条件' : 'No preconditions yet'}</p>
                       )}
                     </div>
                   </div>
@@ -439,7 +439,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                   {/* Parameters */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <label className="text-xs text-gray-500">{t.parameters}</label>
+                      <label className="text-xs text-muted">{t.parameters}</label>
                       <button onClick={addParameter} className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
                         <Plus size={12} /> {t.addItem}
                       </button>
@@ -466,7 +466,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                             <option value="object">object</option>
                             <option value="array">array</option>
                           </select>
-                          <label className="flex items-center gap-1.5 text-xs text-gray-400">
+                          <label className="flex items-center gap-1.5 text-xs text-muted">
                             <input
                               type="checkbox"
                               checked={param.required}
@@ -482,7 +482,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                             placeholder={t.paramDescription}
                             className="flex-1 bg-[var(--color-bg-base)]/30 border border-white/[0.06] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none"
                           />
-                          <button onClick={() => removeParameter(idx)} className="text-gray-500 hover:text-red-400 transition-colors">
+                          <button onClick={() => removeParameter(idx)} className="text-muted hover:text-red-400 transition-colors">
                             <Trash2 size={14} />
                           </button>
                         </div>
@@ -493,7 +493,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                   {/* Postconditions */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <label className="text-xs text-gray-500">{t.postconditions}</label>
+                      <label className="text-xs text-muted">{t.postconditions}</label>
                       <button onClick={() => addToArray('postconditions')} className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
                         <Plus size={12} /> {t.addItem}
                       </button>
@@ -507,7 +507,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                             onChange={(e) => updateArrayItem('postconditions', idx, e.target.value)}
                             className="flex-1 glass-surface rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500/30"
                           />
-                          <button onClick={() => removeArrayItem('postconditions', idx)} className="text-gray-500 hover:text-red-400 p-2 transition-colors">
+                          <button onClick={() => removeArrayItem('postconditions', idx)} className="text-muted hover:text-red-400 p-2 transition-colors">
                             <Trash2 size={14} />
                           </button>
                         </div>
@@ -518,7 +518,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                   {/* Side Effects */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <label className="text-xs text-gray-500">{t.sideEffects}</label>
+                      <label className="text-xs text-muted">{t.sideEffects}</label>
                       <button onClick={() => addToArray('sideEffects')} className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
                         <Plus size={12} /> {t.addItem}
                       </button>
@@ -532,7 +532,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                             onChange={(e) => updateArrayItem('sideEffects', idx, e.target.value)}
                             className="flex-1 glass-surface rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500/30"
                           />
-                          <button onClick={() => removeArrayItem('sideEffects', idx)} className="text-gray-500 hover:text-red-400 p-2 transition-colors">
+                          <button onClick={() => removeArrayItem('sideEffects', idx)} className="text-muted hover:text-red-400 p-2 transition-colors">
                             <Trash2 size={14} />
                           </button>
                         </div>
@@ -547,7 +547,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                 <div className="space-y-4 animate-fadeIn">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-gray-500 block mb-2">{t.apiEndpoint}</label>
+                      <label className="text-xs text-muted block mb-2">{t.apiEndpoint}</label>
                       <input
                         type="text"
                         value={editingAction.implementationLayer?.apiEndpoint || ''}
@@ -559,7 +559,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500 block mb-2">{t.apiMethod}</label>
+                      <label className="text-xs text-muted block mb-2">{t.apiMethod}</label>
                       <select
                         value={editingAction.implementationLayer?.apiMethod || 'POST'}
                         onChange={(e) => updateEditingAction({
@@ -577,7 +577,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-gray-500 block mb-2">{t.agentToolName}</label>
+                      <label className="text-xs text-muted block mb-2">{t.agentToolName}</label>
                       <input
                         type="text"
                         value={editingAction.implementationLayer?.agentToolSpec?.name || ''}
@@ -596,7 +596,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500 block mb-2">{t.agentToolDesc}</label>
+                      <label className="text-xs text-muted block mb-2">{t.agentToolDesc}</label>
                       <input
                         type="text"
                         value={editingAction.implementationLayer?.agentToolSpec?.description || ''}
@@ -622,7 +622,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                 <div className="space-y-4 animate-fadeIn">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-gray-500 block mb-2">{t.permissionTier}</label>
+                      <label className="text-xs text-muted block mb-2">{t.permissionTier}</label>
                       <select
                         value={editingAction.governance?.permissionTier || 1}
                         onChange={(e) => updateEditingAction({
@@ -642,7 +642,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                       </select>
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500 block mb-2">{t.riskLevel}</label>
+                      <label className="text-xs text-muted block mb-2">{t.riskLevel}</label>
                       <select
                         value={editingAction.governance?.riskLevel || 'low'}
                         onChange={(e) => updateEditingAction({
@@ -663,7 +663,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                     </div>
                   </div>
                   <div className="flex gap-6">
-                    <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer">
+                    <label className="flex items-center gap-2 text-sm text-muted cursor-pointer">
                       <input
                         type="checkbox"
                         checked={editingAction.governance?.requiresHumanApproval || false}
@@ -679,7 +679,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                       />
                       {t.requiresApproval}
                     </label>
-                    <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer">
+                    <label className="flex items-center gap-2 text-sm text-muted cursor-pointer">
                       <input
                         type="checkbox"
                         checked={editingAction.governance?.auditLog ?? true}
@@ -725,7 +725,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
             </div>
           </>
         ) : (
-          <div className="h-full flex items-center justify-center text-gray-500">
+          <div className="h-full flex items-center justify-center text-muted">
             <div className="text-center">
               <Edit3 size={40} className="mx-auto mb-4 opacity-30" />
               <p className="text-sm">{lang === 'cn' ? '选择一个 Action 开始编辑' : 'Select an Action to edit'}</p>

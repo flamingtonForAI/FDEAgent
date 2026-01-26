@@ -88,12 +88,12 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
           </div>
           <div>
             <h3 className="text-sm font-medium text-white">{t.title}</h3>
-            <p className="text-micro text-gray-500">{t.subtitle}</p>
+            <p className="text-micro text-muted">{t.subtitle}</p>
           </div>
         </div>
         <button
           onClick={onClose}
-          className="p-1.5 rounded-lg hover:bg-white/[0.05] text-gray-500 hover:text-white transition-colors"
+          className="p-1.5 rounded-lg hover:bg-white/[0.05] text-muted hover:text-primary transition-colors"
         >
           <X size={16} />
         </button>
@@ -102,7 +102,7 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
       {/* Keywords */}
       {keywords.length > 0 && (
         <div className="px-4 py-3 border-b border-white/[0.06]">
-          <div className="text-micro text-gray-500 mb-2">{t.keywords}</div>
+          <div className="text-micro text-muted mb-2">{t.keywords}</div>
           <div className="flex flex-wrap gap-1">
             {keywords.slice(0, 6).map((kw, i) => (
               <span
@@ -119,10 +119,10 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
       {/* Case List */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
         {recommendedCases.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500 px-4">
+          <div className="flex flex-col items-center justify-center h-full text-muted px-4">
             <Lightbulb size={32} className="mb-3 opacity-30" />
             <p className="text-sm text-center">{t.noRecommendations}</p>
-            <p className="text-xs text-center mt-1 text-gray-500">{t.keepTalking}</p>
+            <p className="text-xs text-center mt-1 text-muted">{t.keepTalking}</p>
           </div>
         ) : (
           recommendedCases.map(caseData => {
@@ -139,17 +139,17 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
                   onClick={() => setExpandedCase(isExpanded ? null : caseData.metadata.id)}
                   className="w-full px-3 py-3 flex items-start gap-3 hover:bg-white/[0.02] transition-colors text-left"
                 >
-                  <div className={`p-2 rounded-lg ${industryColors[industry] || 'bg-gray-500/20 text-gray-400'}`}>
+                  <div className={`p-2 rounded-lg ${industryColors[industry] || 'bg-gray-500/20 text-muted'}`}>
                     {industryIcons[industry] || <Box size={16} />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-medium text-white line-clamp-1">
                       {caseData.metadata.title[lang]}
                     </h4>
-                    <p className="text-micro text-gray-500 line-clamp-1 mt-0.5">
+                    <p className="text-micro text-muted line-clamp-1 mt-0.5">
                       {industryConfig[industry]?.label[lang] || industry}
                     </p>
-                    <div className="flex items-center gap-2 mt-1.5 text-micro text-gray-500">
+                    <div className="flex items-center gap-2 mt-1.5 text-micro text-muted">
                       <span>{caseData.ontology.objects.length} {t.objects}</span>
                       <span>•</span>
                       <span>
@@ -158,9 +158,9 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
                     </div>
                   </div>
                   {isExpanded ? (
-                    <ChevronDown size={14} className="text-gray-500 mt-1" />
+                    <ChevronDown size={14} className="text-muted mt-1" />
                   ) : (
-                    <ChevronRight size={14} className="text-gray-500 mt-1" />
+                    <ChevronRight size={14} className="text-muted mt-1" />
                   )}
                 </button>
 
@@ -168,13 +168,13 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
                 {isExpanded && (
                   <div className="px-3 pb-3 space-y-3 animate-fadeIn">
                     {/* Description */}
-                    <p className="text-xs text-gray-400 line-clamp-3">
+                    <p className="text-xs text-muted line-clamp-3">
                       {caseData.metadata.description[lang]}
                     </p>
 
                     {/* Highlights Preview */}
                     <div>
-                      <div className="text-micro text-gray-500 mb-1.5 flex items-center gap-1">
+                      <div className="text-micro text-muted mb-1.5 flex items-center gap-1">
                         <BookOpen size={10} />
                         {t.highlights}
                       </div>
@@ -182,7 +182,7 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
                         {caseData.highlights.slice(0, 2).map((h, i) => (
                           <div
                             key={i}
-                            className="text-micro text-gray-400 flex items-start gap-1.5"
+                            className="text-micro text-muted flex items-start gap-1.5"
                           >
                             <span className="text-amber-400 mt-0.5">•</span>
                             <span className="line-clamp-1">{h.title[lang]}</span>

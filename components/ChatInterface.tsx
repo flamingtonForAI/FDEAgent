@@ -530,7 +530,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div className="px-6 py-4 border-b border-white/[0.06] flex justify-between items-center">
           <div className="flex items-center gap-2">
             <Terminal size={14} className="text-amber-400" />
-            <span className="text-xs text-gray-500">{t.terminal}</span>
+            <span className="text-xs text-muted">{t.terminal}</span>
           </div>
           <div className="flex items-center gap-2">
             {/* Case Recommendation Toggle */}
@@ -549,7 +549,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                   showCasePanel
                     ? 'bg-amber-500/20 text-amber-400'
-                    : 'glass-surface text-gray-400 hover:text-white'
+                    : 'glass-surface text-muted hover:text-primary'
                 } ${recommendedCaseIds.length > 0 ? 'ring-1 ring-amber-500/30' : ''}`}
                 title={t.caseRecommend}
               >
@@ -587,7 +587,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                   showExtractPanel
                     ? 'bg-amber-500/20 text-amber-400'
-                    : 'glass-surface text-gray-400 hover:text-white'
+                    : 'glass-surface text-muted hover:text-primary'
                 }`}
                 title={showExtractPanel ? t.hidePanel : t.extractPanel}
               >
@@ -631,8 +631,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}>
             <div className={`message-bubble max-w-[75%] px-4 py-3 rounded-2xl ${
               msg.role === 'user'
-                ? 'bg-gradient-to-br from-amber-500/20 to-amber-600/10 text-gray-100 rounded-br-md'
-                : 'glass-card text-gray-300 rounded-bl-md'
+                ? 'bg-gradient-to-br from-amber-500/20 to-amber-600/10 text-primary rounded-br-md'
+                : 'glass-card text-secondary rounded-bl-md'
             }`}>
               <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
             </div>
@@ -717,7 +717,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     <div className="flex-shrink-0">{icon}</div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm text-white truncate">{file.name}</div>
-                      <div className="text-micro text-gray-500">
+                      <div className="text-micro text-muted">
                         {file.size < 1024 * 1024
                           ? `${(file.size / 1024).toFixed(1)} KB`
                           : `${(file.size / 1024 / 1024).toFixed(1)} MB`}
@@ -728,7 +728,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     </div>
                     <button
                       onClick={() => setUploadedFiles(prev => prev.filter(f => f.id !== file.id))}
-                      className="p-1 rounded hover:bg-white/[0.05] text-gray-500 hover:text-white transition-colors"
+                      className="p-1 rounded hover:bg-white/[0.05] text-muted hover:text-primary transition-colors"
                     >
                       <X size={14} />
                     </button>
@@ -755,7 +755,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               onPaste={handlePaste}
               placeholder={hasApiKey ? t.placeholder : (lang === 'cn' ? '请先配置 API Key...' : 'Please configure API Key first...')}
               disabled={!hasApiKey}
-              className={`flex-1 glass-surface rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/30 transition-colors placeholder:text-gray-500 ${!hasApiKey ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`flex-1 glass-surface rounded-xl px-4 py-3 text-sm text-primary focus:outline-none focus:border-amber-500/30 transition-colors placeholder:text-muted ${!hasApiKey ? 'opacity-50 cursor-not-allowed' : ''}`}
             />
             <button
               onClick={handleSend}

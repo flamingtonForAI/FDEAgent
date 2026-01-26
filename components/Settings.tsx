@@ -192,7 +192,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
             </div>
             <div>
               <h2 className="text-lg font-semibold text-white">{t.title}</h2>
-              <p className="text-xs text-gray-500">{t.subtitle}</p>
+              <p className="text-xs text-muted">{t.subtitle}</p>
             </div>
           </div>
         </div>
@@ -201,7 +201,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
         <div className="p-6 space-y-6">
           {/* Provider Selection */}
           <div>
-            <label className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">
+            <label className="block text-xs font-medium text-muted mb-2 uppercase tracking-wider">
               <Server size={12} className="inline mr-1" />
               {t.provider}
             </label>
@@ -212,11 +212,11 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                   onClick={() => handleProviderChange(provider.id)}
                   className={`p-3 rounded-lg border text-left transition-all ${localSettings.provider === provider.id
                       ? 'bg-indigo-600/20 border-indigo-500/50 text-indigo-300'
-                      : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+                      : 'bg-white/5 border-white/10 text-muted hover:bg-white/10'
                     }`}
                 >
                   <div className="font-medium text-sm">{provider.name}</div>
-                  <div className="text-micro text-gray-500 mt-0.5">{provider.description}</div>
+                  <div className="text-micro text-muted mt-0.5">{provider.description}</div>
                 </button>
               ))}
             </div>
@@ -225,7 +225,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
           {/* API Key */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+              <label className="text-xs font-medium text-muted uppercase tracking-wider">
                 <Key size={12} className="inline mr-1" />
                 {t.apiKey}
               </label>
@@ -247,11 +247,11 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                 value={localSettings.apiKey}
                 onChange={e => setLocalSettings(prev => ({ ...prev, apiKey: e.target.value }))}
                 placeholder={t.apiKeyPlaceholder}
-                className="w-full bg-[#1c2128] border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 pr-20"
+                className="w-full bg-[#1c2128] border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-indigo-500 pr-20"
               />
               <button
                 onClick={() => setShowApiKey(!showApiKey)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 text-xs flex items-center gap-1"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-secondary text-xs flex items-center gap-1"
               >
                 {showApiKey ? <EyeOff size={14} /> : <Eye size={14} />}
                 {showApiKey ? t.hideKey : t.showKey}
@@ -262,7 +262,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
           {/* Custom URL (for custom provider) */}
           {localSettings.provider === 'custom' && (
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">
+              <label className="block text-xs font-medium text-muted mb-2 uppercase tracking-wider">
                 {t.customUrl}
               </label>
               <input
@@ -270,7 +270,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                 value={localSettings.customBaseUrl || ''}
                 onChange={e => setLocalSettings(prev => ({ ...prev, customBaseUrl: e.target.value }))}
                 placeholder={t.customUrlPlaceholder}
-                className="w-full bg-[#1c2128] border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full bg-[#1c2128] border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
           )}
@@ -278,7 +278,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
           {/* Model Selection */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+              <label className="text-xs font-medium text-muted uppercase tracking-wider">
                 <Cpu size={12} className="inline mr-1" />
                 {t.model}
               </label>
@@ -303,7 +303,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
 
             {/* 获取中 */}
             {modelFetchStatus === 'fetching' && (
-              <div className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#1c2128] border border-white/10 rounded-lg text-sm text-gray-400">
+              <div className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#1c2128] border border-white/10 rounded-lg text-sm text-muted">
                 <Loader2 size={14} className="animate-spin" />
                 {t.fetchingModels}
               </div>
@@ -334,7 +334,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                     value={localSettings.model}
                     onChange={e => setLocalSettings(prev => ({ ...prev, model: e.target.value }))}
                     placeholder={t.customModelPlaceholder}
-                    className="w-full bg-[#1c2128] border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full bg-[#1c2128] border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 ) : fetchedModels.length > 0 ? (
                   <div className="relative">
@@ -344,7 +344,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                       className="w-full bg-[#1c2128] border border-white/10 rounded-lg px-4 py-3 pr-10 text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 appearance-none"
                       style={{ colorScheme: 'dark' }}
                     >
-                      <option value="" className="bg-[#1c2128] text-gray-400">{t.selectModel}</option>
+                      <option value="" className="bg-[#1c2128] text-muted">{t.selectModel}</option>
                       {fetchedModels.map(model => (
                         <option key={model.id} value={model.id} className="bg-[#1c2128] text-white">
                           {model.name} {model.description && `- ${model.description}`}
@@ -354,14 +354,14 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                     {/* 刷新按钮 */}
                     <button
                       onClick={fetchModels}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-500 hover:text-gray-300 transition-colors"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted hover:text-secondary transition-colors"
                       title={t.refresh}
                     >
                       <RefreshCw size={14} />
                     </button>
                   </div>
                 ) : (
-                  <div className="text-sm text-gray-500 py-3">{t.noModels}</div>
+                  <div className="text-sm text-muted py-3">{t.noModels}</div>
                 )}
               </div>
             )}
@@ -372,7 +372,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
             <button
               onClick={handleTestConnection}
               disabled={testStatus === 'testing' || !localSettings.apiKey}
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-gray-300 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-secondary hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {testStatus === 'testing' ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -395,7 +395,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
         <div className="p-6 border-t border-white/10 flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+            className="px-4 py-2 text-sm text-muted hover:text-primary transition-colors"
           >
             {t.cancel}
           </button>

@@ -329,11 +329,11 @@ const SmartTips: React.FC<SmartTipsProps> = ({
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center gap-2 text-xs text-gray-500 hover:text-gray-400 transition-colors mb-2"
+        className="flex items-center gap-2 text-xs text-muted hover:text-muted transition-colors mb-2"
       >
         <Lightbulb size={12} className="text-amber-400" />
         <span>{t.smartTips}</span>
-        <span className="text-micro text-gray-500">({activeTips.length})</span>
+        <span className="text-micro text-muted">({activeTips.length})</span>
         <ChevronRight
           size={12}
           className={`transform transition-transform ${isExpanded ? 'rotate-90' : ''}`}
@@ -365,7 +365,7 @@ const SmartTips: React.FC<SmartTipsProps> = ({
                       {tip.title[lang]}
                     </h4>
                   </div>
-                  <p className="text-[11px] text-gray-400 leading-relaxed line-clamp-2">
+                  <p className="text-[11px] text-muted leading-relaxed line-clamp-2">
                     {tip.content[lang]}
                   </p>
                 </div>
@@ -373,7 +373,7 @@ const SmartTips: React.FC<SmartTipsProps> = ({
                 {/* Dismiss Button */}
                 <button
                   onClick={() => handleDismiss(tip.id)}
-                  className="flex-shrink-0 p-1 rounded-md opacity-0 group-hover:opacity-100 hover:bg-white/[0.05] text-gray-500 hover:text-gray-300 transition-all"
+                  className="flex-shrink-0 p-1 rounded-md opacity-0 group-hover:opacity-100 hover:bg-white/[0.05] text-muted hover:text-secondary transition-all"
                   title={t.dismiss}
                 >
                   <X size={12} />

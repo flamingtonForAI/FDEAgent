@@ -262,7 +262,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
     <>
       {/* Quick Add Buttons */}
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-xs text-gray-500">{t.quickAdd}:</span>
+        <span className="text-xs text-muted">{t.quickAdd}:</span>
         <button
           onClick={() => setActiveModal('object')}
           disabled={disabled}
@@ -311,14 +311,14 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                     {activeModal === 'action' && t.actionTitle}
                     {activeModal === 'integration' && t.integrationTitle}
                   </h3>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-xs text-muted mt-0.5">
                     {activeModal === 'object' && t.objectDesc}
                     {activeModal === 'action' && t.actionDesc}
                     {activeModal === 'integration' && t.integrationDesc}
                   </p>
                 </div>
               </div>
-              <button onClick={handleClose} className="text-gray-500 hover:text-white transition-colors">
+              <button onClick={handleClose} className="text-muted hover:text-primary transition-colors">
                 <X size={18} />
               </button>
             </div>
@@ -329,7 +329,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
               {activeModal === 'object' && (
                 <>
                   <div>
-                    <label className="text-xs text-gray-400 mb-1.5 block">{t.objectName} *</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t.objectName} *</label>
                     <input
                       type="text"
                       value={objectForm.name}
@@ -339,7 +339,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-400 mb-1.5 block">{t.objectDescription} *</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t.objectDescription} *</label>
                     <textarea
                       value={objectForm.description}
                       onChange={(e) => setObjectForm({ ...objectForm, description: e.target.value })}
@@ -349,7 +349,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-400 mb-1.5 block">{t.attributes}</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t.attributes}</label>
                     {objectForm.attributes.map((attr, i) => (
                       <div key={i} className="flex gap-2 mb-2">
                         <input
@@ -362,7 +362,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                         {objectForm.attributes.length > 1 && (
                           <button
                             onClick={() => removeArrayItem(setObjectForm, 'attributes', i)}
-                            className="p-2 text-gray-500 hover:text-red-400 transition-colors"
+                            className="p-2 text-muted hover:text-red-400 transition-colors"
                           >
                             <Trash2 size={14} />
                           </button>
@@ -378,7 +378,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                     </button>
                   </div>
                   <div>
-                    <label className="text-xs text-gray-400 mb-1.5 block">{t.relationships}</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t.relationships}</label>
                     <input
                       type="text"
                       value={objectForm.relationships}
@@ -394,7 +394,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
               {activeModal === 'action' && (
                 <>
                   <div>
-                    <label className="text-xs text-gray-400 mb-1.5 block">{t.actionName} *</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t.actionName} *</label>
                     <input
                       type="text"
                       value={actionForm.name}
@@ -404,7 +404,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-400 mb-1.5 block">{t.targetObject} *</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t.targetObject} *</label>
                     <input
                       type="text"
                       value={actionForm.targetObject}
@@ -414,7 +414,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-400 mb-1.5 block">{t.actionDescription}</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t.actionDescription}</label>
                     <textarea
                       value={actionForm.description}
                       onChange={(e) => setActionForm({ ...actionForm, description: e.target.value })}
@@ -424,7 +424,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-400 mb-1.5 block">{t.executor}</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t.executor}</label>
                     <input
                       type="text"
                       value={actionForm.executor}
@@ -434,7 +434,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-400 mb-1.5 block">{t.preconditions}</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t.preconditions}</label>
                     {actionForm.preconditions.map((pre, i) => (
                       <div key={i} className="flex gap-2 mb-2">
                         <input
@@ -447,7 +447,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                         {actionForm.preconditions.length > 1 && (
                           <button
                             onClick={() => removeArrayItem(setActionForm, 'preconditions', i)}
-                            className="p-2 text-gray-500 hover:text-red-400 transition-colors"
+                            className="p-2 text-muted hover:text-red-400 transition-colors"
                           >
                             <Trash2 size={14} />
                           </button>
@@ -463,7 +463,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                     </button>
                   </div>
                   <div>
-                    <label className="text-xs text-gray-400 mb-1.5 block">{t.postcondition}</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t.postcondition}</label>
                     <input
                       type="text"
                       value={actionForm.postconditions}
@@ -479,7 +479,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
               {activeModal === 'integration' && (
                 <>
                   <div>
-                    <label className="text-xs text-gray-400 mb-1.5 block">{t.integrationName} *</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t.integrationName} *</label>
                     <input
                       type="text"
                       value={integrationForm.name}
@@ -489,7 +489,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-400 mb-1.5 block">{t.integrationType} *</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t.integrationType} *</label>
                     <input
                       type="text"
                       value={integrationForm.type}
@@ -499,7 +499,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-400 mb-1.5 block">{t.integrationDescription}</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t.integrationDescription}</label>
                     <textarea
                       value={integrationForm.description}
                       onChange={(e) => setIntegrationForm({ ...integrationForm, description: e.target.value })}
@@ -509,7 +509,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-400 mb-1.5 block">{t.dataProvided}</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t.dataProvided}</label>
                     {integrationForm.dataProvided.map((data, i) => (
                       <div key={i} className="flex gap-2 mb-2">
                         <input
@@ -522,7 +522,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                         {integrationForm.dataProvided.length > 1 && (
                           <button
                             onClick={() => removeArrayItem(setIntegrationForm, 'dataProvided', i)}
-                            className="p-2 text-gray-500 hover:text-red-400 transition-colors"
+                            className="p-2 text-muted hover:text-red-400 transition-colors"
                           >
                             <Trash2 size={14} />
                           </button>
@@ -545,7 +545,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
             <div className="p-5 border-t border-white/[0.06] flex justify-end gap-3 flex-shrink-0">
               <button
                 onClick={handleClose}
-                className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                className="px-4 py-2 text-sm text-muted hover:text-primary transition-colors"
               >
                 {t.cancel}
               </button>

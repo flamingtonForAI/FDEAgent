@@ -142,14 +142,14 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-1 text-xs text-gray-500">
+          <div className="flex items-center gap-1 text-xs text-muted">
             <Clock size={12} />
             {archetype.estimatedDeploymentTime}
           </div>
         </div>
 
         {/* Description */}
-        <p className="text-sm text-gray-400 mb-4 line-clamp-2">
+        <p className="text-sm text-muted mb-4 line-clamp-2">
           {archetype.description[lang === 'cn' ? 'cn' : 'en']}
         </p>
 
@@ -171,7 +171,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
                 tag === 'ai-enabled' ? 'bg-purple-500/20 text-purple-400' :
                 tag === 'erp-integration' ? 'bg-blue-500/20 text-blue-400' :
                 tag === 'iot-enabled' ? 'bg-emerald-500/20 text-emerald-400' :
-                'bg-gray-500/20 text-gray-400'
+                'bg-gray-500/20 text-muted'
               }`}
             >
               {tag === 'ai-enabled' ? t.aiEnabled :
@@ -190,7 +190,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
                 e.stopPropagation();
                 onSelectArchetype(archetype.id);
               }}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg glass-surface text-sm text-gray-300 hover:text-white transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg glass-surface text-sm text-secondary hover:text-primary transition-colors"
             >
               {t.viewDetails}
               <ChevronRight size={14} />
@@ -221,7 +221,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
           </div>
           <div>
             <h1 className="text-xl font-semibold text-white">{t.title}</h1>
-            <p className="text-sm text-gray-500">{t.subtitle}</p>
+            <p className="text-sm text-muted">{t.subtitle}</p>
           </div>
         </div>
       </div>
@@ -230,7 +230,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
       <div className="px-6 py-4 border-b border-white/[0.06] flex items-center gap-4">
         {/* Search */}
         <div className="flex-1 relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
           <input
             type="text"
             value={searchQuery}
@@ -242,7 +242,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
 
         {/* Industry Filter */}
         <div className="flex items-center gap-2">
-          <Filter size={14} className="text-gray-500" />
+          <Filter size={14} className="text-muted" />
           <select
             value={selectedIndustry || ''}
             onChange={(e) => setSelectedIndustry(e.target.value || null)}
@@ -261,7 +261,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
         {filteredArchetypes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+          <div className="flex flex-col items-center justify-center h-full text-muted">
             <Package size={48} className="mb-4 opacity-30" />
             <p>{t.noResults}</p>
           </div>
@@ -278,11 +278,11 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
 // Stat Badge Component
 const StatBadge: React.FC<{ icon: React.ReactNode; value: number; label: string }> = ({ icon, value, label }) => (
   <div className="text-center">
-    <div className="flex items-center justify-center gap-1 text-gray-400 mb-0.5">
+    <div className="flex items-center justify-center gap-1 text-muted mb-0.5">
       {icon}
       <span className="text-sm font-medium text-white">{value}</span>
     </div>
-    <span className="text-micro text-gray-500 uppercase tracking-wide">{label}</span>
+    <span className="text-micro text-muted uppercase tracking-wide">{label}</span>
   </div>
 );
 

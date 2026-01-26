@@ -336,7 +336,7 @@ const App: React.FC = () => {
   }, [t.applyArchetype]);
 
   return (
-    <div className="flex h-screen overflow-hidden text-gray-300" style={{ backgroundColor: 'var(--color-bg-base)' }}>
+    <div className="flex h-screen overflow-hidden text-secondary" style={{ backgroundColor: 'var(--color-bg-base)' }}>
       {/* Sidebar */}
       <aside className="w-64 glass-surface flex flex-col">
         <div className="p-5 border-b border-white/[0.06]">
@@ -346,7 +346,7 @@ const App: React.FC = () => {
             </div>
             <h1 className="text-white font-medium tracking-tight text-sm">{t.title}</h1>
           </div>
-          <p className="text-[10px] text-gray-500 font-mono tracking-wide">{t.subtitle}</p>
+          <p className="text-[10px] text-muted font-mono tracking-wide">{t.subtitle}</p>
         </div>
 
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
@@ -412,7 +412,7 @@ const App: React.FC = () => {
         <div className="p-3 border-t border-white/[0.06] space-y-2">
           {/* 主题切换 */}
           <div className="flex items-center justify-between px-1">
-            <span className="text-xs text-gray-500">{lang === 'cn' ? '主题' : 'Theme'}</span>
+            <span className="text-xs text-muted">{lang === 'cn' ? '主题' : 'Theme'}</span>
             <ThemeSwitcher
               currentTheme={currentTheme}
               onThemeChange={setCurrentTheme}
@@ -422,7 +422,7 @@ const App: React.FC = () => {
           {/* 设置按钮 */}
           <button
             onClick={() => setShowSettings(true)}
-            className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs hover:bg-white/[0.04] transition-colors text-gray-400"
+            className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs hover:bg-white/[0.04] transition-colors text-muted"
           >
             <div className="flex items-center gap-2">
               <SettingsIcon size={14} />
@@ -436,14 +436,14 @@ const App: React.FC = () => {
           <div className="flex gap-2">
             <button
               onClick={toggleLanguage}
-              className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs hover:bg-white/[0.04] transition-colors text-gray-500"
+              className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs hover:bg-white/[0.04] transition-colors text-muted"
             >
               <Languages size={12} />
               {lang === 'en' ? 'EN' : '中文'}
             </button>
             <button
               onClick={handleNewSession}
-              className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs hover:bg-red-500/10 hover:text-red-400 transition-colors text-gray-500"
+              className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs hover:bg-red-500/10 hover:text-red-400 transition-colors text-muted"
             >
               <RotateCcw size={12} />
               {lang === 'cn' ? '重置' : 'Reset'}
@@ -453,7 +453,7 @@ const App: React.FC = () => {
           {/* 状态指示器 */}
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02]">
             <div className={`w-1.5 h-1.5 rounded-full ${aiSettings.apiKey ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-            <span className="text-[10px] text-gray-500">
+            <span className="text-[10px] text-muted">
               {aiSettings.apiKey ? t.ready : (lang === 'cn' ? '需配置 API' : 'API Required')}
             </span>
           </div>
@@ -466,7 +466,7 @@ const App: React.FC = () => {
           <div className="absolute inset-0 bg-[var(--color-bg-base)]/80 z-50 flex flex-col items-center justify-center">
             <div className="w-12 h-12 border-2 border-amber-500/20 border-t-amber-400 rounded-full animate-spin mb-4"></div>
             <h2 className="text-lg font-medium text-white">{t.synthesizing}</h2>
-            <p className="text-gray-500 mt-2 text-sm">{t.mapping}</p>
+            <p className="text-muted mt-2 text-sm">{t.mapping}</p>
           </div>
         )}
 
@@ -580,7 +580,7 @@ const NavItem: React.FC<{
         ? 'opacity-30 cursor-not-allowed'
         : active
         ? 'text-amber-400 bg-amber-400/[0.08]'
-        : 'text-gray-400 hover:text-gray-200 hover:bg-white/[0.04]'
+        : 'text-muted hover:text-primary hover:bg-white/[0.04]'
     }`}
   >
     {active && (

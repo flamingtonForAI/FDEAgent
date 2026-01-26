@@ -204,7 +204,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
           </div>
           <div>
             <h3 className="text-white font-medium">{t.title}</h3>
-            <p className="text-xs text-gray-500">{t.subtitle}</p>
+            <p className="text-xs text-muted">{t.subtitle}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -221,7 +221,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
           {onClose && (
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-white transition-colors"
+              className="text-muted hover:text-primary transition-colors"
             >
               <X size={18} />
             </button>
@@ -236,7 +236,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
           className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
             activeTab === 'quality'
               ? 'text-emerald-400'
-              : 'text-gray-500 hover:text-white'
+              : 'text-muted hover:text-primary'
           }`}
         >
           <div className="flex items-center gap-2">
@@ -252,7 +252,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
           className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
             activeTab === 'threelayer'
               ? 'text-blue-400'
-              : 'text-gray-500 hover:text-white'
+              : 'text-muted hover:text-primary'
           }`}
         >
           <div className="flex items-center gap-2">
@@ -268,7 +268,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
           className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
             activeTab === 'milestones'
               ? 'text-purple-400'
-              : 'text-gray-500 hover:text-white'
+              : 'text-muted hover:text-primary'
           }`}
         >
           <div className="flex items-center gap-2">
@@ -284,7 +284,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
           className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
             activeTab === 'deliverables'
               ? 'text-orange-400'
-              : 'text-gray-500 hover:text-white'
+              : 'text-muted hover:text-primary'
           }`}
         >
           <div className="flex items-center gap-2">
@@ -316,7 +316,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
             <div className="flex items-center gap-6">
               <div className="text-center">
                 <div className="text-3xl font-bold text-white">{report.score}</div>
-                <div className="text-micro text-gray-500">{t.score}</div>
+                <div className="text-micro text-muted">{t.score}</div>
               </div>
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold ${gradeColors[report.grade]}`}>
                 {report.grade}
@@ -327,15 +327,15 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
             <div className="flex items-center gap-4">
               <div className="text-center">
                 <div className="text-lg font-medium text-white">{report.totalChecks}</div>
-                <div className="text-micro text-gray-500">{t.checks}</div>
+                <div className="text-micro text-muted">{t.checks}</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-medium text-emerald-400">{report.passed}</div>
-                <div className="text-micro text-gray-500">{t.passed}</div>
+                <div className="text-micro text-muted">{t.passed}</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-medium text-amber-400">{report.issues.length}</div>
-                <div className="text-micro text-gray-500">{t.issues}</div>
+                <div className="text-micro text-muted">{t.issues}</div>
               </div>
             </div>
 
@@ -348,7 +348,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
                   className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all ${
                     filterSeverity === sev
                       ? severityConfig[sev].bg + ' ' + severityConfig[sev].color
-                      : 'glass-surface text-gray-400 hover:text-white'
+                      : 'glass-surface text-muted hover:text-primary'
                   }`}
                 >
                   {severityConfig[sev].icon}
@@ -363,7 +363,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
       {/* Issues List */}
       <div className="flex-1 overflow-y-auto p-4">
         {!report ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+          <div className="flex flex-col items-center justify-center h-full text-muted">
             <ShieldCheck size={40} className="mb-4 opacity-30" />
             <p className="text-sm">{t.runCheck}</p>
           </div>
@@ -393,7 +393,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
                       <span className="text-sm font-medium text-white">
                         {t.categories[category]}
                       </span>
-                      <span className="text-xs text-gray-500">({categoryIssues.length})</span>
+                      <span className="text-xs text-muted">({categoryIssues.length})</span>
                     </div>
                     <div className="flex items-center gap-1">
                       {['error', 'warning', 'info'].map(sev => {
@@ -427,13 +427,13 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
                                 {issue.message[lang]}
                               </p>
                               {issue.target && (
-                                <p className="text-xs text-gray-500 mt-1">
+                                <p className="text-xs text-muted mt-1">
                                   → {issue.target.name}
                                 </p>
                               )}
                               {issue.suggestion && (
                                 <div className="mt-2 p-2 rounded-lg bg-white/[0.03] border-l-2 border-amber-500/50">
-                                  <p className="text-xs text-gray-400">
+                                  <p className="text-xs text-muted">
                                     <span className="text-amber-400">{t.suggestion}:</span> {issue.suggestion[lang]}
                                   </p>
                                 </div>

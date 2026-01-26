@@ -62,7 +62,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
               </div>
               <div>
                 <h4 className="text-amber-400 font-medium mb-2">{t(section.title)}</h4>
-                <p className="text-gray-300 leading-relaxed">{t(section.content)}</p>
+                <p className="text-secondary leading-relaxed">{t(section.content)}</p>
               </div>
             </div>
           </div>
@@ -81,7 +81,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                 <thead>
                   <tr className="border-b border-white/[0.06]">
                     {compData.headers[lang].map((header: string, i: number) => (
-                      <th key={i} className="px-4 py-3 text-left text-xs text-gray-500 font-medium">
+                      <th key={i} className="px-4 py-3 text-left text-xs text-muted font-medium">
                         {header}
                       </th>
                     ))}
@@ -91,7 +91,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                   {compData.rows.map((row: any, i: number) => (
                     <tr key={i} className="border-b border-white/[0.04] last:border-0">
                       {row[lang].map((cell: string, j: number) => (
-                        <td key={j} className={`px-4 py-3 text-sm ${j === 0 ? 'text-gray-400' : 'text-gray-300'}`}>
+                        <td key={j} className={`px-4 py-3 text-sm ${j === 0 ? 'text-muted' : 'text-secondary'}`}>
                           {cell}
                         </td>
                       ))}
@@ -114,8 +114,8 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
 
             {exData.input && (
               <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                <div className="text-xs text-gray-500 mb-2">{t(exData.input.title)}</div>
-                <p className="text-gray-300 leading-relaxed" dangerouslySetInnerHTML={{
+                <div className="text-xs text-muted mb-2">{t(exData.input.title)}</div>
+                <p className="text-secondary leading-relaxed" dangerouslySetInnerHTML={{
                   __html: t(exData.input.text).replace(/\*\*(.*?)\*\*/g, '<span class="text-amber-400 font-medium">$1</span>')
                 }} />
               </div>
@@ -145,10 +145,10 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
             {exData.knowledgeGraph && exData.ontology && (
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-gray-500/5 border border-gray-500/20">
-                  <div className="text-xs text-gray-400 mb-3">{t(exData.knowledgeGraph.title)}</div>
+                  <div className="text-xs text-muted mb-3">{t(exData.knowledgeGraph.title)}</div>
                   <div className="space-y-2">
                     {exData.knowledgeGraph.items[lang].map((item: string, i: number) => (
-                      <div key={i} className="text-sm text-gray-400 font-mono">{item}</div>
+                      <div key={i} className="text-sm text-muted font-mono">{item}</div>
                     ))}
                   </div>
                 </div>
@@ -166,10 +166,10 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
             {exData.traditional && exData.decisionFirst && (
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-gray-500/5 border border-gray-500/20">
-                  <div className="text-xs text-gray-400 mb-3">{t(exData.traditional.title)}</div>
+                  <div className="text-xs text-muted mb-3">{t(exData.traditional.title)}</div>
                   <div className="space-y-2">
                     {exData.traditional.items[lang].map((item: string, i: number) => (
-                      <div key={i} className="text-sm text-gray-400">{item}</div>
+                      <div key={i} className="text-sm text-muted">{item}</div>
                     ))}
                   </div>
                 </div>
@@ -210,7 +210,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                       }`}>{t(perspective.name)}</div>
                       <div className="space-y-1">
                         {perspective.items[lang].map((item: string, j: number) => (
-                          <div key={j} className="text-sm text-gray-300">• {item}</div>
+                          <div key={j} className="text-sm text-secondary">• {item}</div>
                         ))}
                       </div>
                     </div>
@@ -230,7 +230,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                     <span className="px-2 py-1 bg-amber-500/20 text-amber-300 rounded text-xs font-mono">
                       {mapping.action}
                     </span>
-                    <span className="text-gray-500">→</span>
+                    <span className="text-muted">→</span>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       mapping.method === 'POST' ? 'bg-emerald-500/20 text-emerald-300' :
                       mapping.method === 'DELETE' ? 'bg-red-500/20 text-red-300' :
@@ -238,7 +238,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                     }`}>
                       {mapping.method}
                     </span>
-                    <span className="text-gray-400 font-mono text-sm flex-1">{mapping.url}</span>
+                    <span className="text-muted font-mono text-sm flex-1">{mapping.url}</span>
                   </div>
                 ))}
               </div>
@@ -255,9 +255,9 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                     <div className="w-3 h-3 rounded-full bg-red-500/60" />
                     <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
                     <div className="w-3 h-3 rounded-full bg-green-500/60" />
-                    <span className="text-xs text-gray-500 ml-2">tool-definition.json</span>
+                    <span className="text-xs text-muted ml-2">tool-definition.json</span>
                   </div>
-                  <pre className="p-4 text-sm text-gray-300 font-mono overflow-x-auto whitespace-pre">
+                  <pre className="p-4 text-sm text-secondary font-mono overflow-x-auto whitespace-pre">
                     {exData.code[lang]}
                   </pre>
                 </div>
@@ -272,7 +272,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
         // State Machine diagram type (Level 2)
         if (diagData.type === 'stateMachine') {
           const colorMap: Record<string, { bg: string; border: string; text: string }> = {
-            gray: { bg: 'bg-gray-500/10', border: 'border-gray-500/30', text: 'text-gray-400' },
+            gray: { bg: 'bg-gray-500/10', border: 'border-gray-500/30', text: 'text-muted' },
             yellow: { bg: 'bg-yellow-500/10', border: 'border-yellow-500/30', text: 'text-yellow-400' },
             blue: { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-400' },
             purple: { bg: 'bg-purple-500/10', border: 'border-purple-500/30', text: 'text-purple-400' },
@@ -284,7 +284,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
             <div className="space-y-6">
               {/* States */}
               <div>
-                <div className="text-xs text-gray-500 mb-3">{lang === 'cn' ? '状态' : 'States'}</div>
+                <div className="text-xs text-muted mb-3">{lang === 'cn' ? '状态' : 'States'}</div>
                 <div className="flex flex-wrap gap-2">
                   {diagData.states.map((state: any, i: number) => {
                     const colors = colorMap[state.color] || colorMap.gray;
@@ -302,19 +302,19 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
 
               {/* Transitions */}
               <div>
-                <div className="text-xs text-gray-500 mb-3">{lang === 'cn' ? '转换' : 'Transitions'}</div>
+                <div className="text-xs text-muted mb-3">{lang === 'cn' ? '转换' : 'Transitions'}</div>
                 <div className="space-y-2">
                   {diagData.transitions.map((trans: any, i: number) => (
                     <div key={i} className="flex items-center gap-2 text-sm">
-                      <span className="px-2 py-1 bg-white/[0.04] rounded text-gray-400 font-mono text-xs">
+                      <span className="px-2 py-1 bg-white/[0.04] rounded text-muted font-mono text-xs">
                         {trans.from}
                       </span>
-                      <span className="text-gray-500">→</span>
+                      <span className="text-muted">→</span>
                       <span className="px-2 py-1 bg-amber-500/20 text-amber-300 rounded text-xs font-medium">
                         {lang === 'cn' ? trans.cn_action : trans.action}
                       </span>
-                      <span className="text-gray-500">→</span>
-                      <span className="px-2 py-1 bg-white/[0.04] rounded text-gray-400 font-mono text-xs">
+                      <span className="text-muted">→</span>
+                      <span className="px-2 py-1 bg-white/[0.04] rounded text-muted font-mono text-xs">
                         {trans.to}
                       </span>
                     </div>
@@ -345,12 +345,12 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                     layer.color === 'emerald' ? 'text-emerald-400' :
                     'text-blue-400'
                   }`}>{t(layer.name)}</h5>
-                  <span className="text-xs text-gray-500">Layer {diagData.layers.length - i}</span>
+                  <span className="text-xs text-muted">Layer {diagData.layers.length - i}</span>
                 </div>
-                <p className="text-sm text-gray-400 mb-2">{t(layer.description)}</p>
+                <p className="text-sm text-muted mb-2">{t(layer.description)}</p>
                 <div className="flex flex-wrap gap-2">
                   {layer.examples[lang].map((ex: string, j: number) => (
-                    <span key={j} className="px-2 py-0.5 bg-white/[0.04] text-gray-400 rounded text-xs">{ex}</span>
+                    <span key={j} className="px-2 py-0.5 bg-white/[0.04] text-muted rounded text-xs">{ex}</span>
                   ))}
                 </div>
               </div>
@@ -362,7 +362,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
         return (
           <div className="prose prose-invert max-w-none">
             <h4 className="text-white font-medium mb-3">{t(section.title)}</h4>
-            <div className="text-gray-300 leading-relaxed whitespace-pre-line" dangerouslySetInnerHTML={{
+            <div className="text-secondary leading-relaxed whitespace-pre-line" dangerouslySetInnerHTML={{
               __html: t(section.content)
                 .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
                 .replace(/\n/g, '<br/>')
@@ -379,14 +379,14 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="p-2 rounded-lg hover:bg-white/[0.04] transition-colors text-gray-400 hover:text-white"
+            className="p-2 rounded-lg hover:bg-white/[0.04] transition-colors text-muted hover:text-primary"
           >
             <ArrowLeft size={20} />
           </button>
           <div>
             <h2 className="text-base font-medium text-white">{t(lesson.title)}</h2>
             <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-muted">
                 {showQuiz ? (lang === 'cn' ? '测验' : 'Quiz') : `${currentSection + 1} / ${sections.length}`}
               </span>
               {isCompleted && (
@@ -434,7 +434,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
               </div>
 
               <div className="glass-card rounded-xl p-6 mb-6">
-                <p className="text-gray-300 mb-6">{t(quiz.question)}</p>
+                <p className="text-secondary mb-6">{t(quiz.question)}</p>
                 <div className="space-y-3">
                   {quiz.options.map((option, i) => (
                     <button
@@ -454,12 +454,12 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                       <div className="flex items-center gap-3">
                         <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-sm ${
                           selectedAnswer === null
-                            ? 'border-white/20 text-gray-400'
+                            ? 'border-white/20 text-muted'
                             : i === quiz.correctIndex
                             ? 'border-emerald-500 bg-emerald-500 text-white'
                             : selectedAnswer === i
                             ? 'border-red-500 bg-red-500 text-white'
-                            : 'border-white/10 text-gray-500'
+                            : 'border-white/10 text-muted'
                         }`}>
                           {String.fromCharCode(65 + i)}
                         </div>
@@ -468,7 +468,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                             ? 'text-emerald-300'
                             : selectedAnswer === i
                             ? 'text-red-300'
-                            : 'text-gray-300'
+                            : 'text-secondary'
                         }>
                           {t(option)}
                         </span>
@@ -502,7 +502,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                           ? (lang === 'cn' ? '正确!' : 'Correct!')
                           : (lang === 'cn' ? '解释' : 'Explanation')}
                       </h4>
-                      <p className="text-gray-300 text-sm">{t(quiz.explanation)}</p>
+                      <p className="text-secondary text-sm">{t(quiz.explanation)}</p>
                     </div>
                   </div>
                 </div>
@@ -517,7 +517,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
         <button
           onClick={handlePrev}
           disabled={currentSection === 0 && !showQuiz}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/[0.04] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-muted hover:text-primary hover:bg-white/[0.04] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
           <ArrowLeft size={16} />
           {lang === 'cn' ? '上一步' : 'Previous'}

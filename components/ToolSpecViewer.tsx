@@ -228,13 +228,13 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
           </div>
           <div>
             <h3 className="text-white font-medium">{t.title}</h3>
-            <p className="text-xs text-gray-500">{t.subtitle}</p>
+            <p className="text-xs text-muted">{t.subtitle}</p>
           </div>
         </div>
         {onClose && (
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-white transition-colors"
+            className="text-muted hover:text-primary transition-colors"
           >
             <X size={18} />
           </button>
@@ -250,7 +250,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               viewMode === 'full'
                 ? 'bg-amber-500/20 text-amber-400'
-                : 'text-gray-400 hover:text-white'
+                : 'text-muted hover:text-primary'
             }`}
           >
             {t.fullSpec}
@@ -261,7 +261,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 viewMode === 'object'
                   ? 'bg-amber-500/20 text-amber-400'
-                  : 'text-gray-400 hover:text-white'
+                  : 'text-muted hover:text-primary'
               }`}
             >
               {t.singleObject}
@@ -273,7 +273,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 viewMode === 'action'
                   ? 'bg-amber-500/20 text-amber-400'
-                  : 'text-gray-400 hover:text-white'
+                  : 'text-muted hover:text-primary'
               }`}
             >
               {t.singleAction}
@@ -301,7 +301,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
               className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                 outputMode === 'json'
                   ? 'bg-amber-500/20 text-amber-400'
-                  : 'text-gray-400 hover:text-white'
+                  : 'text-muted hover:text-primary'
               }`}
             >
               {t.jsonSpec}
@@ -311,7 +311,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
               className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                 outputMode === 'python'
                   ? 'bg-amber-500/20 text-amber-400'
-                  : 'text-gray-400 hover:text-white'
+                  : 'text-muted hover:text-primary'
               }`}
             >
               Python
@@ -322,7 +322,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                 className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                   outputMode === 'typescript'
                     ? 'bg-amber-500/20 text-amber-400'
-                    : 'text-gray-400 hover:text-white'
+                    : 'text-muted hover:text-primary'
                 }`}
               >
                 TypeScript
@@ -334,7 +334,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
           <button
             onClick={handleCopy}
             disabled={!outputString}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium glass-surface text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium glass-surface text-muted hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
             {copied ? t.copied : t.copy}
@@ -355,11 +355,11 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
         {!hasActions ? (
-          <div className="flex items-center justify-center h-full text-gray-500 text-sm">
+          <div className="flex items-center justify-center h-full text-muted text-sm">
             {t.noActions}
           </div>
         ) : tools.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-gray-500 text-sm">
+          <div className="flex items-center justify-center h-full text-muted text-sm">
             {t.noActions}
           </div>
         ) : (
@@ -375,7 +375,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                   <div className="flex items-center gap-2">
                     {expandedSections.has('tools') ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                     <span className="text-sm font-medium text-white">{t.tools}</span>
-                    <span className="text-xs text-gray-500">({tools.length})</span>
+                    <span className="text-xs text-muted">({tools.length})</span>
                   </div>
                 </button>
                 {expandedSections.has('tools') && (
@@ -389,11 +389,11 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                                 <code className="text-sm text-amber-300 font-mono">
                                   {getToolName(tool)}
                                 </code>
-                                <span className="text-micro px-1.5 py-0.5 rounded bg-gray-500/20 text-gray-400">
+                                <span className="text-micro px-1.5 py-0.5 rounded bg-gray-500/20 text-muted">
                                   {getParamCount(tool)} params
                                 </span>
                               </div>
-                              <p className="text-xs text-gray-500 mt-1.5 line-clamp-2">
+                              <p className="text-xs text-muted mt-1.5 line-clamp-2">
                                 {getToolDescription(tool)}
                               </p>
                             </div>
@@ -426,7 +426,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                             <div className="font-mono text-amber-300 text-[11px] mb-1.5 truncate">
                               {tool.name}
                             </div>
-                            <div className="space-y-1 text-gray-400">
+                            <div className="space-y-1 text-muted">
                               {tool.metadata?.permission_tier && (
                                 <div className="flex justify-between">
                                   <span>{t.tier}:</span>
@@ -478,7 +478,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                 </button>
                 {expandedSections.has('code') && (
                   <div className="px-4 pb-4">
-                    <pre className="bg-[var(--color-bg-base)]/30 rounded-lg p-4 overflow-x-auto text-xs text-gray-300 font-mono max-h-96">
+                    <pre className="bg-[var(--color-bg-base)]/30 rounded-lg p-4 overflow-x-auto text-xs text-secondary font-mono max-h-96">
                       {outputString}
                     </pre>
                   </div>

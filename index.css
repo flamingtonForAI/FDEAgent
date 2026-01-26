@@ -121,6 +121,59 @@ select option {
   line-height: 1.4;
 }
 
+/* === Theme-Aware Text Colors === */
+/* Use these instead of hardcoded text-gray-* classes for theme support */
+.text-primary {
+  color: var(--color-text-primary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+/* Hover variants */
+.hover\:text-primary:hover {
+  color: var(--color-text-primary);
+}
+
+.hover\:text-secondary:hover {
+  color: var(--color-text-secondary);
+}
+
+/* Background colors from theme */
+.bg-base {
+  background-color: var(--color-bg-base);
+}
+
+.bg-elevated {
+  background-color: var(--color-bg-elevated);
+}
+
+.bg-surface {
+  background-color: var(--color-bg-surface);
+}
+
+.bg-hover {
+  background-color: var(--color-bg-hover);
+}
+
+.hover\:bg-hover:hover {
+  background-color: var(--color-bg-hover);
+}
+
+/* Accent colors */
+.text-accent {
+  color: var(--color-accent);
+}
+
+.text-accent-secondary {
+  color: var(--color-accent-secondary);
+}
+
 /* === Utility Classes === */
 .glass-surface {
   background: linear-gradient(

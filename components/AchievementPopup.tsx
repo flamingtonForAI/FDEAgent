@@ -15,7 +15,7 @@ const AchievementPopup: React.FC<Props> = ({ lang, achievement, onDismiss }) => 
       <div className="glass-card rounded-xl p-4 pr-10 border-2 border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-orange-500/5 shadow-xl shadow-yellow-500/10 max-w-xs">
         <button
           onClick={onDismiss}
-          className="absolute top-3 right-3 text-gray-500 hover:text-white transition-colors"
+          className="absolute top-3 right-3 text-muted hover:text-primary transition-colors"
         >
           <X size={16} />
         </button>
@@ -29,7 +29,7 @@ const AchievementPopup: React.FC<Props> = ({ lang, achievement, onDismiss }) => 
             <h4 className="text-white font-medium">
               {achievement.title[lang]}
             </h4>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-muted mt-1">
               {achievement.description[lang]}
             </p>
           </div>

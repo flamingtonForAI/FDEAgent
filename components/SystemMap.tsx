@@ -36,20 +36,20 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
     <div className="p-8 h-full bg-[var(--color-bg-elevated)] space-y-12 overflow-y-auto">
       <div>
         <h2 className="text-2xl font-bold text-white mb-2">{t.title}</h2>
-        <p className="text-gray-500 text-sm">{t.subtitle}</p>
+        <p className="text-muted text-sm">{t.subtitle}</p>
       </div>
 
       <div className="relative">
         {/* Header Labels */}
         <div className="grid grid-cols-3 gap-8 mb-8">
           <div className="text-center">
-            <span className="text-micro uppercase tracking-widest font-mono text-gray-500">{t.source}</span>
+            <span className="text-micro uppercase tracking-widest font-mono text-muted">{t.source}</span>
           </div>
           <div className="text-center">
-            <span className="text-micro uppercase tracking-widest font-mono text-gray-500">{t.logic}</span>
+            <span className="text-micro uppercase tracking-widest font-mono text-muted">{t.logic}</span>
           </div>
           <div className="text-center">
-            <span className="text-micro uppercase tracking-widest font-mono text-gray-500">{t.target}</span>
+            <span className="text-micro uppercase tracking-widest font-mono text-muted">{t.target}</span>
           </div>
         </div>
 
@@ -69,7 +69,7 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
                     <h4 className="text-sm font-semibold text-white truncate">{integration.systemName}</h4>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {integration.dataPoints.map((dp, i) => (
-                        <span key={i} className="text-[8px] bg-white/5 px-1.5 py-0.5 rounded text-gray-500 border border-white/5">{dp}</span>
+                        <span key={i} className="text-[8px] bg-white/5 px-1.5 py-0.5 rounded text-muted border border-white/5">{dp}</span>
                       ))}
                     </div>
                   </div>
@@ -91,7 +91,7 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-semibold text-white truncate">{targetObj?.name || 'Unknown Object'}</h4>
-                    <p className="text-micro text-gray-500 font-mono mt-1 italic">{targetObj?.id}</p>
+                    <p className="text-micro text-muted font-mono mt-1 italic">{targetObj?.id}</p>
                   </div>
                 </div>
               </div>
@@ -103,7 +103,7 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
         {project.integrations.length === 0 && (
           <div className="p-12 border-2 border-dashed border-white/5 rounded-3xl text-center">
             <Activity className="mx-auto text-gray-700 mb-4" size={32} />
-            <p className="text-gray-500 text-sm italic">No external integrations identified. Add source systems in the scouting chat.</p>
+            <p className="text-muted text-sm italic">No external integrations identified. Add source systems in the scouting chat.</p>
           </div>
         )}
       </div>
@@ -120,7 +120,7 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
 };
 
 const TechCard = ({ icon, label }: { icon: React.ReactNode, label: string }) => (
-  <div className="flex items-center gap-2 p-3 bg-[var(--color-bg-base)]/40 border border-white/5 rounded-lg text-micro font-mono uppercase tracking-widest text-gray-500">
+  <div className="flex items-center gap-2 p-3 bg-[var(--color-bg-base)]/40 border border-white/5 rounded-lg text-micro font-mono uppercase tracking-widest text-muted">
     {icon}
     {label}
   </div>
