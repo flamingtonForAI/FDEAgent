@@ -245,8 +245,8 @@ export const themes: Record<string, Theme> = {
 
   light: {
     id: 'light',
-    name: 'Light Mode',
-    description: '明亮清爽的浅色主题',
+    name: 'GitHub Light',
+    description: '经典 GitHub 浅色主题，清爽专业',
     isDark: false,
     colors: {
       bgBase: '#ffffff',
@@ -279,6 +279,162 @@ export const themes: Record<string, Theme> = {
       shadowMd: '0 4px 12px rgba(31, 35, 40, 0.1)',
       shadowLg: '0 8px 24px rgba(31, 35, 40, 0.15)',
       shadowGlow: '0 0 20px rgba(9, 105, 218, 0.1)',
+    },
+  },
+
+  solarizedLight: {
+    id: 'solarizedLight',
+    name: 'Solarized Light',
+    description: '经典护眼浅色主题，米黄底色',
+    isDark: false,
+    colors: {
+      bgBase: '#fdf6e3',
+      bgElevated: '#eee8d5',
+      bgSurface: '#e8e2ce',
+      bgHover: '#ddd6c1',
+
+      accent: '#268bd2',
+      accentLight: '#2aa198',
+      accentSecondary: '#6c71c4',
+
+      success: '#859900',
+      warning: '#b58900',
+      error: '#dc322f',
+
+      textPrimary: '#073642',
+      textSecondary: '#586e75',
+      textMuted: '#93a1a1',
+
+      border: 'rgba(7, 54, 66, 0.12)',
+      borderHover: 'rgba(7, 54, 66, 0.2)',
+      borderAccent: 'rgba(38, 139, 210, 0.4)',
+
+      layerBusiness: '#268bd2',
+      layerLogic: '#859900',
+      layerImpl: '#6c71c4',
+      layerGov: '#b58900',
+
+      shadowSm: '0 1px 2px rgba(7, 54, 66, 0.08)',
+      shadowMd: '0 4px 12px rgba(7, 54, 66, 0.08)',
+      shadowLg: '0 8px 24px rgba(7, 54, 66, 0.12)',
+      shadowGlow: '0 0 20px rgba(38, 139, 210, 0.1)',
+    },
+  },
+
+  rosePineDawn: {
+    id: 'rosePineDawn',
+    name: 'Rose Pine Dawn',
+    description: '柔和粉紫色调，温暖舒适',
+    isDark: false,
+    colors: {
+      bgBase: '#faf4ed',
+      bgElevated: '#fffaf3',
+      bgSurface: '#f2e9e1',
+      bgHover: '#e4dcd4',
+
+      accent: '#907aa9',
+      accentLight: '#b4a4c4',
+      accentSecondary: '#d7827e',
+
+      success: '#56949f',
+      warning: '#ea9d34',
+      error: '#b4637a',
+
+      textPrimary: '#575279',
+      textSecondary: '#797593',
+      textMuted: '#9893a5',
+
+      border: 'rgba(87, 82, 121, 0.12)',
+      borderHover: 'rgba(87, 82, 121, 0.2)',
+      borderAccent: 'rgba(144, 122, 169, 0.4)',
+
+      layerBusiness: '#286983',
+      layerLogic: '#56949f',
+      layerImpl: '#907aa9',
+      layerGov: '#ea9d34',
+
+      shadowSm: '0 1px 2px rgba(87, 82, 121, 0.08)',
+      shadowMd: '0 4px 12px rgba(87, 82, 121, 0.08)',
+      shadowLg: '0 8px 24px rgba(87, 82, 121, 0.12)',
+      shadowGlow: '0 0 20px rgba(144, 122, 169, 0.12)',
+    },
+  },
+
+  catppuccinLatte: {
+    id: 'catppuccinLatte',
+    name: 'Catppuccin Latte',
+    description: '奶油拿铁色调，柔和温暖',
+    isDark: false,
+    colors: {
+      bgBase: '#eff1f5',
+      bgElevated: '#e6e9ef',
+      bgSurface: '#dce0e8',
+      bgHover: '#ccd0da',
+
+      accent: '#8839ef',
+      accentLight: '#a86de9',
+      accentSecondary: '#1e66f5',
+
+      success: '#40a02b',
+      warning: '#df8e1d',
+      error: '#d20f39',
+
+      textPrimary: '#4c4f69',
+      textSecondary: '#6c6f85',
+      textMuted: '#9ca0b0',
+
+      border: 'rgba(76, 79, 105, 0.12)',
+      borderHover: 'rgba(76, 79, 105, 0.2)',
+      borderAccent: 'rgba(136, 57, 239, 0.3)',
+
+      layerBusiness: '#1e66f5',
+      layerLogic: '#40a02b',
+      layerImpl: '#8839ef',
+      layerGov: '#df8e1d',
+
+      shadowSm: '0 1px 2px rgba(76, 79, 105, 0.08)',
+      shadowMd: '0 4px 12px rgba(76, 79, 105, 0.08)',
+      shadowLg: '0 8px 24px rgba(76, 79, 105, 0.12)',
+      shadowGlow: '0 0 20px rgba(136, 57, 239, 0.1)',
+    },
+  },
+
+  paperLight: {
+    id: 'paperLight',
+    name: 'Paper',
+    description: '纸张白色，极简纯净风格',
+    isDark: false,
+    colors: {
+      bgBase: '#f8f8f8',
+      bgElevated: '#ffffff',
+      bgSurface: '#f0f0f0',
+      bgHover: '#e8e8e8',
+
+      accent: '#4a7c59',
+      accentLight: '#6b9b7a',
+      accentSecondary: '#5b7e9a',
+
+      success: '#4a7c59',
+      warning: '#c4841d',
+      error: '#c94f4f',
+
+      textPrimary: '#2c2c2c',
+      textSecondary: '#5a5a5a',
+      textMuted: '#8a8a8a',
+
+      border: 'rgba(0, 0, 0, 0.08)',
+      borderHover: 'rgba(0, 0, 0, 0.15)',
+      borderAccent: 'rgba(74, 124, 89, 0.3)',
+
+      layerBusiness: '#5b7e9a',
+      layerLogic: '#4a7c59',
+      layerImpl: '#7a6b9a',
+      layerGov: '#c4841d',
+
+      shadowSm: '0 1px 2px rgba(0, 0, 0, 0.05)',
+      shadowMd: '0 4px 12px rgba(0, 0, 0, 0.06)',
+      shadowLg: '0 8px 24px rgba(0, 0, 0, 0.08)',
+      shadowGlow: '0 0 20px rgba(74, 124, 89, 0.08)',
     },
   },
 };
