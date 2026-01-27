@@ -6,6 +6,8 @@ interface Props {
   lang: Language;
   onSubmit: (structuredInput: string) => void;
   disabled?: boolean;
+  hasApiKey?: boolean;
+  onOpenSettings?: () => void;
 }
 
 type ModalType = 'object' | 'action' | 'integration' | null;
@@ -81,7 +83,9 @@ const translations = {
     addData: 'Add Data',
     // Common
     cancel: 'Cancel',
-    submit: 'Add to Conversation'
+    submit: 'Add to Conversation',
+    apiRequired: 'AI settings required to send',
+    configureApi: 'Configure AI Settings'
   },
   cn: {
     quickAdd: '快捷添加',
@@ -130,11 +134,13 @@ const translations = {
     addData: '添加数据',
     // Common
     cancel: '取消',
-    submit: '添加到对话'
+    submit: '添加到对话',
+    apiRequired: '需要配置 AI 设置才能发送',
+    configureApi: '配置 AI 设置'
   }
 };
 
-const QuickInputPanel: React.FC<Props> = ({ lang, onSubmit, disabled }) => {
+const QuickInputPanel: React.FC<Props> = ({ lang, onSubmit, disabled, hasApiKey = true, onOpenSettings }) => {
   const t = translations[lang];
   const [activeModal, setActiveModal] = useState<ModalType>(null);
 
@@ -260,13 +266,12 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
 
   return (
     <>
-      {/* Quick Add Buttons - Simplified color scheme */}
+      {/* Quick Add Buttons - Always enabled to allow form filling */}
       <div className="flex items-center gap-2 mb-3">
         <span className="text-xs text-muted">{t.quickAdd}:</span>
         <button
           onClick={() => setActiveModal('object')}
-          disabled={disabled}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:opacity-80"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all hover:opacity-80"
           style={{
             backgroundColor: 'var(--color-bg-surface)',
             borderColor: 'var(--color-border-hover)',
@@ -278,8 +283,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
         </button>
         <button
           onClick={() => setActiveModal('action')}
-          disabled={disabled}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:opacity-80"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all hover:opacity-80"
           style={{
             backgroundColor: 'var(--color-bg-surface)',
             borderColor: 'var(--color-border-hover)',
@@ -291,8 +295,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
         </button>
         <button
           onClick={() => setActiveModal('integration')}
-          disabled={disabled}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:opacity-80"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all hover:opacity-80"
           style={{
             backgroundColor: 'var(--color-bg-surface)',
             borderColor: 'var(--color-border-hover)',
@@ -573,20 +576,42 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
             </div>
 
             {/* Footer */}
-            <div className="p-5 flex justify-end gap-3 flex-shrink-0" style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--color-border)' }}>
-              <button
-                onClick={handleClose}
-                className="px-4 py-2 text-sm text-muted hover:text-primary transition-colors"
-              >
-                {t.cancel}
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={!isFormValid()}
-                className="btn-gradient px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              >
-                {t.submit}
-              </button>
+            <div className="p-5 flex-shrink-0" style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--color-border)' }}>
+              {/* API Key Warning */}
+              {!hasApiKey && (
+                <div
+                  className="mb-3 p-3 rounded-lg flex items-center justify-between"
+                  style={{ backgroundColor: 'var(--color-warning)15', border: '1px solid var(--color-warning)30' }}
+                >
+                  <span className="text-xs" style={{ color: 'var(--color-warning)' }}>
+                    {t.apiRequired}
+                  </span>
+                  {onOpenSettings && (
+                    <button
+                      onClick={() => { handleClose(); onOpenSettings(); }}
+                      className="text-xs font-medium px-2 py-1 rounded"
+                      style={{ backgroundColor: 'var(--color-warning)', color: '#fff' }}
+                    >
+                      {t.configureApi}
+                    </button>
+                  )}
+                </div>
+              )}
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={handleClose}
+                  className="px-4 py-2 text-sm text-muted hover:text-primary transition-colors"
+                >
+                  {t.cancel}
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  disabled={!isFormValid() || !hasApiKey || disabled}
+                  className="btn-gradient px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {t.submit}
+                </button>
+              </div>
             </div>
           </div>
         </div>

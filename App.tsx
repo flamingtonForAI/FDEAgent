@@ -14,8 +14,9 @@ import QualityPanel from './components/QualityPanel';
 import StructuringWorkbench from './components/StructuringWorkbench';
 import ArchetypeBrowser from './components/ArchetypeBrowser';
 import ArchetypeViewer from './components/ArchetypeViewer';
+import QuickStart from './components/QuickStart';
 import { getArchetypeById } from './content/archetypes';
-import { LayoutDashboard, MessageSquare, Database, Zap, Languages, Network, Settings as SettingsIcon, RotateCcw, PenTool, Sparkles, GraduationCap, ShieldCheck, X, Package, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Database, Zap, Languages, Network, Settings as SettingsIcon, RotateCcw, PenTool, Sparkles, GraduationCap, ShieldCheck, X, Package, ClipboardList, Rocket } from 'lucide-react';
 import { ThemeSwitcher } from './components/ui';
 import { Theme, loadSavedTheme, applyTheme } from './lib/themes';
 
@@ -23,6 +24,7 @@ const translations = {
   en: {
     title: "Ontology Architect",
     subtitle: "Intelligent OS Studio",
+    quickStart: "Quick Start",
     academy: "Learning Center",
     archetypes: "Archetypes",
     scouting: "Requirement Scouting",
@@ -32,6 +34,10 @@ const translations = {
     systemMap: "Architecture Map",
     augmentation: "AI Augmentation",
     blueprint: "System Blueprint",
+    sectionGettingStarted: "Getting Started",
+    sectionResources: "Resources",
+    sectionCoreWorkflow: "Core Workflow",
+    sectionSystemDesign: "System Design",
     status: "Engine Status",
     ready: "Standby",
     synthesizing: "Synthesizing System Architecture...",
@@ -43,6 +49,7 @@ const translations = {
   cn: {
     title: "本体架构师",
     subtitle: "智能操作系统工作室",
+    quickStart: "快速开始",
     academy: "学习中心",
     archetypes: "行业原型",
     scouting: "需求勘察",
@@ -52,6 +59,10 @@ const translations = {
     systemMap: "架构拓扑图",
     augmentation: "AI 能力增强",
     blueprint: "系统蓝图",
+    sectionGettingStarted: "入门",
+    sectionResources: "参考资源",
+    sectionCoreWorkflow: "核心工作流",
+    sectionSystemDesign: "系统设计",
     status: "引擎状态",
     ready: "待命",
     synthesizing: "正在合成系统架构...",
@@ -95,9 +106,39 @@ const loadProjectState = (): ProjectState => {
   };
 };
 
+// 有效的工作流标签页（用于恢复上次位置）
+type WorkflowTab = 'quickStart' | 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview';
+const validWorkflowTabs: WorkflowTab[] = ['quickStart', 'academy', 'archetypes', 'scouting', 'workbench', 'ontology', 'actionDesigner', 'systemMap', 'aip', 'overview'];
+
+// 从localStorage加载上次活跃的标签页
+const loadLastActiveTab = (): WorkflowTab => {
+  try {
+    const saved = localStorage.getItem('ontology-last-tab');
+    const project = loadProjectState();
+
+    // 如果有保存的标签且有效，则恢复
+    if (saved && validWorkflowTabs.includes(saved as WorkflowTab)) {
+      // 如果是需要项目数据的标签，但没有项目数据，则回到 quickStart
+      const requiresProject = ['ontology', 'actionDesigner', 'systemMap', 'aip', 'overview'];
+      if (requiresProject.includes(saved) && project.objects.length === 0) {
+        return 'quickStart';
+      }
+      return saved as WorkflowTab;
+    }
+
+    // 如果有项目数据，默认到 scouting（老手模式）
+    if (project.objects.length > 0) {
+      return 'scouting';
+    }
+  } catch (e) {
+    console.error('加载上次标签失败:', e);
+  }
+  return 'quickStart';
+};
+
 const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('cn');
-  const [activeTab, setActiveTab] = useState<'academy' | 'archetypes' | 'archetypeViewer' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview'>('scouting');
+  const [activeTab, setActiveTab] = useState<'quickStart' | 'academy' | 'archetypes' | 'archetypeViewer' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview'>(loadLastActiveTab);
   const [project, setProject] = useState<ProjectState>(loadProjectState);
   const [isDesigning, setIsDesigning] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(loadChatMessages);
@@ -148,6 +189,18 @@ const App: React.FC = () => {
       console.error('保存项目状态失败:', e);
     }
   }, [project]);
+
+  // 保存当前标签页到localStorage（用于恢复上次工作位置）
+  useEffect(() => {
+    // 不保存临时标签（如 archetypeViewer）
+    if (activeTab !== 'archetypeViewer') {
+      try {
+        localStorage.setItem('ontology-last-tab', activeTab);
+      } catch (e) {
+        console.error('保存标签页失败:', e);
+      }
+    }
+  }, [activeTab]);
 
   // 获取当前模型显示名称
   const getCurrentModelName = () => {
@@ -261,6 +314,7 @@ const App: React.FC = () => {
       // 清除本地存储
       localStorage.removeItem('ontology-chat-messages');
       localStorage.removeItem('ontology-project-state');
+      localStorage.removeItem('ontology-last-tab');
       // 重置状态
       setChatMessages([]);
       setProject({
@@ -272,7 +326,7 @@ const App: React.FC = () => {
         status: 'scouting'
       });
       chatHistoryRef.current = [];
-      setActiveTab('scouting');
+      setActiveTab('quickStart');
     }
   };
 
@@ -352,23 +406,18 @@ const App: React.FC = () => {
           <p className="text-[10px] text-muted font-mono tracking-wide">{t.subtitle}</p>
         </div>
 
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          {/* Learning Center - Always at top */}
+        <nav className="flex-1 p-3 overflow-y-auto">
+          {/* Getting Started Section - For beginners */}
+          <NavSection label={t.sectionGettingStarted} />
           <NavItem
-            active={activeTab === 'academy'}
-            onClick={() => setActiveTab('academy')}
-            icon={<GraduationCap size={16} />}
-            label={t.academy}
-          />
-          <NavItem
-            active={activeTab === 'archetypes' || activeTab === 'archetypeViewer'}
-            onClick={() => { setActiveTab('archetypes'); setSelectedArchetypeId(null); }}
-            icon={<Package size={16} />}
-            label={t.archetypes}
+            active={activeTab === 'quickStart'}
+            onClick={() => setActiveTab('quickStart')}
+            icon={<Rocket size={16} />}
+            label={t.quickStart}
           />
 
-          <div className="h-px bg-white/[0.06] my-2" />
-
+          {/* Core Workflow Section - For experienced users */}
+          <NavSection label={t.sectionCoreWorkflow} />
           <NavItem
             active={activeTab === 'scouting'}
             onClick={() => setActiveTab('scouting')}
@@ -395,6 +444,9 @@ const App: React.FC = () => {
             label={t.actionDesigner}
             disabled={project.objects.length === 0}
           />
+
+          {/* System Design Section */}
+          <NavSection label={t.sectionSystemDesign} />
           <NavItem
             active={activeTab === 'systemMap'}
             onClick={() => setActiveTab('systemMap')}
@@ -415,6 +467,21 @@ const App: React.FC = () => {
             icon={<LayoutDashboard size={16} />}
             label={t.blueprint}
             disabled={project.objects.length === 0}
+          />
+
+          {/* Resources Section - Reference for all users */}
+          <NavSection label={t.sectionResources} />
+          <NavItem
+            active={activeTab === 'academy'}
+            onClick={() => setActiveTab('academy')}
+            icon={<GraduationCap size={16} />}
+            label={t.academy}
+          />
+          <NavItem
+            active={activeTab === 'archetypes' || activeTab === 'archetypeViewer'}
+            onClick={() => { setActiveTab('archetypes'); setSelectedArchetypeId(null); }}
+            icon={<Package size={16} />}
+            label={t.archetypes}
           />
         </nav>
 
@@ -489,6 +556,9 @@ const App: React.FC = () => {
         )}
 
         <div className="flex-1 overflow-y-auto">
+          {activeTab === 'quickStart' && (
+            <QuickStart lang={lang} project={project} onNavigate={setActiveTab} />
+          )}
           {activeTab === 'academy' && (
             <Academy lang={lang} />
           )}
@@ -528,6 +598,8 @@ const App: React.FC = () => {
               setProject={setProject}
               chatMessages={chatHistoryRef.current}
               onNavigateToOntology={() => setActiveTab('ontology')}
+              onNavigateToScouting={() => setActiveTab('scouting')}
+              onNavigateToArchetypes={() => setActiveTab('archetypes')}
             />
           )}
           {activeTab === 'ontology' && (
@@ -602,6 +674,17 @@ const App: React.FC = () => {
     </div>
   );
 };
+
+const NavSection: React.FC<{ label: string }> = ({ label }) => (
+  <div className="px-3 pt-4 pb-2 first:pt-0">
+    <span
+      className="text-[10px] font-medium uppercase tracking-wider"
+      style={{ color: 'var(--color-text-muted)' }}
+    >
+      {label}
+    </span>
+  </div>
+);
 
 const NavItem: React.FC<{
   active: boolean;

@@ -687,7 +687,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           <QuickInputPanel
             lang={lang}
             onSubmit={handleQuickInput}
-            disabled={!hasApiKey || isLoading}
+            disabled={isLoading}
+            hasApiKey={hasApiKey}
+            onOpenSettings={onOpenSettings}
           />
 
           {/* Uploaded Files Preview */}

@@ -17,7 +17,10 @@ import {
   Download,
   Eye,
   Code,
-  Briefcase
+  Briefcase,
+  MessageSquare,
+  Package,
+  ArrowRight
 } from 'lucide-react';
 
 interface StructuringWorkbenchProps {
@@ -26,6 +29,8 @@ interface StructuringWorkbenchProps {
   setProject?: React.Dispatch<React.SetStateAction<ProjectState>>;
   chatMessages?: Array<{ role: string; content: string }>;
   onNavigateToOntology?: () => void;
+  onNavigateToScouting?: () => void;
+  onNavigateToArchetypes?: () => void;
   onEditObject?: (objectId: string) => void;
   onAddObject?: () => void;
   onAddAction?: (objectId: string) => void;
@@ -37,10 +42,14 @@ const translations = {
   cn: {
     title: '结构化工作台',
     subtitle: '对话信息转化为可交付设计',
-    viewAll: '全部视图',
+    viewAll: '完整视图',
     viewBusiness: '业务视图',
     viewTechnical: '技术视图',
-    viewCards: '卡片视图',
+    viewCards: '概览',
+    viewAllDesc: '所有细节',
+    viewBusinessDesc: '谁做什么',
+    viewTechnicalDesc: 'API与实现',
+    viewCardsDesc: '卡片摘要',
     objects: '业务对象',
     actions: '业务操作',
     links: '对象关联',
@@ -63,15 +72,29 @@ const translations = {
     exportMarkdown: '导出文档',
     copied: '已复制',
     completeness: '完整度',
-    tip: '点击卡片查看详情，点击 + 添加新元素'
+    tip: '点击卡片查看详情，点击 + 添加新元素',
+    executor: '执行者',
+    trigger: '触发条件',
+    apiEndpoint: 'API端点',
+    parameters: '参数',
+    emptyStateTitle: '暂无数据可整理',
+    emptyStateDesc: '结构化工作台需要从对话或模板中获取数据。请先完成以下步骤之一：',
+    goToScouting: '开始需求勘察',
+    goToScoutingDesc: '通过对话探索业务需求，AI 将帮助您提取业务对象',
+    goToArchetypes: '使用行业模板',
+    goToArchetypesDesc: '从预置的行业模板快速开始，获得完整的对象结构'
   },
   en: {
     title: 'Structuring Workbench',
     subtitle: 'Transform conversations into deliverable designs',
-    viewAll: 'All',
+    viewAll: 'Full',
     viewBusiness: 'Business',
     viewTechnical: 'Technical',
-    viewCards: 'Cards',
+    viewCards: 'Overview',
+    viewAllDesc: 'All details',
+    viewBusinessDesc: 'Who does what',
+    viewTechnicalDesc: 'API & impl',
+    viewCardsDesc: 'Card summary',
     objects: 'Objects',
     actions: 'Actions',
     links: 'Links',
@@ -94,7 +117,17 @@ const translations = {
     exportMarkdown: 'Export Docs',
     copied: 'Copied',
     completeness: 'Completeness',
-    tip: 'Click cards for details, + to add new elements'
+    tip: 'Click cards for details, + to add new elements',
+    executor: 'Executor',
+    trigger: 'Trigger',
+    apiEndpoint: 'API Endpoint',
+    parameters: 'Parameters',
+    emptyStateTitle: 'No data to structure',
+    emptyStateDesc: 'The Structuring Workbench needs data from conversations or templates. Please complete one of the following steps first:',
+    goToScouting: 'Start Requirement Scouting',
+    goToScoutingDesc: 'Explore business requirements through conversation, AI will help extract objects',
+    goToArchetypes: 'Use Industry Templates',
+    goToArchetypesDesc: 'Quick start from pre-built industry templates with complete object structures'
   }
 };
 
@@ -166,6 +199,8 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
   setProject,
   chatMessages,
   onNavigateToOntology,
+  onNavigateToScouting,
+  onNavigateToArchetypes,
   onEditObject,
   onAddObject,
   onAddAction
@@ -368,6 +403,95 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* Empty State Guidance - show when no objects and no meaningful chat */}
+        {(project.objects?.length || 0) === 0 && (!chatMessages || chatMessages.length < 2) && (
+          <div
+            className="rounded-xl p-8 text-center"
+            style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}
+          >
+            <div
+              className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+              style={{ backgroundColor: 'var(--color-warning)15' }}
+            >
+              <AlertCircle size={28} style={{ color: 'var(--color-warning)' }} />
+            </div>
+            <h3
+              className="text-lg font-medium mb-2"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              {t.emptyStateTitle}
+            </h3>
+            <p
+              className="text-sm mb-6 max-w-md mx-auto"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              {t.emptyStateDesc}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto">
+              {onNavigateToScouting && (
+                <button
+                  onClick={onNavigateToScouting}
+                  className="group p-4 rounded-xl text-left transition-all hover:scale-[1.02]"
+                  style={{
+                    backgroundColor: 'var(--color-bg-elevated)',
+                    border: '1px solid var(--color-border)'
+                  }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center mb-3"
+                    style={{ backgroundColor: 'var(--color-accent)15', color: 'var(--color-accent)' }}
+                  >
+                    <MessageSquare size={20} />
+                  </div>
+                  <div
+                    className="font-medium text-sm mb-1"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    {t.goToScouting}
+                  </div>
+                  <div className="text-xs text-muted mb-2">{t.goToScoutingDesc}</div>
+                  <div
+                    className="flex items-center gap-1 text-xs font-medium transition-transform group-hover:translate-x-1"
+                    style={{ color: 'var(--color-accent)' }}
+                  >
+                    <ArrowRight size={12} />
+                  </div>
+                </button>
+              )}
+              {onNavigateToArchetypes && (
+                <button
+                  onClick={onNavigateToArchetypes}
+                  className="group p-4 rounded-xl text-left transition-all hover:scale-[1.02]"
+                  style={{
+                    backgroundColor: 'var(--color-bg-elevated)',
+                    border: '1px solid var(--color-border)'
+                  }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center mb-3"
+                    style={{ backgroundColor: 'var(--color-success)15', color: 'var(--color-success)' }}
+                  >
+                    <Package size={20} />
+                  </div>
+                  <div
+                    className="font-medium text-sm mb-1"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    {t.goToArchetypes}
+                  </div>
+                  <div className="text-xs text-muted mb-2">{t.goToArchetypesDesc}</div>
+                  <div
+                    className="flex items-center gap-1 text-xs font-medium transition-transform group-hover:translate-x-1"
+                    style={{ color: 'var(--color-success)' }}
+                  >
+                    <ArrowRight size={12} />
+                  </div>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Objects Section */}
         <Section
           title={t.objects}
@@ -382,7 +506,7 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
           {(project.objects?.length || 0) === 0 ? (
             <EmptyState message={t.noObjects} onAdd={onAddObject} addLabel={t.addObject} />
           ) : (
-            <div className="space-y-2">
+            <div className={viewMode === 'cards' ? 'grid grid-cols-2 sm:grid-cols-3 gap-2' : 'space-y-2'}>
               {project.objects?.map(obj => {
                 const completeness = calculateObjectCompleteness(obj);
                 return (
@@ -416,7 +540,7 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
           {stats.actionCount === 0 ? (
             <EmptyState message={t.noActions} />
           ) : (
-            <div className="space-y-2">
+            <div className={viewMode === 'cards' ? 'grid grid-cols-2 sm:grid-cols-3 gap-2' : 'space-y-2'}>
               {project.objects?.flatMap(obj =>
                 (obj.actions || []).map((action, idx) => {
                   const completeness = calculateActionCompleteness(action);
@@ -598,7 +722,7 @@ const EmptyState: React.FC<{ message: string; onAdd?: () => void; addLabel?: str
   </div>
 );
 
-// Object card
+// Object card - renders differently based on viewMode
 const ObjectCard: React.FC<{
   object: OntologyObject;
   completeness: { score: number; missing: string[] };
@@ -608,82 +732,140 @@ const ObjectCard: React.FC<{
   onCopy: () => void;
   isCopied: boolean;
   t: typeof translations.cn;
-}> = ({ object, completeness, viewMode, onEdit, onCopy, isCopied, t }) => (
-  <div
-    className="p-3 rounded-lg border transition-colors hover:border-[var(--color-border-hover)]"
-    style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-elevated)' }}
-  >
-    <div className="flex items-start justify-between">
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-            {object.name}
-          </span>
-          <span
-            className={`text-[10px] px-1.5 py-0.5 rounded ${
-              completeness.score >= 80 ? 'bg-green-500/20 text-green-400' :
-              completeness.score >= 50 ? 'bg-yellow-500/20 text-yellow-400' :
-              'bg-red-500/20 text-red-400'
-            }`}
-          >
-            {completeness.score}%
-          </span>
+}> = ({ object, completeness, viewMode, onEdit, onCopy, isCopied, t }) => {
+  // Cards view: compact summary
+  if (viewMode === 'cards') {
+    return (
+      <div
+        className="p-3 rounded-lg border text-center"
+        style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-elevated)' }}
+      >
+        <Box className="w-6 h-6 mx-auto mb-2" style={{ color: 'var(--color-accent)' }} />
+        <div className="font-medium text-sm" style={{ color: 'var(--color-text-primary)' }}>
+          {object.name}
         </div>
-        {object.description && (
-          <p className="text-xs mt-1 line-clamp-2" style={{ color: 'var(--color-text-secondary)' }}>
-            {object.description}
-          </p>
-        )}
-      </div>
-      <div className="flex items-center gap-1">
-        {onEdit && (
-          <button
-            onClick={onEdit}
-            className="p-1.5 rounded hover:bg-white/10 transition-colors"
-            style={{ color: 'var(--color-text-muted)' }}
-          >
-            <Edit3 className="w-3.5 h-3.5" />
-          </button>
-        )}
-        <button
-          onClick={onCopy}
-          className="p-1.5 rounded hover:bg-white/10 transition-colors"
-          style={{ color: isCopied ? 'var(--color-success)' : 'var(--color-text-muted)' }}
+        <div className="text-[10px] mt-1" style={{ color: 'var(--color-text-muted)' }}>
+          {object.properties?.length || 0} {t.properties} · {object.actions?.length || 0} {t.actions}
+        </div>
+        <div
+          className={`text-[10px] px-2 py-0.5 rounded mt-2 inline-block ${
+            completeness.score >= 80 ? 'bg-green-500/20 text-green-400' :
+            completeness.score >= 50 ? 'bg-yellow-500/20 text-yellow-400' :
+            'bg-red-500/20 text-red-400'
+          }`}
         >
-          {isCopied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-        </button>
+          {completeness.score}%
+        </div>
       </div>
-    </div>
+    );
+  }
 
-    {viewMode !== 'business' && (
-      <div className="flex flex-wrap gap-1 mt-2">
-        {object.properties?.slice(0, 5).map((p, i) => (
-          <span
-            key={i}
-            className="text-[10px] px-1.5 py-0.5 rounded"
-            style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-muted)' }}
+  return (
+    <div
+      className="p-3 rounded-lg border transition-colors hover:border-[var(--color-border-hover)]"
+      style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-elevated)' }}
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
+              {object.name}
+            </span>
+            {viewMode !== 'cards' && (
+              <span
+                className={`text-[10px] px-1.5 py-0.5 rounded ${
+                  completeness.score >= 80 ? 'bg-green-500/20 text-green-400' :
+                  completeness.score >= 50 ? 'bg-yellow-500/20 text-yellow-400' :
+                  'bg-red-500/20 text-red-400'
+                }`}
+              >
+                {completeness.score}%
+              </span>
+            )}
+          </div>
+          {object.description && (
+            <p className="text-xs mt-1 line-clamp-2" style={{ color: 'var(--color-text-secondary)' }}>
+              {object.description}
+            </p>
+          )}
+        </div>
+        <div className="flex items-center gap-1">
+          {onEdit && (
+            <button
+              onClick={onEdit}
+              className="p-1.5 rounded hover:bg-white/10 transition-colors"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+            </button>
+          )}
+          <button
+            onClick={onCopy}
+            className="p-1.5 rounded hover:bg-white/10 transition-colors"
+            style={{ color: isCopied ? 'var(--color-success)' : 'var(--color-text-muted)' }}
           >
-            {p.name}
-          </span>
-        ))}
-        {(object.properties?.length || 0) > 5 && (
-          <span className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
-            +{(object.properties?.length || 0) - 5}
-          </span>
-        )}
+            {isCopied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+          </button>
+        </div>
       </div>
-    )}
 
-    {completeness.missing.length > 0 && (
-      <div className="flex items-center gap-1 mt-2 text-[10px]" style={{ color: 'var(--color-warning)' }}>
-        <AlertCircle className="w-3 h-3" />
-        <span>{t.missing}: {completeness.missing.join(', ')}</span>
-      </div>
-    )}
-  </div>
-);
+      {/* Technical view: Show property details with types */}
+      {viewMode === 'technical' && object.properties && object.properties.length > 0 && (
+        <div className="mt-2 p-2 rounded" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
+          <div className="text-[10px] font-medium mb-1.5" style={{ color: 'var(--color-text-muted)' }}>
+            {t.properties}
+          </div>
+          <div className="space-y-1">
+            {object.properties.slice(0, 6).map((p, i) => (
+              <div key={i} className="flex items-center gap-2 text-[10px]">
+                <span style={{ color: 'var(--color-text-primary)' }}>{p.name}</span>
+                <span className="px-1 py-0.5 rounded" style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-muted)' }}>
+                  {p.type}
+                </span>
+              </div>
+            ))}
+            {object.properties.length > 6 && (
+              <span className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
+                +{object.properties.length - 6} more
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
-// Action card
+      {/* All view: Show property tags */}
+      {viewMode === 'all' && (
+        <div className="flex flex-wrap gap-1 mt-2">
+          {object.properties?.slice(0, 5).map((p, i) => (
+            <span
+              key={i}
+              className="text-[10px] px-1.5 py-0.5 rounded"
+              style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-muted)' }}
+            >
+              {p.name}
+            </span>
+          ))}
+          {(object.properties?.length || 0) > 5 && (
+            <span className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
+              +{(object.properties?.length || 0) - 5}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Business view: No property details, just description */}
+
+      {completeness.missing.length > 0 && viewMode !== 'cards' && (
+        <div className="flex items-center gap-1 mt-2 text-[10px]" style={{ color: 'var(--color-warning)' }}>
+          <AlertCircle className="w-3 h-3" />
+          <span>{t.missing}: {completeness.missing.join(', ')}</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Action card - renders differently based on viewMode
 const ActionCard: React.FC<{
   action: any;
   parentObject: string;
@@ -691,49 +873,204 @@ const ActionCard: React.FC<{
   viewMode: ViewMode;
   lang: Language;
   t: typeof translations.cn;
-}> = ({ action, parentObject, completeness, viewMode, t }) => (
-  <div
-    className="p-3 rounded-lg border"
-    style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-elevated)' }}
-  >
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
+}> = ({ action, parentObject, completeness, viewMode, t }) => {
+  // Cards view: compact summary
+  if (viewMode === 'cards') {
+    return (
+      <div
+        className="p-3 rounded-lg border text-center"
+        style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-elevated)' }}
+      >
+        <Zap className="w-6 h-6 mx-auto mb-2" style={{ color: 'var(--color-success)' }} />
+        <div className="font-medium text-sm" style={{ color: 'var(--color-text-primary)' }}>
           {action.name}
-        </span>
-        <span
-          className="text-[10px] px-1.5 py-0.5 rounded"
-          style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-muted)' }}
-        >
+        </div>
+        <div className="text-[10px] mt-1" style={{ color: 'var(--color-text-muted)' }}>
           → {parentObject}
+        </div>
+        <div
+          className={`text-[10px] px-2 py-0.5 rounded mt-2 inline-block ${
+            completeness.score >= 70 ? 'bg-green-500/20 text-green-400' :
+            completeness.score >= 40 ? 'bg-yellow-500/20 text-yellow-400' :
+            'bg-red-500/20 text-red-400'
+          }`}
+        >
+          {completeness.score}%
+        </div>
+      </div>
+    );
+  }
+
+  // Business view: focus on who does what
+  if (viewMode === 'business') {
+    const bl = action.businessLayer;
+    return (
+      <div
+        className="p-3 rounded-lg border"
+        style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-elevated)' }}
+      >
+        <div className="flex items-center gap-2">
+          <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
+            {action.name}
+          </span>
+          <span
+            className="text-[10px] px-1.5 py-0.5 rounded"
+            style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-muted)' }}
+          >
+            → {parentObject}
+          </span>
+        </div>
+        {action.description && (
+          <p className="text-xs mt-2" style={{ color: 'var(--color-text-secondary)' }}>
+            {action.description}
+          </p>
+        )}
+        {(bl?.executor || bl?.trigger) && (
+          <div className="mt-2 pt-2 border-t space-y-1" style={{ borderColor: 'var(--color-border)' }}>
+            {bl?.executor && (
+              <div className="flex items-center gap-2 text-[10px]">
+                <Users className="w-3 h-3" style={{ color: 'var(--color-accent)' }} />
+                <span style={{ color: 'var(--color-text-muted)' }}>{t.executor}:</span>
+                <span style={{ color: 'var(--color-text-primary)' }}>{bl.executor}</span>
+              </div>
+            )}
+            {bl?.trigger && (
+              <div className="flex items-center gap-2 text-[10px]">
+                <Zap className="w-3 h-3" style={{ color: 'var(--color-warning)' }} />
+                <span style={{ color: 'var(--color-text-muted)' }}>{t.trigger}:</span>
+                <span style={{ color: 'var(--color-text-primary)' }}>{bl.trigger}</span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Technical view: focus on API and implementation
+  if (viewMode === 'technical') {
+    const il = action.implementationLayer;
+    const ll = action.logicLayer;
+    return (
+      <div
+        className="p-3 rounded-lg border"
+        style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-elevated)' }}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
+              {action.name}
+            </span>
+            <span
+              className="text-[10px] px-1.5 py-0.5 rounded"
+              style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-muted)' }}
+            >
+              → {parentObject}
+            </span>
+          </div>
+          <span
+            className={`text-[10px] px-1.5 py-0.5 rounded ${
+              completeness.score >= 70 ? 'bg-green-500/20 text-green-400' :
+              completeness.score >= 40 ? 'bg-yellow-500/20 text-yellow-400' :
+              'bg-red-500/20 text-red-400'
+            }`}
+          >
+            {completeness.score}%
+          </span>
+        </div>
+
+        {/* API Endpoint */}
+        {il?.apiEndpoint && (
+          <div className="mt-2 p-2 rounded font-mono text-[10px]" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
+            <div className="flex items-center gap-2">
+              <span className="px-1 py-0.5 rounded text-[9px] font-bold" style={{ backgroundColor: 'var(--color-success)', color: '#fff' }}>
+                {il.apiEndpoint.method || 'POST'}
+              </span>
+              <span style={{ color: 'var(--color-text-primary)' }}>{il.apiEndpoint.path}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Parameters */}
+        {ll?.parameters && ll.parameters.length > 0 && (
+          <div className="mt-2 p-2 rounded" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
+            <div className="text-[10px] font-medium mb-1.5" style={{ color: 'var(--color-text-muted)' }}>
+              {t.parameters}
+            </div>
+            <div className="space-y-1">
+              {ll.parameters.slice(0, 4).map((p: any, i: number) => (
+                <div key={i} className="flex items-center gap-2 text-[10px]">
+                  <span style={{ color: 'var(--color-text-primary)' }}>{p.name}</span>
+                  <span className="px-1 py-0.5 rounded" style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-muted)' }}>
+                    {p.type}
+                  </span>
+                  {p.required && (
+                    <span className="text-[9px]" style={{ color: 'var(--color-error)' }}>*</span>
+                  )}
+                </div>
+              ))}
+              {ll.parameters.length > 4 && (
+                <span className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
+                  +{ll.parameters.length - 4} more
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Layer completion */}
+        <div className="flex gap-2 mt-2">
+          <LayerBadge label={t.businessLayer} active={completeness.business} />
+          <LayerBadge label={t.logicLayer} active={completeness.logic} />
+          <LayerBadge label={t.implLayer} active={completeness.impl} />
+        </div>
+      </div>
+    );
+  }
+
+  // All view: show everything
+  return (
+    <div
+      className="p-3 rounded-lg border"
+      style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-elevated)' }}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
+            {action.name}
+          </span>
+          <span
+            className="text-[10px] px-1.5 py-0.5 rounded"
+            style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-muted)' }}
+          >
+            → {parentObject}
+          </span>
+        </div>
+        <span
+          className={`text-[10px] px-1.5 py-0.5 rounded ${
+            completeness.score >= 70 ? 'bg-green-500/20 text-green-400' :
+            completeness.score >= 40 ? 'bg-yellow-500/20 text-yellow-400' :
+            'bg-red-500/20 text-red-400'
+          }`}
+        >
+          {completeness.score}%
         </span>
       </div>
-      <span
-        className={`text-[10px] px-1.5 py-0.5 rounded ${
-          completeness.score >= 70 ? 'bg-green-500/20 text-green-400' :
-          completeness.score >= 40 ? 'bg-yellow-500/20 text-yellow-400' :
-          'bg-red-500/20 text-red-400'
-        }`}
-      >
-        {completeness.score}%
-      </span>
-    </div>
 
-    {action.description && (
-      <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-        {action.description}
-      </p>
-    )}
+      {action.description && (
+        <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+          {action.description}
+        </p>
+      )}
 
-    {viewMode !== 'business' && (
       <div className="flex gap-2 mt-2">
         <LayerBadge label={t.businessLayer} active={completeness.business} />
         <LayerBadge label={t.logicLayer} active={completeness.logic} />
         <LayerBadge label={t.implLayer} active={completeness.impl} />
       </div>
-    )}
-  </div>
-);
+    </div>
+  );
+};
 
 // Layer badge
 const LayerBadge: React.FC<{ label: string; active: boolean }> = ({ label, active }) => (
