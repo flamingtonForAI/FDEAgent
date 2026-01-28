@@ -589,6 +589,7 @@ const App: React.FC = () => {
               onOpenSettings={() => setShowSettings(true)}
               messages={chatMessages}
               setMessages={setChatMessages}
+              onNavigate={setActiveTab}
             />
           )}
           {activeTab === 'workbench' && (

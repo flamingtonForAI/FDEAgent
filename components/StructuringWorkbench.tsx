@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Language, ProjectState, OntologyObject } from '../types';
+import { Language, ProjectState, OntologyObject, OntologyLink } from '../types';
 import {
   Box,
   Zap,
@@ -22,6 +22,7 @@ import {
   Package,
   ArrowRight
 } from 'lucide-react';
+import LinkRecommender from './LinkRecommender';
 
 interface StructuringWorkbenchProps {
   lang: Language;
@@ -313,6 +314,30 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
     navigator.clipboard.writeText(text);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  // Handle applying a recommended link
+  const handleApplyLink = (link: Omit<OntologyLink, 'id'>) => {
+    if (!setProject) return;
+    const newLink: OntologyLink = {
+      id: `link_${Date.now()}`,
+      source: link.sourceId,
+      target: link.targetId,
+      sourceId: link.sourceId,
+      targetId: link.targetId,
+      type: link.type || 'reference',
+      label: link.label || ''
+    };
+    setProject(prev => ({
+      ...prev,
+      links: [...(prev.links || []), newLink]
+    }));
+  };
+
+  // Track dismissed link recommendations (state for UI only)
+  const [dismissedLinks, setDismissedLinks] = useState<Set<string>>(new Set());
+  const handleDismissLink = (sourceId: string, targetId: string) => {
+    setDismissedLinks(prev => new Set([...prev, `${sourceId}-${targetId}`]));
   };
 
   return (
@@ -642,6 +667,16 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
               </div>
             )}
           </Section>
+        )}
+
+        {/* Link Recommender - show when there are at least 2 objects */}
+        {(project.objects?.length || 0) >= 2 && setProject && viewMode !== 'business' && (
+          <LinkRecommender
+            lang={lang}
+            project={project}
+            onApplyLink={handleApplyLink}
+            onDismissRecommendation={handleDismissLink}
+          />
         )}
       </div>
     </div>

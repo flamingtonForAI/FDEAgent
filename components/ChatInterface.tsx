@@ -12,6 +12,9 @@ import SmartTips from './SmartTips';
 import { FileUploadButton, UploadedFile } from './FileUpload';
 import ReadinessPanel from './ReadinessPanel';
 import { checkReadiness } from '../lib/readinessChecker';
+import SystemDNACard from './SystemDNACard';
+import { detectSystems, DetectedSystem } from '../lib/systemDNA';
+import CopilotBubble from './CopilotBubble';
 
 interface ExtractedNoun {
   name: string;
@@ -26,6 +29,8 @@ interface ExtractedVerb {
   confidence: number;
 }
 
+type NavigableTab = 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview';
+
 interface ChatInterfaceProps {
   lang: Language;
   onDesignTrigger: () => void;
@@ -37,6 +42,7 @@ interface ChatInterfaceProps {
   onOpenSettings: () => void;
   messages: ChatMessage[];
   setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+  onNavigate?: (tab: NavigableTab) => void;
 }
 
 const translations = {
@@ -111,7 +117,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   hasApiKey,
   onOpenSettings,
   messages,
-  setMessages
+  setMessages,
+  onNavigate
 }) => {
   const t = translations[lang];
   const [input, setInput] = useState('');
@@ -137,6 +144,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   // File upload states
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+
+  // System DNA detection states
+  const [detectedSystems, setDetectedSystems] = useState<DetectedSystem[]>([]);
+  const [dismissedSystemIds, setDismissedSystemIds] = useState<Set<string>>(new Set());
 
   // Handle paste event for images/files
   const handlePaste = async (e: React.ClipboardEvent) => {
@@ -364,6 +375,100 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setExtractedVerbs(prev => prev.filter(v => v.name !== name));
   };
 
+  // System DNA detection - run on user messages to detect enterprise systems
+  const detectSystemsFromText = (text: string) => {
+    const detected = detectSystems(text);
+    if (detected.length > 0) {
+      // Only add systems that haven't been dismissed
+      setDetectedSystems(prev => {
+        const existingIds = new Set(prev.map(d => d.system.id));
+        const newSystems = detected.filter(d =>
+          !existingIds.has(d.system.id) && !dismissedSystemIds.has(d.system.id)
+        );
+        return [...prev, ...newSystems];
+      });
+    }
+  };
+
+  // Handle applying objects from SystemDNACard
+  const handleApplySystemObjects = (objects: Array<{ name: string; description: string; properties: string[] }>) => {
+    const newObjects = objects.map(obj => ({
+      id: `obj_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      name: obj.name,
+      description: obj.description,
+      properties: obj.properties.map(p => ({
+        name: p,
+        type: 'string' as const,
+        description: ''
+      })),
+      actions: [],
+      aiFeatures: []
+    }));
+
+    setProject(prev => ({
+      ...prev,
+      objects: [...prev.objects, ...newObjects]
+    }));
+  };
+
+  // Handle applying actions from SystemDNACard
+  const handleApplySystemActions = (actions: Array<{ name: string; targetObject: string; description: string }>) => {
+    // Find matching object or use first object
+    actions.forEach(action => {
+      const targetObjId = project.objects.find(o =>
+        o.name.toLowerCase().includes(action.targetObject.toLowerCase()) ||
+        action.targetObject.toLowerCase().includes(o.name.toLowerCase())
+      )?.id || project.objects[0]?.id;
+
+      if (targetObjId) {
+        const newAction = {
+          name: action.name,
+          type: 'traditional' as const,
+          description: action.description,
+          businessLayer: {
+            description: action.description,
+            targetObject: targetObjId,
+            executorRole: '',
+            triggerCondition: ''
+          }
+        };
+
+        setProject(prev => ({
+          ...prev,
+          objects: prev.objects.map(obj =>
+            obj.id === targetObjId
+              ? { ...obj, actions: [...obj.actions, newAction] }
+              : obj
+          )
+        }));
+      }
+    });
+  };
+
+  // Handle applying integration pattern
+  const handleApplyIntegration = (integration: { systemName: string; dataPoints: string[]; mechanism: string }) => {
+    // Add as a link to the project representing the external system connection
+    const integrationLink = {
+      id: `link_${Date.now()}`,
+      sourceId: 'external_system',
+      targetId: project.objects[0]?.id || '',
+      type: 'integration',
+      label: `${integration.systemName} - ${integration.mechanism}`,
+      description: `Integration with ${integration.systemName} via ${integration.mechanism}. Data points: ${integration.dataPoints.join(', ')}`
+    };
+
+    setProject(prev => ({
+      ...prev,
+      links: [...prev.links, integrationLink]
+    }));
+  };
+
+  // Dismiss a detected system
+  const handleDismissSystem = (systemId: string) => {
+    setDismissedSystemIds(prev => new Set([...prev, systemId]));
+    setDetectedSystems(prev => prev.filter(d => d.system.id !== systemId));
+  };
+
   const handleValidateAndDesign = async () => {
     console.log('handleValidateAndDesign called');
     console.log('hasApiKey:', hasApiKey);
@@ -458,10 +563,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       setMessages(finalMessages);
       historyRef.current = [...historyRef.current, assistantMsg];
 
-      // Trigger extraction and case analysis after successful message
+      // Trigger extraction, case analysis, and system DNA detection after successful message
       setTimeout(() => {
         extractFromConversation();
         analyzeCases();
+        // Detect enterprise systems from user message
+        detectSystemsFromText(userMsg);
       }, 500);
     } catch (error) {
       console.error(error);
@@ -490,10 +597,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       setMessages(finalMessages);
       historyRef.current = [...historyRef.current, assistantMsg];
 
-      // Trigger extraction and case analysis after successful message
+      // Trigger extraction, case analysis, and system DNA detection after successful message
       setTimeout(() => {
         extractFromConversation();
         analyzeCases();
+        // Detect enterprise systems from quick input
+        detectSystemsFromText(structuredInput);
       }, 500);
     } catch (error) {
       console.error(error);
@@ -655,6 +764,23 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </div>
           </div>
         )}
+        {/* System DNA Cards - show detected enterprise systems */}
+        {detectedSystems.length > 0 && (
+          <div className="space-y-3 mt-4">
+            {detectedSystems.map(detectedSystem => (
+              <div key={detectedSystem.system.id} className="max-w-lg">
+                <SystemDNACard
+                  lang={lang}
+                  detectedSystem={detectedSystem}
+                  onApplyObjects={handleApplySystemObjects}
+                  onApplyActions={handleApplySystemActions}
+                  onApplyIntegration={handleApplyIntegration}
+                  onDismiss={() => handleDismissSystem(detectedSystem.system.id)}
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="p-6" style={{ borderTop: '1px solid var(--color-border)' }}>
@@ -675,6 +801,20 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         )}
 
         <div className="max-w-3xl mx-auto">
+          {/* Design Copilot */}
+          {hasApiKey && messages.length > 1 && onNavigate && (
+            <div className="mb-4">
+              <CopilotBubble
+                lang={lang}
+                project={project}
+                messages={historyRef.current}
+                onNavigate={onNavigate}
+                onInsertPrompt={(prompt) => setInput(prompt)}
+                compact={true}
+              />
+            </div>
+          )}
+
           {/* Smart Tips */}
           <SmartTips
             lang={lang}
