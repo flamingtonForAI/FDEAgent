@@ -1,9 +1,9 @@
 
 import React, { useRef, useState, useCallback } from 'react';
-import { Language } from '../types';
+import { Language, AIProvider } from '../types';
 import {
   Paperclip, X, FileText, FileSpreadsheet,
-  File, Upload, AlertCircle, Loader2, Image, FileImage, Presentation
+  File, Upload, AlertCircle, Loader2, Image, FileImage, Presentation, AlertTriangle
 } from 'lucide-react';
 
 export interface UploadedFile {
@@ -24,6 +24,72 @@ interface FileUploadProps {
   disabled?: boolean;
   maxFiles?: number;
   maxSizeMB?: number;
+  aiProvider?: AIProvider;  // 用于显示 provider 兼容性提示
+  aiModel?: string;         // 当前选择的模型
+}
+
+/**
+ * Provider 兼容性检查结果
+ */
+export interface ProviderCompatibilityResult {
+  supported: boolean;      // 是否完全支持
+  warning?: string;        // 警告信息（可选）
+  blockSend: boolean;      // 是否阻止发送（true=硬拦截，false=警告但允许）
+}
+
+/**
+ * 检查文件类型是否被当前 AI provider 支持
+ * @exported 供 ChatInterface 使用
+ *
+ * 返回值说明：
+ * - supported: true = 完全支持
+ * - supported: false, blockSend: false = 不支持但允许发送（会有降级处理）
+ * - supported: false, blockSend: true = 完全不支持，阻止发送
+ */
+export function getProviderCompatibility(
+  mimeType: string,
+  provider?: AIProvider,
+  model?: string
+): ProviderCompatibilityResult {
+  // 文本文件总是支持的
+  if (mimeType.startsWith('text/') || mimeType === 'application/json') {
+    return { supported: true, blockSend: false };
+  }
+
+  // 图片文件 - 大多数视觉模型支持
+  if (mimeType.startsWith('image/')) {
+    return { supported: true, blockSend: false };
+  }
+
+  // PDF 文件
+  if (mimeType === 'application/pdf') {
+    // Claude 通过 OpenRouter 支持 PDF
+    if (provider === 'openrouter' && model?.toLowerCase().includes('claude')) {
+      return { supported: true, blockSend: false };
+    }
+    // 其他 provider 不完全支持，但允许发送（会降级处理为文本提示）
+    return {
+      supported: false,
+      blockSend: false,  // PDF 不硬拦截，允许发送
+      warning: provider === 'openrouter'
+        ? 'PDF 需使用 Claude 模型'
+        : 'PDF 文件在当前 AI 不受支持'
+    };
+  }
+
+  // Office 文档 (Excel, PPT, Word) - 完全不支持，硬拦截
+  if (mimeType.includes('spreadsheet') || mimeType.includes('excel') ||
+      mimeType.includes('presentation') || mimeType.includes('powerpoint') ||
+      mimeType.includes('wordprocessing') || mimeType.includes('msword')) {
+    return {
+      supported: false,
+      blockSend: true,  // Office 文档硬拦截
+      warning: 'Office 文档在当前 AI 不受支持，建议导出为文本'
+    };
+  }
+
+  // 未知类型 - 允许发送但显示警告
+  return { supported: false, blockSend: false, warning: '未知文件类型' };
 }
 
 const translations = {
@@ -153,7 +219,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
   files,
   disabled = false,
   maxFiles = 3,
-  maxSizeMB = 10  // Increased for binary files
+  maxSizeMB = 10,  // Increased for binary files
+  aiProvider,
+  aiModel
 }) => {
   const t = translations[lang];
   const inputRef = useRef<HTMLInputElement>(null);
@@ -354,11 +422,17 @@ const FileUpload: React.FC<FileUploadProps> = ({
         <div className="space-y-2">
           {files.map(file => {
             const config = getFileTypeConfig(file.mimeType, file.name);
+            const compat = getProviderCompatibility(file.mimeType, aiProvider, aiModel);
             return (
               <div
                 key={file.id}
                 className="flex items-start gap-3 p-3 rounded-xl group"
-                style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}
+                style={{
+                  backgroundColor: 'var(--color-bg-hover)',
+                  borderWidth: '1px',
+                  borderStyle: 'solid',
+                  borderColor: !compat.supported ? 'rgba(234, 179, 8, 0.3)' : 'var(--color-border)'
+                }}
               >
                 {/* File Icon */}
                 <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-surface)', color: config.color }}>
@@ -372,11 +446,22 @@ const FileUpload: React.FC<FileUploadProps> = ({
                     <span className="text-micro text-muted">{formatSize(file.size)}</span>
                   </div>
                   {file.isBase64 ? (
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-micro px-1.5 py-0.5 rounded" style={{ color: config.color, backgroundColor: 'var(--color-bg-surface)' }}>
-                        {config.label[lang]}
-                      </span>
-                      <span className="text-micro text-muted">{t.analyzing}</span>
+                    <div className="flex flex-col gap-1 mt-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-micro px-1.5 py-0.5 rounded" style={{ color: config.color, backgroundColor: 'var(--color-bg-surface)' }}>
+                          {config.label[lang]}
+                        </span>
+                        {compat.supported ? (
+                          <span className="text-micro text-muted">{t.analyzing}</span>
+                        ) : null}
+                      </div>
+                      {/* Provider 兼容性警告 */}
+                      {!compat.supported && compat.warning && (
+                        <div className="flex items-center gap-1.5 text-micro" style={{ color: 'rgb(234, 179, 8)' }}>
+                          <AlertTriangle size={12} />
+                          <span>{compat.warning}</span>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <>
@@ -415,7 +500,9 @@ export const FileUploadButton: React.FC<{
   files: UploadedFile[];
   disabled?: boolean;
   maxSizeMB?: number;
-}> = ({ lang, onFilesChange, files, disabled, maxSizeMB = 10 }) => {
+  aiProvider?: AIProvider;  // 用于显示 provider 兼容性提示
+  aiModel?: string;         // 当前选择的模型
+}> = ({ lang, onFilesChange, files, disabled, maxSizeMB = 10, aiProvider, aiModel }) => {
   const t = translations[lang];
   const inputRef = useRef<HTMLInputElement>(null);
   const [isParsing, setIsParsing] = useState(false);

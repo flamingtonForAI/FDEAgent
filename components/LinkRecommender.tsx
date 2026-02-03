@@ -242,10 +242,16 @@ const generateRecommendations = (
       const target = objects[j];
 
       // Skip if link already exists
+      // 兼容 source/target 和 sourceId/targetId 两种字段格式
       const linkExists = existingLinks.some(
-        link =>
-          (link.sourceId === source.id && link.targetId === target.id) ||
-          (link.sourceId === target.id && link.targetId === source.id)
+        link => {
+          const linkSource = link.source || (link as any).sourceId;
+          const linkTarget = link.target || (link as any).targetId;
+          return (
+            (linkSource === source.id && linkTarget === target.id) ||
+            (linkSource === target.id && linkTarget === source.id)
+          );
+        }
       );
       if (linkExists) continue;
 
@@ -341,10 +347,10 @@ const LinkRecommender: React.FC<LinkRecommenderProps> = ({
   const handleApply = (rec: RecommendedLink) => {
     const linkKey = `${rec.sourceId}-${rec.targetId}`;
 
+    // 使用标准字段名 source/target（符合 OntologyLink 类型定义）
     onApplyLink({
-      sourceId: rec.sourceId,
-      targetId: rec.targetId,
-      type: rec.relationshipType,
+      source: rec.sourceId,
+      target: rec.targetId,
       label: rec.label
     });
 

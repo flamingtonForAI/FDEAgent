@@ -499,7 +499,7 @@ export class AIService {
       if (file.isBase64) {
         // Binary file - check if it's an image or document
         if (file.mimeType.startsWith('image/')) {
-          // Image - use image_url type
+          // Image - all providers support image_url
           content.push({
             type: 'image_url',
             image_url: {
@@ -507,15 +507,36 @@ export class AIService {
             },
           });
         } else {
-          // PDF/Excel/PPT - some models support via image_url, others need different handling
-          // For Claude via OpenRouter, use file type; for OpenAI, might need conversion
-          // Try the universal approach: send as image_url (works for Claude, GPT-4V)
-          content.push({
-            type: 'image_url',
-            image_url: {
-              url: `data:${file.mimeType};base64,${file.content}`,
-            },
-          });
+          // PDF/Excel/PPT/Word - handle based on provider capabilities
+          // OpenAI 官方 API 不支持通过 image_url 发送文档，会返回 400
+          // Claude 通过 OpenRouter 支持部分文档格式
+          const isOpenRouterClaude = this.settings.provider === 'openrouter' &&
+            this.settings.model.toLowerCase().includes('claude');
+          const isGemini = this.settings.provider === 'gemini';
+
+          if (isOpenRouterClaude && file.mimeType === 'application/pdf') {
+            // Claude 支持 PDF（通过 OpenRouter 的 file 格式）
+            content.push({
+              type: 'file',
+              file: {
+                filename: file.name,
+                file_data: `data:${file.mimeType};base64,${file.content}`,
+              },
+            });
+          } else if (isGemini) {
+            // Gemini 使用 inline_data 格式
+            content.push({
+              type: 'text',
+              text: `[附件: ${file.name}] - 请注意：当前模型可能无法直接读取此文件格式。如需分析文档内容，建议复制文本内容粘贴到对话中。`,
+            });
+          } else {
+            // 其他 provider（OpenAI 官方、智谱、Moonshot 等）不支持文档视觉
+            // 提示用户文件格式不受支持
+            content.push({
+              type: 'text',
+              text: `[附件: ${file.name}]\n⚠️ 当前 AI 模型 (${this.settings.model}) 不支持直接读取 ${file.mimeType} 格式文件。\n建议：\n1. 将文档内容复制为文本粘贴到对话中\n2. 如需文档分析，推荐使用 Claude 模型（通过 OpenRouter）`,
+            });
+          }
         }
       } else {
         // Text file - add as text

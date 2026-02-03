@@ -3,22 +3,31 @@
  * 原型浏览器组件
  *
  * 展示可用的行业原型，支持筛选、搜索和应用
+ * 支持静态原型和导入的原型（AI 生成 / 参考资料）
  */
 
-import React, { useState, useMemo } from 'react';
-import { Language } from '../types';
-import { ArchetypeIndex } from '../types/archetype';
-import { getArchetypeIndexList, getArchetypeById } from '../content/archetypes';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { Language, AISettings } from '../types';
+import { ArchetypeIndex, ArchetypeOriginType } from '../types/archetype';
+import {
+  getArchetypeIndexList,
+  getMergedArchetypeIndexList,
+  deleteImportedArchetype
+} from '../content/archetypes';
 import {
   Package, Search, Filter, Factory, ShoppingCart, Truck,
-  Database, Zap, Clock, CheckCircle, ChevronRight, Layers,
-  GitBranch, Bot, LayoutDashboard, ArrowRight
+  Database, Zap, Clock, ChevronRight,
+  GitBranch, LayoutDashboard, ArrowRight, Plus, Trash2,
+  Heart, Plane, Stethoscope, Wheat, Loader2, Layers, CheckCircle
 } from 'lucide-react';
+import { SourceIndicator } from './SourceBadge';
+import IndustryDiscovery from './IndustryDiscovery';
 
 interface Props {
   lang: Language;
+  aiSettings?: AISettings;
   onSelectArchetype: (archetypeId: string) => void;
-  onApplyArchetype: (archetypeId: string) => void;
+  onApplyArchetype: (archetypeId: string, skipConfirm?: boolean) => void;
 }
 
 const translations = {
@@ -28,6 +37,10 @@ const translations = {
     search: 'Search archetypes...',
     filter: 'Filter',
     allIndustries: 'All Industries',
+    allSources: 'All Sources',
+    sourceBuiltin: 'Built-in',
+    sourceAI: 'AI Generated',
+    sourceRef: 'Reference',
     objects: 'Objects',
     actions: 'Actions',
     connectors: 'Connectors',
@@ -42,6 +55,13 @@ const translations = {
     aiEnabled: 'AI-Enabled',
     erpIntegration: 'ERP Integration',
     iotEnabled: 'IoT Enabled',
+    aiGenerated: 'AI Generated',
+    fromReference: 'From Reference',
+    exploreNew: 'Explore New Industry',
+    delete: 'Delete',
+    deleteConfirm: 'Are you sure you want to delete this archetype?',
+    loading: 'Loading archetypes...',
+    importSuccess: 'Archetype imported! You are now in the Model phase to customize.',
   },
   cn: {
     title: '原型库',
@@ -49,6 +69,10 @@ const translations = {
     search: '搜索原型...',
     filter: '筛选',
     allIndustries: '所有行业',
+    allSources: '所有来源',
+    sourceBuiltin: '内置',
+    sourceAI: 'AI 生成',
+    sourceRef: '参考资料',
     objects: '对象',
     actions: '动作',
     connectors: '连接器',
@@ -63,6 +87,13 @@ const translations = {
     aiEnabled: 'AI赋能',
     erpIntegration: 'ERP集成',
     iotEnabled: 'IoT支持',
+    aiGenerated: 'AI 生成',
+    fromReference: '参考资料',
+    exploreNew: '探索新行业',
+    delete: '删除',
+    deleteConfirm: '确定要删除这个原型吗？',
+    loading: '加载原型中...',
+    importSuccess: '原型已导入！现在进入建模阶段进行定制。',
   }
 };
 
@@ -81,21 +112,70 @@ const industryConfig: Record<string, { icon: React.ReactNode; color: string; lab
     icon: <Truck size={16} />,
     color: 'amber',
     label: { en: 'Logistics', cn: '物流业' }
+  },
+  healthcare: {
+    icon: <Stethoscope size={16} />,
+    color: 'red',
+    label: { en: 'Healthcare', cn: '医疗健康' }
+  },
+  agriculture: {
+    icon: <Wheat size={16} />,
+    color: 'green',
+    label: { en: 'Agriculture', cn: '农业' }
+  },
+  aviation: {
+    icon: <Plane size={16} />,
+    color: 'sky',
+    label: { en: 'Aviation', cn: '航空' }
   }
 };
 
-const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArchetype }) => {
+const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype, onApplyArchetype }) => {
   const t = translations[lang];
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
+  const [selectedSource, setSelectedSource] = useState<ArchetypeOriginType | 'all'>('all');
   const [selectedArchetype, setSelectedArchetype] = useState<string | null>(null);
 
-  const archetypes = useMemo(() => getArchetypeIndexList(), []);
+  // 异步加载状态
+  const [isLoading, setIsLoading] = useState(true);
+  const [archetypes, setArchetypes] = useState<ArchetypeIndex[]>([]);
+
+  // IndustryDiscovery 对话框
+  const [showDiscovery, setShowDiscovery] = useState(false);
+
+  // 导入成功提示
+  const [importSuccessMessage, setImportSuccessMessage] = useState<string | null>(null);
+
+  // 加载原型列表（合并静态 + 导入）
+  const loadArchetypes = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const merged = await getMergedArchetypeIndexList();
+      setArchetypes(merged);
+    } catch (error) {
+      console.error('Failed to load archetypes:', error);
+      // 降级到静态列表
+      setArchetypes(getArchetypeIndexList());
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadArchetypes();
+  }, [loadArchetypes]);
 
   const filteredArchetypes = useMemo(() => {
     return archetypes.filter(a => {
       // Industry filter
       if (selectedIndustry && a.industry !== selectedIndustry) return false;
+
+      // Source filter
+      if (selectedSource !== 'all') {
+        const originType = a.origin?.type || 'static';
+        if (originType !== selectedSource) return false;
+      }
 
       // Search filter
       if (searchQuery) {
@@ -110,27 +190,63 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
 
       return true;
     });
-  }, [archetypes, selectedIndustry, searchQuery]);
+  }, [archetypes, selectedIndustry, selectedSource, searchQuery]);
 
   const industries = useMemo(() => {
     const set = new Set(archetypes.map(a => a.industry));
     return Array.from(set);
   }, [archetypes]);
 
+  // 删除导入的原型
+  const handleDelete = async (archetypeId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm(t.deleteConfirm)) return;
+
+    const success = await deleteImportedArchetype(archetypeId);
+    if (success) {
+      await loadArchetypes();
+      if (selectedArchetype === archetypeId) {
+        setSelectedArchetype(null);
+      }
+    }
+  };
+
+  // 处理导入完成
+  const handleImported = (archetypeId: string) => {
+    setShowDiscovery(false);
+    loadArchetypes();
+
+    // 显示成功提示（包含方法论引导）
+    setImportSuccessMessage(t.importSuccess);
+    setTimeout(() => setImportSuccessMessage(null), 5000);
+
+    // 自动应用原型，进入建模阶段（跳过确认，因为用户已在导入流程中确认）
+    // 延迟一点确保列表已刷新
+    setTimeout(() => {
+      onApplyArchetype(archetypeId, true);  // skipConfirm=true
+    }, 500);
+  };
+
   const renderArchetypeCard = (archetype: ArchetypeIndex) => {
     const industry = industryConfig[archetype.industry];
     const isSelected = selectedArchetype === archetype.id;
+    const isImported = archetype.origin?.type !== 'static' && archetype.origin?.type !== undefined;
 
     return (
       <div
         key={archetype.id}
-        className={`glass-card rounded-xl p-5 transition-all cursor-pointer ${
+        className={`glass-card rounded-xl p-5 transition-all cursor-pointer relative ${
           isSelected ? 'ring-2 ring-amber-500/50' : 'hover:bg-white/[0.02]'
         }`}
         onClick={() => setSelectedArchetype(isSelected ? null : archetype.id)}
       >
+        {/* Source Indicator (corner badge) - hover shows full origin details */}
+        <div className="absolute top-3 right-3">
+          <SourceIndicator origin={archetype.origin} size={14} lang={lang} />
+        </div>
+
         {/* Header */}
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-4 pr-8">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-accent)' }}>
               {industry?.icon || <Package size={20} />}
@@ -173,12 +289,16 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
                 color: tag === 'ai-enabled' ? 'var(--color-accent-secondary)' :
                        tag === 'erp-integration' ? 'var(--color-accent-secondary)' :
                        tag === 'iot-enabled' ? 'var(--color-success)' :
+                       tag === 'ai-generated' ? 'rgb(192, 132, 252)' :
+                       tag === 'from-reference' ? 'rgb(96, 165, 250)' :
                        'var(--color-text-muted)'
               }}
             >
               {tag === 'ai-enabled' ? t.aiEnabled :
                tag === 'erp-integration' ? t.erpIntegration :
                tag === 'iot-enabled' ? t.iotEnabled :
+               tag === 'ai-generated' ? t.aiGenerated :
+               tag === 'from-reference' ? t.fromReference :
                tag}
             </span>
           ))}
@@ -187,6 +307,16 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
         {/* Actions - shown when selected */}
         {isSelected && (
           <div className="flex gap-2 pt-3 animate-fadeIn" style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--color-border)' }}>
+            {/* Delete button for imported archetypes */}
+            {isImported && (
+              <button
+                onClick={(e) => handleDelete(archetype.id, e)}
+                className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-lg glass-surface text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+                title={t.delete}
+              >
+                <Trash2 size={14} />
+              </button>
+            )}
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -215,16 +345,50 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
 
   return (
     <div className="h-full flex flex-col bg-[var(--color-bg-elevated)]">
+      {/* 导入成功提示 Toast */}
+      {importSuccessMessage && (
+        <div
+          className="fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-fadeIn"
+          style={{
+            backgroundColor: 'var(--color-success)',
+            color: 'white',
+            maxWidth: '400px',
+          }}
+        >
+          <Layers size={18} />
+          <span className="text-sm">{importSuccessMessage}</span>
+          <button
+            onClick={() => setImportSuccessMessage(null)}
+            className="ml-2 opacity-70 hover:opacity-100"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="px-6 py-5" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
-            <Package size={20} style={{ color: 'var(--color-accent)' }} />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
+              <Package size={20} style={{ color: 'var(--color-accent)' }} />
+            </div>
+            <div>
+              <h1 className="text-xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h1>
+              <p className="text-sm text-muted">{t.subtitle}</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h1>
-            <p className="text-sm text-muted">{t.subtitle}</p>
-          </div>
+
+          {/* Explore New Industry Button */}
+          {aiSettings && aiSettings.apiKey && (
+            <button
+              onClick={() => setShowDiscovery(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg btn-gradient text-sm font-medium"
+            >
+              <Plus size={16} />
+              {t.exploreNew}
+            </button>
+          )}
         </div>
       </div>
 
@@ -260,11 +424,31 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
             ))}
           </select>
         </div>
+
+        {/* Source Filter */}
+        <div className="flex items-center gap-2">
+          <select
+            value={selectedSource}
+            onChange={(e) => setSelectedSource(e.target.value as ArchetypeOriginType | 'all')}
+            className="glass-surface rounded-lg px-3 py-2.5 text-sm focus:outline-none"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            <option value="all">{t.allSources}</option>
+            <option value="static">{t.sourceBuiltin}</option>
+            <option value="ai-generated">{t.sourceAI}</option>
+            <option value="reference">{t.sourceRef}</option>
+          </select>
+        </div>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
-        {filteredArchetypes.length === 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center h-full text-muted">
+            <Loader2 size={48} className="mb-4 animate-spin opacity-30" />
+            <p>{t.loading}</p>
+          </div>
+        ) : filteredArchetypes.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-muted">
             <Package size={48} className="mb-4 opacity-30" />
             <p>{t.noResults}</p>
@@ -275,6 +459,16 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, onSelectArchetype, onApplyArc
           </div>
         )}
       </div>
+
+      {/* Industry Discovery Dialog */}
+      {showDiscovery && aiSettings && (
+        <IndustryDiscovery
+          lang={lang}
+          aiSettings={aiSettings}
+          onClose={() => setShowDiscovery(false)}
+          onImported={handleImported}
+        />
+      )}
     </div>
   );
 };

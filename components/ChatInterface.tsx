@@ -1,13 +1,13 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { AIService } from '../services/aiService';
-import { ChatMessage, ProjectState, Language, OntologyObject, OntologyLink, AIPAction } from '../types';
+import { AIService, loadAISettings } from '../services/aiService';
+import { ChatMessage, ProjectState, Language, OntologyObject, OntologyLink, AIPAction, AIProvider } from '../types';
 import { OntologyCase } from '../types/case';
-import { Send, Terminal, Sparkles, AlertCircle, X, Loader2, Scan, PanelRightClose, PanelRightOpen, Lightbulb, FileText, FileSpreadsheet, FileImage, Image, Presentation } from 'lucide-react';
+import { Send, Terminal, Sparkles, AlertCircle, X, Loader2, Scan, PanelRightClose, PanelRightOpen, Lightbulb, FileText, FileSpreadsheet, FileImage, Image, Presentation, AlertTriangle } from 'lucide-react';
 import NounVerbPanel from './NounVerbPanel';
 import CaseRecommendPanel from './CaseRecommendPanel';
 import CaseBrowser from './CaseBrowser';
-import { FileUploadButton, UploadedFile } from './FileUpload';
+import { FileUploadButton, UploadedFile, getProviderCompatibility } from './FileUpload';
 import ReadinessPanel from './ReadinessPanel';
 import { checkReadiness } from '../lib/readinessChecker';
 import SystemDNACard from './SystemDNACard';
@@ -145,6 +145,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   // System DNA detection states
   const [detectedSystems, setDetectedSystems] = useState<DetectedSystem[]>([]);
   const [dismissedSystemIds, setDismissedSystemIds] = useState<Set<string>>(new Set());
+
+  // AI Settings for provider compatibility hints
+  const aiSettings = loadAISettings();
 
   // Handle paste event for images/files
   const handlePaste = async (e: React.ClipboardEvent) => {
@@ -473,11 +476,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     // Add as a link to the project representing the external system connection
     const integrationLink = {
       id: `link_${Date.now()}`,
-      sourceId: 'external_system',
-      targetId: project.objects[0]?.id || '',
-      type: 'integration',
+      source: 'external_system',
+      target: project.objects[0]?.id || '',
       label: `${integration.systemName} - ${integration.mechanism}`,
-      description: `Integration with ${integration.systemName} via ${integration.mechanism}. Data points: ${integration.dataPoints.join(', ')}`
     };
 
     setProject(prev => ({
@@ -524,6 +525,34 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     if (!hasApiKey) {
       onOpenSettings();
       return;
+    }
+
+    // 检查是否有需要硬拦截的文件类型（如 Office 文档）
+    if (uploadedFiles.length > 0) {
+      const blockedFiles = uploadedFiles.filter(file => {
+        const compat = getProviderCompatibility(
+          file.mimeType,
+          aiSettings.provider as AIProvider,
+          aiSettings.model
+        );
+        // 只拦截 blockSend=true 的文件（如 Office 文档）
+        // PDF 等 blockSend=false 的文件允许发送（会有降级处理）
+        return compat.blockSend;
+      });
+
+      if (blockedFiles.length > 0) {
+        const fileNames = blockedFiles.map(f => f.name).join(', ');
+        const errorMessage = lang === 'cn'
+          ? `以下文件类型不受支持，请移除后重试：${fileNames}`
+          : `The following file types are not supported, please remove and retry: ${fileNames}`;
+
+        // 显示错误提示
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: `⚠️ ${errorMessage}`
+        }]);
+        return;
+      }
     }
 
     // Prepare message text
@@ -796,12 +825,19 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   colorClass = 'text-blue-400 bg-blue-500/10 border-blue-500/20';
                 }
 
+                // Check provider compatibility
+                const compat = getProviderCompatibility(
+                  file.mimeType,
+                  aiSettings.provider as AIProvider,
+                  aiSettings.model
+                );
+
                 return (
                   <div
                     key={file.id}
-                    className={`flex items-center gap-3 p-2.5 rounded-lg border ${colorClass}`}
+                    className={`flex items-start gap-3 p-2.5 rounded-lg border ${!compat.supported ? 'border-yellow-500/30' : ''} ${colorClass}`}
                   >
-                    <div className="flex-shrink-0">{icon}</div>
+                    <div className="flex-shrink-0 mt-0.5">{icon}</div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm truncate" style={{ color: 'var(--color-text-primary)' }}>{file.name}</div>
                       <div className="text-micro text-muted">
@@ -812,6 +848,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                           ? ` • ${lang === 'cn' ? 'AI 视觉分析' : 'AI Vision'}`
                           : ` • ${file.content.length.toLocaleString()} ${lang === 'cn' ? '字符' : 'chars'}`}
                       </div>
+                      {/* Provider compatibility warning */}
+                      {!compat.supported && compat.warning && (
+                        <div className="flex items-center gap-1.5 mt-1 text-micro" style={{ color: 'rgb(234, 179, 8)' }}>
+                          <AlertTriangle size={12} />
+                          <span>{compat.warning}</span>
+                        </div>
+                      )}
                     </div>
                     <button
                       onClick={() => setUploadedFiles(prev => prev.filter(f => f.id !== file.id))}
@@ -833,6 +876,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               files={uploadedFiles}
               onFilesChange={setUploadedFiles}
               disabled={!hasApiKey || isLoading}
+              aiProvider={aiSettings.provider as AIProvider}
+              aiModel={aiSettings.model}
             />
 
             <input

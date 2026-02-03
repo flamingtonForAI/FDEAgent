@@ -143,11 +143,31 @@ function analyzeObjects(objects: OntologyObject[]): ReadinessIssue[] {
         suggestion: '考虑添加关键业务操作'
       });
     } else {
-      // 检查 Action 三层定义
+      // 检查 Action 三层定义（使用新的 businessLayer/logicLayer/implementationLayer 结构）
       obj.actions.forEach((action, aidx) => {
-        const hasBusinessLayer = action.description && action.targetObject;
-        const hasLogicLayer = action.preconditions?.length || action.postconditions?.length;
-        const hasImplLayer = action.apiEndpoint || action.agentToolSpec;
+        // 业务层检查：description + businessLayer（或旧的 targetObject 兼容）
+        const hasBusinessLayer = action.description && (
+          action.businessLayer?.targetObject ||
+          action.businessLayer?.description ||
+          (action as any).targetObject  // 兼容旧字段
+        );
+
+        // 逻辑层检查：logicLayer.preconditions/postconditions（或旧字段兼容）
+        const hasLogicLayer = (
+          action.logicLayer?.preconditions?.length ||
+          action.logicLayer?.postconditions?.length ||
+          action.logicLayer?.parameters?.length ||
+          (action as any).preconditions?.length ||  // 兼容旧字段
+          (action as any).postconditions?.length    // 兼容旧字段
+        );
+
+        // 实现层检查：implementationLayer.apiEndpoint/agentToolSpec（或旧字段兼容）
+        const hasImplLayer = (
+          action.implementationLayer?.apiEndpoint ||
+          action.implementationLayer?.agentToolSpec ||
+          (action as any).apiEndpoint ||  // 兼容旧字段
+          (action as any).agentToolSpec   // 兼容旧字段
+        );
 
         if (!hasBusinessLayer) {
           issues.push({
@@ -156,7 +176,7 @@ function analyzeObjects(objects: OntologyObject[]): ReadinessIssue[] {
             category: 'action',
             message: `操作 "${action.name}" 缺少业务层定义`,
             impact: '业务方可能不理解操作含义',
-            suggestion: '添加业务描述和目标对象'
+            suggestion: '添加业务描述（businessLayer）和目标对象'
           });
         }
 
@@ -167,7 +187,7 @@ function analyzeObjects(objects: OntologyObject[]): ReadinessIssue[] {
             category: 'action',
             message: `操作 "${action.name}" 缺少逻辑层定义`,
             impact: '执行条件和结果不明确',
-            suggestion: '添加前置条件和后置条件'
+            suggestion: '添加前置条件和后置条件（logicLayer）'
           });
         }
 

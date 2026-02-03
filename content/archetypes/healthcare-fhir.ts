@@ -1094,22 +1094,23 @@ export const healthcareFHIRArchetype: Archetype = {
     ],
 
     // ============= 关系定义 (Relationships) =============
+    // 使用标准字段: id, source, target, label (符合 OntologyLink 类型定义)
     links: [
-      { sourceId: 'patient', targetId: 'encounter', relation: 'has', description: 'Patient encounters' },
-      { sourceId: 'patient', targetId: 'condition', relation: 'has', description: 'Patient conditions' },
-      { sourceId: 'patient', targetId: 'medication-request', relation: 'has', description: 'Patient medications' },
-      { sourceId: 'patient', targetId: 'observation', relation: 'has', description: 'Patient observations' },
-      { sourceId: 'patient', targetId: 'appointment', relation: 'has', description: 'Patient appointments' },
-      { sourceId: 'patient', targetId: 'care-plan', relation: 'has', description: 'Patient care plans' },
-      { sourceId: 'patient', targetId: 'care-team', relation: 'managed by', description: 'Patient care team' },
-      { sourceId: 'patient', targetId: 'allergy-intolerance', relation: 'has', description: 'Patient allergies' },
-      { sourceId: 'encounter', targetId: 'condition', relation: 'diagnoses', description: 'Encounter diagnoses' },
-      { sourceId: 'encounter', targetId: 'medication-request', relation: 'generates', description: 'Encounter medications' },
-      { sourceId: 'encounter', targetId: 'service-request', relation: 'generates', description: 'Encounter orders' },
-      { sourceId: 'encounter', targetId: 'observation', relation: 'produces', description: 'Encounter observations' },
-      { sourceId: 'service-request', targetId: 'observation', relation: 'results in', description: 'Order results' },
-      { sourceId: 'care-plan', targetId: 'condition', relation: 'addresses', description: 'Care plan conditions' },
-      { sourceId: 'care-team', targetId: 'care-plan', relation: 'manages', description: 'Team care plans' }
+      { id: 'link-patient-encounter', source: 'patient', target: 'encounter', label: 'has' },
+      { id: 'link-patient-condition', source: 'patient', target: 'condition', label: 'has' },
+      { id: 'link-patient-medication', source: 'patient', target: 'medication-request', label: 'has' },
+      { id: 'link-patient-observation', source: 'patient', target: 'observation', label: 'has' },
+      { id: 'link-patient-appointment', source: 'patient', target: 'appointment', label: 'has' },
+      { id: 'link-patient-careplan', source: 'patient', target: 'care-plan', label: 'has' },
+      { id: 'link-patient-careteam', source: 'patient', target: 'care-team', label: 'managed by' },
+      { id: 'link-patient-allergy', source: 'patient', target: 'allergy-intolerance', label: 'has' },
+      { id: 'link-encounter-condition', source: 'encounter', target: 'condition', label: 'diagnoses' },
+      { id: 'link-encounter-medication', source: 'encounter', target: 'medication-request', label: 'generates' },
+      { id: 'link-encounter-service', source: 'encounter', target: 'service-request', label: 'generates' },
+      { id: 'link-encounter-observation', source: 'encounter', target: 'observation', label: 'produces' },
+      { id: 'link-service-observation', source: 'service-request', target: 'observation', label: 'results in' },
+      { id: 'link-careplan-condition', source: 'care-plan', target: 'condition', label: 'addresses' },
+      { id: 'link-careteam-careplan', source: 'care-team', target: 'care-plan', label: 'manages' }
     ]
   },
 

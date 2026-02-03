@@ -5,10 +5,10 @@
  * 展示 Archetype 的完整三层架构（Semantic/Kinetic/Dynamic）+ AI 能力叠加详情
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Language } from '../types';
 import { Archetype } from '../types/archetype';
-import { getArchetypeById } from '../content/archetypes';
+import { getArchetypeById, getMergedArchetypeById } from '../content/archetypes';
 import {
   ArrowLeft, Package, Database, GitBranch, Zap, Bot, LayoutDashboard,
   Layers, FileJson, Clock, Users, CheckCircle, AlertTriangle,
@@ -132,7 +132,48 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['objects', 'connectors', 'workflows']));
 
-  const archetype = useMemo(() => getArchetypeById(archetypeId), [archetypeId]);
+  // 状态：支持静态和导入的原型
+  const [archetype, setArchetype] = useState<Archetype | null | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 异步加载原型（支持静态和导入的）
+  useEffect(() => {
+    let mounted = true;
+    setIsLoading(true);
+
+    const loadArchetype = async () => {
+      // 先尝试同步获取静态原型
+      const staticArchetype = getArchetypeById(archetypeId);
+      if (staticArchetype) {
+        if (mounted) {
+          setArchetype(staticArchetype);
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      // 尝试异步获取导入的原型
+      try {
+        const mergedArchetype = await getMergedArchetypeById(archetypeId);
+        if (mounted) {
+          setArchetype(mergedArchetype || null);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to load archetype:', error);
+        if (mounted) {
+          setArchetype(null);
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadArchetype();
+
+    return () => {
+      mounted = false;
+    };
+  }, [archetypeId]);
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => {
@@ -145,6 +186,17 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
       return next;
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center bg-[var(--color-bg-elevated)]">
+        <div className="text-center text-muted">
+          <Package size={48} className="mx-auto mb-4 opacity-30 animate-pulse" />
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!archetype) {
     return (

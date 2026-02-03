@@ -109,12 +109,24 @@ export interface OntologyLink {
   isSemantic?: boolean;
 }
 
+// 用户提出的智能化需求
+export interface AIRequirement {
+  id: string;
+  description: string;           // 需求描述
+  extractedFrom: string;         // 从哪段对话提取
+  relatedObjects?: string[];     // 关联的 Object IDs
+  relatedActions?: string[];     // 关联的 Action 名称
+  status: 'identified' | 'validated' | 'implemented' | 'blocked';
+  blockedReason?: string;        // 如果被阻塞，原因是什么
+}
+
 export interface ProjectState {
   industry: string;
   useCase: string;
   objects: OntologyObject[];
   links: OntologyLink[];
   integrations: ExternalIntegration[];
+  aiRequirements: AIRequirement[];  // 用户提出的智能化需求
   status: 'scouting' | 'designing' | 'completed';
 }
 

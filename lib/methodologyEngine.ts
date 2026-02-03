@@ -101,15 +101,22 @@ const objectsHaveSufficientDetail = (project: ProjectState): boolean => {
   return detailedObjects.length >= project.objects.length * 0.7; // 70% threshold
 };
 
-// Check if actions are properly defined
+// Check if actions are properly defined (compatible with both old and new three-layer structure)
 const actionsAreProperyDefined = (project: ProjectState): boolean => {
   const allActions = project.objects.flatMap(obj => obj.actions || []);
   if (allActions.length === 0) return false;
 
-  const definedActions = allActions.filter(action =>
-    action.description && action.description.length >= 10 &&
-    action.businessLayer?.targetObject
-  );
+  const definedActions = allActions.filter(action => {
+    // Check description (top-level or in businessLayer)
+    const hasDescription = (action.description && action.description.length >= 10) ||
+      (action.businessLayer?.description && action.businessLayer.description.length >= 10);
+
+    // Check target object (new structure or old field)
+    const hasTargetObject = action.businessLayer?.targetObject ||
+      (action as any).targetObject;
+
+    return hasDescription && hasTargetObject;
+  });
 
   return definedActions.length >= allActions.length * 0.5;
 };

@@ -482,6 +482,41 @@ export interface Archetype {
   };
 }
 
+// ============= Archetype Origin - 原型来源追踪 =============
+
+/**
+ * 原型来源类型
+ * - static: 内置静态原型（随代码发布）
+ * - reference: 从网络参考资料解析生成
+ * - ai-generated: 由 AI 完全生成
+ */
+export type ArchetypeOriginType = 'static' | 'reference' | 'ai-generated';
+
+/**
+ * 原型来源信息
+ * 用于追踪原型的产生方式和可信度
+ */
+export interface ArchetypeOrigin {
+  type: ArchetypeOriginType;
+
+  // === reference 类型专用字段 ===
+  sourceUrl?: string;        // 参考资料 URL
+  sourceName?: string;       // 参考资料名称
+  fetchDate?: string;        // 获取日期 (ISO 8601)
+
+  // === ai-generated 类型专用字段 ===
+  generationDate?: string;   // 生成日期 (ISO 8601)
+  modelUsed?: string;        // 使用的 AI 模型
+  confidence?: number;       // AI 置信度 (0-1)
+  promptVersion?: string;    // 使用的 prompt 版本
+
+  // === 通用字段 ===
+  userInput?: {              // 用户输入的原始信息
+    industryName: string;
+    description?: string;
+  };
+}
+
 /**
  * Archetype 目录索引
  */
@@ -513,4 +548,7 @@ export interface ArchetypeIndex {
 
   // 缩略图
   thumbnail?: string;
+
+  // 来源信息（用于区分内置 vs 导入的原型）
+  origin?: ArchetypeOrigin;
 }

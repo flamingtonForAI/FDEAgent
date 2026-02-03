@@ -857,17 +857,18 @@ export const retailOmnichannelArchetype: Archetype = {
     ],
 
     // ============= 关系定义 (Relationships) =============
+    // 使用标准字段: id, source, target, label (符合 OntologyLink 类型定义)
     links: [
-      { sourceId: 'product', targetId: 'inventory-position', relation: 'has inventory at', description: 'Product inventory positions' },
-      { sourceId: 'location', targetId: 'inventory-position', relation: 'holds', description: 'Location inventory' },
-      { sourceId: 'customer', targetId: 'order', relation: 'places', description: 'Customer orders' },
-      { sourceId: 'order', targetId: 'product', relation: 'contains', description: 'Order line items' },
-      { sourceId: 'order', targetId: 'location', relation: 'fulfilled by', description: 'Order fulfillment location' },
-      { sourceId: 'promotion', targetId: 'product', relation: 'applies to', description: 'Promotion eligible products' },
-      { sourceId: 'supplier', targetId: 'product', relation: 'supplies', description: 'Supplier product catalog' },
-      { sourceId: 'purchase-order', targetId: 'supplier', relation: 'sent to', description: 'PO supplier' },
-      { sourceId: 'purchase-order', targetId: 'product', relation: 'orders', description: 'PO line items' },
-      { sourceId: 'store-task', targetId: 'location', relation: 'at', description: 'Task location' }
+      { id: 'link-product-inventory', source: 'product', target: 'inventory-position', label: 'has inventory at' },
+      { id: 'link-location-inventory', source: 'location', target: 'inventory-position', label: 'holds' },
+      { id: 'link-customer-order', source: 'customer', target: 'order', label: 'places' },
+      { id: 'link-order-product', source: 'order', target: 'product', label: 'contains' },
+      { id: 'link-order-location', source: 'order', target: 'location', label: 'fulfilled by' },
+      { id: 'link-promotion-product', source: 'promotion', target: 'product', label: 'applies to' },
+      { id: 'link-supplier-product', source: 'supplier', target: 'product', label: 'supplies' },
+      { id: 'link-po-supplier', source: 'purchase-order', target: 'supplier', label: 'sent to' },
+      { id: 'link-po-product', source: 'purchase-order', target: 'product', label: 'orders' },
+      { id: 'link-task-location', source: 'store-task', target: 'location', label: 'at' }
     ]
   },
 

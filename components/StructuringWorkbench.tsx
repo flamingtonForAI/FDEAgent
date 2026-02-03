@@ -327,15 +327,14 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
   };
 
   // Handle applying a recommended link
-  const handleApplyLink = (link: Omit<OntologyLink, 'id'>) => {
+  // 兼容 source/target 和 sourceId/targetId 两种输入格式
+  const handleApplyLink = (link: Omit<OntologyLink, 'id'> & { sourceId?: string; targetId?: string }) => {
     if (!setProject) return;
     const newLink: OntologyLink = {
       id: `link_${Date.now()}`,
-      source: link.sourceId,
-      target: link.targetId,
-      sourceId: link.sourceId,
-      targetId: link.targetId,
-      type: link.type || 'reference',
+      // 优先使用标准字段 source/target，回退到 sourceId/targetId
+      source: link.source || link.sourceId || '',
+      target: link.target || link.targetId || '',
       label: link.label || ''
     };
     setProject(prev => ({

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { AIService, loadAISettings, loadAISettingsAsync, saveAISettings } from './services/aiService';
 import { AnalysisResult } from './services/aiAnalysisService';
 import { ProjectState, ChatMessage, OntologyObject, OntologyLink, Language, AISettings, AI_PROVIDERS } from './types';
-import ChatInterface from './components/ChatInterface';
+import ChatMessagesPanel from './components/ChatMessagesPanel';
 import OntologyModeler from './components/OntologyModeler';
 import SystemIntegration from './components/SystemIntegration';
 import AIEnhancement from './components/AIEnhancement';
@@ -13,7 +13,8 @@ import QualityPanel from './components/QualityPanel';
 import ArchetypeBrowser from './components/ArchetypeBrowser';
 import ArchetypeViewer from './components/ArchetypeViewer';
 import QuickStart from './components/QuickStart';
-import { getArchetypeById } from './content/archetypes';
+import GlobalChatBar from './components/GlobalChatBar';
+import { getMergedArchetypeById } from './content/archetypes';
 import { LayoutDashboard, MessageSquare, Database, Zap, Languages, Network, Settings as SettingsIcon, RotateCcw, PenTool, Sparkles, GraduationCap, ShieldCheck, X, Package, ClipboardList, Rocket } from 'lucide-react';
 import { ThemeSwitcher } from './components/ui';
 import { Theme, loadSavedTheme, applyTheme } from './lib/themes';
@@ -143,6 +144,7 @@ const loadProjectState = (): ProjectState => {
     objects: [],
     links: [],
     integrations: [],
+    aiRequirements: [],
     status: 'scouting'
   };
 };
@@ -200,6 +202,33 @@ const App: React.FC = () => {
 
   // AI 分析结果状态（持久化跨标签页）
   const [aiAnalysisResult, setAiAnalysisResult] = useState<AnalysisResult | null>(null);
+
+  // 全局聊天栏状态
+  const [isChatExpanded, setIsChatExpanded] = useState(false);
+  const [isChatLoading, setIsChatLoading] = useState(false);
+
+  // 将 activeTab 映射到 phase 类型
+  const getCurrentPhase = useCallback((): 'discover' | 'model' | 'integrate' | 'enhance' => {
+    switch (activeTab) {
+      case 'scouting':
+      case 'quickStart':
+      case 'academy':
+      case 'archetypes':
+        return 'discover';
+      case 'workbench':
+      case 'ontology':
+      case 'actionDesigner':
+        return 'model';
+      case 'systemMap':
+      case 'overview':
+        return 'integrate';
+      case 'aiEnhancement':
+      case 'aip':
+        return 'enhance';
+      default:
+        return 'discover';
+    }
+  }, [activeTab]);
 
   // Apply theme on mount
   useEffect(() => {
@@ -406,11 +435,16 @@ const App: React.FC = () => {
     setActiveTab('archetypeViewer');
   }, []);
 
-  const handleApplyArchetype = useCallback((archetypeId: string) => {
-    if (!window.confirm(t.applyArchetype)) return;
+  const handleApplyArchetype = useCallback(async (archetypeId: string, skipConfirm = false) => {
+    // 跳过确认（用于导入后自动应用）或显示确认对话框
+    if (!skipConfirm && !window.confirm(t.applyArchetype)) return;
 
-    const archetype = getArchetypeById(archetypeId);
-    if (!archetype) return;
+    // 使用异步方法获取原型（支持静态和导入的原型）
+    const archetype = await getMergedArchetypeById(archetypeId);
+    if (!archetype) {
+      console.error('Archetype not found:', archetypeId);
+      return;
+    }
 
     // Convert archetype ontology to project format
     const objects = archetype.ontology.objects.map(obj => ({
@@ -606,6 +640,7 @@ const App: React.FC = () => {
           {activeTab === 'archetypes' && (
             <ArchetypeBrowser
               lang={lang}
+              aiSettings={aiSettings}
               onSelectArchetype={handleSelectArchetype}
               onApplyArchetype={handleApplyArchetype}
             />
@@ -619,18 +654,14 @@ const App: React.FC = () => {
             />
           )}
           {activeTab === 'scouting' && (
-            <ChatInterface
+            <ChatMessagesPanel
               lang={lang}
-              onDesignTrigger={triggerAutoDesign}
-              project={project}
-              setProject={setProject}
-              historyRef={chatHistoryRef}
-              aiService={aiService.current}
-              hasApiKey={!!aiSettings.apiKey}
-              onOpenSettings={() => setShowSettings(true)}
               messages={chatMessages}
-              setMessages={setChatMessages}
-              onNavigate={setActiveTab}
+              project={project}
+              isLoading={isChatLoading}
+              hasApiKey={!!aiSettings.apiKey}
+              onDesignTrigger={triggerAutoDesign}
+              onOpenSettings={() => setShowSettings(true)}
             />
           )}
           {/* Phase 2: Ontology Modeling */}
@@ -711,6 +742,25 @@ const App: React.FC = () => {
           settings={aiSettings}
           onSettingsChange={handleSettingsChange}
           onClose={() => setShowSettings(false)}
+        />
+      )}
+
+      {/* Global Chat Bar - 底部固定聊天栏，所有工作流阶段显示 */}
+      {(activeTab === 'scouting' || activeTab === 'workbench' || activeTab === 'ontology' || activeTab === 'actionDesigner' || activeTab === 'systemMap' || activeTab === 'overview' || activeTab === 'aiEnhancement' || activeTab === 'aip') && (
+        <GlobalChatBar
+          lang={lang}
+          project={project}
+          setProject={setProject}
+          aiSettings={aiSettings}
+          aiService={aiService.current}
+          currentPhase={getCurrentPhase()}
+          chatMessages={chatMessages}
+          setChatMessages={setChatMessages}
+          isExpanded={isChatExpanded}
+          onToggleExpand={() => setIsChatExpanded(!isChatExpanded)}
+          messagesInMainArea={activeTab === 'scouting'}
+          onLoadingChange={setIsChatLoading}
+          historyRef={chatHistoryRef}
         />
       )}
     </div>
