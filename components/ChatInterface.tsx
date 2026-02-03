@@ -26,7 +26,7 @@ interface ExtractedVerb {
   confidence: number;
 }
 
-type NavigableTab = 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview';
+type NavigableTab = 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aiEnhancement' | 'overview';
 
 interface ChatInterfaceProps {
   lang: Language;

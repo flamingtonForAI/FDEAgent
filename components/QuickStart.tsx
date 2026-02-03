@@ -2,7 +2,7 @@ import React from 'react';
 import { ProjectState } from '../types';
 import { GraduationCap, Package, MessageSquare, ArrowRight, Database, Zap, Link2, ClipboardList, PenTool, LayoutDashboard, CheckCircle2 } from 'lucide-react';
 
-type NavigableTab = 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'overview';
+type NavigableTab = 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aiEnhancement' | 'overview';
 
 interface QuickStartProps {
   lang: 'en' | 'cn';
@@ -26,13 +26,13 @@ const translations = {
     conversationalAction: "Start Scouting",
     designFlow: "Ontology Design Flow",
     stepDiscovery: "Discovery",
-    stepStructure: "Structure",
-    stepRefine: "Refine",
-    stepDeliver: "Deliver",
-    phaseRequirement: "Requirement Scouting",
-    phaseStructuring: "Structuring Workbench",
-    phaseActionDesign: "Action Designer",
-    phaseDeployment: "System Blueprint",
+    stepModeling: "Modeling",
+    stepIntegration: "Integration",
+    stepAIDesign: "AI Design",
+    phaseDiscovery: "Requirement Scouting",
+    phaseModeling: "Ontology Modeling",
+    phaseIntegration: "Data Sources",
+    phaseAIDesign: "AI Enhancement",
     currentProject: "Current Project Status",
     objects: "Objects",
     actions: "Actions",
@@ -41,9 +41,9 @@ const translations = {
     noProject: "No project yet",
     noProjectDesc: "Start by choosing a path above to begin your ontology design journey.",
     nextStep: "Recommended Next Step",
-    goToWorkbench: "Complete object definitions",
-    goToActionDesigner: "Design your actions",
-    goToBlueprint: "Review system blueprint",
+    goToWorkbench: "Model your ontology",
+    goToIntegration: "Plan data integration",
+    goToAIDesign: "Design AI capabilities",
     goToOntology: "View ontology diagram",
     clickToNavigate: "Click to navigate",
   },
@@ -62,13 +62,13 @@ const translations = {
     conversationalAction: "开始勘察",
     designFlow: "Ontology 设计流程",
     stepDiscovery: "发现",
-    stepStructure: "整理",
-    stepRefine: "细化",
-    stepDeliver: "交付",
-    phaseRequirement: "需求勘察",
-    phaseStructuring: "结构化工作台",
-    phaseActionDesign: "Action 设计器",
-    phaseDeployment: "系统蓝图",
+    stepModeling: "建模",
+    stepIntegration: "集成",
+    stepAIDesign: "智能化",
+    phaseDiscovery: "需求勘察",
+    phaseModeling: "本体建模",
+    phaseIntegration: "数据源对接",
+    phaseAIDesign: "AI 增强设计",
     currentProject: "当前项目状态",
     objects: "对象",
     actions: "动作",
@@ -77,9 +77,9 @@ const translations = {
     noProject: "暂无项目",
     noProjectDesc: "从上方选择一条路径，开始您的 Ontology 设计之旅。",
     nextStep: "建议下一步",
-    goToWorkbench: "完善对象定义",
-    goToActionDesigner: "设计业务动作",
-    goToBlueprint: "查看系统蓝图",
+    goToWorkbench: "本体建模",
+    goToIntegration: "规划数据集成",
+    goToAIDesign: "设计 AI 能力",
     goToOntology: "查看本体图",
     clickToNavigate: "点击跳转",
   }
@@ -101,13 +101,17 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
   );
 
   // Determine current phase and next step based on project state
+  // Phase 0: Not started, Phase 1: Discovery, Phase 2: Modeling, Phase 3: Integration, Phase 4: AI Design
   const getCurrentPhase = (): number => {
-    if (!hasProject) return 0; // Not started
-    // If objects exist but are incomplete, stay in structure phase
+    if (!hasProject) return 0; // Not started - Discovery phase
+    // If objects exist but need structure (missing descriptions/properties), stay in modeling
     if (objectsNeedStructure) return 1;
-    if (actionCount === 0) return 1; // Has objects but no actions -> Structure phase
-    if (linkCount === 0) return 2; // Has actions but no links -> Refine phase
-    return 3; // Has everything -> Deliver phase
+    // If no actions defined, continue modeling
+    if (actionCount === 0) return 1;
+    // If no links and have actions, move to integration phase
+    if (linkCount === 0) return 2;
+    // Has everything basic, move to AI design phase
+    return 3;
   };
 
   const getNextStepInfo = (): { tab: NavigableTab; label: string; icon: React.ReactNode } => {
@@ -119,9 +123,9 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
       return { tab: 'workbench', label: t.goToWorkbench, icon: <ClipboardList size={16} /> };
     }
     if (phase === 2) {
-      return { tab: 'actionDesigner', label: t.goToActionDesigner, icon: <PenTool size={16} /> };
+      return { tab: 'systemMap', label: t.goToIntegration, icon: <Database size={16} /> };
     }
-    return { tab: 'overview', label: t.goToBlueprint, icon: <LayoutDashboard size={16} /> };
+    return { tab: 'aiEnhancement', label: t.goToAIDesign, icon: <Zap size={16} /> };
   };
 
   const currentPhase = getCurrentPhase();
@@ -158,10 +162,10 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
   ];
 
   const flowSteps: Array<{ label: string; phase: string; tab: NavigableTab; icon: React.ReactNode }> = [
-    { label: t.stepDiscovery, phase: t.phaseRequirement, tab: 'scouting', icon: <MessageSquare size={14} /> },
-    { label: t.stepStructure, phase: t.phaseStructuring, tab: 'workbench', icon: <ClipboardList size={14} /> },
-    { label: t.stepRefine, phase: t.phaseActionDesign, tab: 'actionDesigner', icon: <PenTool size={14} /> },
-    { label: t.stepDeliver, phase: t.phaseDeployment, tab: 'overview', icon: <LayoutDashboard size={14} /> },
+    { label: t.stepDiscovery, phase: t.phaseDiscovery, tab: 'scouting', icon: <MessageSquare size={14} /> },
+    { label: t.stepModeling, phase: t.phaseModeling, tab: 'workbench', icon: <ClipboardList size={14} /> },
+    { label: t.stepIntegration, phase: t.phaseIntegration, tab: 'systemMap', icon: <Database size={14} /> },
+    { label: t.stepAIDesign, phase: t.phaseAIDesign, tab: 'aiEnhancement', icon: <Zap size={14} /> },
   ];
 
   return (

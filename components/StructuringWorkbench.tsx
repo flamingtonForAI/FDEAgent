@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Language, ProjectState, OntologyObject, OntologyLink } from '../types';
+import React, { useState, useMemo, useCallback } from 'react';
+import { Language, ProjectState, OntologyObject, OntologyLink, AIPAction } from '../types';
 import {
   Box,
   Zap,
@@ -23,6 +23,9 @@ import {
   ArrowRight
 } from 'lucide-react';
 import LinkRecommender from './LinkRecommender';
+import ObjectEditor from './ObjectEditor';
+import LinkEditor from './LinkEditor';
+import ActionDesigner from './ActionDesigner';
 
 interface StructuringWorkbenchProps {
   lang: Language;
@@ -215,6 +218,12 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
   );
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  // Editing state
+  const [editingObject, setEditingObject] = useState<OntologyObject | null>(null);
+  const [editingLink, setEditingLink] = useState<OntologyLink | null>(null);
+  const [showActionDesigner, setShowActionDesigner] = useState(false);
+  const [selectedActionInfo, setSelectedActionInfo] = useState<{ objectId: string; actionIndex: number } | null>(null);
+
   // 点击统计栏切换筛选
   const handleFilterClick = (filter: FilterType) => {
     if (activeFilter === filter) {
@@ -244,23 +253,10 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
     const allActions = objects.flatMap(o => o.actions || []);
     const links = project.links || [];
 
-    const objectScores = objects.map(o => calculateObjectCompleteness(o).score);
-    const avgObjectScore = objectScores.length
-      ? Math.round(objectScores.reduce((a, b) => a + b, 0) / objectScores.length)
-      : 0;
-
-    const actionScores = allActions.map(a => calculateActionCompleteness(a).score);
-    const avgActionScore = actionScores.length
-      ? Math.round(actionScores.reduce((a, b) => a + b, 0) / actionScores.length)
-      : 0;
-
     return {
       objectCount: objects.length,
       actionCount: allActions.length,
       linkCount: links.length,
-      avgObjectScore,
-      avgActionScore,
-      overallScore: Math.round((avgObjectScore + avgActionScore) / 2) || 0
     };
   }, [project]);
 
@@ -354,6 +350,111 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
     setDismissedLinks(prev => new Set([...prev, `${sourceId}-${targetId}`]));
   };
 
+  // === Object Editing ===
+  const handleEditObject = useCallback((objectId: string) => {
+    const obj = project.objects?.find(o => o.id === objectId);
+    if (obj) {
+      setEditingObject({ ...obj });
+    }
+  }, [project.objects]);
+
+  const handleAddObject = useCallback(() => {
+    const newObject: OntologyObject = {
+      id: `obj_${Date.now()}`,
+      name: '',
+      description: '',
+      properties: [],
+      actions: [],
+    };
+    setEditingObject(newObject);
+  }, []);
+
+  const handleSaveObject = useCallback((updated: OntologyObject) => {
+    if (!setProject) return;
+    setProject(prev => {
+      const exists = prev.objects.some(o => o.id === updated.id);
+      if (exists) {
+        return {
+          ...prev,
+          objects: prev.objects.map(o => o.id === updated.id ? updated : o)
+        };
+      } else {
+        return {
+          ...prev,
+          objects: [...prev.objects, updated]
+        };
+      }
+    });
+    setEditingObject(null);
+  }, [setProject]);
+
+  // === Link Editing ===
+  const handleEditLink = useCallback((link: OntologyLink) => {
+    setEditingLink({ ...link });
+  }, []);
+
+  const handleAddLink = useCallback(() => {
+    const newLink: OntologyLink = {
+      id: '',
+      source: '',
+      target: '',
+      label: '',
+      isSemantic: true,
+    };
+    setEditingLink(newLink);
+  }, []);
+
+  const handleSaveLink = useCallback((updated: OntologyLink) => {
+    if (!setProject) return;
+    setProject(prev => {
+      const exists = prev.links.some(l => l.id === updated.id);
+      if (exists) {
+        return {
+          ...prev,
+          links: prev.links.map(l => l.id === updated.id ? updated : l)
+        };
+      } else {
+        return {
+          ...prev,
+          links: [...prev.links, updated]
+        };
+      }
+    });
+    setEditingLink(null);
+  }, [setProject]);
+
+  const handleDeleteLink = useCallback((linkId: string) => {
+    if (!setProject) return;
+    setProject(prev => ({
+      ...prev,
+      links: prev.links.filter(l => l.id !== linkId)
+    }));
+    setEditingLink(null);
+  }, [setProject]);
+
+  // === Action Editing ===
+  const handleEditAction = useCallback((objectId: string, actionIndex: number) => {
+    setSelectedActionInfo({ objectId, actionIndex });
+    setShowActionDesigner(true);
+  }, []);
+
+  const handleUpdateAction = useCallback((objectId: string, actionIndex: number, updatedAction: AIPAction) => {
+    if (!setProject) return;
+    setProject(prev => ({
+      ...prev,
+      objects: prev.objects.map(obj =>
+        obj.id === objectId
+          ? {
+              ...obj,
+              actions: obj.actions.map((action, idx) =>
+                idx === actionIndex ? updatedAction : action
+              )
+            }
+          : obj
+      )
+    }));
+  }, [setProject]);
+
   return (
     <div className="h-full flex flex-col" style={{ backgroundColor: 'var(--color-bg-elevated)' }}>
       {/* Header */}
@@ -388,12 +489,11 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
         </div>
 
         {/* Stats bar - clickable to filter */}
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {[
             { icon: Box, label: t.objects, value: stats.objectCount, color: 'var(--color-accent)', filter: 'objects' as FilterType },
             { icon: Zap, label: t.actions, value: stats.actionCount, color: 'var(--color-success)', filter: 'actions' as FilterType },
             { icon: Link2, label: t.links, value: stats.linkCount, color: 'var(--color-warning)', filter: 'links' as FilterType },
-            { icon: CheckCircle2, label: t.completeness, value: `${stats.overallScore}%`, color: stats.overallScore >= 70 ? 'var(--color-success)' : 'var(--color-warning)', filter: null }
           ].map((stat, i) => (
             <button
               key={i}
@@ -553,7 +653,7 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
           count={stats.objectCount}
           isExpanded={expandedSections.has('objects') || activeFilter === 'objects'}
           onToggle={() => toggleSection('objects')}
-          onAdd={onAddObject}
+          onAdd={setProject ? handleAddObject : undefined}
           color="var(--color-accent)"
           lang={lang}
         >
@@ -570,7 +670,8 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
                     completeness={completeness}
                     viewMode={viewMode}
                     lang={lang}
-                    onEdit={() => onEditObject?.(obj.id)}
+                    onEdit={() => handleEditObject(obj.id)}
+                    onClick={() => handleEditObject(obj.id)}
                     onCopy={() => copyToClipboard(JSON.stringify(obj, null, 2), obj.id)}
                     isCopied={copiedId === obj.id}
                     t={t}
@@ -605,9 +706,12 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
                       key={`${obj.id}-${idx}`}
                       action={action}
                       parentObject={obj.name}
+                      objectId={obj.id}
+                      actionIndex={idx}
                       completeness={completeness}
                       viewMode={viewMode}
                       lang={lang}
+                      onClick={() => handleEditAction(obj.id, idx)}
                       t={t}
                     />
                   );
@@ -626,20 +730,22 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
             count={stats.linkCount}
             isExpanded={expandedSections.has('links') || activeFilter === 'links'}
             onToggle={() => toggleSection('links')}
+            onAdd={setProject ? handleAddLink : undefined}
             color="var(--color-warning)"
             lang={lang}
           >
             {stats.linkCount === 0 ? (
-              <EmptyState message={t.noLinks} />
+              <EmptyState message={t.noLinks} onAdd={setProject ? handleAddLink : undefined} addLabel={lang === 'cn' ? '添加关联' : 'Add Link'} />
             ) : (
               <div className="space-y-1">
                 {project.links?.map((link, i) => {
                   const sourceName = project.objects.find(o => o.id === link.source)?.name || link.source;
                   const targetName = project.objects.find(o => o.id === link.target)?.name || link.target;
                   return (
-                    <div
-                      key={i}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm"
+                    <button
+                      key={link.id || i}
+                      onClick={() => handleEditLink(link)}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/5"
                       style={{ backgroundColor: 'var(--color-bg-surface)' }}
                     >
                       <span style={{ color: 'var(--color-text-primary)' }}>{sourceName}</span>
@@ -651,7 +757,8 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
                       >
                         {link.label || '-'}
                       </span>
-                    </div>
+                      <Edit3 className="w-3.5 h-3.5" style={{ color: 'var(--color-text-muted)' }} />
+                    </button>
                   );
                 })}
               </div>
@@ -669,6 +776,58 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
           />
         )}
       </div>
+
+      {/* Object Editor Modal */}
+      {editingObject && (
+        <ObjectEditor
+          lang={lang}
+          object={editingObject}
+          onSave={handleSaveObject}
+          onClose={() => setEditingObject(null)}
+        />
+      )}
+
+      {/* Link Editor Modal */}
+      {editingLink && (
+        <LinkEditor
+          lang={lang}
+          link={editingLink}
+          objects={project.objects || []}
+          onSave={handleSaveLink}
+          onClose={() => setEditingLink(null)}
+          onDelete={editingLink.id ? () => handleDeleteLink(editingLink.id) : undefined}
+        />
+      )}
+
+      {/* Action Designer Modal */}
+      {showActionDesigner && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
+          <div
+            className="w-full max-w-5xl max-h-[90vh] rounded-xl overflow-hidden flex flex-col"
+            style={{ backgroundColor: 'var(--color-bg-elevated)', border: '1px solid var(--color-border)' }}
+          >
+            <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+              <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                {lang === 'cn' ? 'Action 三层设计' : 'Action Designer'}
+              </h2>
+              <button
+                onClick={() => setShowActionDesigner(false)}
+                className="p-2 rounded-lg transition-colors hover:bg-white/10"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <ActionDesigner
+                lang={lang}
+                objects={project.objects || []}
+                onUpdateAction={handleUpdateAction}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -754,15 +913,17 @@ const ObjectCard: React.FC<{
   viewMode: ViewMode;
   lang: Language;
   onEdit?: () => void;
+  onClick?: () => void;
   onCopy: () => void;
   isCopied: boolean;
   t: typeof translations.cn;
-}> = ({ object, completeness, viewMode, onEdit, onCopy, isCopied, t }) => {
+}> = ({ object, completeness, viewMode, onEdit, onClick, onCopy, isCopied, t }) => {
   // Cards view: compact summary
   if (viewMode === 'cards') {
     return (
-      <div
-        className="p-3 rounded-lg border text-center"
+      <button
+        onClick={onClick}
+        className="p-3 rounded-lg border text-center w-full transition-all hover:scale-[1.02] hover:border-[var(--color-accent)]"
         style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-elevated)' }}
       >
         <Box className="w-6 h-6 mx-auto mb-2" style={{ color: 'var(--color-accent)' }} />
@@ -781,7 +942,7 @@ const ObjectCard: React.FC<{
         >
           {completeness.score}%
         </div>
-      </div>
+      </button>
     );
   }
 
@@ -894,16 +1055,20 @@ const ObjectCard: React.FC<{
 const ActionCard: React.FC<{
   action: any;
   parentObject: string;
+  objectId?: string;
+  actionIndex?: number;
   completeness: { business: boolean; logic: boolean; impl: boolean; score: number };
   viewMode: ViewMode;
   lang: Language;
+  onClick?: () => void;
   t: typeof translations.cn;
-}> = ({ action, parentObject, completeness, viewMode, t }) => {
+}> = ({ action, parentObject, objectId, actionIndex, completeness, viewMode, onClick, t }) => {
   // Cards view: compact summary
   if (viewMode === 'cards') {
     return (
-      <div
-        className="p-3 rounded-lg border text-center"
+      <button
+        onClick={onClick}
+        className="p-3 rounded-lg border text-center w-full transition-all hover:scale-[1.02] hover:border-[var(--color-success)]"
         style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-elevated)' }}
       >
         <Zap className="w-6 h-6 mx-auto mb-2" style={{ color: 'var(--color-success)' }} />
@@ -922,7 +1087,7 @@ const ActionCard: React.FC<{
         >
           {completeness.score}%
         </div>
-      </div>
+      </button>
     );
   }
 

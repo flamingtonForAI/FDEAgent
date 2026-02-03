@@ -1,34 +1,45 @@
 /**
  * AIEnhancement - 第四阶段：智能化设计
- * 规划 AI 增强方向，包括 Smart Properties、AI Actions、Agent Tools
+ * AI 驱动分析 + AI 矩阵 + Agent 工具规范
  */
 import React, { useState } from 'react';
-import { Language, ProjectState } from '../types';
-import { Sparkles, Cpu, Wrench, Shield } from 'lucide-react';
+import { Language, ProjectState, AISettings } from '../types';
+import { Sparkles, Cpu, Wrench, Target } from 'lucide-react';
 import AIPLogicMatrix from './AIPLogicMatrix';
 import ToolSpecViewer from './ToolSpecViewer';
+import AIAnalyzer from './AIAnalyzer';
+import { AnalysisResult } from '../services/aiAnalysisService';
 
-type AIView = 'matrix' | 'tools';
+type AIView = 'analyze' | 'matrix' | 'tools';
 
 interface AIEnhancementProps {
   lang: Language;
   project: ProjectState;
+  setProject: React.Dispatch<React.SetStateAction<ProjectState>>;
+  aiSettings: AISettings;
+  // State lifted to App.tsx for persistence across all tab switches
+  analysisResult: AnalysisResult | null;
+  onAnalysisResult: (result: AnalysisResult | null) => void;
 }
 
 const translations = {
   en: {
     title: 'AI Enhancement',
     subtitle: 'Design AI capabilities and Agent tools',
+    tabAnalyze: 'AI Analysis',
     tabMatrix: 'AI Matrix',
     tabTools: 'Agent Tools',
+    tabAnalyzeDesc: 'Opportunities',
     tabMatrixDesc: 'Enhancement Points',
     tabToolsDesc: 'Tool Specs',
   },
   cn: {
     title: '智能化设计',
     subtitle: '规划 AI 能力增强与 Agent 工具',
+    tabAnalyze: 'AI 分析',
     tabMatrix: 'AI 矩阵',
     tabTools: 'Agent 工具',
+    tabAnalyzeDesc: '机会识别',
     tabMatrixDesc: '增强点总览',
     tabToolsDesc: '工具规范',
   }
@@ -36,12 +47,17 @@ const translations = {
 
 const AIEnhancement: React.FC<AIEnhancementProps> = ({
   lang,
-  project
+  project,
+  setProject,
+  aiSettings,
+  analysisResult,
+  onAnalysisResult
 }) => {
   const t = translations[lang];
-  const [activeView, setActiveView] = useState<AIView>('matrix');
+  const [activeView, setActiveView] = useState<AIView>('analyze');
 
   const tabs: { id: AIView; label: string; desc: string; icon: React.ReactNode }[] = [
+    { id: 'analyze', label: t.tabAnalyze, desc: t.tabAnalyzeDesc, icon: <Target size={16} /> },
     { id: 'matrix', label: t.tabMatrix, desc: t.tabMatrixDesc, icon: <Sparkles size={16} /> },
     { id: 'tools', label: t.tabTools, desc: t.tabToolsDesc, icon: <Wrench size={16} /> },
   ];
@@ -91,12 +107,24 @@ const AIEnhancement: React.FC<AIEnhancementProps> = ({
 
       {/* Content area */}
       <div className="flex-1 overflow-hidden">
+        {activeView === 'analyze' && (
+          <AIAnalyzer
+            lang={lang}
+            objects={project.objects || []}
+            links={project.links || []}
+            aiSettings={aiSettings}
+            analysisResult={analysisResult}
+            onAnalysisResult={onAnalysisResult}
+            project={project}
+            setProject={setProject}
+          />
+        )}
         {activeView === 'matrix' && (
           <AIPLogicMatrix lang={lang} objects={project.objects} />
         )}
         {activeView === 'tools' && (
           <div className="h-full p-6 overflow-y-auto">
-            <ToolSpecViewer lang={lang} project={project} />
+            <ToolSpecViewer lang={lang} objects={project.objects || []} />
           </div>
         )}
       </div>

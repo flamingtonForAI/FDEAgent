@@ -1,15 +1,14 @@
 /**
  * OntologyModeler - 统一的本体建模模块
- * 整合：结构化编辑 + 可视化 + Action 设计
+ * 两个视图：建模工作台（编辑 Objects/Links/Actions）+ 关系图谱（可视化）
  */
-import React, { useState, useCallback } from 'react';
-import { Language, ProjectState, AIPAction } from '../types';
-import { ClipboardList, Eye, PenTool } from 'lucide-react';
+import React, { useState } from 'react';
+import { Language, ProjectState } from '../types';
+import { ClipboardList, GitFork } from 'lucide-react';
 import StructuringWorkbench from './StructuringWorkbench';
 import OntologyVisualizer from './OntologyVisualizer';
-import ActionDesigner from './ActionDesigner';
 
-type ModelingView = 'edit' | 'visualize' | 'actions';
+type ModelingView = 'workbench' | 'graph';
 
 interface OntologyModelerProps {
   lang: Language;
@@ -24,22 +23,18 @@ const translations = {
   en: {
     title: 'Ontology Modeling',
     subtitle: 'Define Objects, Links, and Actions',
-    tabEdit: 'Edit',
-    tabVisualize: 'Visualize',
-    tabActions: 'Actions',
-    tabEditDesc: 'Structure & Properties',
-    tabVisualizeDesc: 'Relationship Graph',
-    tabActionsDesc: 'Business Logic',
+    tabWorkbench: 'Workbench',
+    tabGraph: 'Graph',
+    tabWorkbenchDesc: 'Edit Elements',
+    tabGraphDesc: 'Relationships',
   },
   cn: {
     title: '本体建模',
     subtitle: '定义 Objects、Links 和 Actions',
-    tabEdit: '编辑',
-    tabVisualize: '可视化',
-    tabActions: 'Actions',
-    tabEditDesc: '结构与属性',
-    tabVisualizeDesc: '关系图谱',
-    tabActionsDesc: '业务逻辑',
+    tabWorkbench: '建模工作台',
+    tabGraph: '关系图谱',
+    tabWorkbenchDesc: '编辑元素',
+    tabGraphDesc: '可视化关系',
   }
 };
 
@@ -52,29 +47,11 @@ const OntologyModeler: React.FC<OntologyModelerProps> = ({
   onNavigateToArchetypes
 }) => {
   const t = translations[lang];
-  const [activeView, setActiveView] = useState<ModelingView>('edit');
-
-  // Action 更新处理
-  const handleUpdateAction = useCallback((objectId: string, actionIndex: number, updatedAction: AIPAction) => {
-    setProject(prev => ({
-      ...prev,
-      objects: prev.objects.map(obj =>
-        obj.id === objectId
-          ? {
-              ...obj,
-              actions: obj.actions.map((action, idx) =>
-                idx === actionIndex ? updatedAction : action
-              )
-            }
-          : obj
-      )
-    }));
-  }, [setProject]);
+  const [activeView, setActiveView] = useState<ModelingView>('workbench');
 
   const tabs: { id: ModelingView; label: string; desc: string; icon: React.ReactNode }[] = [
-    { id: 'edit', label: t.tabEdit, desc: t.tabEditDesc, icon: <ClipboardList size={16} /> },
-    { id: 'visualize', label: t.tabVisualize, desc: t.tabVisualizeDesc, icon: <Eye size={16} /> },
-    { id: 'actions', label: t.tabActions, desc: t.tabActionsDesc, icon: <PenTool size={16} /> },
+    { id: 'workbench', label: t.tabWorkbench, desc: t.tabWorkbenchDesc, icon: <ClipboardList size={16} /> },
+    { id: 'graph', label: t.tabGraph, desc: t.tabGraphDesc, icon: <GitFork size={16} /> },
   ];
 
   return (
@@ -122,7 +99,7 @@ const OntologyModeler: React.FC<OntologyModelerProps> = ({
 
       {/* Content area */}
       <div className="flex-1 overflow-hidden">
-        {activeView === 'edit' && (
+        {activeView === 'workbench' && (
           <StructuringWorkbench
             lang={lang}
             project={project}
@@ -132,18 +109,11 @@ const OntologyModeler: React.FC<OntologyModelerProps> = ({
             onNavigateToArchetypes={onNavigateToArchetypes}
           />
         )}
-        {activeView === 'visualize' && (
+        {activeView === 'graph' && (
           <OntologyVisualizer
             lang={lang}
             objects={project.objects}
             links={project.links}
-          />
-        )}
-        {activeView === 'actions' && (
-          <ActionDesigner
-            lang={lang}
-            objects={project.objects}
-            onUpdateAction={handleUpdateAction}
           />
         )}
       </div>

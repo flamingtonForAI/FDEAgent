@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { AIService, loadAISettings, loadAISettingsAsync, saveAISettings } from './services/aiService';
+import { AnalysisResult } from './services/aiAnalysisService';
 import { ProjectState, ChatMessage, OntologyObject, OntologyLink, Language, AISettings, AI_PROVIDERS } from './types';
 import ChatInterface from './components/ChatInterface';
 import OntologyModeler from './components/OntologyModeler';
@@ -196,6 +197,9 @@ const App: React.FC = () => {
 
   // Archetype状态
   const [selectedArchetypeId, setSelectedArchetypeId] = useState<string | null>(null);
+
+  // AI 分析结果状态（持久化跨标签页）
+  const [aiAnalysisResult, setAiAnalysisResult] = useState<AnalysisResult | null>(null);
 
   // Apply theme on mount
   useEffect(() => {
@@ -646,7 +650,14 @@ const App: React.FC = () => {
           )}
           {/* Phase 4: AI Enhancement */}
           {(activeTab === 'aiEnhancement' || activeTab === 'aip') && (
-            <AIEnhancement lang={lang} project={project} />
+            <AIEnhancement
+              lang={lang}
+              project={project}
+              setProject={setProject}
+              aiSettings={aiSettings}
+              analysisResult={aiAnalysisResult}
+              onAnalysisResult={setAiAnalysisResult}
+            />
           )}
         </div>
       </main>

@@ -25,7 +25,8 @@ interface ToolSpecViewerProps {
 const translations = {
   en: {
     title: 'Agent Tool Spec',
-    subtitle: 'Auto-generated tool definitions for AI agents',
+    subtitle: 'Design specifications for development teams',
+    notice: 'These specifications are generated from your Action definitions (not AI-generated). Developers need to implement the actual business logic.',
     format: 'Format',
     copy: 'Copy',
     copied: 'Copied!',
@@ -47,7 +48,8 @@ const translations = {
   },
   cn: {
     title: 'Agent Tool 规范',
-    subtitle: '为 AI Agent 自动生成的工具定义',
+    subtitle: '交付给开发团队的设计规范',
+    notice: '以下规范基于您定义的 Action 自动转换生成（非 AI 生成）。开发团队需要根据此规范实现实际的业务逻辑。',
     format: '格式',
     copy: '复制',
     copied: '已复制!',
@@ -239,6 +241,13 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
             <X size={18} />
           </button>
         )}
+      </div>
+
+      {/* Notice */}
+      <div className="px-5 py-2 border-b border-white/[0.06]" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
+        <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+          💡 {t.notice}
+        </p>
       </div>
 
       {/* Toolbar */}
