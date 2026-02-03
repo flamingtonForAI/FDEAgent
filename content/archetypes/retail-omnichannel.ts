@@ -8,7 +8,7 @@
  * 参考来源：
  * - NIST Supply Chain Reference Ontology (SCRO)
  * - GS1 Global Standards for Retail
- * - Palantir Foundry Retail Best Practices
+ * - Industry Retail Best Practices
  * - NRF (National Retail Federation) Guidelines
  *
  * 适用行业：零售、快消品、时尚服装、电商
@@ -1283,7 +1283,7 @@ export const retailOmnichannelArchetype: Archetype = {
   // ═══════════════════════════════════════════════════════════════════
   deployment: {
     prerequisites: [
-      'Foundry enrollment with Data Connection license',
+      'Data platform with connection license',
       'POS system with real-time transaction feed',
       'E-commerce platform API access',
       'ERP/WMS inventory feed'

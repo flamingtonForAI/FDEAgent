@@ -40,12 +40,14 @@ const translations = {
     hideKey: 'Hide',
     noApiKey: 'Please enter API key',
     fetchModels: 'Fetch Models',
-    fetchingModels: 'Fetching...',
+    fetchingModels: 'Validating...',
     modelsLoaded: 'models loaded',
     fetchFailed: 'Failed to fetch models',
     selectModel: 'Select a model',
     noModels: 'No models available',
     refresh: 'Refresh',
+    apiKeyValid: 'API Key valid',
+    apiKeyInvalid: 'API Key invalid',
   },
   cn: {
     title: 'AI 设置',
@@ -69,12 +71,14 @@ const translations = {
     hideKey: '隐藏',
     noApiKey: '请输入API密钥',
     fetchModels: '获取模型列表',
-    fetchingModels: '获取中...',
+    fetchingModels: '验证中...',
     modelsLoaded: '个模型已加载',
     fetchFailed: '获取模型列表失败',
     selectModel: '请选择模型',
     noModels: '暂无可用模型',
     refresh: '刷新',
+    apiKeyValid: '密钥有效',
+    apiKeyInvalid: '密钥无效',
   }
 };
 
@@ -82,6 +86,7 @@ const providerLinks: Record<AIProvider, string> = {
   gemini: 'https://aistudio.google.com/apikey',
   openrouter: 'https://openrouter.ai/keys',
   zhipu: 'https://open.bigmodel.cn/usercenter/apikeys',
+  moonshot: 'https://platform.moonshot.cn/console/api-keys',
   openai: 'https://platform.openai.com/api-keys',
   custom: '',
 };
@@ -135,13 +140,30 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
     }
   }, [localSettings.apiKey, localSettings.provider, localSettings.customBaseUrl, t]);
 
-  // 当 provider 或 apiKey 改变时，重置模型列表状态
+  // 当 provider 改变时，重置模型列表状态
   useEffect(() => {
     setFetchedModels([]);
     setModelFetchStatus('idle');
     setModelFetchError('');
+    setTestStatus('idle');
     setLocalSettings(prev => ({ ...prev, model: '' }));
   }, [localSettings.provider]);
+
+  // 当 API Key 输入后自动获取模型列表（延迟验证，避免每次按键都请求）
+  useEffect(() => {
+    if (!localSettings.apiKey || localSettings.apiKey.length < 10) {
+      return;
+    }
+
+    // 防抖：用户停止输入 800ms 后自动获取模型
+    const timer = setTimeout(() => {
+      if (modelFetchStatus === 'idle' || modelFetchStatus === 'failed') {
+        fetchModels();
+      }
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [localSettings.apiKey]);
 
   const handleProviderChange = (provider: AIProvider) => {
     setLocalSettings(prev => ({
@@ -175,8 +197,8 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
     }
   };
 
-  const handleSave = () => {
-    saveAISettings(localSettings);
+  const handleSave = async () => {
+    await saveAISettings(localSettings);
     onSettingsChange(localSettings);
     onClose();
   };
@@ -231,27 +253,65 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                 <Key size={12} className="inline mr-1" />
                 {t.apiKey}
               </label>
-              {providerLinks[localSettings.provider] && (
-                <a
-                  href={providerLinks[localSettings.provider]}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-micro flex items-center gap-1"
-                  style={{ color: 'var(--color-accent)' }}
-                >
-                  {t.getKey}
-                  <ExternalLink size={10} />
-                </a>
-              )}
+              <div className="flex items-center gap-2">
+                {/* API Key 验证状态 */}
+                {localSettings.apiKey && localSettings.apiKey.length >= 10 && (
+                  <span className="text-micro flex items-center gap-1">
+                    {modelFetchStatus === 'fetching' && (
+                      <>
+                        <Loader2 size={10} className="animate-spin" style={{ color: 'var(--color-accent)' }} />
+                        <span style={{ color: 'var(--color-text-muted)' }}>{t.fetchingModels}</span>
+                      </>
+                    )}
+                    {modelFetchStatus === 'success' && (
+                      <>
+                        <Check size={10} style={{ color: 'var(--color-success)' }} />
+                        <span style={{ color: 'var(--color-success)' }}>{t.apiKeyValid}</span>
+                      </>
+                    )}
+                    {modelFetchStatus === 'failed' && (
+                      <>
+                        <X size={10} style={{ color: 'var(--color-error)' }} />
+                        <span style={{ color: 'var(--color-error)' }}>{t.apiKeyInvalid}</span>
+                      </>
+                    )}
+                  </span>
+                )}
+                {providerLinks[localSettings.provider] && (
+                  <a
+                    href={providerLinks[localSettings.provider]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-micro flex items-center gap-1"
+                    style={{ color: 'var(--color-accent)' }}
+                  >
+                    {t.getKey}
+                    <ExternalLink size={10} />
+                  </a>
+                )}
+              </div>
             </div>
             <div className="relative">
               <input
                 type={showApiKey ? 'text' : 'password'}
                 value={localSettings.apiKey}
-                onChange={e => setLocalSettings(prev => ({ ...prev, apiKey: e.target.value }))}
+                onChange={e => {
+                  setLocalSettings(prev => ({ ...prev, apiKey: e.target.value }));
+                  // 重置验证状态
+                  if (modelFetchStatus !== 'idle') {
+                    setModelFetchStatus('idle');
+                    setFetchedModels([]);
+                  }
+                }}
                 placeholder={t.apiKeyPlaceholder}
                 className="w-full rounded-lg px-4 py-3 text-sm placeholder:text-muted focus:outline-none focus:ring-1 pr-20"
-                style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
+                style={{
+                  backgroundColor: 'var(--color-bg-surface)',
+                  borderWidth: '1px',
+                  borderStyle: 'solid',
+                  borderColor: modelFetchStatus === 'success' ? 'var(--color-success)' : modelFetchStatus === 'failed' ? 'var(--color-error)' : 'var(--color-border)',
+                  color: 'var(--color-text-primary)'
+                }}
               />
               <button
                 onClick={() => setShowApiKey(!showApiKey)}
@@ -287,11 +347,25 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                 <Cpu size={12} className="inline mr-1" />
                 {t.model}
               </label>
-              {modelFetchStatus === 'success' && fetchedModels.length > 0 && (
-                <span className="text-micro" style={{ color: 'var(--color-success)' }}>
-                  {fetchedModels.length} {t.modelsLoaded}
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {modelFetchStatus === 'success' && fetchedModels.length > 0 && (
+                  <span className="text-micro" style={{ color: 'var(--color-success)' }}>
+                    {fetchedModels.length} {t.modelsLoaded}
+                  </span>
+                )}
+                {/* 刷新按钮 - OpenRouter 除外（模型太多） */}
+                {localSettings.provider !== 'openrouter' && localSettings.apiKey && modelFetchStatus !== 'fetching' && (
+                  <button
+                    onClick={fetchModels}
+                    className="flex items-center gap-1 px-2 py-1 rounded text-micro transition-all hover:bg-[var(--color-bg-hover)]"
+                    style={{ color: 'var(--color-accent)' }}
+                    title={t.refresh}
+                  >
+                    <RefreshCw size={12} />
+                    {lang === 'cn' ? '刷新' : 'Refresh'}
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* 未获取模型列表时显示获取按钮 */}
@@ -345,29 +419,19 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                     style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                   />
                 ) : fetchedModels.length > 0 ? (
-                  <div className="relative">
-                    <select
-                      value={localSettings.model}
-                      onChange={e => setLocalSettings(prev => ({ ...prev, model: e.target.value }))}
-                      className="w-full rounded-lg px-4 py-3 pr-10 text-sm focus:outline-none focus:ring-1 appearance-none"
-                      style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-                    >
-                      <option value="" className="text-muted" style={{ backgroundColor: 'var(--color-bg-surface)' }}>{t.selectModel}</option>
-                      {fetchedModels.map(model => (
-                        <option key={model.id} value={model.id} style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-primary)' }}>
-                          {model.name} {model.description && `- ${model.description}`}
-                        </option>
-                      ))}
-                    </select>
-                    {/* 刷新按钮 */}
-                    <button
-                      onClick={fetchModels}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted hover:text-secondary transition-colors"
-                      title={t.refresh}
-                    >
-                      <RefreshCw size={14} />
-                    </button>
-                  </div>
+                  <select
+                    value={localSettings.model}
+                    onChange={e => setLocalSettings(prev => ({ ...prev, model: e.target.value }))}
+                    className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-1 appearance-none"
+                    style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
+                  >
+                    <option value="" className="text-muted" style={{ backgroundColor: 'var(--color-bg-surface)' }}>{t.selectModel}</option>
+                    {fetchedModels.map(model => (
+                      <option key={model.id} value={model.id} style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-primary)' }}>
+                        {model.name} {model.description && `- ${model.description}`}
+                      </option>
+                    ))}
+                  </select>
                 ) : (
                   <div className="text-sm text-muted py-3">{t.noModels}</div>
                 )}

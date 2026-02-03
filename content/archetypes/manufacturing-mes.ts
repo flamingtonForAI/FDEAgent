@@ -851,7 +851,7 @@ export const manufacturingMESArchetype: Archetype = {
   // ===== Deployment Config =====
   deployment: {
     requirements: {
-      platform: ['Foundry', 'Custom'],
+      platform: ['DataPlatform', 'Custom'],
       minVersion: '2.0',
       resources: {
         cpu: '4 cores',

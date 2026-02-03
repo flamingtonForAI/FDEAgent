@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { OntologyObject, OntologyLink, Language, AIPAction } from '../types';
 import { Database, Link as LinkIcon, Zap, ChevronRight, ChevronDown, Binary, Briefcase, GitBranch, Code, Shield, HelpCircle, Sparkles } from 'lucide-react';
 
@@ -99,7 +99,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
   const [expandedActions, setExpandedActions] = useState<Set<string>>(new Set());
   const [showLegend, setShowLegend] = useState(false);
 
-  const toggleAction = (actionKey: string) => {
+  const toggleAction = useCallback((actionKey: string) => {
     setExpandedActions(prev => {
       const newSet = new Set(prev);
       if (newSet.has(actionKey)) {
@@ -109,9 +109,9 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
       }
       return newSet;
     });
-  };
+  }, []);
 
-  const renderActionDetails = (action: AIPAction) => {
+  const renderActionDetails = useCallback((action: AIPAction) => {
     const hasBusinessLayer = action.businessLayer;
     const hasLogicLayer = action.logicLayer;
     const hasImplementationLayer = action.implementationLayer;
@@ -244,7 +244,136 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
         )}
       </div>
     );
-  };
+  }, [lang, t]);
+
+  const objectCards = useMemo(() => (
+    <div className="masonry-grid">
+      {objects.map((obj) => (
+        <div key={obj.id} className="masonry-item glass-card rounded-xl p-5 contain-layout">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
+                <Database size={18} style={{ color: 'var(--color-accent)' }} />
+              </div>
+              <div>
+                <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{obj.name}</h3>
+                <p className="text-micro text-muted font-mono">{obj.id}</p>
+              </div>
+            </div>
+            {obj.aiFeatures.length > 0 && (
+              <span className="px-2 py-0.5 text-micro rounded" style={{ color: 'var(--color-accent)', backgroundColor: 'var(--color-bg-hover)' }}>
+                AI
+              </span>
+            )}
+          </div>
+
+          {/* Description */}
+          {obj.description && (
+            <p className="text-xs text-muted mb-4 line-clamp-2 leading-relaxed">
+              {obj.description}
+            </p>
+          )}
+
+          {/* Attributes */}
+          <div className="mb-4">
+            <span className="text-micro text-muted block mb-2">{t.attributes}</span>
+            <div className="flex flex-wrap gap-1.5">
+              {obj.properties.slice(0, 6).map((prop, idx) => (
+                <span
+                  key={idx}
+                  className="px-2 py-1 rounded text-micro"
+                  style={{
+                    backgroundColor: prop.isAIDerived ? 'var(--color-bg-hover)' : 'var(--color-bg-surface)',
+                    color: prop.isAIDerived ? 'var(--color-accent)' : 'var(--color-text-muted)'
+                  }}
+                >
+                  {prop.name}
+                </span>
+              ))}
+              {obj.properties.length > 6 && (
+                <span className="px-2 py-1 text-micro text-muted">
+                  +{obj.properties.length - 6}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div>
+            <span className="text-micro text-muted block mb-2">{t.actions}</span>
+            <div className="space-y-1.5">
+              {obj.actions.map((action, idx) => {
+                const actionKey = `${obj.id}-${idx}`;
+                const isExpanded = expandedActions.has(actionKey);
+                const hasDetails = action.businessLayer || action.logicLayer || action.implementationLayer || action.governance;
+
+                return (
+                  <div key={idx} className="rounded-lg overflow-hidden" style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
+                    <div
+                      onClick={() => hasDetails && toggleAction(actionKey)}
+                      className={`flex items-center justify-between text-xs px-3 py-2 transition-colors ${hasDetails ? 'cursor-pointer' : ''}`}
+                      style={{ backgroundColor: isExpanded ? 'var(--color-bg-hover)' : 'transparent' }}
+                    >
+                      <div className="flex items-center gap-2">
+                        {action.type === 'generative' ? (
+                          <Zap size={12} style={{ color: 'var(--color-accent)' }} />
+                        ) : (
+                          <ChevronRight size={12} className="text-muted" />
+                        )}
+                        <span style={{ color: action.type === 'generative' ? 'var(--color-accent)' : 'var(--color-text-secondary)' }}>
+                          {action.name}
+                        </span>
+                      </div>
+                      {hasDetails && (
+                        <ChevronDown
+                          size={14}
+                          className={`text-muted transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                        />
+                      )}
+                    </div>
+                    {isExpanded && (
+                      <div className="px-3 pb-3" style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--color-border)' }}>
+                        {renderActionDetails(action)}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  ), [objects, expandedActions, t, renderActionDetails, toggleAction]);
+
+  const linkCards = useMemo(() => (
+    links.length > 0 ? (
+      <div className="mt-8 glass-card rounded-xl p-6">
+        <h3 className="text-sm font-medium mb-4 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+          <LinkIcon size={16} style={{ color: 'var(--color-accent-secondary)' }} />
+          {t.relationships}
+        </h3>
+        <div className="flex flex-wrap gap-3">
+          {links.map((link) => (
+            <div
+              key={link.id}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg"
+              style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}
+            >
+              <span className="text-xs" style={{ color: 'var(--color-accent)' }}>{link.source}</span>
+              <span className="text-micro text-muted px-2">
+                {link.isSemantic ? '—•—' : '———'}
+              </span>
+              <span className="text-micro text-muted">{link.label}</span>
+              <span className="text-micro text-muted px-2">→</span>
+              <span className="text-xs" style={{ color: 'var(--color-accent)' }}>{link.target}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    ) : null
+  ), [links, t]);
 
   return (
     <div className="p-6 h-full bg-[var(--color-bg-elevated)] overflow-y-auto">
@@ -308,131 +437,10 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
       </div>
 
       {/* Masonry Grid */}
-      <div className="masonry-grid">
-        {objects.map((obj) => (
-          <div key={obj.id} className="masonry-item glass-card rounded-xl p-5 contain-layout">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
-                  <Database size={18} style={{ color: 'var(--color-accent)' }} />
-                </div>
-                <div>
-                  <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{obj.name}</h3>
-                  <p className="text-micro text-muted font-mono">{obj.id}</p>
-                </div>
-              </div>
-              {obj.aiFeatures.length > 0 && (
-                <span className="px-2 py-0.5 text-micro rounded" style={{ color: 'var(--color-accent)', backgroundColor: 'var(--color-bg-hover)' }}>
-                  AI
-                </span>
-              )}
-            </div>
-
-            {/* Description */}
-            {obj.description && (
-              <p className="text-xs text-muted mb-4 line-clamp-2 leading-relaxed">
-                {obj.description}
-              </p>
-            )}
-
-            {/* Attributes */}
-            <div className="mb-4">
-              <span className="text-micro text-muted block mb-2">{t.attributes}</span>
-              <div className="flex flex-wrap gap-1.5">
-                {obj.properties.slice(0, 6).map((prop, idx) => (
-                  <span
-                    key={idx}
-                    className="px-2 py-1 rounded text-micro"
-                    style={{
-                      backgroundColor: prop.isAIDerived ? 'var(--color-bg-hover)' : 'var(--color-bg-surface)',
-                      color: prop.isAIDerived ? 'var(--color-accent)' : 'var(--color-text-muted)'
-                    }}
-                  >
-                    {prop.name}
-                  </span>
-                ))}
-                {obj.properties.length > 6 && (
-                  <span className="px-2 py-1 text-micro text-muted">
-                    +{obj.properties.length - 6}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div>
-              <span className="text-micro text-muted block mb-2">{t.actions}</span>
-              <div className="space-y-1.5">
-                {obj.actions.map((action, idx) => {
-                  const actionKey = `${obj.id}-${idx}`;
-                  const isExpanded = expandedActions.has(actionKey);
-                  const hasDetails = action.businessLayer || action.logicLayer || action.implementationLayer || action.governance;
-
-                  return (
-                    <div key={idx} className="rounded-lg overflow-hidden" style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
-                      <div
-                        onClick={() => hasDetails && toggleAction(actionKey)}
-                        className={`flex items-center justify-between text-xs px-3 py-2 transition-colors ${hasDetails ? 'cursor-pointer' : ''}`}
-                        style={{ backgroundColor: isExpanded ? 'var(--color-bg-hover)' : 'transparent' }}
-                      >
-                        <div className="flex items-center gap-2">
-                          {action.type === 'generative' ? (
-                            <Zap size={12} style={{ color: 'var(--color-accent)' }} />
-                          ) : (
-                            <ChevronRight size={12} className="text-muted" />
-                          )}
-                          <span style={{ color: action.type === 'generative' ? 'var(--color-accent)' : 'var(--color-text-secondary)' }}>
-                            {action.name}
-                          </span>
-                        </div>
-                        {hasDetails && (
-                          <ChevronDown
-                            size={14}
-                            className={`text-muted transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-                          />
-                        )}
-                      </div>
-                      {isExpanded && (
-                        <div className="px-3 pb-3" style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--color-border)' }}>
-                          {renderActionDetails(action)}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      {objectCards}
 
       {/* Links Section */}
-      {links.length > 0 && (
-        <div className="mt-8 glass-card rounded-xl p-6">
-          <h3 className="text-sm font-medium mb-4 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
-            <LinkIcon size={16} style={{ color: 'var(--color-accent-secondary)' }} />
-            {t.relationships}
-          </h3>
-          <div className="flex flex-wrap gap-3">
-            {links.map((link) => (
-              <div
-                key={link.id}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg"
-                style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}
-              >
-                <span className="text-xs" style={{ color: 'var(--color-accent)' }}>{link.source}</span>
-                <span className="text-micro text-muted px-2">
-                  {link.isSemantic ? '—•—' : '———'}
-                </span>
-                <span className="text-micro text-muted">{link.label}</span>
-                <span className="text-micro text-muted px-2">→</span>
-                <span className="text-xs" style={{ color: 'var(--color-accent)' }}>{link.target}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {linkCards}
     </div>
   );
 };

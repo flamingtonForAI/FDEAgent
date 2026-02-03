@@ -2,26 +2,26 @@
  * Archetype Type Definitions
  * 原型类型定义
  *
- * Archetype 是 Palantir 将咨询能力产品化的核心载体
+ * Archetype 是将行业经验产品化的核心载体
  * 它不是模板，而是 Ontology 的预配置视图
  *
  * ═══════════════════════════════════════════════════════════════════
- * Palantir Ontology Architecture (3-Layer + AI Capability Overlay)
+ * Ontology Architecture (3-Layer + AI Capability Overlay)
  * ═══════════════════════════════════════════════════════════════════
  *
- * FOUNDRY ONTOLOGY (3 Core Layers):
+ * Core 3 Layers:
  * - Semantic Layer: Business concept definitions (Objects, Properties, Links)
  * - Kinetic Layer: Data connectivity (Connectors, Sync, Mappings)
  * - Dynamic Layer: Business operations (Actions, Workflows, Rules)
  *
- * AIP CAPABILITY OVERLAY (Not a 4th layer, but enablement across layers):
+ * AI Capability Overlay (Not a 4th layer, but enablement across layers):
  * - AI augments Semantic (smart properties, embeddings)
  * - AI augments Dynamic (AI-assisted actions, generative ops)
  * - AI provides Agent capabilities on top of Ontology
  *
- * This structure aligns with Palantir's official architecture:
+ * Key principles:
  * - Ontology = unified data model with executable actions
- * - AIP = AI capabilities that leverage Ontology as substrate
+ * - AI capabilities leverage Ontology as substrate
  * ═══════════════════════════════════════════════════════════════════
  */
 
@@ -334,7 +334,7 @@ export interface ViewTemplate {
 export interface DeploymentConfig {
   // 最低要求
   requirements: {
-    platform: string[];     // e.g., ["Foundry", "AIP"]
+    platform: string[];     // e.g., ["DataPlatform", "AgentFramework"]
     minVersion?: string;
     resources?: {
       cpu?: string;
@@ -400,22 +400,22 @@ export interface ArchetypeMetadata {
 /**
  * Archetype - 完整的行业解决方案原型
  *
- * Archetype 是 Palantir 咨询能力产品化的核心：
- * 1. 从 FDE 现场经验中提炼
+ * Archetype 是将行业咨询经验产品化的核心：
+ * 1. 从现场实施经验中提炼
  * 2. 包含完整的 Ontology（语义+动力+动态 三层）+ AI 能力叠加
  * 3. 可在几天内部署，而非几个月
  * 4. 持续演进，吸收新的行业最佳实践
  *
  * 架构说明：
- * - Ontology 三层是 Foundry 的核心数据模型
- * - AI 能力是 AIP 提供的叠加能力(overlay)，不是第四层
+ * - Ontology 三层是核心数据模型
+ * - AI 能力是叠加层(overlay)，不是第四层
  * - AI 通过增强 Semantic(智能属性) 和 Dynamic(AI辅助动作) 发挥作用
  */
 export interface Archetype {
   metadata: ArchetypeMetadata;
 
   // ═══════════════════════════════════════════════════════════════════
-  // FOUNDRY ONTOLOGY - 3 CORE LAYERS
+  // ONTOLOGY - 3 CORE LAYERS
   // ═══════════════════════════════════════════════════════════════════
 
   // ===== Semantic Layer =====
@@ -435,7 +435,7 @@ export interface Archetype {
   rules: BusinessRule[];
 
   // ═══════════════════════════════════════════════════════════════════
-  // AIP CAPABILITY OVERLAY (Not a 4th layer)
+  // AI CAPABILITY OVERLAY (Not a 4th layer)
   // AI capabilities that ENHANCE the 3 Ontology layers
   // ═══════════════════════════════════════════════════════════════════
 

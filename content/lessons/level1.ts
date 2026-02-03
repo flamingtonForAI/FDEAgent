@@ -172,8 +172,8 @@ export const level1Lessons: LessonContent[] = [
       {
         title: { en: 'Architecture Overview', cn: '架构概览' },
         content: {
-          en: 'The Ontology methodology is built on a three-layer core architecture (Foundry Ontology), with AI capabilities as an overlay that enhances these layers. This aligns with Palantir\'s official architecture.',
-          cn: 'Ontology 方法论建立在三层核心架构（Foundry Ontology）之上，AI 能力作为叠加层增强这些核心层。这与 Palantir 官方架构保持一致。'
+          en: 'The Ontology methodology is built on a three-layer core architecture, with AI capabilities as an overlay that enhances these layers.',
+          cn: 'Ontology 方法论建立在三层核心架构之上，AI 能力作为叠加层增强这些核心层。'
         },
         type: 'text'
       },
@@ -237,16 +237,16 @@ export const level1Lessons: LessonContent[] = [
       {
         title: { en: 'Layer Interaction', cn: '层级交互' },
         content: {
-          en: 'The three core layers form the Foundry Ontology: Semantic defines concepts, Kinetic connects to data, Dynamic enables operations. AI capabilities OVERLAY these layers, enhancing them without being a separate architectural layer.',
-          cn: '三个核心层构成 Foundry Ontology：语义层定义概念，动力层连接数据，动态层支持操作。AI 能力叠加在这些层之上，增强它们但不是独立的架构层。'
+          en: 'The three core layers form the Ontology: Semantic defines concepts, Kinetic connects to data, Dynamic enables operations. AI capabilities OVERLAY these layers, enhancing them without being a separate architectural layer.',
+          cn: '三个核心层构成 Ontology：语义层定义概念，动力层连接数据，动态层支持操作。AI 能力叠加在这些层之上，增强它们但不是独立的架构层。'
         },
         type: 'text'
       },
       {
         title: { en: 'Why This Architecture?', cn: '为什么这样设计？' },
         content: {
-          en: 'This architecture aligns with Palantir\'s approach:\n\n1. **Ontology is the core** - 3 layers define the unified data model\n2. **AI is enablement** - AIP capabilities enhance, not replace, Ontology\n3. **Human-in-the-loop** - Actions have governance tiers for controlled automation\n4. **Decision-first** - Model what drives decisions, not everything',
-          cn: '这个架构与 Palantir 方法保持一致：\n\n1. **Ontology 是核心** - 三层定义统一数据模型\n2. **AI 是赋能** - AIP 能力增强而非替代 Ontology\n3. **人在环中** - Action 有治理等级实现受控自动化\n4. **决策优先** - 建模驱动决策的内容，而非一切'
+          en: 'Key principles of this architecture:\n\n1. **Ontology is the core** - 3 layers define the unified data model\n2. **AI is enablement** - AI capabilities enhance, not replace, Ontology\n3. **Human-in-the-loop** - Actions have governance tiers for controlled automation\n4. **Decision-first** - Model what drives decisions, not everything',
+          cn: '这个架构的核心原则：\n\n1. **Ontology 是核心** - 三层定义统一数据模型\n2. **AI 是赋能** - AI 能力增强而非替代 Ontology\n3. **人在环中** - Action 有治理等级实现受控自动化\n4. **决策优先** - 建模驱动决策的内容，而非一切'
         },
         type: 'text'
       },

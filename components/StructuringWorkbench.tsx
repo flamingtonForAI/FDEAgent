@@ -37,20 +37,21 @@ interface StructuringWorkbenchProps {
   onAddAction?: (objectId: string) => void;
 }
 
-type ViewMode = 'all' | 'business' | 'technical' | 'cards';
+type ViewMode = 'cards' | 'business' | 'technical';
+type FilterType = 'objects' | 'actions' | 'links' | null;
 
 const translations = {
   cn: {
     title: '结构化工作台',
     subtitle: '对话信息转化为可交付设计',
-    viewAll: '完整视图',
-    viewBusiness: '业务视图',
-    viewTechnical: '技术视图',
     viewCards: '概览',
-    viewAllDesc: '所有细节',
-    viewBusinessDesc: '谁做什么',
-    viewTechnicalDesc: 'API与实现',
-    viewCardsDesc: '卡片摘要',
+    viewBusiness: '业务',
+    viewTechnical: '技术',
+    viewCardsDesc: '全部要素',
+    viewBusinessDesc: '业务语义',
+    viewTechnicalDesc: 'API实现',
+    clickToFilter: '点击筛选',
+    showAll: '显示全部',
     objects: '业务对象',
     actions: '业务操作',
     links: '对象关联',
@@ -88,14 +89,14 @@ const translations = {
   en: {
     title: 'Structuring Workbench',
     subtitle: 'Transform conversations into deliverable designs',
-    viewAll: 'Full',
+    viewCards: 'Overview',
     viewBusiness: 'Business',
     viewTechnical: 'Technical',
-    viewCards: 'Overview',
-    viewAllDesc: 'All details',
-    viewBusinessDesc: 'Who does what',
-    viewTechnicalDesc: 'API & impl',
-    viewCardsDesc: 'Card summary',
+    viewCardsDesc: 'All elements',
+    viewBusinessDesc: 'Semantics',
+    viewTechnicalDesc: 'API impl',
+    clickToFilter: 'Click to filter',
+    showAll: 'Show all',
     objects: 'Objects',
     actions: 'Actions',
     links: 'Links',
@@ -207,11 +208,26 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
   onAddAction
 }) => {
   const t = translations[lang];
-  const [viewMode, setViewMode] = useState<ViewMode>('all');
+  const [viewMode, setViewMode] = useState<ViewMode>('cards');
+  const [activeFilter, setActiveFilter] = useState<FilterType>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(['objects', 'actions'])
   );
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // 点击统计栏切换筛选
+  const handleFilterClick = (filter: FilterType) => {
+    if (activeFilter === filter) {
+      setActiveFilter(null); // 再次点击取消筛选
+    } else {
+      setActiveFilter(filter);
+      // 在概览模式下，筛选会高亮对应类型
+      // 在其他模式下，展开对应区块
+      if (viewMode !== 'cards') {
+        setExpandedSections(new Set([filter || 'objects']));
+      }
+    }
+  };
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => {
@@ -227,7 +243,6 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
     const objects = project.objects || [];
     const allActions = objects.flatMap(o => o.actions || []);
     const links = project.links || [];
-    const integrations = project.integrations || [];
 
     const objectScores = objects.map(o => calculateObjectCompleteness(o).score);
     const avgObjectScore = objectScores.length
@@ -243,7 +258,6 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
       objectCount: objects.length,
       actionCount: allActions.length,
       linkCount: links.length,
-      integrationCount: integrations.length,
       avgObjectScore,
       avgActionScore,
       overallScore: Math.round((avgObjectScore + avgActionScore) / 2) || 0
@@ -373,22 +387,25 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
           </div>
         </div>
 
-        {/* Stats bar */}
-        <div className="grid grid-cols-5 gap-2">
+        {/* Stats bar - clickable to filter */}
+        <div className="grid grid-cols-4 gap-2">
           {[
-            { icon: Box, label: t.objects, value: stats.objectCount, color: 'var(--color-accent)' },
-            { icon: Zap, label: t.actions, value: stats.actionCount, color: 'var(--color-success)' },
-            { icon: Link2, label: t.links, value: stats.linkCount, color: 'var(--color-warning)' },
-            { icon: Database, label: t.integrations, value: stats.integrationCount, color: 'var(--color-accent-secondary)' },
-            { icon: CheckCircle2, label: t.completeness, value: `${stats.overallScore}%`, color: stats.overallScore >= 70 ? 'var(--color-success)' : 'var(--color-warning)' }
+            { icon: Box, label: t.objects, value: stats.objectCount, color: 'var(--color-accent)', filter: 'objects' as FilterType },
+            { icon: Zap, label: t.actions, value: stats.actionCount, color: 'var(--color-success)', filter: 'actions' as FilterType },
+            { icon: Link2, label: t.links, value: stats.linkCount, color: 'var(--color-warning)', filter: 'links' as FilterType },
+            { icon: CheckCircle2, label: t.completeness, value: `${stats.overallScore}%`, color: stats.overallScore >= 70 ? 'var(--color-success)' : 'var(--color-warning)', filter: null }
           ].map((stat, i) => (
-            <div
+            <button
               key={i}
-              className="flex items-center gap-2 p-2 rounded-lg"
-              style={{ backgroundColor: 'var(--color-bg-surface)' }}
+              onClick={() => stat.filter && handleFilterClick(stat.filter)}
+              className={`flex items-center gap-2 p-2 rounded-lg transition-all ${stat.filter ? 'cursor-pointer hover:scale-[1.02]' : ''}`}
+              style={{
+                backgroundColor: activeFilter === stat.filter ? `${stat.color}20` : 'var(--color-bg-surface)',
+                border: activeFilter === stat.filter ? `1px solid ${stat.color}` : '1px solid transparent'
+              }}
             >
               <stat.icon className="w-4 h-4" style={{ color: stat.color }} />
-              <div>
+              <div className="text-left">
                 <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                   {stat.value}
                 </div>
@@ -396,22 +413,30 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
                   {stat.label}
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
+        {activeFilter && (
+          <button
+            onClick={() => setActiveFilter(null)}
+            className="mt-2 text-xs px-2 py-1 rounded"
+            style={{ color: 'var(--color-accent)', backgroundColor: 'var(--color-bg-surface)' }}
+          >
+            ← {t.showAll}
+          </button>
+        )}
 
         {/* View mode tabs */}
         <div className="flex gap-1 mt-3 p-1 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
           {[
-            { mode: 'all' as ViewMode, label: t.viewAll, icon: Eye },
-            { mode: 'business' as ViewMode, label: t.viewBusiness, icon: Briefcase },
-            { mode: 'technical' as ViewMode, label: t.viewTechnical, icon: Code },
-            { mode: 'cards' as ViewMode, label: t.viewCards, icon: FileText }
+            { mode: 'cards' as ViewMode, label: t.viewCards, desc: t.viewCardsDesc, icon: Eye },
+            { mode: 'business' as ViewMode, label: t.viewBusiness, desc: t.viewBusinessDesc, icon: Briefcase },
+            { mode: 'technical' as ViewMode, label: t.viewTechnical, desc: t.viewTechnicalDesc, icon: Code }
           ].map(tab => (
             <button
               key={tab.mode}
-              onClick={() => setViewMode(tab.mode)}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              onClick={() => { setViewMode(tab.mode); setActiveFilter(null); }}
+              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-xs font-medium transition-colors ${
                 viewMode === tab.mode ? '' : 'hover:bg-white/5'
               }`}
               style={{
@@ -420,7 +445,10 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
               }}
             >
               <tab.icon className="w-3.5 h-3.5" />
-              {tab.label}
+              <div className="flex flex-col items-start">
+                <span>{tab.label}</span>
+                <span className="text-[9px] opacity-70">{tab.desc}</span>
+              </div>
             </button>
           ))}
         </div>
@@ -518,11 +546,12 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
         )}
 
         {/* Objects Section */}
+        {(!activeFilter || activeFilter === 'objects') && (
         <Section
           title={t.objects}
           icon={Box}
           count={stats.objectCount}
-          isExpanded={expandedSections.has('objects')}
+          isExpanded={expandedSections.has('objects') || activeFilter === 'objects'}
           onToggle={() => toggleSection('objects')}
           onAdd={onAddObject}
           color="var(--color-accent)"
@@ -551,13 +580,15 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
             </div>
           )}
         </Section>
+        )}
 
         {/* Actions Section */}
+        {(!activeFilter || activeFilter === 'actions') && (
         <Section
           title={t.actions}
           icon={Zap}
           count={stats.actionCount}
-          isExpanded={expandedSections.has('actions')}
+          isExpanded={expandedSections.has('actions') || activeFilter === 'actions'}
           onToggle={() => toggleSection('actions')}
           color="var(--color-success)"
           lang={lang}
@@ -585,14 +616,15 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
             </div>
           )}
         </Section>
+        )}
 
         {/* Links Section */}
-        {viewMode !== 'business' && (
+        {(!activeFilter || activeFilter === 'links') && viewMode !== 'business' && (
           <Section
             title={t.links}
             icon={Link2}
             count={stats.linkCount}
-            isExpanded={expandedSections.has('links')}
+            isExpanded={expandedSections.has('links') || activeFilter === 'links'}
             onToggle={() => toggleSection('links')}
             color="var(--color-warning)"
             lang={lang}
@@ -622,48 +654,6 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
                     </div>
                   );
                 })}
-              </div>
-            )}
-          </Section>
-        )}
-
-        {/* Integrations Section */}
-        {viewMode !== 'business' && (
-          <Section
-            title={t.integrations}
-            icon={Database}
-            count={stats.integrationCount}
-            isExpanded={expandedSections.has('integrations')}
-            onToggle={() => toggleSection('integrations')}
-            color="var(--color-accent-secondary)"
-            lang={lang}
-          >
-            {stats.integrationCount === 0 ? (
-              <EmptyState message={t.noIntegrations} />
-            ) : (
-              <div className="space-y-2">
-                {project.integrations?.map((int, i) => (
-                  <div
-                    key={i}
-                    className="px-3 py-2 rounded-lg"
-                    style={{ backgroundColor: 'var(--color-bg-surface)' }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-sm" style={{ color: 'var(--color-text-primary)' }}>
-                        {int.systemName}
-                      </span>
-                      <span
-                        className="text-xs px-2 py-0.5 rounded"
-                        style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-muted)' }}
-                      >
-                        {int.mechanism}
-                      </span>
-                    </div>
-                    <div className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
-                      {int.dataPoints?.join(', ') || 'No data points'}
-                    </div>
-                  </div>
-                ))}
               </div>
             )}
           </Section>

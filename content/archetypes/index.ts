@@ -2,7 +2,7 @@
  * Archetype Library Index
  * 原型库索引
  *
- * Archetype 是 Palantir 将咨询能力产品化的核心载体
+ * Archetype 是将行业咨询经验产品化的核心载体
  * 与 Case（学习案例）不同，Archetype 是可直接部署的行业解决方案
  */
 

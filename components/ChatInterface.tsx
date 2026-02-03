@@ -1,20 +1,17 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { AIService } from '../services/aiService';
-import { ChatMessage, ProjectState, Language } from '../types';
+import { ChatMessage, ProjectState, Language, OntologyObject, OntologyLink, AIPAction } from '../types';
 import { OntologyCase } from '../types/case';
-import { Send, Terminal, Sparkles, Settings, AlertCircle, CheckCircle, X, Loader2, Scan, PanelRightClose, PanelRightOpen, Lightbulb, FileText, FileSpreadsheet, FileImage, Image, Presentation, File } from 'lucide-react';
-import QuickInputPanel from './QuickInputPanel';
+import { Send, Terminal, Sparkles, AlertCircle, X, Loader2, Scan, PanelRightClose, PanelRightOpen, Lightbulb, FileText, FileSpreadsheet, FileImage, Image, Presentation } from 'lucide-react';
 import NounVerbPanel from './NounVerbPanel';
 import CaseRecommendPanel from './CaseRecommendPanel';
 import CaseBrowser from './CaseBrowser';
-import SmartTips from './SmartTips';
 import { FileUploadButton, UploadedFile } from './FileUpload';
 import ReadinessPanel from './ReadinessPanel';
 import { checkReadiness } from '../lib/readinessChecker';
 import SystemDNACard from './SystemDNACard';
 import { detectSystems, DetectedSystem } from '../lib/systemDNA';
-import CopilotBubble from './CopilotBubble';
 
 interface ExtractedNoun {
   name: string;
@@ -245,6 +242,32 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   useEffect(() => {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
   }, [messages]);
+
+  const renderedMessages = useMemo(() => (
+    <>
+      {messages.map((msg, i) => (
+        <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}>
+          <div
+            className={`message-bubble max-w-[75%] px-4 py-3 rounded-2xl ${msg.role === 'user' ? 'rounded-br-md' : 'glass-card text-secondary rounded-bl-md'}`}
+            style={msg.role === 'user' ? { backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-primary)' } : {}}
+          >
+            <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+          </div>
+        </div>
+      ))}
+      {isLoading && (
+        <div className="flex justify-start animate-fadeIn">
+          <div className="glass-card px-4 py-4 rounded-2xl rounded-bl-md w-64">
+            <div className="space-y-2">
+              <div className="skeleton skeleton-text w-full"></div>
+              <div className="skeleton skeleton-text w-3/4"></div>
+              <div className="skeleton skeleton-text-sm w-1/2"></div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  ), [messages, isLoading]);
 
   // Analyze conversation and recommend cases
   // Use historyRef which contains full content (including file contents)
@@ -579,40 +602,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
-  // Handle quick input submission (structured form data)
-  const handleQuickInput = async (structuredInput: string) => {
-    if (!hasApiKey || isLoading) return;
-
-    const newMessages: ChatMessage[] = [...messages, { role: 'user', content: structuredInput }];
-    setMessages(newMessages);
-    historyRef.current = [...historyRef.current, { role: 'user', content: structuredInput }];
-    setIsLoading(true);
-
-    try {
-      // Use historyRef for full context
-      const historyForAI = historyRef.current.slice(0, -1);
-      const response = await aiService.chat(historyForAI, structuredInput);
-      const assistantMsg: ChatMessage = { role: 'assistant', content: response || 'Error generating response' };
-      const finalMessages = [...newMessages, assistantMsg];
-      setMessages(finalMessages);
-      historyRef.current = [...historyRef.current, assistantMsg];
-
-      // Trigger extraction, case analysis, and system DNA detection after successful message
-      setTimeout(() => {
-        extractFromConversation();
-        analyzeCases();
-        // Detect enterprise systems from quick input
-        detectSystemsFromText(structuredInput);
-      }, 500);
-    } catch (error) {
-      console.error(error);
-      const errorMsg = error instanceof Error ? error.message : t.error;
-      setMessages(prev => [...prev, { role: 'assistant', content: `${t.error}\n\n${errorMsg}` }]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Handle viewing a case in the browser
   const handleViewCase = (caseData: OntologyCase) => {
     setSelectedCaseForBrowser(caseData);
@@ -742,28 +731,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </div>
         </div>
 
-        <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4">
-        {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}>
-            <div
-              className={`message-bubble max-w-[75%] px-4 py-3 rounded-2xl ${msg.role === 'user' ? 'rounded-br-md' : 'glass-card text-secondary rounded-bl-md'}`}
-              style={msg.role === 'user' ? { backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-primary)' } : {}}
-            >
-              <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-            </div>
-          </div>
-        ))}
-        {isLoading && (
-          <div className="flex justify-start animate-fadeIn">
-            <div className="glass-card px-4 py-4 rounded-2xl rounded-bl-md w-64">
-              <div className="space-y-2">
-                <div className="skeleton skeleton-text w-full"></div>
-                <div className="skeleton skeleton-text w-3/4"></div>
-                <div className="skeleton skeleton-text-sm w-1/2"></div>
-              </div>
-            </div>
-          </div>
-        )}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4">
+        {renderedMessages}
         {/* System DNA Cards - show detected enterprise systems */}
         {detectedSystems.length > 0 && (
           <div className="space-y-3 mt-4">
@@ -801,37 +770,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         )}
 
         <div className="max-w-3xl mx-auto">
-          {/* Design Copilot */}
-          {hasApiKey && messages.length > 1 && onNavigate && (
-            <div className="mb-4">
-              <CopilotBubble
-                lang={lang}
-                project={project}
-                messages={historyRef.current}
-                onNavigate={onNavigate}
-                onInsertPrompt={(prompt) => setInput(prompt)}
-                compact={true}
-              />
-            </div>
-          )}
-
-          {/* Smart Tips */}
-          <SmartTips
-            lang={lang}
-            messages={messages}
-            project={project}
-            hasApiKey={hasApiKey}
-          />
-
-          {/* Quick Input Panel */}
-          <QuickInputPanel
-            lang={lang}
-            onSubmit={handleQuickInput}
-            disabled={isLoading}
-            hasApiKey={hasApiKey}
-            onOpenSettings={onOpenSettings}
-          />
-
           {/* Uploaded Files Preview */}
           {uploadedFiles.length > 0 && (
             <div className="mb-3 space-y-2">

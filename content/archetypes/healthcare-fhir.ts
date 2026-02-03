@@ -9,7 +9,7 @@
  * - HL7 FHIR R4 (Fast Healthcare Interoperability Resources)
  * - US Core Implementation Guide
  * - SMART on FHIR Application Framework
- * - Palantir Foundry Healthcare Best Practices
+ * - Industry Healthcare Best Practices
  *
  * 适用行业：医院、诊所、医疗集团、健康管理
  * 部署周期：3-4 周（含数据对接和合规配置）
@@ -1519,7 +1519,7 @@ export const healthcareFHIRArchetype: Archetype = {
   // ═══════════════════════════════════════════════════════════════════
   deployment: {
     prerequisites: [
-      'Foundry enrollment with Healthcare module',
+      'Data platform with Healthcare module',
       'EHR FHIR R4 API access (Epic/Cerner/etc.)',
       'HL7v2 interface engine access',
       'HIPAA BAA in place',

@@ -67,8 +67,8 @@ export interface AIPAction {
     };
   };
 
-  // === 治理属性 (Palantir Human-in-the-Loop Governance) ===
-  // Permission Tiers align with Palantir's controlled automation philosophy:
+  // === 治理属性 (Human-in-the-Loop Governance) ===
+  // Permission Tiers for controlled automation:
   //   Tier 1: Full Auto - Read operations, low-risk status changes (no human review)
   //   Tier 2: Auto + Audit - Standard operations with audit trail (async review possible)
   //   Tier 3: Human Confirm - Business-critical ops require human confirmation before execution
@@ -125,7 +125,7 @@ export interface ChatMessage {
 
 // ============= AI Provider Settings =============
 
-export type AIProvider = 'gemini' | 'openrouter' | 'zhipu' | 'openai' | 'custom';
+export type AIProvider = 'gemini' | 'openrouter' | 'zhipu' | 'moonshot' | 'openai' | 'custom';
 
 export interface AIProviderConfig {
   id: AIProvider;
@@ -158,55 +158,72 @@ export const AI_PROVIDERS: AIProviderConfig[] = [
     baseUrl: 'https://openrouter.ai/api/v1',
     requiresApiKey: true,
     models: [
-      // 旗舰模型
-      { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', description: '推荐' },
-      { id: 'anthropic/claude-3-opus', name: 'Claude 3 Opus', description: '最强推理' },
-      { id: 'openai/gpt-4o', name: 'GPT-4o', description: 'OpenAI 旗舰' },
-      { id: 'openai/o1-preview', name: 'o1 Preview', description: '推理模型' },
-      { id: 'google/gemini-pro-1.5', name: 'Gemini 1.5 Pro', description: 'Google' },
-      { id: 'google/gemini-flash-1.5', name: 'Gemini 1.5 Flash', description: '快速' },
+      // 2025最新旗舰模型
+      { id: 'anthropic/claude-sonnet-4', name: 'Claude Sonnet 4', description: '最新推荐' },
+      { id: 'anthropic/claude-opus-4', name: 'Claude Opus 4', description: '最强推理' },
+      { id: 'openai/gpt-4.1', name: 'GPT-4.1', description: 'OpenAI 最新' },
+      { id: 'openai/o3-mini', name: 'o3 Mini', description: '推理模型' },
+      { id: 'google/gemini-2.5-pro', name: 'Gemini 2.5 Pro', description: 'Google 最新' },
+      { id: 'google/gemini-2.0-flash', name: 'Gemini 2.0 Flash', description: '快速' },
       // 经济模型
-      { id: 'deepseek/deepseek-chat', name: 'DeepSeek Chat', description: '便宜好用' },
-      { id: 'qwen/qwen-2.5-72b-instruct', name: 'Qwen 2.5 72B', description: '中文优化' },
-      { id: 'meta-llama/llama-3.1-405b-instruct', name: 'Llama 3.1 405B', description: '开源最强' },
+      { id: 'deepseek/deepseek-chat-v3', name: 'DeepSeek V3', description: '性价比之王' },
+      { id: 'qwen/qwen-3-235b', name: 'Qwen 3 235B', description: '中文优化' },
+      { id: 'meta-llama/llama-4-405b', name: 'Llama 4 405B', description: '开源最强' },
       { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini', description: '经济实惠' },
     ]
   },
   {
     id: 'gemini',
     name: 'Google Gemini',
-    description: 'Google AI Studio',
+    description: 'Google AI Studio（支持刷新）',
     baseUrl: 'https://generativelanguage.googleapis.com',
     requiresApiKey: true,
     models: [
-      { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', description: '最新' },
-      { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', description: '高质量' },
-      { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', description: '快速' },
+      { id: 'gemini-2.5-pro-preview-05-06', name: 'Gemini 2.5 Pro', description: '最新旗舰' },
+      { id: 'gemini-2.5-flash-preview-05-20', name: 'Gemini 2.5 Flash', description: '最新快速' },
+      { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', description: '稳定版' },
+      { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', description: '长上下文' },
     ]
   },
   {
     id: 'zhipu',
     name: '智谱 GLM',
-    description: '智谱AI大模型',
+    description: '智谱AI大模型（支持刷新）',
     baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
     requiresApiKey: true,
     models: [
       { id: 'glm-4-plus', name: 'GLM-4 Plus', description: '旗舰' },
-      { id: 'glm-4', name: 'GLM-4', description: '高质量' },
-      { id: 'glm-4-flash', name: 'GLM-4 Flash', description: '快速经济' },
+      { id: 'glm-4-air', name: 'GLM-4 Air', description: '高性价比' },
+      { id: 'glm-4-flash', name: 'GLM-4 Flash', description: '快速免费' },
+      { id: 'glm-4v-plus', name: 'GLM-4V Plus', description: '多模态' },
+    ]
+  },
+  {
+    id: 'moonshot',
+    name: 'Moonshot (Kimi)',
+    description: '月之暗面 Kimi（支持刷新）',
+    baseUrl: 'https://api.moonshot.cn/v1',
+    requiresApiKey: true,
+    models: [
+      { id: 'kimi-k2-0711-preview', name: 'Kimi K2 Preview', description: '最新 K2 模型（推荐）' },
+      { id: 'moonshot-v1-auto', name: 'Moonshot v1 Auto', description: '自动选择上下文' },
+      { id: 'moonshot-v1-128k', name: 'Moonshot v1 128K', description: '超长上下文 128K' },
+      { id: 'moonshot-v1-32k', name: 'Moonshot v1 32K', description: '长上下文 32K' },
+      { id: 'moonshot-v1-8k', name: 'Moonshot v1 8K', description: '标准 8K' },
     ]
   },
   {
     id: 'openai',
     name: 'OpenAI',
-    description: 'OpenAI官方API',
+    description: 'OpenAI官方API（支持刷新）',
     baseUrl: 'https://api.openai.com/v1',
     requiresApiKey: true,
     models: [
-      { id: 'gpt-4o', name: 'GPT-4o', description: '旗舰' },
+      { id: 'gpt-4.1', name: 'GPT-4.1', description: '最新旗舰' },
+      { id: 'gpt-4o', name: 'GPT-4o', description: '多模态' },
       { id: 'gpt-4o-mini', name: 'GPT-4o Mini', description: '经济' },
-      { id: 'o1-preview', name: 'o1 Preview', description: '推理' },
-      { id: 'o1-mini', name: 'o1 Mini', description: '轻量推理' },
+      { id: 'o3-mini', name: 'o3 Mini', description: '推理模型' },
+      { id: 'o1', name: 'o1', description: '深度推理' },
     ]
   },
   {

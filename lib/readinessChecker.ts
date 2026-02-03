@@ -179,6 +179,64 @@ function analyzeObjects(objects: OntologyObject[]): ReadinessIssue[] {
   return issues;
 }
 
+// 检查 Links 定义
+function analyzeLinks(project: ProjectState): ReadinessIssue[] {
+  const issues: ReadinessIssue[] = [];
+
+  // 如果有对象但没有 Links
+  if (project.objects && project.objects.length >= 2 && (!project.links || project.links.length === 0)) {
+    issues.push({
+      id: 'no-links',
+      type: 'suggestion',
+      category: 'object',  // Links 属于对象关系范畴
+      message: '尚未定义对象间关系',
+      impact: '对象之间的关联关系不明确，可能导致数据模型不完整',
+      suggestion: '考虑添加对象之间的关系，如"订单包含产品"、"客户关联订单"等'
+    });
+    return issues;
+  }
+
+  // 检查孤立对象（没有任何 Link 连接的对象）
+  if (project.objects && project.objects.length > 1 && project.links && project.links.length > 0) {
+    const linkedObjects = new Set<string>();
+    project.links.forEach(link => {
+      linkedObjects.add(link.source);
+      linkedObjects.add(link.target);
+    });
+
+    project.objects.forEach(obj => {
+      if (!linkedObjects.has(obj.name) && !linkedObjects.has(obj.id)) {
+        issues.push({
+          id: `orphan-obj-${obj.id}`,
+          type: 'warning',
+          category: 'object',
+          message: `对象 "${obj.name}" 没有与其他对象建立关系`,
+          impact: '孤立对象可能在业务流程中缺少上下文',
+          suggestion: '考虑添加该对象与其他对象的关联关系'
+        });
+      }
+    });
+  }
+
+  // 检查 Link 标签是否有意义
+  if (project.links) {
+    project.links.forEach((link, idx) => {
+      if (!link.label || link.label.length < 2) {
+        issues.push({
+          id: `link-${idx}-no-label`,
+          type: 'warning',
+          category: 'object',
+          message: `关系 "${link.source} → ${link.target}" 缺少有意义的标签`,
+          impact: '关系语义不清晰',
+          suggestion: '添加描述性标签，如"包含"、"关联"、"生成"等'
+        });
+      }
+    });
+  }
+
+  return issues;
+}
+
 // 检查集成定义
 function analyzeIntegrations(project: ProjectState): ReadinessIssue[] {
   const issues: ReadinessIssue[] = [];
@@ -266,7 +324,10 @@ export function checkReadiness(
   // 2. 检查对象
   allIssues.push(...analyzeObjects(project.objects));
 
-  // 3. 检查集成
+  // 3. 检查 Links（对象间关系）
+  allIssues.push(...analyzeLinks(project));
+
+  // 4. 检查集成
   allIssues.push(...analyzeIntegrations(project));
 
   // 计算分数和级别

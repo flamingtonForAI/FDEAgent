@@ -8,7 +8,7 @@
  * 参考来源：
  * - ISA-95 Enterprise-Control System Integration Standard
  * - OPC Foundation ISA-95 Common Object Model
- * - Palantir Foundry Manufacturing Best Practices
+ * - Industry Manufacturing Best Practices
  *
  * 适用行业：离散制造、流程制造、混合制造
  * 部署周期：2-4 周（含数据对接和配置）
@@ -1890,7 +1890,7 @@ export const manufacturingISA95Archetype: Archetype = {
   // ═══════════════════════════════════════════════════════════════════
   deployment: {
     requirements: {
-      platform: ['Palantir Foundry', 'Custom Platform'],
+      platform: ['DataPlatform', 'Custom Platform'],
       minVersion: '3.0',
       resources: {
         cpu: '8 cores',

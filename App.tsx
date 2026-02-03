@@ -1,17 +1,14 @@
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { AIService, loadAISettings, saveAISettings } from './services/aiService';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { AIService, loadAISettings, loadAISettingsAsync, saveAISettings } from './services/aiService';
 import { ProjectState, ChatMessage, OntologyObject, OntologyLink, Language, AISettings, AI_PROVIDERS } from './types';
 import ChatInterface from './components/ChatInterface';
-import OntologyVisualizer from './components/OntologyVisualizer';
-import ActionDesigner from './components/ActionDesigner';
-import AIPLogicMatrix from './components/AIPLogicMatrix';
-import ProjectOverview from './components/ProjectOverview';
-import SystemMap from './components/SystemMap';
+import OntologyModeler from './components/OntologyModeler';
+import SystemIntegration from './components/SystemIntegration';
+import AIEnhancement from './components/AIEnhancement';
 import Settings from './components/Settings';
 import Academy from './components/Academy';
 import QualityPanel from './components/QualityPanel';
-import StructuringWorkbench from './components/StructuringWorkbench';
 import ArchetypeBrowser from './components/ArchetypeBrowser';
 import ArchetypeViewer from './components/ArchetypeViewer';
 import QuickStart from './components/QuickStart';
@@ -27,6 +24,16 @@ const translations = {
     quickStart: "Quick Start",
     academy: "Learning Center",
     archetypes: "Archetypes",
+    // 4 Core Phases
+    phase1: "1. Discover",
+    phase1Desc: "Requirement Scouting",
+    phase2: "2. Model",
+    phase2Desc: "Ontology Modeling",
+    phase3: "3. Integrate",
+    phase3Desc: "Data Sources",
+    phase4: "4. AI Design",
+    phase4Desc: "AI Enhancement",
+    // Legacy tabs (keep for backward compatibility)
     scouting: "Requirement Scouting",
     workbench: "Structuring Workbench",
     ontology: "Logical Ontology",
@@ -36,8 +43,7 @@ const translations = {
     blueprint: "System Blueprint",
     sectionGettingStarted: "Getting Started",
     sectionResources: "Resources",
-    sectionCoreWorkflow: "Core Workflow",
-    sectionSystemDesign: "System Design",
+    sectionCoreWorkflow: "Design Workflow",
     status: "Engine Status",
     ready: "Standby",
     synthesizing: "Synthesizing System Architecture...",
@@ -52,6 +58,16 @@ const translations = {
     quickStart: "快速开始",
     academy: "学习中心",
     archetypes: "行业原型",
+    // 4 Core Phases
+    phase1: "1. 发现",
+    phase1Desc: "需求勘察",
+    phase2: "2. 建模",
+    phase2Desc: "本体建模",
+    phase3: "3. 集成",
+    phase3Desc: "数据源对接",
+    phase4: "4. 智能化",
+    phase4Desc: "AI 增强设计",
+    // Legacy tabs (keep for backward compatibility)
     scouting: "需求勘察",
     workbench: "结构化工作台",
     ontology: "逻辑本体",
@@ -61,8 +77,7 @@ const translations = {
     blueprint: "系统蓝图",
     sectionGettingStarted: "入门",
     sectionResources: "参考资源",
-    sectionCoreWorkflow: "核心工作流",
-    sectionSystemDesign: "系统设计",
+    sectionCoreWorkflow: "设计流程",
     status: "引擎状态",
     ready: "待命",
     synthesizing: "正在合成系统架构...",
@@ -73,12 +88,37 @@ const translations = {
   }
 };
 
+const MAX_SAVED_MESSAGES = 200;
+const MAX_MESSAGE_CHARS = 4000;
+
+const normalizeMessagesForStorage = (messages: ChatMessage[]): ChatMessage[] => {
+  const recent = messages.slice(-MAX_SAVED_MESSAGES);
+  return recent.map((message) => {
+    if (message.content.length <= MAX_MESSAGE_CHARS) {
+      return message;
+    }
+    return {
+      ...message,
+      content: `${message.content.slice(0, MAX_MESSAGE_CHARS)}...`,
+    };
+  });
+};
+
+const parseStoredMessages = (raw: string): ChatMessage[] => {
+  const parsed = JSON.parse(raw);
+  if (!Array.isArray(parsed)) return [];
+  const safe = parsed.filter((message) =>
+    message && typeof message.role === 'string' && typeof message.content === 'string'
+  );
+  return normalizeMessagesForStorage(safe as ChatMessage[]);
+};
+
 // 从localStorage加载聊天记录
 const loadChatMessages = (): ChatMessage[] => {
   try {
     const saved = localStorage.getItem('ontology-chat-messages');
     if (saved) {
-      return JSON.parse(saved);
+      return parseStoredMessages(saved);
     }
   } catch (e) {
     console.error('加载聊天记录失败:', e);
@@ -107,8 +147,8 @@ const loadProjectState = (): ProjectState => {
 };
 
 // 有效的工作流标签页（用于恢复上次位置）
-type WorkflowTab = 'quickStart' | 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview';
-const validWorkflowTabs: WorkflowTab[] = ['quickStart', 'academy', 'archetypes', 'scouting', 'workbench', 'ontology', 'actionDesigner', 'systemMap', 'aip', 'overview'];
+type WorkflowTab = 'quickStart' | 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview' | 'aiEnhancement';
+const validWorkflowTabs: WorkflowTab[] = ['quickStart', 'academy', 'archetypes', 'scouting', 'workbench', 'ontology', 'actionDesigner', 'systemMap', 'aip', 'overview', 'aiEnhancement'];
 
 // 从localStorage加载上次活跃的标签页
 const loadLastActiveTab = (): WorkflowTab => {
@@ -119,7 +159,7 @@ const loadLastActiveTab = (): WorkflowTab => {
     // 如果有保存的标签且有效，则恢复
     if (saved && validWorkflowTabs.includes(saved as WorkflowTab)) {
       // 如果是需要项目数据的标签，但没有项目数据，则回到 quickStart
-      const requiresProject = ['ontology', 'actionDesigner', 'systemMap', 'aip', 'overview'];
+      const requiresProject = ['ontology', 'actionDesigner', 'systemMap', 'aip', 'overview', 'aiEnhancement'];
       if (requiresProject.includes(saved) && project.objects.length === 0) {
         return 'quickStart';
       }
@@ -138,11 +178,13 @@ const loadLastActiveTab = (): WorkflowTab => {
 
 const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('cn');
-  const [activeTab, setActiveTab] = useState<'quickStart' | 'academy' | 'archetypes' | 'archetypeViewer' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview'>(loadLastActiveTab);
+  const [activeTab, setActiveTab] = useState<'quickStart' | 'academy' | 'archetypes' | 'archetypeViewer' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview' | 'aiEnhancement'>(loadLastActiveTab);
   const [project, setProject] = useState<ProjectState>(loadProjectState);
   const [isDesigning, setIsDesigning] = useState(false);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(loadChatMessages);
-  const chatHistoryRef = useRef<ChatMessage[]>(loadChatMessages());
+  const initialChatMessages = useMemo(loadChatMessages, []);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(initialChatMessages);
+  const chatHistoryRef = useRef<ChatMessage[]>(initialChatMessages);
+  const chatSaveTimeoutRef = useRef<number | null>(null);
 
   // AI设置状态
   const [aiSettings, setAiSettings] = useState<AISettings>(loadAISettings);
@@ -158,6 +200,17 @@ const App: React.FC = () => {
   // Apply theme on mount
   useEffect(() => {
     applyTheme(currentTheme);
+  }, [currentTheme]);
+
+  // 异步加载本地配置文件（api-config.local.json）
+  useEffect(() => {
+    loadAISettingsAsync().then(settings => {
+      if (settings.apiKey) {
+        setAiSettings(settings);
+        aiService.current.updateSettings(settings);
+        console.log('已从本地文件加载 API 配置');
+      }
+    });
   }, []);
 
   const t = translations[lang];
@@ -172,13 +225,26 @@ const App: React.FC = () => {
   // 注意：chatHistoryRef 由 ChatInterface 单独维护，包含完整的文件内容
   // 不要在这里覆盖 chatHistoryRef.current，否则会丢失文件内容
   useEffect(() => {
-    if (chatMessages.length > 0) {
+    if (chatMessages.length === 0) return undefined;
+
+    if (chatSaveTimeoutRef.current !== null) {
+      window.clearTimeout(chatSaveTimeoutRef.current);
+    }
+
+    chatSaveTimeoutRef.current = window.setTimeout(() => {
       try {
-        localStorage.setItem('ontology-chat-messages', JSON.stringify(chatMessages));
+        const payload = normalizeMessagesForStorage(chatMessages);
+        localStorage.setItem('ontology-chat-messages', JSON.stringify(payload));
       } catch (e) {
         console.error('保存聊天记录失败:', e);
       }
-    }
+    }, 250);
+
+    return () => {
+      if (chatSaveTimeoutRef.current !== null) {
+        window.clearTimeout(chatSaveTimeoutRef.current);
+      }
+    };
   }, [chatMessages]);
 
   // 保存项目状态到localStorage
@@ -330,23 +396,6 @@ const App: React.FC = () => {
     }
   };
 
-  // 更新Action的处理函数
-  const handleUpdateAction = useCallback((objectId: string, actionIndex: number, updatedAction: any) => {
-    setProject(prev => ({
-      ...prev,
-      objects: prev.objects.map(obj =>
-        obj.id === objectId
-          ? {
-              ...obj,
-              actions: obj.actions.map((action, idx) =>
-                idx === actionIndex ? updatedAction : action
-              )
-            }
-          : obj
-      )
-    }));
-  }, []);
-
   // Archetype handlers
   const handleSelectArchetype = useCallback((archetypeId: string) => {
     setSelectedArchetypeId(archetypeId);
@@ -416,56 +465,44 @@ const App: React.FC = () => {
             label={t.quickStart}
           />
 
-          {/* Core Workflow Section - For experienced users */}
+          {/* Core Workflow - 3 Phases */}
           <NavSection label={t.sectionCoreWorkflow} />
+
+          {/* Phase 1: Discover */}
           <NavItem
             active={activeTab === 'scouting'}
             onClick={() => setActiveTab('scouting')}
             icon={<MessageSquare size={16} />}
-            label={t.scouting}
+            label={t.phase1}
+            sublabel={t.phase1Desc}
           />
+
+          {/* Phase 2: Model */}
           <NavItem
-            active={activeTab === 'workbench'}
+            active={activeTab === 'workbench' || activeTab === 'ontology' || activeTab === 'actionDesigner'}
             onClick={() => setActiveTab('workbench')}
-            icon={<ClipboardList size={16} />}
-            label={t.workbench}
-          />
-          <NavItem
-            active={activeTab === 'ontology'}
-            onClick={() => setActiveTab('ontology')}
             icon={<Database size={16} />}
-            label={t.ontology}
-            disabled={project.objects.length === 0}
+            label={t.phase2}
+            sublabel={t.phase2Desc}
           />
+
+          {/* Phase 3: Integrate */}
           <NavItem
-            active={activeTab === 'actionDesigner'}
-            onClick={() => setActiveTab('actionDesigner')}
-            icon={<PenTool size={16} />}
-            label={t.actionDesigner}
+            active={activeTab === 'systemMap' || activeTab === 'overview'}
+            onClick={() => setActiveTab('systemMap')}
+            icon={<Network size={16} />}
+            label={t.phase3}
+            sublabel={t.phase3Desc}
             disabled={project.objects.length === 0}
           />
 
-          {/* System Design Section */}
-          <NavSection label={t.sectionSystemDesign} />
+          {/* Phase 4: AI Enhancement */}
           <NavItem
-            active={activeTab === 'systemMap'}
-            onClick={() => setActiveTab('systemMap')}
-            icon={<Network size={16} />}
-            label={t.systemMap}
-            disabled={project.objects.length === 0}
-          />
-          <NavItem
-            active={activeTab === 'aip'}
-            onClick={() => setActiveTab('aip')}
-            icon={<Zap size={16} />}
-            label={t.augmentation}
-            disabled={project.objects.length === 0}
-          />
-          <NavItem
-            active={activeTab === 'overview'}
-            onClick={() => setActiveTab('overview')}
-            icon={<LayoutDashboard size={16} />}
-            label={t.blueprint}
+            active={activeTab === 'aiEnhancement' || activeTab === 'aip'}
+            onClick={() => setActiveTab('aiEnhancement')}
+            icon={<Sparkles size={16} />}
+            label={t.phase4}
+            sublabel={t.phase4Desc}
             disabled={project.objects.length === 0}
           />
 
@@ -592,31 +629,24 @@ const App: React.FC = () => {
               onNavigate={setActiveTab}
             />
           )}
-          {activeTab === 'workbench' && (
-            <StructuringWorkbench
+          {/* Phase 2: Ontology Modeling */}
+          {(activeTab === 'workbench' || activeTab === 'ontology' || activeTab === 'actionDesigner') && (
+            <OntologyModeler
               lang={lang}
               project={project}
               setProject={setProject}
               chatMessages={chatHistoryRef.current}
-              onNavigateToOntology={() => setActiveTab('ontology')}
               onNavigateToScouting={() => setActiveTab('scouting')}
               onNavigateToArchetypes={() => setActiveTab('archetypes')}
             />
           )}
-          {activeTab === 'ontology' && (
-            <OntologyVisualizer lang={lang} objects={project.objects} links={project.links} />
+          {/* Phase 3: System Integration */}
+          {(activeTab === 'systemMap' || activeTab === 'overview') && (
+            <SystemIntegration lang={lang} project={project} />
           )}
-          {activeTab === 'actionDesigner' && (
-            <ActionDesigner lang={lang} objects={project.objects} onUpdateAction={handleUpdateAction} />
-          )}
-          {activeTab === 'systemMap' && (
-            <SystemMap lang={lang} project={project} />
-          )}
-          {activeTab === 'aip' && (
-            <AIPLogicMatrix lang={lang} objects={project.objects} />
-          )}
-          {activeTab === 'overview' && (
-            <ProjectOverview lang={lang} project={project} />
+          {/* Phase 4: AI Enhancement */}
+          {(activeTab === 'aiEnhancement' || activeTab === 'aip') && (
+            <AIEnhancement lang={lang} project={project} />
           )}
         </div>
       </main>
@@ -692,8 +722,9 @@ const NavItem: React.FC<{
   onClick: () => void;
   icon: React.ReactNode;
   label: string;
+  sublabel?: string;
   disabled?: boolean;
-}> = ({ active, onClick, icon, label, disabled }) => (
+}> = ({ active, onClick, icon, label, sublabel, disabled }) => (
   <button
     disabled={disabled}
     onClick={onClick}
@@ -723,7 +754,12 @@ const NavItem: React.FC<{
       />
     )}
     {icon}
-    {label}
+    <div className="flex flex-col items-start">
+      <span>{label}</span>
+      {sublabel && (
+        <span className="text-[10px] text-muted font-normal">{sublabel}</span>
+      )}
+    </div>
   </button>
 );
 

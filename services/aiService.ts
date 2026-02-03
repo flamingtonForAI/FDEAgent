@@ -23,12 +23,12 @@ const SYSTEM_INSTRUCTION = `
 - 核心差异：ACTION（动作）连接自然语义到可执行函数
 
 【Ontology 三层架构 + AI 能力叠加】
-核心三层（Foundry Ontology）：
+核心三层：
 1. Semantic Layer（语义层）：定义业务世界的概念模型 - Objects（对象）和 Links（关系）
 2. Kinetic Layer（动力层）：连接概念模型到真实数据源 - 数据映射和ETL
 3. Dynamic Layer（动态层）：引入行为 - Actions（动作）、业务规则、状态管理
 
-AI 能力叠加（AIP Overlay，非独立第四层）：
+AI 能力叠加（非独立第四层，而是增强层）：
 - 增强 Semantic：智能属性（Smart Properties）、嵌入向量
 - 增强 Dynamic：AI 辅助动作、生成式操作
 - 提供 Agent 能力：基于 Ontology 的智能代理
@@ -101,7 +101,7 @@ AI 能力叠加（AIP Overlay，非独立第四层）：
 - Dynamic Layer → 业务API（FastAPI、gRPC、微服务）
 - AI Layer → Agent框架（LangChain、AutoGen、自研）
 
-不要绑定到任何特定平台（如Palantir Foundry），只描述逻辑设计。
+专注于逻辑设计，不绑定任何特定平台或产品。
 
 ═══════════════════════════════════════════════════════════════════
                             输出规范
@@ -144,7 +144,7 @@ ${historyText}
    - 每个Object包含完整的属性定义
 
 2. 【业务动作 Actions - Decision-First 原则】
-   遵循 Palantir Decision-First 方法论，优先建模能形成"决策闭环"的关键动作，
+   遵循 Decision-First 方法论，优先建模能形成"决策闭环"的关键动作，
    而非机械地推导完整CRUD。
 
    ▶ 核心原则：
@@ -367,6 +367,7 @@ export class AIService {
           return await this.callGemini(messages);
         case 'zhipu':
           return await this.callZhipu(messages);
+        case 'moonshot':
         case 'openrouter':
         case 'openai':
         case 'custom':
@@ -402,6 +403,7 @@ export class AIService {
       switch (this.settings.provider) {
         case 'gemini':
           return await this.callGeminiMultimodal(history, nextMessage, files);
+        case 'moonshot':
         case 'openrouter':
         case 'openai':
           return await this.callOpenAIMultimodal(history, nextMessage, files);
@@ -707,6 +709,8 @@ export class AIService {
           return await this.fetchOpenAIModels();
         case 'zhipu':
           return await this.fetchZhipuModels();
+        case 'moonshot':
+          return await this.fetchMoonshotModels();
         case 'custom':
           return await this.fetchCustomModels();
         default:
@@ -891,6 +895,65 @@ export class AIService {
       // 图像生成
       { id: 'cogview-3-plus', name: 'CogView-3 Plus', description: '图像生成' },
       { id: 'cogview-3', name: 'CogView-3', description: '图像生成' },
+    ];
+  }
+
+  private async fetchMoonshotModels(): Promise<{ id: string; name: string; description?: string }[]> {
+    // Moonshot API 兼容 OpenAI 格式，从 API 获取完整模型列表
+    try {
+      const response = await fetch(`${this.getBaseUrl()}/models`, {
+        headers: {
+          'Authorization': `Bearer ${this.settings.apiKey}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const models = data.data || [];
+        console.log('Moonshot API 返回模型:', models);
+
+        if (models.length > 0) {
+          // 直接返回所有模型，添加友好名称映射
+          const nameMap: Record<string, { name: string; description: string; priority: number }> = {
+            'kimi-k2-0711-preview': { name: 'Kimi K2 Preview (0711)', description: '最新 K2 模型', priority: 0 },
+            'kimi-k2-0905-preview': { name: 'Kimi K2 Preview (0905)', description: 'K2 稳定版', priority: 1 },
+            'kimi-k2-0905': { name: 'Kimi K2 (0905)', description: 'K2 正式版', priority: 2 },
+            'moonshot-v1-auto': { name: 'Moonshot v1 Auto', description: '自动选择上下文', priority: 10 },
+            'moonshot-v1-128k': { name: 'Moonshot v1 128K', description: '超长上下文 128K', priority: 11 },
+            'moonshot-v1-32k': { name: 'Moonshot v1 32K', description: '长上下文 32K', priority: 12 },
+            'moonshot-v1-8k': { name: 'Moonshot v1 8K', description: '标准 8K', priority: 13 },
+          };
+
+          const formatted = models.map((m: any) => {
+            const id = m.id;
+            const mapped = nameMap[id];
+            if (mapped) {
+              return { id, name: mapped.name, description: mapped.description, priority: mapped.priority };
+            }
+            // 未知模型，生成友好名称
+            const friendlyName = id
+              .replace(/^moonshot-/, 'Moonshot ')
+              .replace(/^kimi-/, 'Kimi ')
+              .replace(/-/g, ' ')
+              .replace(/\b\w/g, (c: string) => c.toUpperCase());
+            return { id, name: friendlyName, description: m.owned_by || '新模型', priority: 50 };
+          });
+
+          // 按优先级排序（新模型优先）
+          return formatted.sort((a: any, b: any) => (a.priority || 50) - (b.priority || 50));
+        }
+      }
+    } catch (error) {
+      console.log('Moonshot API 获取模型列表失败，使用默认列表:', error);
+    }
+
+    // 如果 API 调用失败，返回已知的模型列表（2026年最新）
+    return [
+      { id: 'kimi-k2-0711-preview', name: 'Kimi K2 Preview', description: '最新 K2 模型（推荐）' },
+      { id: 'moonshot-v1-auto', name: 'Moonshot v1 Auto', description: '自动选择上下文' },
+      { id: 'moonshot-v1-128k', name: 'Moonshot v1 128K', description: '超长上下文 128K' },
+      { id: 'moonshot-v1-32k', name: 'Moonshot v1 32K', description: '长上下文 32K' },
+      { id: 'moonshot-v1-8k', name: 'Moonshot v1 8K', description: '标准 8K' },
     ];
   }
 
@@ -1253,6 +1316,109 @@ ${text}
       return { nouns: [], verbs: [] };
     }
   }
+
+  // 从文本中提取完整的 Ontology 三要素（Objects, Links, Actions）
+  async extractOntologyElements(text: string): Promise<{
+    objects: Array<{ name: string; description: string; confidence: number }>;
+    links: Array<{ source: string; target: string; label: string; confidence: number }>;
+    actions: Array<{ name: string; targetObject?: string; description: string; confidence: number }>;
+  }> {
+    const extractionPrompt = `从以下业务描述中提取 Ontology 的三个核心要素：Objects（对象）、Links（关系）、Actions（动作）。
+
+业务描述：
+${text}
+
+提取规则：
+
+1. Objects（业务对象/名词）：
+   - 识别具体的业务实体，如：订单、客户、产品、工单、库存、设备等
+   - 忽略泛指词汇（如"系统"、"数据"、"信息"、"流程"等）
+   - 每个对象需要简短描述
+
+2. Links（对象间关系）：
+   - 识别对象之间的关联关系
+   - 常见关系类型：包含(contains)、关联(references)、生成(generates)、属于(belongs_to)、依赖(depends_on)
+   - 格式：source对象 → target对象，并标注关系类型
+   - 示例："订单包含产品" → { source: "订单", target: "产品", label: "包含" }
+
+3. Actions（业务动作/动词）：
+   - 识别对对象执行的操作，如：创建、审批、发货、分配、取消等
+   - 标注动作的目标对象（如果能判断）
+   - 忽略描述性动词（如"是"、"有"、"进行"等）
+
+4. confidence: 0-1，表示识别的置信度
+
+请严格按以下JSON格式回复：
+{
+  "objects": [
+    {"name": "对象名称", "description": "简短描述", "confidence": 0.9}
+  ],
+  "links": [
+    {"source": "源对象名", "target": "目标对象名", "label": "关系标签", "confidence": 0.8}
+  ],
+  "actions": [
+    {"name": "动作名称", "targetObject": "目标对象（可选）", "description": "简短描述", "confidence": 0.85}
+  ]
+}`;
+
+    try {
+      let content: string;
+
+      if (this.settings.provider === 'gemini') {
+        const { GoogleGenAI } = await import('@google/genai');
+        const ai = new GoogleGenAI({ apiKey: this.settings.apiKey });
+        const response = await ai.models.generateContent({
+          model: this.settings.model,
+          contents: extractionPrompt,
+          config: {
+            responseMimeType: 'application/json',
+          },
+        });
+        content = response.text || '{}';
+      } else {
+        const baseUrl = this.getBaseUrl();
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.settings.apiKey}`,
+        };
+        if (this.settings.provider === 'openrouter') {
+          headers['HTTP-Referer'] = window.location.origin;
+          headers['X-Title'] = 'Ontology Architect';
+        }
+
+        const response = await fetch(`${baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            model: this.settings.model,
+            messages: [
+              { role: 'user', content: extractionPrompt },
+            ],
+            temperature: 0.1,
+            max_tokens: 1500,
+            response_format: { type: 'json_object' },
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Ontology 要素提取失败');
+        }
+
+        const data = await response.json();
+        content = data.choices[0]?.message?.content || '{}';
+      }
+
+      const result = JSON.parse(content);
+      return {
+        objects: result.objects || [],
+        links: result.links || [],
+        actions: result.actions || result.verbs || []
+      };
+    } catch (error) {
+      console.error('Ontology要素提取失败:', error);
+      return { objects: [], links: [], actions: [] };
+    }
+  }
 }
 
 // 默认设置
@@ -1262,7 +1428,43 @@ export const DEFAULT_AI_SETTINGS: AISettings = {
   model: 'anthropic/claude-3.5-sonnet',
 };
 
-// 从sessionStorage加载设置（API密钥存储在sessionStorage中更安全，关闭浏览器后自动清除）
+// 从本地文件加载配置（异步）
+export async function loadLocalConfig(): Promise<AISettings | null> {
+  try {
+    const response = await fetch('/api/config');
+    if (response.ok) {
+      const config = await response.json();
+      if (config && config.apiKey) {
+        console.log('已从本地文件加载 API 配置');
+        return config;
+      }
+    }
+  } catch (e) {
+    // 开发服务器可能未启用配置 API，忽略错误
+    console.log('本地配置文件不可用，使用内存/sessionStorage');
+  }
+  return null;
+}
+
+// 保存配置到本地文件（异步）
+export async function saveLocalConfig(settings: AISettings): Promise<boolean> {
+  try {
+    const response = await fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(settings),
+    });
+    if (response.ok) {
+      console.log('API 配置已保存到本地文件 api-config.local.json');
+      return true;
+    }
+  } catch (e) {
+    console.log('无法保存到本地文件:', e);
+  }
+  return false;
+}
+
+// 从sessionStorage加载设置（同步版本，用于初始化）
 export function loadAISettings(): AISettings {
   try {
     // 优先从sessionStorage读取（包含API密钥）
@@ -1289,8 +1491,22 @@ export function loadAISettings(): AISettings {
   return DEFAULT_AI_SETTINGS;
 }
 
-// 保存设置到sessionStorage（API密钥不再持久化到localStorage）
-export function saveAISettings(settings: AISettings): void {
+// 异步加载设置（优先从本地文件，然后 sessionStorage）
+export async function loadAISettingsAsync(): Promise<AISettings> {
+  // 1. 尝试从本地文件加载
+  const localConfig = await loadLocalConfig();
+  if (localConfig) {
+    // 同步到 sessionStorage
+    sessionStorage.setItem('ontology-ai-settings', JSON.stringify(localConfig));
+    return localConfig;
+  }
+
+  // 2. 降级到 sessionStorage
+  return loadAISettings();
+}
+
+// 保存设置（同时保存到本地文件和 sessionStorage）
+export async function saveAISettings(settings: AISettings): Promise<void> {
   try {
     // 完整设置（包含API密钥）保存到sessionStorage
     sessionStorage.setItem('ontology-ai-settings', JSON.stringify(settings));
@@ -1303,6 +1519,9 @@ export function saveAISettings(settings: AISettings): void {
       apiKey: '', // 不保存API密钥到localStorage
     };
     localStorage.setItem('ontology-ai-settings', JSON.stringify(safeSettings));
+
+    // 尝试保存到本地文件（API 密钥会持久化）
+    await saveLocalConfig(settings);
   } catch (e) {
     console.error('保存设置失败:', e);
   }

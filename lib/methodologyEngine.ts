@@ -1,7 +1,7 @@
 /**
  * Methodology Engine - Ontology Design Methodology Guard Rails
  *
- * This engine enforces the Palantir-style ontology design methodology:
+ * This engine enforces the ontology design methodology:
  * 1. Discovery - Understand business context, pain points, existing systems
  * 2. Structure - Define objects, properties, and initial relationships
  * 3. Refine - Add actions, AI features, and optimize the model

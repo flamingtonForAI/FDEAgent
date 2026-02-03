@@ -707,7 +707,7 @@ export const aquacultureFarmingArchetype: Archetype = {
   // ===== Deployment Config =====
   deployment: {
     requirements: {
-      platform: ['Foundry', 'Custom'],
+      platform: ['DataPlatform', 'Custom'],
       minVersion: '2.0',
       resources: {
         cpu: '2 cores',
