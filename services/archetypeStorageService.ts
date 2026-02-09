@@ -59,24 +59,43 @@ function openDatabase(): Promise<IDBDatabase> {
  */
 export class ArchetypeStorageService {
   private db: IDBDatabase | null = null;
+  private initPromise: Promise<void> | null = null; // Lock to prevent concurrent initialization
 
   /**
-   * 初始化数据库连接
+   * 初始化数据库连接 (with lock to prevent race conditions)
    */
   async initialize(): Promise<void> {
-    if (!this.db) {
-      this.db = await openDatabase();
+    // If already initialized, return immediately
+    if (this.db) return;
+
+    // If initialization is in progress, wait for it
+    if (this.initPromise) {
+      return this.initPromise;
     }
+
+    // Start initialization with lock
+    this.initPromise = (async () => {
+      try {
+        this.db = await openDatabase();
+      } catch (error) {
+        // Reset lock on failure so retry is possible
+        this.initPromise = null;
+        throw error;
+      }
+    })();
+
+    return this.initPromise;
   }
 
   /**
    * 确保数据库已初始化
    */
   private async ensureInitialized(): Promise<IDBDatabase> {
+    await this.initialize();
     if (!this.db) {
-      await this.initialize();
+      throw new Error('Database initialization failed');
     }
-    return this.db!;
+    return this.db;
   }
 
   /**
@@ -100,6 +119,15 @@ export class ArchetypeStorageService {
       const transaction = db.transaction([STORE_NAME], 'readwrite');
       const store = transaction.objectStore(STORE_NAME);
 
+      // Transaction-level error handling
+      transaction.onerror = () => {
+        reject(new Error('Transaction failed: ' + (transaction.error?.message || 'Unknown error')));
+      };
+
+      transaction.onabort = () => {
+        reject(new Error('Transaction aborted: ' + (transaction.error?.message || 'Unknown reason')));
+      };
+
       // 检查是否已存在
       const getRequest = store.get(id);
 
@@ -114,10 +142,10 @@ export class ArchetypeStorageService {
         const putRequest = store.put(stored);
 
         putRequest.onsuccess = () => resolve(id);
-        putRequest.onerror = () => reject(new Error('Failed to save archetype: ' + putRequest.error?.message));
+        putRequest.onerror = () => reject(new Error('Failed to save archetype: ' + (putRequest.error?.message || 'Unknown error')));
       };
 
-      getRequest.onerror = () => reject(new Error('Failed to check existing archetype: ' + getRequest.error?.message));
+      getRequest.onerror = () => reject(new Error('Failed to check existing archetype: ' + (getRequest.error?.message || 'Unknown error')));
     });
   }
 

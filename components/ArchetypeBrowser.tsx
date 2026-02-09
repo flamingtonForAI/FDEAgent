@@ -8,17 +8,20 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Language, AISettings } from '../types';
-import { ArchetypeIndex, ArchetypeOriginType } from '../types/archetype';
+import { Archetype, ArchetypeIndex, ArchetypeOriginType, ArchetypeOrigin } from '../types/archetype';
 import {
   getArchetypeIndexList,
   getMergedArchetypeIndexList,
+  getMergedArchetypeById,
   deleteImportedArchetype
 } from '../content/archetypes';
+import { archetypeStorageService } from '../services/archetypeStorageService';
 import {
   Package, Search, Filter, Factory, ShoppingCart, Truck,
   Database, Zap, Clock, ChevronRight,
   GitBranch, LayoutDashboard, ArrowRight, Plus, Trash2,
-  Heart, Plane, Stethoscope, Wheat, Loader2, Layers, CheckCircle
+  Heart, Plane, Stethoscope, Wheat, Loader2, Layers, CheckCircle,
+  Download, Upload
 } from 'lucide-react';
 import { SourceIndicator } from './SourceBadge';
 import IndustryDiscovery from './IndustryDiscovery';
@@ -32,9 +35,9 @@ interface Props {
 
 const translations = {
   en: {
-    title: 'Archetype Library',
+    title: 'Template Library',
     subtitle: 'Production-ready industry solutions from FDE experience',
-    search: 'Search archetypes...',
+    search: 'Search templates...',
     filter: 'Filter',
     allIndustries: 'All Industries',
     allSources: 'All Sources',
@@ -49,8 +52,8 @@ const translations = {
     deployTime: 'Deploy Time',
     deployments: 'Deployments',
     viewDetails: 'View Details',
-    useArchetype: 'Use This Archetype',
-    noResults: 'No archetypes match your search',
+    useArchetype: 'Use This Template',
+    noResults: 'No templates match your search',
     features: 'Features',
     aiEnabled: 'AI-Enabled',
     erpIntegration: 'ERP Integration',
@@ -59,14 +62,24 @@ const translations = {
     fromReference: 'From Reference',
     exploreNew: 'Explore New Industry',
     delete: 'Delete',
-    deleteConfirm: 'Are you sure you want to delete this archetype?',
-    loading: 'Loading archetypes...',
-    importSuccess: 'Archetype imported! You are now in the Model phase to customize.',
+    deleteConfirm: 'Are you sure you want to delete this template?',
+    loading: 'Loading templates...',
+    importSuccess: 'Template imported! You are now in the Model phase to customize.',
+    exportJson: 'Export JSON',
+    importJson: 'Import JSON',
+    exportSuccess: 'Template exported successfully!',
+    importError: 'Failed to import template',
+    invalidJson: 'Invalid JSON file format',
+    validationMissingId: 'Missing template ID',
+    validationMissingName: 'Missing template name',
+    validationMissingOntology: 'Missing ontology definition',
+    validationEmptyObjects: 'Ontology must contain at least one object',
+    validationInvalidObjects: 'Invalid object structure in ontology',
   },
   cn: {
-    title: '原型库',
+    title: '模板库',
     subtitle: '来自FDE实战经验的可部署行业方案',
-    search: '搜索原型...',
+    search: '搜索模板...',
     filter: '筛选',
     allIndustries: '所有行业',
     allSources: '所有来源',
@@ -81,8 +94,8 @@ const translations = {
     deployTime: '部署周期',
     deployments: '部署案例',
     viewDetails: '查看详情',
-    useArchetype: '使用此原型',
-    noResults: '没有匹配的原型',
+    useArchetype: '使用此模板',
+    noResults: '没有匹配的模板',
     features: '特性',
     aiEnabled: 'AI赋能',
     erpIntegration: 'ERP集成',
@@ -91,9 +104,19 @@ const translations = {
     fromReference: '参考资料',
     exploreNew: '探索新行业',
     delete: '删除',
-    deleteConfirm: '确定要删除这个原型吗？',
-    loading: '加载原型中...',
-    importSuccess: '原型已导入！现在进入建模阶段进行定制。',
+    deleteConfirm: '确定要删除这个模板吗？',
+    loading: '加载模板中...',
+    importSuccess: '模板已导入！现在进入建模阶段进行定制。',
+    exportJson: '导出 JSON',
+    importJson: '导入 JSON',
+    exportSuccess: '模板导出成功！',
+    importError: '导入失败',
+    invalidJson: 'JSON 文件格式无效',
+    validationMissingId: '缺少模板 ID',
+    validationMissingName: '缺少模板名称',
+    validationMissingOntology: '缺少本体定义',
+    validationEmptyObjects: '本体必须至少包含一个对象',
+    validationInvalidObjects: '本体中对象结构无效',
   }
 };
 
@@ -127,6 +150,32 @@ const industryConfig: Record<string, { icon: React.ReactNode; color: string; lab
     icon: <Plane size={16} />,
     color: 'sky',
     label: { en: 'Aviation', cn: '航空' }
+  },
+  // New industries based on Palantir case studies
+  defense: {
+    icon: <Package size={16} />,
+    color: 'slate',
+    label: { en: 'Defense', cn: '国防' }
+  },
+  energy: {
+    icon: <Zap size={16} />,
+    color: 'yellow',
+    label: { en: 'Energy', cn: '能源' }
+  },
+  'financial-services': {
+    icon: <Database size={16} />,
+    color: 'violet',
+    label: { en: 'Financial Services', cn: '金融服务' }
+  },
+  automotive: {
+    icon: <Truck size={16} />,
+    color: 'orange',
+    label: { en: 'Automotive', cn: '汽车' }
+  },
+  insurance: {
+    icon: <Heart size={16} />,
+    color: 'pink',
+    label: { en: 'Insurance', cn: '保险' }
   }
 };
 
@@ -209,6 +258,119 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
         setSelectedArchetype(null);
       }
     }
+  };
+
+  // 导出原型为 JSON 文件
+  const handleExportJson = async (archetypeId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const archetype = await getMergedArchetypeById(archetypeId);
+      if (!archetype) return;
+
+      const exportData = {
+        version: '1.0',
+        exportedAt: new Date().toISOString(),
+        archetype: archetype
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${archetype.metadata.id}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setImportSuccessMessage(t.exportSuccess);
+      setTimeout(() => setImportSuccessMessage(null), 3000);
+    } catch (error) {
+      console.error('Failed to export archetype:', error);
+    }
+  };
+
+  // 导入 JSON 文件
+  const handleImportJson = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(t.invalidJson);
+      }
+
+      // 支持两种格式：直接的 Archetype 或包装的 { archetype: ... }
+      const archetype: Archetype = data.archetype || data;
+
+      // Comprehensive field validation with specific error messages
+      const validationErrors: string[] = [];
+
+      // Check metadata
+      if (!archetype.metadata?.id) {
+        validationErrors.push(t.validationMissingId);
+      }
+      if (!archetype.metadata?.name) {
+        validationErrors.push(t.validationMissingName);
+      }
+
+      // Check ontology
+      if (!archetype.ontology) {
+        validationErrors.push(t.validationMissingOntology);
+      } else {
+        // Check that ontology.objects exists and is non-empty
+        if (!Array.isArray(archetype.ontology.objects) || archetype.ontology.objects.length === 0) {
+          validationErrors.push(t.validationEmptyObjects);
+        } else {
+          // Validate object structure (each object must have id and name)
+          const invalidObjects = archetype.ontology.objects.filter(
+            (obj: unknown) => !obj || typeof obj !== 'object' || !('id' in obj) || !('name' in obj)
+          );
+          if (invalidObjects.length > 0) {
+            validationErrors.push(t.validationInvalidObjects);
+          }
+        }
+      }
+
+      // Throw with all validation errors if any
+      if (validationErrors.length > 0) {
+        throw new Error(validationErrors.join('\n'));
+      }
+
+      // 创建 origin 信息
+      const origin: ArchetypeOrigin = {
+        type: 'reference',
+        importedAt: new Date().toISOString(),
+        fileName: file.name
+      };
+
+      // 保存到 IndexedDB
+      await archetypeStorageService.initialize();
+      await archetypeStorageService.saveArchetype(archetype, origin);
+
+      // 刷新列表
+      await loadArchetypes();
+
+      // 显示成功提示
+      setImportSuccessMessage(t.importSuccess);
+      setTimeout(() => setImportSuccessMessage(null), 5000);
+
+      // 自动应用导入的原型
+      onApplyArchetype(archetype.metadata.id, true);
+    } catch (error) {
+      console.error('Failed to import JSON:', error);
+      // Show specific error message
+      const errorMessage = error instanceof Error ? error.message : t.importError;
+      alert(`${t.importError}: ${errorMessage}`);
+    }
+
+    // 清空 input 以便重复导入同一文件
+    event.target.value = '';
   };
 
   // 处理导入完成
@@ -307,6 +469,14 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
         {/* Actions - shown when selected */}
         {isSelected && (
           <div className="flex gap-2 pt-3 animate-fadeIn" style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--color-border)' }}>
+            {/* Export JSON button */}
+            <button
+              onClick={(e) => handleExportJson(archetype.id, e)}
+              className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-lg glass-surface text-sm text-muted hover:text-primary transition-colors"
+              title={t.exportJson}
+            >
+              <Download size={14} />
+            </button>
             {/* Delete button for imported archetypes */}
             {isImported && (
               <button
@@ -379,16 +549,30 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
             </div>
           </div>
 
-          {/* Explore New Industry Button */}
-          {aiSettings && aiSettings.apiKey && (
-            <button
-              onClick={() => setShowDiscovery(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg btn-gradient text-sm font-medium"
-            >
-              <Plus size={16} />
-              {t.exploreNew}
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {/* Import JSON Button */}
+            <label className="flex items-center gap-2 px-4 py-2.5 rounded-lg glass-surface text-sm font-medium cursor-pointer hover:bg-white/[0.05] transition-colors">
+              <Upload size={16} />
+              {t.importJson}
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImportJson}
+                className="hidden"
+              />
+            </label>
+
+            {/* Explore New Industry Button */}
+            {aiSettings && aiSettings.apiKey && (
+              <button
+                onClick={() => setShowDiscovery(true)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg btn-gradient text-sm font-medium"
+              >
+                <Plus size={16} />
+                {t.exploreNew}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

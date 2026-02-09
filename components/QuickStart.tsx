@@ -1,8 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ProjectState } from '../types';
-import { GraduationCap, Package, MessageSquare, ArrowRight, Database, Zap, Link2, ClipboardList, PenTool, LayoutDashboard, CheckCircle2 } from 'lucide-react';
+import { useProject } from '../contexts/ProjectContext';
+import {
+  GraduationCap, Package, MessageSquare, ArrowRight, Database, Zap, Link2,
+  ClipboardList, CheckCircle2, FolderPlus, FolderOpen, Rocket, Sparkles
+} from 'lucide-react';
+import NewProjectDialog from './NewProjectDialog';
 
-type NavigableTab = 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aiEnhancement' | 'overview';
+type NavigableTab = 'projects' | 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aiEnhancement' | 'overview';
 
 interface QuickStartProps {
   lang: 'en' | 'cn';
@@ -12,18 +17,34 @@ interface QuickStartProps {
 
 const translations = {
   en: {
+    // Welcome - No Project
+    welcomeNew: "Welcome to Ontology Architect",
+    subtitleNew: "Let's start by creating your first project",
+    createFirstProject: "Create Your First Project",
+    createFirstDesc: "Each project contains its own ontology design, chat history, and settings",
+    createProjectBtn: "Create Project",
+    orBrowseTemplates: "Or browse industry templates first",
+    browseTemplates: "Browse Templates",
+
+    // Welcome - Has Project
     welcome: "Welcome to Ontology Architect",
     subtitle: "Your Intelligent Operating System Design Assistant",
+    currentProjectLabel: "Current Project",
+    switchProject: "Switch Project",
+
+    // Paths
     choosePath: "Choose Your Path",
     learnFirst: "Learn First",
     learnDesc: "Recommended for beginners",
     learnAction: "Go to Academy",
     fromTemplate: "Start from Template",
     templateDesc: "Quick start with industry templates",
-    templateAction: "Browse Archetypes",
+    templateAction: "Browse Templates",
     conversational: "Conversational Exploration",
     conversationalDesc: "Flexible customization",
     conversationalAction: "Start Scouting",
+
+    // Workflow
     designFlow: "Ontology Design Flow",
     stepDiscovery: "Discovery",
     stepModeling: "Modeling",
@@ -33,33 +54,51 @@ const translations = {
     phaseModeling: "Ontology Modeling",
     phaseIntegration: "Data Sources",
     phaseAIDesign: "AI Enhancement",
-    currentProject: "Current Project Status",
+    clickToNavigate: "Click to navigate",
+
+    // Project Status
+    currentProject: "Project Progress",
     objects: "Objects",
     actions: "Actions",
     links: "Links",
     continueDesign: "Continue Design",
-    noProject: "No project yet",
+    noProject: "No data yet",
     noProjectDesc: "Start by choosing a path above to begin your ontology design journey.",
     nextStep: "Recommended Next Step",
     goToWorkbench: "Model your ontology",
     goToIntegration: "Plan data integration",
     goToAIDesign: "Design AI capabilities",
     goToOntology: "View ontology diagram",
-    clickToNavigate: "Click to navigate",
   },
   cn: {
+    // Welcome - No Project
+    welcomeNew: "欢迎使用 Ontology Architect",
+    subtitleNew: "让我们从创建第一个项目开始",
+    createFirstProject: "创建你的第一个项目",
+    createFirstDesc: "每个项目包含独立的本体设计、聊天记录和设置",
+    createProjectBtn: "创建项目",
+    orBrowseTemplates: "或者先浏览行业模板",
+    browseTemplates: "浏览模板",
+
+    // Welcome - Has Project
     welcome: "欢迎来到 Ontology Architect",
     subtitle: "您的智能操作系统设计助手",
+    currentProjectLabel: "当前项目",
+    switchProject: "切换项目",
+
+    // Paths
     choosePath: "选择您的路径",
     learnFirst: "先学习",
     learnDesc: "新手推荐",
     learnAction: "进入学习中心",
     fromTemplate: "从模板开始",
     templateDesc: "快速启动行业模板",
-    templateAction: "浏览行业原型",
+    templateAction: "浏览行业模板",
     conversational: "对话探索",
     conversationalDesc: "灵活定制",
     conversationalAction: "开始勘察",
+
+    // Workflow
     designFlow: "Ontology 设计流程",
     stepDiscovery: "发现",
     stepModeling: "建模",
@@ -69,48 +108,47 @@ const translations = {
     phaseModeling: "本体建模",
     phaseIntegration: "数据源对接",
     phaseAIDesign: "AI 增强设计",
-    currentProject: "当前项目状态",
+    clickToNavigate: "点击跳转",
+
+    // Project Status
+    currentProject: "项目进度",
     objects: "对象",
     actions: "动作",
     links: "关联",
     continueDesign: "继续设计",
-    noProject: "暂无项目",
+    noProject: "暂无数据",
     noProjectDesc: "从上方选择一条路径，开始您的 Ontology 设计之旅。",
     nextStep: "建议下一步",
     goToWorkbench: "本体建模",
     goToIntegration: "规划数据集成",
     goToAIDesign: "设计 AI 能力",
     goToOntology: "查看本体图",
-    clickToNavigate: "点击跳转",
   }
 };
 
 const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) => {
   const t = translations[lang];
+  const { projects, activeProject, isInitialized } = useProject();
+  const [showNewProject, setShowNewProject] = useState(false);
 
-  // Calculate project stats
+  // Calculate project stats from the current project state
   const objectCount = project.objects.length;
   const actionCount = project.objects.reduce((sum, obj) => sum + (obj.actions?.length || 0), 0);
   const linkCount = project.links.length;
-  const hasProject = objectCount > 0;
+  const hasProjectData = objectCount > 0;
 
-  // Check if objects need more structure (missing descriptions or properties)
+  // Check if objects need more structure
   const objectsNeedStructure = project.objects.some(obj =>
     !obj.description || obj.description.length < 10 ||
     !obj.properties || obj.properties.length === 0
   );
 
-  // Determine current phase and next step based on project state
-  // Phase 0: Not started, Phase 1: Discovery, Phase 2: Modeling, Phase 3: Integration, Phase 4: AI Design
+  // Determine current phase
   const getCurrentPhase = (): number => {
-    if (!hasProject) return 0; // Not started - Discovery phase
-    // If objects exist but need structure (missing descriptions/properties), stay in modeling
+    if (!hasProjectData) return 0;
     if (objectsNeedStructure) return 1;
-    // If no actions defined, continue modeling
     if (actionCount === 0) return 1;
-    // If no links and have actions, move to integration phase
     if (linkCount === 0) return 2;
-    // Has everything basic, move to AI design phase
     return 3;
   };
 
@@ -168,16 +206,117 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
     { label: t.stepAIDesign, phase: t.phaseAIDesign, tab: 'aiEnhancement', icon: <Zap size={14} /> },
   ];
 
+  // Show loading state
+  if (!isInitialized) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="animate-pulse text-muted">Loading...</div>
+      </div>
+    );
+  }
+
+  // ============================================
+  // STATE 1: No projects at all - Onboarding
+  // ============================================
+  if (projects.length === 0) {
+    return (
+      <div className="h-full overflow-y-auto p-8">
+        <div className="max-w-2xl mx-auto space-y-8">
+          {/* Hero Section */}
+          <div className="text-center py-12">
+            <div
+              className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6"
+              style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-bg-base)' }}
+            >
+              <Rocket size={40} />
+            </div>
+            <h1
+              className="text-3xl font-semibold mb-3"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              {t.welcomeNew}
+            </h1>
+            <p className="text-muted text-base">{t.subtitleNew}</p>
+          </div>
+
+          {/* Create First Project Card */}
+          <div
+            className="rounded-2xl p-8 text-center"
+            style={{
+              backgroundColor: 'var(--color-bg-surface)',
+              border: '1px solid var(--color-border)',
+            }}
+          >
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+              style={{ backgroundColor: 'var(--color-accent)15', color: 'var(--color-accent)' }}
+            >
+              <FolderPlus size={32} />
+            </div>
+            <h2
+              className="text-xl font-medium mb-2"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              {t.createFirstProject}
+            </h2>
+            <p className="text-sm text-muted mb-6 max-w-md mx-auto">
+              {t.createFirstDesc}
+            </p>
+            <button
+              onClick={() => setShowNewProject(true)}
+              className="px-8 py-3 rounded-xl font-medium text-base transition-all hover:opacity-90"
+              style={{
+                backgroundColor: 'var(--color-accent)',
+                color: 'var(--color-bg-base)'
+              }}
+            >
+              {t.createProjectBtn}
+            </button>
+          </div>
+
+          {/* Or browse templates */}
+          <div className="text-center">
+            <p className="text-sm text-muted mb-3">{t.orBrowseTemplates}</p>
+            <button
+              onClick={() => onNavigate('archetypes')}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all hover:bg-white/5"
+              style={{ color: 'var(--color-accent)' }}
+            >
+              <Package size={16} />
+              {t.browseTemplates}
+              <ArrowRight size={14} />
+            </button>
+          </div>
+        </div>
+
+        {/* New Project Dialog */}
+        {showNewProject && (
+          <NewProjectDialog
+            lang={lang}
+            onClose={() => setShowNewProject(false)}
+            onCreated={() => {
+              setShowNewProject(false);
+              onNavigate('scouting');
+            }}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // ============================================
+  // STATE 2: Has projects - Normal Quick Start
+  // ============================================
   return (
     <div className="h-full overflow-y-auto p-8">
       <div className="max-w-4xl mx-auto space-y-8">
-        {/* Hero Section */}
+        {/* Hero Section with Current Project */}
         <div className="text-center py-8">
           <div
             className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
             style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-bg-base)' }}
           >
-            <span className="text-3xl">🚀</span>
+            <Sparkles size={32} />
           </div>
           <h1
             className="text-2xl font-semibold mb-2"
@@ -185,7 +324,32 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
           >
             {t.welcome}
           </h1>
-          <p className="text-muted text-sm">{t.subtitle}</p>
+          <p className="text-muted text-sm mb-4">{t.subtitle}</p>
+
+          {/* Current Project Badge */}
+          {activeProject && (
+            <div
+              className="inline-flex items-center gap-3 px-4 py-2 rounded-full"
+              style={{
+                backgroundColor: 'var(--color-bg-surface)',
+                border: '1px solid var(--color-border)',
+              }}
+            >
+              <span className="text-xs text-muted">{t.currentProjectLabel}:</span>
+              <span
+                className="text-sm font-medium"
+                style={{ color: 'var(--color-accent)' }}
+              >
+                {activeProject.name}
+              </span>
+              <button
+                onClick={() => onNavigate('projects')}
+                className="text-xs text-muted hover:text-primary transition-colors"
+              >
+                {t.switchProject}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Path Selection Cards */}
@@ -235,7 +399,7 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
           </div>
         </div>
 
-        {/* Workflow Timeline - Clickable */}
+        {/* Workflow Timeline */}
         <div
           className="glass-card rounded-xl p-6"
           style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}
@@ -269,16 +433,12 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
               {flowSteps.map((step, index) => {
                 const isCompleted = index < currentPhase;
                 const isCurrent = index === currentPhase;
-                const isDisabled = !hasProject && index > 0;
 
                 return (
                   <button
                     key={index}
-                    onClick={() => !isDisabled && onNavigate(step.tab)}
-                    disabled={isDisabled}
-                    className={`flex flex-col items-center text-center w-1/4 transition-all ${
-                      isDisabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:scale-105'
-                    }`}
+                    onClick={() => onNavigate(step.tab)}
+                    className="flex flex-col items-center text-center w-1/4 cursor-pointer hover:scale-105 transition-all"
                   >
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium mb-3 relative z-10 transition-all"
@@ -321,7 +481,7 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
             {t.currentProject}
           </h2>
 
-          {hasProject ? (
+          {hasProjectData ? (
             <>
               <div className="grid grid-cols-3 gap-4 mb-4">
                 <div

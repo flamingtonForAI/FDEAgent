@@ -7,7 +7,7 @@ import ChatMessagesPanel from './components/ChatMessagesPanel';
 import OntologyModeler from './components/OntologyModeler';
 import SystemIntegration from './components/SystemIntegration';
 import AIEnhancement from './components/AIEnhancement';
-import Settings from './components/Settings';
+// Settings replaced by UnifiedSettings
 import Academy from './components/Academy';
 import QualityPanel from './components/QualityPanel';
 import ArchetypeBrowser from './components/ArchetypeBrowser';
@@ -15,17 +15,25 @@ import ArchetypeViewer from './components/ArchetypeViewer';
 import QuickStart from './components/QuickStart';
 import GlobalChatBar from './components/GlobalChatBar';
 import { getMergedArchetypeById } from './content/archetypes';
-import { LayoutDashboard, MessageSquare, Database, Zap, Languages, Network, Settings as SettingsIcon, RotateCcw, PenTool, Sparkles, GraduationCap, ShieldCheck, X, Package, ClipboardList, Rocket } from 'lucide-react';
-import { ThemeSwitcher } from './components/ui';
+import { LayoutDashboard, MessageSquare, Database, Network, Settings as SettingsIcon, Sparkles, GraduationCap, ShieldCheck, Package, Rocket, LogIn, FolderOpen } from 'lucide-react';
+// ThemeSwitcher moved to UnifiedSettings
 import { Theme, loadSavedTheme, applyTheme } from './lib/themes';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { SyncProvider, useSync } from './contexts/SyncContext';
+import { ProjectProvider, useProject } from './contexts/ProjectContext';
+import { AuthModal, UserMenu } from './components/auth';
+import { storage } from './lib/storage';
+import ProjectDashboard from './components/ProjectDashboard';
+import UnifiedSettings from './components/UnifiedSettings';
 
 const translations = {
   en: {
     title: "Ontology Architect",
     subtitle: "Intelligent OS Studio",
+    projects: "Projects",
     quickStart: "Quick Start",
     academy: "Learning Center",
-    archetypes: "Archetypes",
+    archetypes: "Templates",
     // 4 Core Phases
     phase1: "1. Discover",
     phase1Desc: "Requirement Scouting",
@@ -52,14 +60,15 @@ const translations = {
     mapping: "Mapping Entities, Relations & Intelligence",
     newSession: "New Session",
     confirmNewSession: "Start a new session? Current conversation and design will be cleared.",
-    applyArchetype: "Apply archetype to current project? This will replace existing ontology design.",
+    applyArchetype: "Apply template to current project? This will replace existing ontology design.",
   },
   cn: {
     title: "本体架构师",
     subtitle: "智能操作系统工作室",
+    projects: "项目管理",
     quickStart: "快速开始",
     academy: "学习中心",
-    archetypes: "行业原型",
+    archetypes: "行业模板",
     // 4 Core Phases
     phase1: "1. 发现",
     phase1Desc: "需求勘察",
@@ -86,7 +95,7 @@ const translations = {
     mapping: "映射实体、关系与智能逻辑",
     newSession: "新建会话",
     confirmNewSession: "确定要开始新会话吗？当前的对话和设计将被清除。",
-    applyArchetype: "应用此原型到当前项目？这将替换现有的 Ontology 设计。",
+    applyArchetype: "应用此模板到当前项目？这将替换现有的本体设计。",
   }
 };
 
@@ -150,8 +159,8 @@ const loadProjectState = (): ProjectState => {
 };
 
 // 有效的工作流标签页（用于恢复上次位置）
-type WorkflowTab = 'quickStart' | 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview' | 'aiEnhancement';
-const validWorkflowTabs: WorkflowTab[] = ['quickStart', 'academy', 'archetypes', 'scouting', 'workbench', 'ontology', 'actionDesigner', 'systemMap', 'aip', 'overview', 'aiEnhancement'];
+type WorkflowTab = 'projects' | 'quickStart' | 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview' | 'aiEnhancement';
+const validWorkflowTabs: WorkflowTab[] = ['projects', 'quickStart', 'academy', 'archetypes', 'scouting', 'workbench', 'ontology', 'actionDesigner', 'systemMap', 'aip', 'overview', 'aiEnhancement'];
 
 // 从localStorage加载上次活跃的标签页
 const loadLastActiveTab = (): WorkflowTab => {
@@ -179,9 +188,9 @@ const loadLastActiveTab = (): WorkflowTab => {
   return 'quickStart';
 };
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [lang, setLang] = useState<Language>('cn');
-  const [activeTab, setActiveTab] = useState<'quickStart' | 'academy' | 'archetypes' | 'archetypeViewer' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview' | 'aiEnhancement'>(loadLastActiveTab);
+  const [activeTab, setActiveTab] = useState<'projects' | 'quickStart' | 'academy' | 'archetypes' | 'archetypeViewer' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview' | 'aiEnhancement'>(loadLastActiveTab);
   const [project, setProject] = useState<ProjectState>(loadProjectState);
   const [isDesigning, setIsDesigning] = useState(false);
   const initialChatMessages = useMemo(loadChatMessages, []);
@@ -207,6 +216,27 @@ const App: React.FC = () => {
   const [isChatExpanded, setIsChatExpanded] = useState(false);
   const [isChatLoading, setIsChatLoading] = useState(false);
 
+  // Auth state
+  const { isAuthenticated, user } = useAuth();
+  const { sync, status: syncStatus } = useSync();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // Set auth check for storage
+  useEffect(() => {
+    storage.setAuthCheck(() => isAuthenticated);
+  }, [isAuthenticated]);
+
+  // Migrate local data to cloud on first login
+  useEffect(() => {
+    if (isAuthenticated) {
+      storage.migrateLocalToCloud().then((projectId) => {
+        if (projectId) {
+          console.log('Migrated local project to cloud:', projectId);
+        }
+      });
+    }
+  }, [isAuthenticated]);
+
   // 将 activeTab 映射到 phase 类型
   const getCurrentPhase = useCallback((): 'discover' | 'model' | 'integrate' | 'enhance' => {
     switch (activeTab) {
@@ -214,6 +244,7 @@ const App: React.FC = () => {
       case 'quickStart':
       case 'academy':
       case 'archetypes':
+      case 'projects':
         return 'discover';
       case 'workbench':
       case 'ontology':
@@ -280,14 +311,41 @@ const App: React.FC = () => {
     };
   }, [chatMessages]);
 
-  // 保存项目状态到localStorage
+  // 保存项目状态到localStorage并同步到云端
+  // 注意：只在有实际数据时才保存，避免空状态触发迁移逻辑
   useEffect(() => {
+    // 只有当项目有实际数据时才保存到旧格式 localStorage
+    // 这样新用户不会因为空状态而触发迁移创建 "迁移项目"
+    const hasData = project.objects.length > 0 ||
+                    project.industry ||
+                    project.useCase;
+
+    if (!hasData) {
+      return; // 不保存空状态
+    }
+
     try {
       localStorage.setItem('ontology-project-state', JSON.stringify(project));
+      // Queue cloud sync if authenticated
+      if (isAuthenticated && project.objects.length > 0) {
+        sync({
+          projects: [{
+            id: storage.getCloudProjectId() || undefined,
+            name: project.projectName || 'Untitled Project',
+            industry: project.industry,
+            useCase: project.useCase,
+            status: project.status,
+            objects: project.objects,
+            links: project.links,
+            integrations: project.integrations,
+            aiRequirements: project.aiRequirements,
+          }],
+        });
+      }
     } catch (e) {
       console.error('保存项目状态失败:', e);
     }
-  }, [project]);
+  }, [project, isAuthenticated, sync]);
 
   // 保存当前标签页到localStorage（用于恢复上次工作位置）
   useEffect(() => {
@@ -370,7 +428,7 @@ const App: React.FC = () => {
     }
   }, [lang]);
 
-  const triggerAutoDesign = async () => {
+  const triggerAutoDesign = useCallback(async () => {
     console.log('triggerAutoDesign called');
     console.log('aiSettings:', aiSettings);
     console.log('chatHistoryRef.current:', chatHistoryRef.current);
@@ -402,11 +460,7 @@ const App: React.FC = () => {
     } finally {
       setIsDesigning(false);
     }
-  };
-
-  const toggleLanguage = () => {
-    setLang(prev => prev === 'en' ? 'cn' : 'en');
-  };
+  }, [lang, aiSettings.model, handleDesignComplete]);
 
   const handleNewSession = () => {
     if (window.confirm(t.confirmNewSession)) {
@@ -466,8 +520,38 @@ const App: React.FC = () => {
       targetObjectId: connector.mappedObjects[0]?.objectId || '',
     }));
 
+    // Add a system message marking the context boundary (instead of clearing everything)
+    const systemMessage: ChatMessage = {
+      role: 'system',
+      content: lang === 'cn'
+        ? `📦 **已导入行业原型：${archetype.metadata.name}**\n\n` +
+          `• 行业：${archetype.metadata.industry}\n` +
+          `• 领域：${archetype.metadata.domain}\n` +
+          `• 包含：${objects.length} 个对象类型\n\n` +
+          `_以下对话将基于此原型展开，之前的对话上下文已归档。_`
+        : `📦 **Imported Archetype: ${archetype.metadata.name}**\n\n` +
+          `• Industry: ${archetype.metadata.industry}\n` +
+          `• Domain: ${archetype.metadata.domain}\n` +
+          `• Contains: ${objects.length} object types\n\n` +
+          `_Conversations below will be based on this archetype. Previous context has been archived._`,
+      metadata: {
+        type: 'archetype_import',
+        archetypeId: archetypeId,
+        archetypeName: archetype.metadata.name,
+        timestamp: new Date().toISOString()
+      }
+    };
+
+    // Keep chat history but add context boundary
+    setChatMessages(prev => [...prev, systemMessage]);
+    chatHistoryRef.current = [...chatHistoryRef.current, systemMessage];
+
+    // Clear AI analysis result (it's no longer relevant to the new ontology)
+    setAiAnalysisResult(null);
+
     setProject(prev => ({
       ...prev,
+      projectName: archetype.metadata.name,
       industry: archetype.metadata.industry,
       useCase: archetype.metadata.domain,
       objects,
@@ -496,6 +580,12 @@ const App: React.FC = () => {
         <nav className="flex-1 p-3 overflow-y-auto">
           {/* Getting Started Section - For beginners */}
           <NavSection label={t.sectionGettingStarted} />
+          <NavItem
+            active={activeTab === 'projects'}
+            onClick={() => setActiveTab('projects')}
+            icon={<FolderOpen size={16} />}
+            label={t.projects}
+          />
           <NavItem
             active={activeTab === 'quickStart'}
             onClick={() => setActiveTab('quickStart')}
@@ -560,57 +650,45 @@ const App: React.FC = () => {
           />
         </nav>
 
+        {/* Sidebar Footer - Simplified */}
         <div className="p-3 space-y-2" style={{ borderTop: '1px solid var(--color-border)' }}>
-          {/* 主题切换 */}
-          <div className="flex items-center justify-between px-1">
-            <span className="text-xs text-muted">{lang === 'cn' ? '主题' : 'Theme'}</span>
-            <ThemeSwitcher
-              currentTheme={currentTheme}
-              onThemeChange={setCurrentTheme}
-            />
-          </div>
+          {/* 用户账号区域 */}
+          {isAuthenticated ? (
+            <UserMenu lang={lang} />
+          ) : (
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs hover:bg-white/[0.04] transition-colors text-muted"
+            >
+              <div className="flex items-center gap-2">
+                <LogIn size={14} />
+                <span>{lang === 'cn' ? '登录 / 注册' : 'Sign In'}</span>
+              </div>
+              <span className="text-[10px]" style={{ color: 'var(--color-accent)' }}>
+                {lang === 'cn' ? '云同步' : 'Cloud Sync'}
+              </span>
+            </button>
+          )}
 
-          {/* 设置按钮 */}
+          {/* 统一设置入口 */}
           <button
             onClick={() => setShowSettings(true)}
             className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs hover:bg-white/[0.04] transition-colors text-muted"
           >
             <div className="flex items-center gap-2">
               <SettingsIcon size={14} />
-              <span>{lang === 'cn' ? 'AI 设置' : 'AI Settings'}</span>
+              <span>{lang === 'cn' ? '设置' : 'Settings'}</span>
             </div>
-            <span className="text-[10px] truncate max-w-[80px]" style={{ color: 'var(--color-accent)' }}>
-              {getCurrentModelName()}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] truncate max-w-[60px]" style={{ color: 'var(--color-accent)' }}>
+                {getCurrentModelName()}
+              </span>
+              <div
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ backgroundColor: aiSettings.apiKey ? 'var(--color-success)' : 'var(--color-warning)' }}
+              />
+            </div>
           </button>
-
-          <div className="flex gap-2">
-            <button
-              onClick={toggleLanguage}
-              className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs hover:bg-white/[0.04] transition-colors text-muted"
-            >
-              <Languages size={12} />
-              {lang === 'en' ? 'EN' : '中文'}
-            </button>
-            <button
-              onClick={handleNewSession}
-              className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs hover:bg-red-500/10 hover:text-red-400 transition-colors text-muted"
-            >
-              <RotateCcw size={12} />
-              {lang === 'cn' ? '重置' : 'Reset'}
-            </button>
-          </div>
-
-          {/* 状态指示器 */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
-            <div
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ backgroundColor: aiSettings.apiKey ? 'var(--color-success)' : 'var(--color-warning)' }}
-            />
-            <span className="text-[10px] text-muted">
-              {aiSettings.apiKey ? t.ready : (lang === 'cn' ? '需配置 API' : 'API Required')}
-            </span>
-          </div>
         </div>
       </aside>
 
@@ -631,6 +709,12 @@ const App: React.FC = () => {
         )}
 
         <div className="flex-1 overflow-y-auto">
+          {activeTab === 'projects' && (
+            <ProjectDashboard
+              lang={lang}
+              onOpenProject={() => setActiveTab('scouting')}
+            />
+          )}
           {activeTab === 'quickStart' && (
             <QuickStart lang={lang} project={project} onNavigate={setActiveTab} />
           )}
@@ -735,12 +819,16 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Settings Modal */}
+      {/* Unified Settings Modal */}
       {showSettings && (
-        <Settings
+        <UnifiedSettings
           lang={lang}
-          settings={aiSettings}
-          onSettingsChange={handleSettingsChange}
+          aiSettings={aiSettings}
+          currentTheme={currentTheme}
+          onAISettingsChange={handleSettingsChange}
+          onThemeChange={setCurrentTheme}
+          onLanguageChange={setLang}
+          onReset={handleNewSession}
           onClose={() => setShowSettings(false)}
         />
       )}
@@ -763,7 +851,27 @@ const App: React.FC = () => {
           historyRef={chatHistoryRef}
         />
       )}
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        lang={lang}
+      />
     </div>
+  );
+};
+
+// Wrapper component with providers
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <SyncProvider>
+        <ProjectProvider>
+          <AppContent />
+        </ProjectProvider>
+      </SyncProvider>
+    </AuthProvider>
   );
 };
 

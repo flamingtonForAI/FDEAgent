@@ -510,6 +510,10 @@ export interface ArchetypeOrigin {
   confidence?: number;       // AI 置信度 (0-1)
   promptVersion?: string;    // 使用的 prompt 版本
 
+  // === 导入类型字段 ===
+  importedAt?: string;       // 导入日期 (ISO 8601)
+  fileName?: string;         // 导入的文件名
+
   // === 通用字段 ===
   userInput?: {              // 用户输入的原始信息
     industryName: string;

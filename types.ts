@@ -18,6 +18,7 @@ export enum AIIntegrationType {
 export interface Property {
   name: string;
   type: string;
+  description?: string;       // Property description for documentation
   isAIDerived?: boolean;
   logicDescription?: string;
 }
@@ -28,6 +29,14 @@ export interface ActionParameter {
   type: 'string' | 'number' | 'boolean' | 'date' | 'object' | 'array';
   required: boolean;
   description: string;
+}
+
+// 回滚策略定义 (Rollback Strategy for high-risk actions)
+export interface RollbackStrategy {
+  type: 'compensating_action' | 'manual' | 'none';
+  compensatingAction?: string;    // Name of the action to execute for rollback
+  timeoutMinutes?: number;        // Time window for rollback availability
+  requiresApproval?: boolean;     // Whether rollback requires approval
 }
 
 // Action三层定义
@@ -80,6 +89,10 @@ export interface AIPAction {
     auditLog: boolean;              // 是否记录审计日志
     riskLevel?: 'low' | 'medium' | 'high';  // 风险等级
   };
+
+  // === 回滚策略 (Rollback Strategy) ===
+  // Required for Tier 3-4 actions to ensure recoverability
+  rollbackStrategy?: RollbackStrategy;
 }
 
 export interface ExternalIntegration {
@@ -89,16 +102,50 @@ export interface ExternalIntegration {
   targetObjectId: string;
 }
 
+// ============= State Machine Modeling =============
+
+// 状态转换定义 (State Transition Definition)
+export interface StateTransition {
+  from: string;           // Source state name
+  to: string;             // Target state name
+  trigger: string;        // Action or event that triggers the transition
+  guard?: string;         // Optional condition that must be true for transition
+  description?: string;   // Human-readable description of the transition
+}
+
+// 状态定义 (State Definition)
+export interface StateDefinition {
+  name: string;                   // State name (e.g., 'pending', 'approved', 'rejected')
+  description?: string;           // Human-readable description
+  isInitial?: boolean;            // Whether this is the initial state
+  isFinal?: boolean;              // Whether this is a terminal state
+  allowedActions?: string[];      // Actions available in this state
+  metadata?: Record<string, any>; // Additional state metadata
+}
+
+// 状态机定义 (State Machine Definition)
+export interface StateMachine {
+  statusProperty: string;         // Property name that holds the status (e.g., 'status', 'state')
+  states: StateDefinition[];      // All possible states
+  transitions: StateTransition[]; // All valid transitions
+  description?: string;           // Human-readable description of the state machine
+}
+
 export interface OntologyObject {
   id: string;
   name: string;
+  nameCn?: string;            // Chinese name for bilingual support
   description: string;
+  descriptionCn?: string;     // Chinese description for bilingual support
+  primaryKey?: string;        // Primary key field identifier
+  objectType?: 'entity' | 'event' | 'document' | 'reference';  // Object classification
   properties: Property[];
   actions: AIPAction[];
   aiFeatures: {
     type: AIIntegrationType;
     description: string;
   }[];
+  stateMachine?: StateMachine;  // Optional state machine for lifecycle management
 }
 
 export interface OntologyLink {
@@ -107,6 +154,7 @@ export interface OntologyLink {
   target: string;
   label: string;
   isSemantic?: boolean;
+  cardinality?: '1:1' | '1:N' | 'N:1' | 'N:N';  // Relationship cardinality
 }
 
 // 用户提出的智能化需求
@@ -121,6 +169,7 @@ export interface AIRequirement {
 }
 
 export interface ProjectState {
+  projectName?: string;  // 项目名称（用于云端同步）
   industry: string;
   useCase: string;
   objects: OntologyObject[];
@@ -131,8 +180,98 @@ export interface ProjectState {
 }
 
 export interface ChatMessage {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
+  // 系统消息的元数据（用于标记上下文边界）
+  metadata?: {
+    type?: 'archetype_import' | 'session_start' | 'context_boundary' | 'milestone' | 'project_created';
+    archetypeId?: string;
+    archetypeName?: string;
+    timestamp?: string;
+    projectId?: string;       // 关联的项目ID
+    snapshotId?: string;      // 关联的快照ID（用于版本回滚）
+    tags?: string[];          // 对话标签，用于过滤
+  };
+}
+
+// ============= Project Management =============
+
+/**
+ * 项目状态枚举
+ * - draft: 草稿，正在设计中
+ * - active: 活跃，设计基本完成，可以使用
+ * - archived: 已归档，不再修改但保留查看
+ * - completed: 已完成，设计定稿
+ */
+export type ProjectStatus = 'draft' | 'active' | 'archived' | 'completed';
+
+/**
+ * 项目元数据
+ * 存储项目的基本信息，不包含具体的本体设计数据
+ */
+export interface Project {
+  id: string;                          // UUID, 唯一标识
+  name: string;                        // 项目名称
+  description?: string;                // 项目描述
+  industry: string;                    // 行业分类
+  useCase: string;                     // 使用场景
+
+  // 项目状态生命周期
+  status: ProjectStatus;
+
+  // 时间戳 (ISO 8601)
+  createdAt: string;
+  updatedAt: string;
+  archivedAt?: string;
+
+  // 版本控制
+  version: number;                     // 设计版本号，每次修改+1
+
+  // 关键引用
+  baseArchetypeId?: string;            // 基于哪个原型创建（如果为null，则为从零开始）
+  baseArchetypeName?: string;          // 基于的原型名称（用于显示）
+
+  // 搜索与分类
+  tags?: string[];                     // 标签：['零售', 'ERP集成', 'AI优化']
+
+  // 云端同步
+  cloudProjectId?: string;             // 云端项目ID（如果已同步）
+  lastSyncAt?: string;                 // 最后同步时间
+}
+
+/**
+ * 项目列表视图的简化类型
+ * 用于项目列表展示，不需要完整的本体数据
+ */
+export interface ProjectListItem {
+  id: string;
+  name: string;
+  description?: string;
+  industry: string;
+  status: ProjectStatus;
+  baseArchetypeName?: string;          // 显示：基于 XXX 模板
+  createdAt: string;
+  updatedAt: string;
+  version: number;
+  tags?: string[];
+  // 进度指标
+  progress: {
+    objectCount: number;
+    linkCount: number;
+    actionCount: number;
+    completeness: number;              // 0-100，设计完整度
+  };
+}
+
+/**
+ * 项目会话数据
+ * 包含项目的完整工作数据：本体设计 + 聊天记录
+ */
+export interface ProjectSession {
+  projectId: string;                   // 所属项目ID
+  project: Project;                    // 项目元数据
+  ontologyState: ProjectState;         // 本体设计状态
+  chatHistory: ChatMessage[];          // 该项目的聊天记录
 }
 
 // ============= AI Provider Settings =============

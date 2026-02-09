@@ -18,6 +18,12 @@ import { retailOmnichannelArchetype } from './retail-omnichannel';
 import { healthcareFHIRArchetype } from './healthcare-fhir';
 import { aquacultureFarmingArchetype } from './aquaculture-farming';
 import { aviationMROArchetype } from './aviation-mro';
+// New archetypes based on Palantir case studies
+import { defenseIntelligenceArchetype } from './defense-intelligence';
+import { energyUtilitiesArchetype } from './energy-utilities';
+import { financialAmlArchetype } from './financial-aml';
+import { automotiveSupplyChainArchetype } from './automotive-supply-chain';
+import { insuranceRiskArchetype } from './insurance-risk';
 
 // 所有 Archetypes
 export const allArchetypes: Archetype[] = [
@@ -27,6 +33,12 @@ export const allArchetypes: Archetype[] = [
   healthcareFHIRArchetype,       // Healthcare clinical operations (FHIR)
   aquacultureFarmingArchetype,   // Smart aquaculture & livestock farming
   aviationMROArchetype,          // Aviation MRO operations
+  // New archetypes based on Palantir case studies
+  insuranceRiskArchetype,        // Insurance Risk Management (Sompo/Swiss Re)
+  defenseIntelligenceArchetype,  // Defense & Military Intelligence (TITAN/Maven)
+  energyUtilitiesArchetype,      // Energy & Utilities (BP/PG&E)
+  financialAmlArchetype,         // Financial AML & Fraud (Societe Generale)
+  automotiveSupplyChainArchetype, // Automotive Supply Chain (Stellantis/Lear)
 ];
 
 // Archetype 映射 (by ID)
@@ -37,6 +49,12 @@ export const archetypesById: Record<string, Archetype> = {
   'healthcare-fhir-clinical': healthcareFHIRArchetype,
   'aquaculture-smart-farming': aquacultureFarmingArchetype,
   'aviation-mro-operations': aviationMROArchetype,
+  // New archetypes based on Palantir case studies
+  'insurance-risk-management': insuranceRiskArchetype,
+  'defense-intelligence': defenseIntelligenceArchetype,
+  'energy-utilities': energyUtilitiesArchetype,
+  'financial-aml': financialAmlArchetype,
+  'automotive-supply-chain': automotiveSupplyChainArchetype,
 };
 
 // 获取静态 Archetype 索引列表
@@ -49,11 +67,11 @@ export function getArchetypeIndexList(): ArchetypeIndex[] {
     domain: a.metadata.domain,
     version: a.metadata.version,
     stats: {
-      objectCount: a.ontology.objects.length,
-      actionCount: a.ontology.objects.reduce((sum, obj) => sum + (obj.actions?.length || 0), 0),
-      connectorCount: a.connectors.length,
-      workflowCount: a.workflows.length,
-      dashboardCount: a.dashboards.length,
+      objectCount: a.ontology?.objects?.length || 0,
+      actionCount: a.ontology?.objects?.reduce((sum, obj) => sum + (obj.actions?.length || 0), 0) || 0,
+      connectorCount: a.connectors?.length || 0,
+      workflowCount: a.workflows?.length || 0,
+      dashboardCount: a.dashboards?.length || 0,
     },
     tags: extractTags(a),
     estimatedDeploymentTime: a.metadata.usage?.avgDeploymentTime || '1-2 weeks',
@@ -156,18 +174,20 @@ export async function getImportedArchetypes(): Promise<StoredArchetype[]> {
 
 // 从 Archetype 提取标签
 function extractTags(archetype: Archetype): string[] {
-  const tags: string[] = [archetype.metadata.industry, archetype.metadata.domain];
+  const tags: string[] = [archetype.metadata?.industry, archetype.metadata?.domain].filter(Boolean) as string[];
 
-  // 添加 AI 能力标签
-  if (archetype.aiCapabilities.length > 0) {
+  // 添加 AI 能力标签 (safely check for aiCapabilities)
+  if (archetype.aiCapabilities && archetype.aiCapabilities.length > 0) {
     tags.push('ai-enabled');
   }
 
   // 添加数据源类型标签
-  const sourceTypes = new Set(archetype.connectors.map(c => c.sourceType));
-  if (sourceTypes.has('erp')) tags.push('erp-integration');
-  if (sourceTypes.has('mes')) tags.push('mes-integration');
-  if (sourceTypes.has('iot')) tags.push('iot-enabled');
+  if (archetype.connectors && archetype.connectors.length > 0) {
+    const sourceTypes = new Set(archetype.connectors.map(c => c.sourceType));
+    if (sourceTypes.has('erp')) tags.push('erp-integration');
+    if (sourceTypes.has('mes')) tags.push('mes-integration');
+    if (sourceTypes.has('iot')) tags.push('iot-enabled');
+  }
 
   return tags;
 }
@@ -205,5 +225,11 @@ export {
   retailOmnichannelArchetype,
   healthcareFHIRArchetype,
   aquacultureFarmingArchetype,
-  aviationMROArchetype
+  aviationMROArchetype,
+  // New archetypes based on Palantir case studies
+  insuranceRiskArchetype,
+  defenseIntelligenceArchetype,
+  energyUtilitiesArchetype,
+  financialAmlArchetype,
+  automotiveSupplyChainArchetype
 };
