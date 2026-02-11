@@ -554,7 +554,7 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 pb-24 space-y-4">
         {/* Empty State Guidance - show when no objects and no meaningful chat */}
         {(project.objects?.length || 0) === 0 && (!chatMessages || chatMessages.length < 2) && (
           <div

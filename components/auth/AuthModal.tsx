@@ -50,11 +50,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md mx-4 glass-surface rounded-2xl p-8 shadow-2xl border border-white/10">
+      <div
+        className="relative w-full max-w-md mx-4 rounded-2xl p-8 shadow-2xl"
+        style={{
+          backgroundColor: 'var(--color-bg-elevated)',
+          border: '1px solid var(--color-border)'
+        }}
+      >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-white/5 transition-colors text-muted hover:text-white"
+          className="absolute top-4 right-4 p-2 rounded-lg transition-colors"
+          style={{ color: 'var(--color-text-muted)' }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+            e.currentTarget.style.color = 'var(--color-text-primary)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.color = 'var(--color-text-muted)';
+          }}
         >
           <X size={20} />
         </button>

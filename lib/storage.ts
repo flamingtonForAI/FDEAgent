@@ -825,6 +825,34 @@ class HybridStorage {
   }
 
   /**
+   * Clean up legacy global data after migration is complete
+   * This removes old single-project storage keys that are no longer used
+   */
+  cleanupLegacyData(): void {
+    // Only cleanup if migration is already done
+    if (!localStorage.getItem(STORAGE_KEYS.MIGRATION_DONE)) {
+      return;
+    }
+
+    // Remove legacy global chat messages key
+    const oldChat = localStorage.getItem(STORAGE_KEYS.CHAT_MESSAGES);
+    if (oldChat) {
+      console.info('Cleaning up legacy global chat messages...');
+      localStorage.removeItem(STORAGE_KEYS.CHAT_MESSAGES);
+    }
+
+    // Remove legacy project state if we have multi-project data
+    const hasMultiProjectData = this.listProjectsLocal().length > 0;
+    if (hasMultiProjectData) {
+      const oldState = localStorage.getItem(STORAGE_KEYS.PROJECT_STATE);
+      if (oldState) {
+        console.info('Cleaning up legacy project state...');
+        localStorage.removeItem(STORAGE_KEYS.PROJECT_STATE);
+      }
+    }
+  }
+
+  /**
    * Migrate old single-project data to multi-project format
    */
   migrateOldData(): string | null {
@@ -898,6 +926,9 @@ class HybridStorage {
     if (!activeId && this.needsMigration()) {
       activeId = this.migrateOldData();
     }
+
+    // Clean up legacy data after migration
+    this.cleanupLegacyData();
 
     if (!activeId) {
       return null;

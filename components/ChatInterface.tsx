@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { AIService, loadAISettings } from '../services/aiService';
 import { ChatMessage, ProjectState, Language, OntologyObject, OntologyLink, AIPAction, AIProvider } from '../types';
 import { OntologyCase } from '../types/case';
@@ -12,6 +12,13 @@ import ReadinessPanel from './ReadinessPanel';
 import { checkReadiness } from '../lib/readinessChecker';
 import SystemDNACard from './SystemDNACard';
 import { detectSystems, DetectedSystem } from '../lib/systemDNA';
+
+// Generate stable key for chat messages (index-based since messages are append-only)
+const generateMessageKey = (msg: ChatMessage, index: number): string => {
+  // Use role + index + first 32 chars of content hash for uniqueness
+  const contentHash = msg.content.slice(0, 32).replace(/\s+/g, '_');
+  return `${msg.role}-${index}-${contentHash}`;
+};
 
 interface ExtractedNoun {
   name: string;
@@ -124,6 +131,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [showValidationModal, setShowValidationModal] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const isMountedRef = useRef(true);
 
   // Noun/Verb Extraction states
   const [showExtractPanel, setShowExtractPanel] = useState(false);
@@ -246,10 +254,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
   }, [messages]);
 
+  // Track component mount status for cleanup
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   const renderedMessages = useMemo(() => (
     <>
       {messages.map((msg, i) => (
-        <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}>
+        <div key={generateMessageKey(msg, i)} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}>
           <div
             className={`message-bubble max-w-[75%] px-4 py-3 rounded-2xl ${msg.role === 'user' ? 'rounded-br-md' : 'glass-card text-secondary rounded-bl-md'}`}
             style={msg.role === 'user' ? { backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-primary)' } : {}}
@@ -616,7 +632,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       historyRef.current = [...historyRef.current, assistantMsg];
 
       // Trigger extraction, case analysis, and system DNA detection after successful message
+      // Check isMountedRef to prevent state updates on unmounted component
       setTimeout(() => {
+        if (!isMountedRef.current) return;
         extractFromConversation();
         analyzeCases();
         // Detect enterprise systems from user message
@@ -860,6 +878,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                       onClick={() => setUploadedFiles(prev => prev.filter(f => f.id !== file.id))}
                       className="p-1 rounded text-muted hover:text-primary transition-colors"
                       style={{ backgroundColor: 'transparent' }}
+                      aria-label={`Remove file ${file.name}`}
                     >
                       <X size={14} />
                     </button>
@@ -894,6 +913,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               onClick={handleSend}
               disabled={isLoading || !hasApiKey || (!input.trim() && uploadedFiles.length === 0)}
               className="btn-gradient p-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              aria-label={lang === 'cn' ? '发送消息' : 'Send message'}
             >
               <Send size={18} style={{ color: 'var(--color-bg-base)' }} />
             </button>

@@ -1,17 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { themes, Theme, applyTheme } from '../../lib/themes';
+import { Moon, Sun, Monitor, ChevronDown, Check } from 'lucide-react';
+import { ThemeMode, themeOptions, applyThemeMode, getSavedThemeMode, setupSystemThemeListener } from '../../lib/themes';
 
 interface ThemeSwitcherProps {
-  currentTheme: Theme;
-  onThemeChange: (theme: Theme) => void;
+  lang?: 'cn' | 'en';
 }
 
-export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
-  currentTheme,
-  onThemeChange,
-}) => {
+export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({ lang = 'cn' }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [currentMode, setCurrentMode] = useState<ThemeMode>(() => getSavedThemeMode());
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Setup system theme listener
+  useEffect(() => {
+    const cleanup = setupSystemThemeListener((mode) => {
+      if (mode === 'system') {
+        setCurrentMode('system');
+      }
+    });
+    return cleanup;
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -25,124 +33,93 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleThemeSelect = (theme: Theme) => {
-    applyTheme(theme);
-    onThemeChange(theme);
+  const handleModeSelect = (mode: ThemeMode) => {
+    applyThemeMode(mode);
+    setCurrentMode(mode);
     setIsOpen(false);
   };
 
-  const themeList = Object.values(themes);
+  const currentOption = themeOptions.find(o => o.id === currentMode) || themeOptions[0];
+
+  const getIcon = (mode: ThemeMode) => {
+    switch (mode) {
+      case 'dark': return <Moon size={16} />;
+      case 'light': return <Sun size={16} />;
+      case 'system': return <Monitor size={16} />;
+    }
+  };
 
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg glass-surface hover:border-[var(--color-border-hover)] transition-all"
-        title="切换主题"
+        className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
+        style={{
+          backgroundColor: 'var(--color-bg-surface)',
+          border: '1px solid var(--color-border)',
+          color: 'var(--color-text-secondary)'
+        }}
+        onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--color-border-hover)'}
+        onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--color-border)'}
+        title={lang === 'cn' ? '切换主题' : 'Switch theme'}
       >
-        {/* Theme icon */}
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          style={{ color: currentTheme.colors.accent }}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
-          />
-        </svg>
-        <span className="text-xs text-[var(--color-text-secondary)] hidden sm:inline">
-          {currentTheme.name}
+        {getIcon(currentMode)}
+        <span className="text-xs hidden sm:inline">
+          {currentOption.name[lang]}
         </span>
-        <svg
-          className={`w-3 h-3 text-[var(--color-text-muted)] transition-transform ${isOpen ? '' : 'rotate-180'}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+        <ChevronDown
+          size={12}
+          className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          style={{ color: 'var(--color-text-muted)' }}
+        />
       </button>
 
-      {/* Dropdown - opens upward */}
+      {/* Dropdown */}
       {isOpen && (
         <div
-          className="absolute right-0 bottom-full mb-2 w-64 rounded-xl shadow-xl z-[100] overflow-hidden border border-[var(--color-border)]"
-          style={{ backgroundColor: 'var(--color-bg-elevated)' }}
+          className="absolute right-0 bottom-full mb-2 w-48 rounded-xl shadow-xl z-[100] overflow-hidden"
+          style={{
+            backgroundColor: 'var(--color-bg-elevated)',
+            border: '1px solid var(--color-border)'
+          }}
         >
-          <div className="p-2 max-h-80 overflow-y-auto">
-            <div className="text-xs text-[var(--color-text-muted)] px-3 py-2 uppercase tracking-wider">
-              选择主题
-            </div>
-            {themeList.map((theme) => (
+          <div className="p-1.5">
+            {themeOptions.map((option) => (
               <button
-                key={theme.id}
-                onClick={() => handleThemeSelect(theme)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left ${
-                  currentTheme.id === theme.id
-                    ? 'bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/30'
-                    : 'hover:bg-[var(--color-bg-hover)]'
-                }`}
+                key={option.id}
+                onClick={() => handleModeSelect(option.id)}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left"
+                style={{
+                  backgroundColor: currentMode === option.id
+                    ? 'var(--color-bg-hover)'
+                    : 'transparent',
+                  color: currentMode === option.id
+                    ? 'var(--color-accent)'
+                    : 'var(--color-text-primary)'
+                }}
+                onMouseOver={(e) => {
+                  if (currentMode !== option.id) {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (currentMode !== option.id) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
               >
-                {/* Color preview */}
-                <div className="flex-shrink-0 flex gap-0.5">
-                  <div
-                    className="w-3 h-3 rounded-full border border-white/20"
-                    style={{ backgroundColor: theme.colors.bgBase }}
-                  />
-                  <div
-                    className="w-3 h-3 rounded-full border border-black/10"
-                    style={{ backgroundColor: theme.colors.accent }}
-                  />
-                  <div
-                    className="w-3 h-3 rounded-full border border-black/10"
-                    style={{ backgroundColor: theme.colors.accentSecondary }}
-                  />
-                </div>
-
-                {/* Theme info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-sm font-medium ${
-                        currentTheme.id === theme.id
-                          ? 'text-[var(--color-accent)]'
-                          : 'text-[var(--color-text-primary)]'
-                      }`}
-                    >
-                      {theme.name}
-                    </span>
-                    {!theme.isDark && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-warning)]/20 text-[var(--color-warning)]">
-                        Light
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-[var(--color-text-muted)] truncate">
-                    {theme.description}
-                  </p>
-                </div>
-
-                {/* Check mark */}
-                {currentTheme.id === theme.id && (
-                  <svg
-                    className="w-4 h-4 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    style={{ color: theme.colors.accent }}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                <span className="flex-shrink-0" style={{
+                  color: currentMode === option.id
+                    ? 'var(--color-accent)'
+                    : 'var(--color-text-muted)'
+                }}>
+                  {getIcon(option.id)}
+                </span>
+                <span className="flex-1 text-sm font-medium">
+                  {option.name[lang]}
+                </span>
+                {currentMode === option.id && (
+                  <Check size={16} style={{ color: 'var(--color-accent)' }} />
                 )}
               </button>
             ))}

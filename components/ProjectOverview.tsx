@@ -122,7 +122,7 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
   };
 
   return (
-    <div className="p-8 h-full bg-[var(--color-bg-elevated)] space-y-12 overflow-y-auto">
+    <div className="p-8 pb-24 h-full bg-[var(--color-bg-elevated)] space-y-12 overflow-y-auto">
       <div className="flex justify-between items-start">
         <div>
           <h2 className="text-3xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h2>

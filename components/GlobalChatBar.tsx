@@ -6,13 +6,14 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Send,
   Loader2,
-  Paperclip,
   ChevronUp,
   ChevronDown,
   X,
-  Sparkles
+  Sparkles,
+  FolderPlus
 } from 'lucide-react';
-import { Language, ProjectState, ChatMessage, AISettings } from '../types';
+import { Language, ProjectState, ChatMessage, AISettings, AIProvider } from '../types';
+import { FileUploadButton, UploadedFile } from './FileUpload';
 import { AIService } from '../services/aiService';
 
 type PhaseType = 'discover' | 'model' | 'integrate' | 'enhance';
@@ -35,6 +36,10 @@ interface GlobalChatBarProps {
   onLoadingChange?: (loading: boolean) => void;
   // 历史记录引用（用于 AI 设计）
   historyRef?: React.MutableRefObject<ChatMessage[]>;
+  // 当前活跃项目 ID - 用于检查是否有项目
+  activeProjectId?: string | null;
+  // 导航到项目页面的回调
+  onNavigateToProjects?: () => void;
 }
 
 // 根据阶段的占位符
@@ -186,13 +191,22 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
   onToggleExpand,
   messagesInMainArea = false,
   onLoadingChange,
-  historyRef
+  historyRef,
+  activeProjectId,
+  onNavigateToProjects
 }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Check if API key is configured
+  const hasApiKey = !!(aiSettings.apiKey || aiSettings.apiKeys?.[aiSettings.provider]);
+
+  // Check if there's an active project
+  const hasProject = !!activeProjectId;
 
   const placeholder = phasePlaceholders[currentPhase][lang];
   const phaseColor = phaseColors[currentPhase];
@@ -214,19 +228,48 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
 
   // 发送消息
   const handleSend = useCallback(async () => {
-    if (!input.trim() || isLoading) return;
+    // Allow send if there's input OR files
+    if ((!input.trim() && uploadedFiles.length === 0) || isLoading) return;
 
-    const userMessage = input.trim();
+    // Prepare message text
+    let userMessage = input.trim();
+
+    // If no text input but has files, add a default instruction
+    if (!userMessage && uploadedFiles.length > 0) {
+      userMessage = lang === 'cn'
+        ? '请分析以下文档，提取其中的业务对象、动作和流程，帮助我设计 Ontology。'
+        : 'Please analyze the following document(s), extract business objects, actions, and processes to help design the Ontology.';
+    }
+
+    // Store display content (without full file content for UI)
+    const currentFiles = [...uploadedFiles];
+    const displayContent = currentFiles.length > 0
+      ? `${input.trim() || (lang === 'cn' ? '分析文档' : 'Analyze document')}\n\n📎 ${currentFiles.map(f => f.name).join(', ')}`
+      : input.trim();
+
+    // Store full content for AI context (include text file contents)
+    let aiContent = userMessage;
+    if (currentFiles.length > 0) {
+      const textFileContents = currentFiles
+        .filter(f => !f.isBase64)
+        .map(f => `\n--- ${f.name} ---\n${f.content}\n--- End ---`)
+        .join('');
+      if (textFileContents) {
+        aiContent += textFileContents;
+      }
+    }
+
     setInput('');
+    setUploadedFiles([]); // Clear files after sending
     setError(null);
 
-    // 添加用户消息
-    const newUserMsg: ChatMessage = { role: 'user', content: userMessage };
+    // 添加用户消息（UI 显示版本）
+    const newUserMsg: ChatMessage = { role: 'user', content: displayContent };
     setChatMessages(prev => [...prev, newUserMsg]);
 
-    // 同步到 historyRef（用于 AI 设计）
+    // 同步到 historyRef（用于 AI 设计）- 使用完整内容
     if (historyRef) {
-      historyRef.current = [...historyRef.current, newUserMsg];
+      historyRef.current = [...historyRef.current, { role: 'user', content: aiContent }];
     }
 
     // 自动展开面板 (仅当消息不在主内容区域时)
@@ -244,13 +287,21 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
         { role: 'user', content: contextPrompt },
         { role: 'assistant', content: lang === 'cn' ? '我理解了当前上下文，请问有什么可以帮您？' : 'I understand the current context. How can I help you?' },
         ...chatMessages,
-        newUserMsg
+        { role: 'user', content: aiContent }
       ];
 
-      const response = await aiService.chat(
-        historyWithContext.slice(0, -1),
-        userMessage
-      );
+      // Convert uploaded files to FileAttachment format for AI service
+      const fileAttachments = currentFiles.map(f => ({
+        name: f.name,
+        content: f.content,
+        mimeType: f.mimeType,
+        isBase64: f.isBase64,
+      }));
+
+      // Use multimodal chat if there are files
+      const response = currentFiles.length > 0
+        ? await aiService.chatWithFiles(historyWithContext.slice(0, -1), userMessage, fileAttachments)
+        : await aiService.chat(historyWithContext.slice(0, -1), userMessage);
 
       // 添加 AI 回复
       const aiMsg: ChatMessage = { role: 'assistant', content: response };
@@ -286,13 +337,88 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
       setIsLoading(false);
       onLoadingChange?.(false);
     }
-  }, [input, isLoading, chatMessages, currentPhase, project, lang, aiService, setChatMessages, setProject, isExpanded, onToggleExpand, messagesInMainArea, onLoadingChange, historyRef]);
+  }, [input, uploadedFiles, isLoading, chatMessages, currentPhase, project, lang, aiService, setChatMessages, setProject, isExpanded, onToggleExpand, messagesInMainArea, onLoadingChange, historyRef]);
 
   // 处理键盘事件
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+    }
+  };
+
+  // 处理粘贴事件（支持截图、图片、文件）
+  const handlePaste = async (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items || !hasApiKey) return;
+
+    const newFiles: UploadedFile[] = [];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+
+      // Check if it's a file (image or other)
+      if (item.kind === 'file') {
+        const file = item.getAsFile();
+        if (!file) continue;
+
+        // Check size (max 10MB)
+        if (file.size > 10 * 1024 * 1024) continue;
+
+        // Check if we have room (max 3 files)
+        if (uploadedFiles.length + newFiles.length >= 3) break;
+
+        const ext = file.name.split('.').pop()?.toLowerCase() || '';
+        const isImage = file.type.startsWith('image/');
+        const isText = file.type.startsWith('text/') || ['json', 'md', 'txt', 'csv'].includes(ext);
+
+        // Read file
+        const fileData = await new Promise<UploadedFile | null>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            if (isText) {
+              const content = ev.target?.result as string;
+              resolve({
+                id: `file_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+                name: file.name || `pasted_${Date.now()}.txt`,
+                type: file.type || 'text/plain',
+                size: file.size,
+                content,
+                preview: content.slice(0, 200) + (content.length > 200 ? '...' : ''),
+                isBase64: false,
+                mimeType: file.type || 'text/plain',
+              });
+            } else {
+              const base64 = (ev.target?.result as string).split(',')[1];
+              resolve({
+                id: `file_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+                name: file.name || `pasted_image_${Date.now()}.${isImage ? 'png' : ext}`,
+                type: file.type,
+                size: file.size,
+                content: base64,
+                preview: `[${isImage ? (lang === 'cn' ? '图片' : 'Image') : file.type}]`,
+                isBase64: true,
+                mimeType: file.type || 'application/octet-stream',
+              });
+            }
+          };
+          reader.onerror = () => resolve(null);
+
+          if (isText) {
+            reader.readAsText(file);
+          } else {
+            reader.readAsDataURL(file);
+          }
+        });
+
+        if (fileData) {
+          newFiles.push(fileData);
+        }
+      }
+    }
+
+    if (newFiles.length > 0) {
+      setUploadedFiles(prev => [...prev, ...newFiles].slice(0, 3));
     }
   };
 
@@ -346,22 +472,38 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
               </div>
             ) : (
               chatMessages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[70%] px-4 py-2.5 rounded-2xl text-sm ${
-                      msg.role === 'user' ? 'rounded-br-md' : 'rounded-bl-md'
-                    }`}
-                    style={{
-                      backgroundColor: msg.role === 'user' ? phaseColor : 'var(--color-bg-surface)',
-                      color: msg.role === 'user' ? 'white' : 'var(--color-text-primary)'
-                    }}
-                  >
-                    <p className="whitespace-pre-wrap">{msg.content}</p>
+                msg.role === 'system' ? (
+                  // System message - context boundary
+                  <div key={index} className="flex justify-center my-4">
+                    <div
+                      className="max-w-[85%] px-4 py-3 rounded-lg text-xs border"
+                      style={{
+                        backgroundColor: 'var(--color-bg-hover)',
+                        borderColor: 'var(--color-border)',
+                        color: 'var(--color-text-muted)'
+                      }}
+                    >
+                      <p className="whitespace-pre-wrap text-center">{msg.content}</p>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div
+                    key={index}
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[70%] px-4 py-2.5 rounded-2xl text-sm ${
+                        msg.role === 'user' ? 'rounded-br-md' : 'rounded-bl-md'
+                      }`}
+                      style={{
+                        backgroundColor: msg.role === 'user' ? phaseColor : 'var(--color-bg-surface)',
+                        color: msg.role === 'user' ? 'white' : 'var(--color-text-primary)'
+                      }}
+                    >
+                      <p className="whitespace-pre-wrap">{msg.content}</p>
+                    </div>
+                  </div>
+                )
               ))
             )}
 
@@ -399,78 +541,139 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
           borderTop: '1px solid var(--color-border)'
         }}
       >
-        <div
-          className="flex items-end gap-3 max-w-4xl mx-auto px-4 py-2 rounded-2xl"
-          style={{ backgroundColor: 'var(--color-bg-surface)' }}
-        >
-          {/* 附件按钮 */}
-          <button
-            className="p-2 rounded-lg transition-colors"
-            style={{ color: 'var(--color-text-muted)' }}
-          >
-            <Paperclip size={18} />
-          </button>
-
-          {/* 输入框 */}
-          <textarea
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={placeholder}
-            rows={1}
-            className="flex-1 resize-none bg-transparent text-sm outline-none py-2"
-            style={{
-              color: 'var(--color-text-primary)',
-              minHeight: '24px',
-              maxHeight: '120px'
-            }}
-          />
-
-          {/* 展开/收起按钮 (仅当消息不在主内容区域时显示) */}
-          {chatMessages.length > 0 && !messagesInMainArea && (
-            <button
-              onClick={onToggleExpand}
-              className="p-2 rounded-lg transition-colors"
-              style={{ color: 'var(--color-text-muted)' }}
-              title={isExpanded ? (lang === 'cn' ? '收起' : 'Collapse') : (lang === 'cn' ? '展开历史' : 'Expand')}
-            >
-              {isExpanded ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
-            </button>
-          )}
-
-          {/* 发送按钮 */}
-          <button
-            onClick={handleSend}
-            disabled={!input.trim() || isLoading}
-            className="p-2 rounded-xl transition-all disabled:opacity-50"
-            style={{
-              backgroundColor: input.trim() ? phaseColor : 'var(--color-bg-hover)',
-              color: input.trim() ? 'white' : 'var(--color-text-muted)'
-            }}
-          >
-            {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
-          </button>
-        </div>
-
-        {/* 阶段提示 */}
-        <div className="max-w-4xl mx-auto mt-1 px-4">
+        {/* 没有项目时显示提示 */}
+        {!hasProject ? (
           <div
-            className="flex items-center gap-1 text-[10px]"
-            style={{ color: 'var(--color-text-muted)' }}
+            className="flex items-center justify-center gap-3 max-w-4xl mx-auto px-4 py-3 rounded-2xl"
+            style={{ backgroundColor: 'var(--color-bg-surface)' }}
           >
-            <div
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ backgroundColor: phaseColor }}
-            />
-            <span>
-              {currentPhase === 'discover' && (lang === 'cn' ? '发现阶段：引导对话、提取需求' : 'Discover: Guide conversation, extract requirements')}
-              {currentPhase === 'model' && (lang === 'cn' ? '建模阶段：补全属性、推荐关联' : 'Model: Complete properties, recommend links')}
-              {currentPhase === 'integrate' && (lang === 'cn' ? '集成阶段：推荐数据源、生成方案' : 'Integrate: Recommend sources, generate plans')}
-              {currentPhase === 'enhance' && (lang === 'cn' ? '智能化阶段：分析机会、验证需求' : 'Enhance: Analyze opportunities, validate requirements')}
+            <FolderPlus size={20} style={{ color: 'var(--color-text-muted)' }} />
+            <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+              {lang === 'cn' ? '请先创建或选择一个项目，才能开始设计工作流' : 'Please create or select a project to start the design workflow'}
             </span>
+            {onNavigateToProjects && (
+              <button
+                onClick={onNavigateToProjects}
+                className="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                style={{
+                  backgroundColor: 'var(--color-accent)',
+                  color: 'white'
+                }}
+              >
+                {lang === 'cn' ? '去创建项目' : 'Create Project'}
+              </button>
+            )}
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Uploaded Files Preview */}
+            {uploadedFiles.length > 0 && (
+              <div className="max-w-4xl mx-auto mb-2 space-y-1">
+                {uploadedFiles.map(file => (
+                  <div
+                    key={file.id}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs"
+                    style={{
+                      backgroundColor: 'var(--color-bg-surface)',
+                      border: '1px solid var(--color-border)'
+                    }}
+                  >
+                    <span className="text-muted">📎</span>
+                    <span className="flex-1 truncate" style={{ color: 'var(--color-text-primary)' }}>{file.name}</span>
+                    <span className="text-muted">
+                      {file.size < 1024 * 1024
+                        ? `${(file.size / 1024).toFixed(1)} KB`
+                        : `${(file.size / 1024 / 1024).toFixed(1)} MB`}
+                    </span>
+                    <button
+                      onClick={() => setUploadedFiles(prev => prev.filter(f => f.id !== file.id))}
+                      className="p-0.5 rounded hover:bg-[var(--color-bg-hover)] transition-colors"
+                      style={{ color: 'var(--color-text-muted)' }}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div
+              className="flex items-end gap-3 max-w-4xl mx-auto px-4 py-2 rounded-2xl"
+              style={{ backgroundColor: 'var(--color-bg-surface)' }}
+            >
+              {/* 附件按钮 */}
+              <FileUploadButton
+                lang={lang}
+                files={uploadedFiles}
+                onFilesChange={setUploadedFiles}
+                disabled={!hasApiKey || isLoading}
+                aiProvider={aiSettings.provider as AIProvider}
+                aiModel={aiSettings.model}
+              />
+
+              {/* 输入框 */}
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onPaste={handlePaste}
+                placeholder={placeholder}
+                rows={1}
+                className="flex-1 resize-none bg-transparent text-sm outline-none py-2"
+                style={{
+                  color: 'var(--color-text-primary)',
+                  minHeight: '24px',
+                  maxHeight: '120px'
+                }}
+              />
+
+              {/* 展开/收起按钮 (仅当消息不在主内容区域时显示) */}
+              {chatMessages.length > 0 && !messagesInMainArea && (
+                <button
+                  onClick={onToggleExpand}
+                  className="p-2 rounded-lg transition-colors"
+                  style={{ color: 'var(--color-text-muted)' }}
+                  title={isExpanded ? (lang === 'cn' ? '收起' : 'Collapse') : (lang === 'cn' ? '展开历史' : 'Expand')}
+                >
+                  {isExpanded ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
+                </button>
+              )}
+
+              {/* 发送按钮 */}
+              <button
+                onClick={handleSend}
+                disabled={(!input.trim() && uploadedFiles.length === 0) || isLoading || !hasApiKey}
+                className="p-2 rounded-xl transition-all disabled:opacity-50"
+                style={{
+                  backgroundColor: (input.trim() || uploadedFiles.length > 0) ? phaseColor : 'var(--color-bg-hover)',
+                  color: (input.trim() || uploadedFiles.length > 0) ? 'white' : 'var(--color-text-muted)'
+                }}
+              >
+                {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+              </button>
+            </div>
+
+            {/* 阶段提示 */}
+            <div className="max-w-4xl mx-auto mt-1 px-4">
+              <div
+                className="flex items-center gap-1 text-[10px]"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                <div
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ backgroundColor: phaseColor }}
+                />
+                <span>
+                  {currentPhase === 'discover' && (lang === 'cn' ? '发现阶段：引导对话、提取需求' : 'Discover: Guide conversation, extract requirements')}
+                  {currentPhase === 'model' && (lang === 'cn' ? '建模阶段：补全属性、推荐关联' : 'Model: Complete properties, recommend links')}
+                  {currentPhase === 'integrate' && (lang === 'cn' ? '集成阶段：推荐数据源、生成方案' : 'Integrate: Recommend sources, generate plans')}
+                  {currentPhase === 'enhance' && (lang === 'cn' ? '智能化阶段：分析机会、验证需求' : 'Enhance: Analyze opportunities, validate requirements')}
+                </span>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </>
   );

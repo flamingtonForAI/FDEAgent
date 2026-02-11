@@ -243,6 +243,11 @@ ${historyText}
   ]
 }`;
 
+// Cached Gemini SDK module and instance for performance
+let cachedGoogleGenAI: typeof import('@google/genai').GoogleGenAI | null = null;
+let cachedGeminiInstance: InstanceType<typeof import('@google/genai').GoogleGenAI> | null = null;
+let cachedGeminiApiKey: string | null = null;
+
 export class AIService {
   private settings: AISettings;
 
@@ -252,19 +257,51 @@ export class AIService {
 
   updateSettings(settings: AISettings) {
     this.settings = settings;
+    // Clear cached Gemini instance if API key changed
+    if (this.settings.provider === 'gemini' && cachedGeminiApiKey !== settings.apiKey) {
+      cachedGeminiInstance = null;
+      cachedGeminiApiKey = null;
+    }
   }
 
   private getBaseUrl(): string {
     if (this.settings.provider === 'custom' && this.settings.customBaseUrl) {
-      return this.settings.customBaseUrl;
+      const url = this.settings.customBaseUrl.trim();
+      // Validate URL format - throw error to prevent sending API key to wrong endpoint
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        throw new Error('Invalid customBaseUrl: must start with http:// or https://');
+      }
+      // Validate URL is actually parseable
+      try {
+        new URL(url);
+      } catch {
+        throw new Error('Invalid customBaseUrl: not a valid URL');
+      }
+      // Remove trailing slash for consistency
+      return url.replace(/\/+$/, '');
     }
     const provider = AI_PROVIDERS.find(p => p.id === this.settings.provider);
-    return provider?.baseUrl || '';
+    const baseUrl = provider?.baseUrl;
+    if (!baseUrl) {
+      throw new Error(`No base URL configured for provider: ${this.settings.provider}`);
+    }
+    return baseUrl;
   }
 
   private async callGemini(messages: { role: string; content: string }[]): Promise<string> {
-    const { GoogleGenAI } = await import('@google/genai');
-    const ai = new GoogleGenAI({ apiKey: this.settings.apiKey });
+    // Use cached SDK module
+    if (!cachedGoogleGenAI) {
+      const module = await import('@google/genai');
+      cachedGoogleGenAI = module.GoogleGenAI;
+    }
+
+    // Reuse cached instance if API key matches
+    if (!cachedGeminiInstance || cachedGeminiApiKey !== this.settings.apiKey) {
+      cachedGeminiInstance = new cachedGoogleGenAI({ apiKey: this.settings.apiKey });
+      cachedGeminiApiKey = this.settings.apiKey;
+    }
+
+    const ai = cachedGeminiInstance;
 
     // Build contents array with full history (both user and assistant messages)
     const contents = messages.map(msg => ({
@@ -1100,23 +1137,26 @@ ${historyText}
       };
     } catch (error) {
       console.error('验证失败:', error);
-      // 降级：如果AI验证失败，使用简单规则
+      // Conservative fallback when AI validation fails
+      // Don't silently return ready: true - be explicit about fallback
       const userMessages = chatHistory.filter(m => m.role === 'user');
       const totalLength = userMessages.reduce((sum, m) => sum + m.content.length, 0);
 
-      if (userMessages.length >= 2 && totalLength > 50) {
+      // More conservative thresholds: at least 3 messages with 200+ chars total
+      // This ensures meaningful content before allowing generation
+      if (userMessages.length >= 3 && totalLength > 200) {
         return {
           ready: true,
           identified: { objects: [], actions: [] },
-          missing: [],
-          suggestion: '验证服务暂时不可用，但对话内容看起来足够，可以尝试生成。'
+          missing: ['AI 验证服务暂时不可用'],
+          suggestion: '验证服务暂时不可用，根据对话长度判断可以尝试生成，但结果质量可能受影响。建议稍后重试以获得更准确的验证。'
         };
       }
       return {
         ready: false,
         identified: { objects: [], actions: [] },
-        missing: ['需要更多对话内容'],
-        suggestion: '请描述更多业务细节，包括涉及的对象和操作。'
+        missing: ['AI 验证服务暂时不可用', '需要更多对话内容'],
+        suggestion: '请描述更多业务细节，包括涉及的业务对象、流程和操作。至少需要3轮对话和200字以上的内容。'
       };
     }
   }

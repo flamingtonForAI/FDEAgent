@@ -123,7 +123,7 @@ const AIEnhancement: React.FC<AIEnhancementProps> = ({
           <AIPLogicMatrix lang={lang} objects={project.objects} />
         )}
         {activeView === 'tools' && (
-          <div className="h-full p-6 overflow-y-auto">
+          <div className="h-full p-6 pb-24 overflow-y-auto">
             <ToolSpecViewer lang={lang} objects={project.objects || []} />
           </div>
         )}

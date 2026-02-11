@@ -247,8 +247,9 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
       <div className="w-64 border-r border-white/[0.06] flex flex-col">
         {/* Object Selector */}
         <div className="p-4 border-b border-white/[0.06]">
-          <label className="text-micro text-muted block mb-2">{t.selectObject}</label>
+          <label htmlFor="object-selector" className="text-micro text-muted block mb-2">{t.selectObject}</label>
           <select
+            id="object-selector"
             value={selectedObjectId || ''}
             onChange={(e) => {
               setSelectedObjectId(e.target.value);
@@ -256,11 +257,13 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
               setEditingAction(null);
             }}
             className="w-full glass-surface rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/30"
+            aria-describedby="object-selector-description"
           >
             {objects.map(obj => (
               <option key={obj.id} value={obj.id}>{obj.name}</option>
             ))}
           </select>
+          <span id="object-selector-description" className="sr-only">Select an ontology object to view and edit its actions</span>
         </div>
 
         {/* Action List */}
@@ -270,7 +273,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
             <div className="space-y-1.5">
               {selectedObject.actions.map((action, idx) => (
                 <button
-                  key={idx}
+                  key={action.name}
                   onClick={() => handleSelectAction(idx)}
                   className={`relative w-full text-left p-3 rounded-lg transition-colors ${
                     selectedActionIndex === idx
@@ -456,7 +459,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                           />
                           <select
                             value={param.type}
-                            onChange={(e) => updateParameter(idx, { type: e.target.value as any })}
+                            onChange={(e) => updateParameter(idx, { type: e.target.value as ActionParameter['type'] })}
                             className="w-24 bg-[var(--color-bg-base)]/30 border border-white/[0.06] rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none"
                           >
                             <option value="string">string</option>

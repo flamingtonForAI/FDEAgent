@@ -3,7 +3,9 @@ import { ProjectState } from '../types';
 import { useProject } from '../contexts/ProjectContext';
 import {
   GraduationCap, Package, MessageSquare, ArrowRight, Database, Zap, Link2,
-  ClipboardList, CheckCircle2, FolderPlus, FolderOpen, Rocket, Sparkles
+  ClipboardList, CheckCircle2, FolderPlus, Rocket, Sparkles, Play,
+  Target, Layers, Cpu, FileText, Users, ShoppingCart, Building2,
+  ChevronRight, BookOpen, Lightbulb, MousePointerClick
 } from 'lucide-react';
 import NewProjectDialog from './NewProjectDialog';
 
@@ -17,112 +19,150 @@ interface QuickStartProps {
 
 const translations = {
   en: {
-    // Welcome - No Project
-    welcomeNew: "Welcome to Ontology Architect",
-    subtitleNew: "Let's start by creating your first project",
-    createFirstProject: "Create Your First Project",
-    createFirstDesc: "Each project contains its own ontology design, chat history, and settings",
-    createProjectBtn: "Create Project",
-    orBrowseTemplates: "Or browse industry templates first",
-    browseTemplates: "Browse Templates",
+    // Hero
+    heroTitle: "Build Intelligent Operating Systems",
+    heroSubtitle: "Transform your business logic into AI-powered operational systems using the Ontology-First methodology",
 
-    // Welcome - Has Project
-    welcome: "Welcome to Ontology Architect",
-    subtitle: "Your Intelligent Operating System Design Assistant",
-    currentProjectLabel: "Current Project",
-    switchProject: "Switch Project",
+    // What is Ontology
+    whatIsOntology: "What is Ontology?",
+    ontologyDesc: "An Ontology is a structured representation of your business domain - the core entities (Objects), their relationships (Links), and the operations (Actions) that drive your business. It's the foundation for building intelligent systems that truly understand your business.",
 
-    // Paths
-    choosePath: "Choose Your Path",
-    learnFirst: "Learn First",
-    learnDesc: "Recommended for beginners",
-    learnAction: "Go to Academy",
-    fromTemplate: "Start from Template",
-    templateDesc: "Quick start with industry templates",
-    templateAction: "Browse Templates",
-    conversational: "Conversational Exploration",
-    conversationalDesc: "Flexible customization",
-    conversationalAction: "Start Scouting",
+    // Core Concepts
+    coreConceptsTitle: "Core Concepts",
+    conceptObject: "Objects",
+    conceptObjectDesc: "Business entities like Customer, Order, Product",
+    conceptAction: "Actions",
+    conceptActionDesc: "Operations like Create Order, Approve Request",
+    conceptLink: "Links",
+    conceptLinkDesc: "Relationships like Customer places Order",
+    conceptAI: "AI Enhancement",
+    conceptAIDesc: "Smart automation and predictions",
 
-    // Workflow
-    designFlow: "Ontology Design Flow",
-    stepDiscovery: "Discovery",
-    stepModeling: "Modeling",
-    stepIntegration: "Integration",
-    stepAIDesign: "AI Design",
-    phaseDiscovery: "Requirement Scouting",
-    phaseModeling: "Ontology Modeling",
-    phaseIntegration: "Data Sources",
-    phaseAIDesign: "AI Enhancement",
-    clickToNavigate: "Click to navigate",
+    // 4 Phases
+    fourPhasesTitle: "4-Phase Design Workflow",
+    phase1Title: "Discover",
+    phase1Desc: "Chat with AI to explore your business requirements and extract key entities",
+    phase2Title: "Model",
+    phase2Desc: "Structure your Objects, define Properties and design Actions",
+    phase3Title: "Integrate",
+    phase3Desc: "Connect data sources and plan system integrations",
+    phase4Title: "AI Design",
+    phase4Desc: "Identify AI opportunities and design intelligent automations",
 
-    // Project Status
-    currentProject: "Project Progress",
-    objects: "Objects",
-    actions: "Actions",
-    links: "Links",
-    continueDesign: "Continue Design",
-    noProject: "No data yet",
-    noProjectDesc: "Start by choosing a path above to begin your ontology design journey.",
-    nextStep: "Recommended Next Step",
-    goToWorkbench: "Model your ontology",
-    goToIntegration: "Plan data integration",
-    goToAIDesign: "Design AI capabilities",
-    goToOntology: "View ontology diagram",
+    // Quick Start Steps
+    quickStartTitle: "Get Started in 3 Steps",
+    step1Title: "Create a Project",
+    step1Desc: "Start fresh or use an industry template",
+    step2Title: "Describe Your Business",
+    step2Desc: "Chat with AI to extract your business logic",
+    step3Title: "Refine & Export",
+    step3Desc: "Model, integrate, and generate code",
+
+    // Learning Paths
+    pathsTitle: "Choose Your Learning Path",
+    pathBeginner: "New to Ontology?",
+    pathBeginnerDesc: "Start with our interactive tutorial",
+    pathBeginnerAction: "Start Tutorial",
+    pathTemplate: "Learn by Example",
+    pathTemplateDesc: "Explore industry templates",
+    pathTemplateAction: "Browse Templates",
+    pathDive: "Ready to Build",
+    pathDiveDesc: "Jump straight into creation",
+    pathDiveAction: "Create Project",
+
+    // Examples
+    examplesTitle: "Industry Examples",
+    exampleRetail: "Retail Operations",
+    exampleRetailDesc: "Customer, Order, Product, Inventory management",
+    exampleManufacturing: "Manufacturing",
+    exampleManufacturingDesc: "Equipment, WorkOrder, QualityControl",
+    exampleHealthcare: "Healthcare",
+    exampleHealthcareDesc: "Patient, Appointment, MedicalRecord",
+
+    // CTA
+    ctaTitle: "Ready to Build Your Intelligent System?",
+    ctaCreate: "Create New Project",
+    ctaExplore: "Explore Templates",
+    ctaLearn: "Learn More",
+
+    // Tips
+    tipsTitle: "Pro Tips",
+    tip1: "Start with 3-5 core Objects that represent your main business entities",
+    tip2: "Focus on decision-making: What decisions do users need to make?",
+    tip3: "Use industry templates as inspiration, then customize for your needs",
   },
   cn: {
-    // Welcome - No Project
-    welcomeNew: "欢迎使用 Ontology Architect",
-    subtitleNew: "让我们从创建第一个项目开始",
-    createFirstProject: "创建你的第一个项目",
-    createFirstDesc: "每个项目包含独立的本体设计、聊天记录和设置",
-    createProjectBtn: "创建项目",
-    orBrowseTemplates: "或者先浏览行业模板",
-    browseTemplates: "浏览模板",
+    // Hero
+    heroTitle: "构建智能操作系统",
+    heroSubtitle: "使用 Ontology-First 方法论，将您的业务逻辑转化为 AI 驱动的智能运营系统",
 
-    // Welcome - Has Project
-    welcome: "欢迎来到 Ontology Architect",
-    subtitle: "您的智能操作系统设计助手",
-    currentProjectLabel: "当前项目",
-    switchProject: "切换项目",
+    // What is Ontology
+    whatIsOntology: "什么是 Ontology（本体）?",
+    ontologyDesc: "Ontology 是对您业务领域的结构化表示 —— 包括核心实体（对象）、它们之间的关系（关联）、以及驱动业务的操作（动作）。它是构建真正理解您业务的智能系统的基础。",
 
-    // Paths
-    choosePath: "选择您的路径",
-    learnFirst: "先学习",
-    learnDesc: "新手推荐",
-    learnAction: "进入学习中心",
-    fromTemplate: "从模板开始",
-    templateDesc: "快速启动行业模板",
-    templateAction: "浏览行业模板",
-    conversational: "对话探索",
-    conversationalDesc: "灵活定制",
-    conversationalAction: "开始勘察",
+    // Core Concepts
+    coreConceptsTitle: "核心概念",
+    conceptObject: "对象 Objects",
+    conceptObjectDesc: "业务实体，如客户、订单、产品",
+    conceptAction: "动作 Actions",
+    conceptActionDesc: "业务操作，如创建订单、审批请求",
+    conceptLink: "关联 Links",
+    conceptLinkDesc: "关系，如客户下单、订单包含商品",
+    conceptAI: "AI 增强",
+    conceptAIDesc: "智能自动化和预测能力",
 
-    // Workflow
-    designFlow: "Ontology 设计流程",
-    stepDiscovery: "发现",
-    stepModeling: "建模",
-    stepIntegration: "集成",
-    stepAIDesign: "智能化",
-    phaseDiscovery: "需求勘察",
-    phaseModeling: "本体建模",
-    phaseIntegration: "数据源对接",
-    phaseAIDesign: "AI 增强设计",
-    clickToNavigate: "点击跳转",
+    // 4 Phases
+    fourPhasesTitle: "4 阶段设计流程",
+    phase1Title: "发现",
+    phase1Desc: "与 AI 对话，探索业务需求，提取关键实体",
+    phase2Title: "建模",
+    phase2Desc: "结构化对象，定义属性，设计动作",
+    phase3Title: "集成",
+    phase3Desc: "连接数据源，规划系统集成",
+    phase4Title: "智能化",
+    phase4Desc: "识别 AI 机会，设计智能自动化",
 
-    // Project Status
-    currentProject: "项目进度",
-    objects: "对象",
-    actions: "动作",
-    links: "关联",
-    continueDesign: "继续设计",
-    noProject: "暂无数据",
-    noProjectDesc: "从上方选择一条路径，开始您的 Ontology 设计之旅。",
-    nextStep: "建议下一步",
-    goToWorkbench: "本体建模",
-    goToIntegration: "规划数据集成",
-    goToAIDesign: "设计 AI 能力",
-    goToOntology: "查看本体图",
+    // Quick Start Steps
+    quickStartTitle: "3 步快速开始",
+    step1Title: "创建项目",
+    step1Desc: "从零开始或使用行业模板",
+    step2Title: "描述业务",
+    step2Desc: "与 AI 对话，提取业务逻辑",
+    step3Title: "完善导出",
+    step3Desc: "建模、集成、生成代码",
+
+    // Learning Paths
+    pathsTitle: "选择您的学习路径",
+    pathBeginner: "初次接触 Ontology?",
+    pathBeginnerDesc: "从交互式教程开始",
+    pathBeginnerAction: "开始教程",
+    pathTemplate: "通过案例学习",
+    pathTemplateDesc: "探索行业模板",
+    pathTemplateAction: "浏览模板",
+    pathDive: "准备好开始",
+    pathDiveDesc: "直接开始创建",
+    pathDiveAction: "创建项目",
+
+    // Examples
+    examplesTitle: "行业示例",
+    exampleRetail: "零售运营",
+    exampleRetailDesc: "客户、订单、产品、库存管理",
+    exampleManufacturing: "智能制造",
+    exampleManufacturingDesc: "设备、工单、质量控制",
+    exampleHealthcare: "医疗健康",
+    exampleHealthcareDesc: "患者、预约、病历记录",
+
+    // CTA
+    ctaTitle: "准备好构建您的智能系统了吗？",
+    ctaCreate: "创建新项目",
+    ctaExplore: "探索模板",
+    ctaLearn: "深入学习",
+
+    // Tips
+    tipsTitle: "专业建议",
+    tip1: "从 3-5 个代表主要业务实体的核心对象开始",
+    tip2: "聚焦决策：用户需要做出什么决策？",
+    tip3: "以行业模板为灵感，然后根据需求定制",
   }
 };
 
@@ -130,81 +170,7 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
   const t = translations[lang];
   const { projects, activeProject, isInitialized } = useProject();
   const [showNewProject, setShowNewProject] = useState(false);
-
-  // Calculate project stats from the current project state
-  const objectCount = project.objects.length;
-  const actionCount = project.objects.reduce((sum, obj) => sum + (obj.actions?.length || 0), 0);
-  const linkCount = project.links.length;
-  const hasProjectData = objectCount > 0;
-
-  // Check if objects need more structure
-  const objectsNeedStructure = project.objects.some(obj =>
-    !obj.description || obj.description.length < 10 ||
-    !obj.properties || obj.properties.length === 0
-  );
-
-  // Determine current phase
-  const getCurrentPhase = (): number => {
-    if (!hasProjectData) return 0;
-    if (objectsNeedStructure) return 1;
-    if (actionCount === 0) return 1;
-    if (linkCount === 0) return 2;
-    return 3;
-  };
-
-  const getNextStepInfo = (): { tab: NavigableTab; label: string; icon: React.ReactNode } => {
-    const phase = getCurrentPhase();
-    if (phase === 0) {
-      return { tab: 'scouting', label: t.conversationalAction, icon: <MessageSquare size={16} /> };
-    }
-    if (phase === 1) {
-      return { tab: 'workbench', label: t.goToWorkbench, icon: <ClipboardList size={16} /> };
-    }
-    if (phase === 2) {
-      return { tab: 'systemMap', label: t.goToIntegration, icon: <Database size={16} /> };
-    }
-    return { tab: 'aiEnhancement', label: t.goToAIDesign, icon: <Zap size={16} /> };
-  };
-
-  const currentPhase = getCurrentPhase();
-  const nextStep = getNextStepInfo();
-
-  const pathCards = [
-    {
-      id: 'learn',
-      icon: <GraduationCap size={28} />,
-      title: t.learnFirst,
-      desc: t.learnDesc,
-      action: t.learnAction,
-      onClick: () => onNavigate('academy'),
-      color: 'var(--color-info)',
-    },
-    {
-      id: 'template',
-      icon: <Package size={28} />,
-      title: t.fromTemplate,
-      desc: t.templateDesc,
-      action: t.templateAction,
-      onClick: () => onNavigate('archetypes'),
-      color: 'var(--color-success)',
-    },
-    {
-      id: 'scouting',
-      icon: <MessageSquare size={28} />,
-      title: t.conversational,
-      desc: t.conversationalDesc,
-      action: t.conversationalAction,
-      onClick: () => onNavigate('scouting'),
-      color: 'var(--color-accent)',
-    },
-  ];
-
-  const flowSteps: Array<{ label: string; phase: string; tab: NavigableTab; icon: React.ReactNode }> = [
-    { label: t.stepDiscovery, phase: t.phaseDiscovery, tab: 'scouting', icon: <MessageSquare size={14} /> },
-    { label: t.stepModeling, phase: t.phaseModeling, tab: 'workbench', icon: <ClipboardList size={14} /> },
-    { label: t.stepIntegration, phase: t.phaseIntegration, tab: 'systemMap', icon: <Database size={14} /> },
-    { label: t.stepAIDesign, phase: t.phaseAIDesign, tab: 'aiEnhancement', icon: <Zap size={14} /> },
-  ];
+  const [expandedConcept, setExpandedConcept] = useState<string | null>(null);
 
   // Show loading state
   if (!isInitialized) {
@@ -215,360 +181,441 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
     );
   }
 
-  // ============================================
-  // STATE 1: No projects at all - Onboarding
-  // ============================================
-  if (projects.length === 0) {
-    return (
-      <div className="h-full overflow-y-auto p-8">
-        <div className="max-w-2xl mx-auto space-y-8">
-          {/* Hero Section */}
-          <div className="text-center py-12">
-            <div
-              className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6"
-              style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-bg-base)' }}
-            >
-              <Rocket size={40} />
-            </div>
-            <h1
-              className="text-3xl font-semibold mb-3"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              {t.welcomeNew}
-            </h1>
-            <p className="text-muted text-base">{t.subtitleNew}</p>
-          </div>
+  const concepts = [
+    { id: 'object', icon: <Database size={24} />, title: t.conceptObject, desc: t.conceptObjectDesc, color: '#3b82f6' },
+    { id: 'action', icon: <Zap size={24} />, title: t.conceptAction, desc: t.conceptActionDesc, color: '#10b981' },
+    { id: 'link', icon: <Link2 size={24} />, title: t.conceptLink, desc: t.conceptLinkDesc, color: '#f59e0b' },
+    { id: 'ai', icon: <Sparkles size={24} />, title: t.conceptAI, desc: t.conceptAIDesc, color: '#8b5cf6' },
+  ];
 
-          {/* Create First Project Card */}
-          <div
-            className="rounded-2xl p-8 text-center"
-            style={{
-              backgroundColor: 'var(--color-bg-surface)',
-              border: '1px solid var(--color-border)',
-            }}
-          >
-            <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-              style={{ backgroundColor: 'var(--color-accent)15', color: 'var(--color-accent)' }}
-            >
-              <FolderPlus size={32} />
-            </div>
-            <h2
-              className="text-xl font-medium mb-2"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              {t.createFirstProject}
-            </h2>
-            <p className="text-sm text-muted mb-6 max-w-md mx-auto">
-              {t.createFirstDesc}
-            </p>
-            <button
-              onClick={() => setShowNewProject(true)}
-              className="px-8 py-3 rounded-xl font-medium text-base transition-all hover:opacity-90"
-              style={{
-                backgroundColor: 'var(--color-accent)',
-                color: 'var(--color-bg-base)'
-              }}
-            >
-              {t.createProjectBtn}
-            </button>
-          </div>
+  const phases = [
+    { num: 1, title: t.phase1Title, desc: t.phase1Desc, icon: <MessageSquare size={20} />, color: '#3b82f6' },
+    { num: 2, title: t.phase2Title, desc: t.phase2Desc, icon: <ClipboardList size={20} />, color: '#8b5cf6' },
+    { num: 3, title: t.phase3Title, desc: t.phase3Desc, icon: <Layers size={20} />, color: '#10b981' },
+    { num: 4, title: t.phase4Title, desc: t.phase4Desc, icon: <Cpu size={20} />, color: '#f59e0b' },
+  ];
 
-          {/* Or browse templates */}
-          <div className="text-center">
-            <p className="text-sm text-muted mb-3">{t.orBrowseTemplates}</p>
-            <button
-              onClick={() => onNavigate('archetypes')}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all hover:bg-white/5"
-              style={{ color: 'var(--color-accent)' }}
-            >
-              <Package size={16} />
-              {t.browseTemplates}
-              <ArrowRight size={14} />
-            </button>
-          </div>
-        </div>
+  const examples = [
+    { id: 'retail', icon: <ShoppingCart size={20} />, title: t.exampleRetail, desc: t.exampleRetailDesc },
+    { id: 'manufacturing', icon: <Building2 size={20} />, title: t.exampleManufacturing, desc: t.exampleManufacturingDesc },
+    { id: 'healthcare', icon: <Users size={20} />, title: t.exampleHealthcare, desc: t.exampleHealthcareDesc },
+  ];
 
-        {/* New Project Dialog */}
-        {showNewProject && (
-          <NewProjectDialog
-            lang={lang}
-            onClose={() => setShowNewProject(false)}
-            onCreated={() => {
-              setShowNewProject(false);
-              onNavigate('scouting');
-            }}
-          />
-        )}
-      </div>
-    );
-  }
-
-  // ============================================
-  // STATE 2: Has projects - Normal Quick Start
-  // ============================================
   return (
-    <div className="h-full overflow-y-auto p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Hero Section with Current Project */}
-        <div className="text-center py-8">
+    <div className="h-full overflow-y-auto">
+      {/* Hero Section */}
+      <div
+        className="relative py-16 px-8"
+        style={{
+          background: 'linear-gradient(135deg, var(--color-bg-surface) 0%, var(--color-bg-base) 100%)',
+          borderBottom: '1px solid var(--color-border)'
+        }}
+      >
+        <div className="max-w-4xl mx-auto text-center">
           <div
-            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
-            style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-bg-base)' }}
+            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6"
+            style={{ backgroundColor: 'var(--color-accent)', color: '#fff' }}
           >
-            <Sparkles size={32} />
+            <Rocket size={32} />
           </div>
           <h1
-            className="text-2xl font-semibold mb-2"
+            className="text-3xl font-bold mb-4"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            {t.welcome}
+            {t.heroTitle}
           </h1>
-          <p className="text-muted text-sm mb-4">{t.subtitle}</p>
-
-          {/* Current Project Badge */}
-          {activeProject && (
-            <div
-              className="inline-flex items-center gap-3 px-4 py-2 rounded-full"
-              style={{
-                backgroundColor: 'var(--color-bg-surface)',
-                border: '1px solid var(--color-border)',
-              }}
-            >
-              <span className="text-xs text-muted">{t.currentProjectLabel}:</span>
-              <span
-                className="text-sm font-medium"
-                style={{ color: 'var(--color-accent)' }}
-              >
-                {activeProject.name}
-              </span>
-              <button
-                onClick={() => onNavigate('projects')}
-                className="text-xs text-muted hover:text-primary transition-colors"
-              >
-                {t.switchProject}
-              </button>
-            </div>
-          )}
+          <p
+            className="text-lg max-w-2xl mx-auto"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            {t.heroSubtitle}
+          </p>
         </div>
+      </div>
 
-        {/* Path Selection Cards */}
-        <div
-          className="glass-card rounded-xl p-6"
-          style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}
-        >
+      <div className="max-w-5xl mx-auto px-8 py-12 space-y-16">
+
+        {/* What is Ontology */}
+        <section>
+          <div className="flex items-center gap-3 mb-4">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: 'var(--color-accent)15', color: 'var(--color-accent)' }}
+            >
+              <Lightbulb size={20} />
+            </div>
+            <h2
+              className="text-xl font-semibold"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              {t.whatIsOntology}
+            </h2>
+          </div>
+          <p
+            className="text-base leading-relaxed pl-13"
+            style={{ color: 'var(--color-text-secondary)', paddingLeft: '52px' }}
+          >
+            {t.ontologyDesc}
+          </p>
+        </section>
+
+        {/* Core Concepts - 4 cards */}
+        <section>
           <h2
-            className="text-lg font-medium mb-4"
+            className="text-xl font-semibold mb-6"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            {t.choosePath}
+            {t.coreConceptsTitle}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {pathCards.map((card) => (
-              <button
-                key={card.id}
-                onClick={card.onClick}
-                className="group p-5 rounded-xl text-left transition-all hover:scale-[1.02]"
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {concepts.map(concept => (
+              <div
+                key={concept.id}
+                className="p-5 rounded-xl transition-all hover:scale-[1.02] cursor-pointer"
                 style={{
-                  backgroundColor: 'var(--color-bg-elevated)',
-                  border: '1px solid var(--color-border)',
+                  backgroundColor: 'var(--color-bg-surface)',
+                  border: '1px solid var(--color-border)'
                 }}
+                onClick={() => setExpandedConcept(expandedConcept === concept.id ? null : concept.id)}
               >
                 <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
-                  style={{ backgroundColor: `${card.color}15`, color: card.color }}
+                  className="w-12 h-12 rounded-xl flex items-center justify-center mb-3"
+                  style={{ backgroundColor: `${concept.color}15`, color: concept.color }}
                 >
-                  {card.icon}
+                  {concept.icon}
                 </div>
                 <h3
                   className="font-medium mb-1"
                   style={{ color: 'var(--color-text-primary)' }}
                 >
-                  {card.title}
+                  {concept.title}
                 </h3>
-                <p className="text-xs text-muted mb-3">{card.desc}</p>
-                <div
-                  className="flex items-center gap-1 text-xs font-medium transition-transform group-hover:translate-x-1"
-                  style={{ color: card.color }}
-                >
-                  {card.action}
-                  <ArrowRight size={14} />
-                </div>
-              </button>
+                <p className="text-xs text-muted">{concept.desc}</p>
+              </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* Workflow Timeline */}
-        <div
-          className="glass-card rounded-xl p-6"
-          style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}
-        >
-          <div className="flex items-center justify-between mb-6">
-            <h2
-              className="text-lg font-medium"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              {t.designFlow}
-            </h2>
-            <span className="text-xs text-muted">{t.clickToNavigate}</span>
-          </div>
-          <div className="relative">
-            {/* Progress line */}
-            <div
-              className="absolute top-4 left-0 right-0 h-0.5"
-              style={{ backgroundColor: 'var(--color-border)' }}
-            />
-            {/* Completed progress line */}
-            {currentPhase > 0 && (
-              <div
-                className="absolute top-4 left-0 h-0.5 transition-all duration-500"
-                style={{
-                  backgroundColor: 'var(--color-success)',
-                  width: `${((currentPhase) / (flowSteps.length - 1)) * 100}%`
-                }}
-              />
-            )}
-            <div className="relative flex justify-between">
-              {flowSteps.map((step, index) => {
-                const isCompleted = index < currentPhase;
-                const isCurrent = index === currentPhase;
-
-                return (
-                  <button
-                    key={index}
-                    onClick={() => onNavigate(step.tab)}
-                    className="flex flex-col items-center text-center w-1/4 cursor-pointer hover:scale-105 transition-all"
-                  >
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium mb-3 relative z-10 transition-all"
-                      style={{
-                        backgroundColor: isCompleted
-                          ? 'var(--color-success)'
-                          : isCurrent
-                            ? 'var(--color-accent)'
-                            : 'var(--color-bg-elevated)',
-                        border: `2px solid ${isCompleted ? 'var(--color-success)' : isCurrent ? 'var(--color-accent)' : 'var(--color-border)'}`,
-                        color: isCompleted || isCurrent ? '#fff' : 'var(--color-text-muted)'
-                      }}
-                    >
-                      {isCompleted ? <CheckCircle2 size={16} /> : index + 1}
-                    </div>
-                    <div
-                      className="text-sm font-medium mb-1 flex items-center gap-1"
-                      style={{ color: isCurrent ? 'var(--color-accent)' : 'var(--color-text-primary)' }}
-                    >
-                      {step.icon}
-                      {step.label}
-                    </div>
-                    <div className="text-xs text-muted">{step.phase}</div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Current Project Status */}
-        <div
-          className="glass-card rounded-xl p-6"
-          style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}
-        >
+        {/* 4-Phase Workflow */}
+        <section>
           <h2
-            className="text-lg font-medium mb-4"
+            className="text-xl font-semibold mb-6"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            {t.currentProject}
+            {t.fourPhasesTitle}
           </h2>
+          <div className="relative">
+            {/* Connection line */}
+            <div
+              className="hidden md:block absolute top-8 left-[12.5%] right-[12.5%] h-0.5"
+              style={{ backgroundColor: 'var(--color-border)' }}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {phases.map((phase, index) => (
+                <div
+                  key={phase.num}
+                  className="relative p-5 rounded-xl"
+                  style={{
+                    backgroundColor: 'var(--color-bg-surface)',
+                    border: '1px solid var(--color-border)'
+                  }}
+                >
+                  {/* Phase number circle */}
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold mb-4 relative z-10"
+                    style={{ backgroundColor: phase.color, color: '#fff' }}
+                  >
+                    {phase.num}
+                  </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span style={{ color: phase.color }}>{phase.icon}</span>
+                    <h3
+                      className="font-medium"
+                      style={{ color: 'var(--color-text-primary)' }}
+                    >
+                      {phase.title}
+                    </h3>
+                  </div>
+                  <p className="text-xs text-muted leading-relaxed">{phase.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-          {hasProjectData ? (
-            <>
-              <div className="grid grid-cols-3 gap-4 mb-4">
+        {/* Quick Start Steps */}
+        <section
+          className="p-8 rounded-2xl"
+          style={{
+            backgroundColor: 'var(--color-bg-surface)',
+            border: '1px solid var(--color-border)'
+          }}
+        >
+          <h2
+            className="text-xl font-semibold mb-6 text-center"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            {t.quickStartTitle}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { num: 1, title: t.step1Title, desc: t.step1Desc, icon: <FolderPlus size={24} /> },
+              { num: 2, title: t.step2Title, desc: t.step2Desc, icon: <MessageSquare size={24} /> },
+              { num: 3, title: t.step3Title, desc: t.step3Desc, icon: <FileText size={24} /> },
+            ].map((step, index) => (
+              <div key={step.num} className="flex items-start gap-4">
                 <div
-                  className="p-4 rounded-xl text-center"
-                  style={{ backgroundColor: 'var(--color-bg-elevated)' }}
+                  className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold"
+                  style={{ backgroundColor: 'var(--color-accent)', color: '#fff' }}
                 >
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Database size={16} style={{ color: 'var(--color-info)' }} />
-                  </div>
-                  <div
-                    className="text-2xl font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
-                  >
-                    {objectCount}
-                  </div>
-                  <div className="text-xs text-muted">{t.objects}</div>
+                  {step.num}
                 </div>
-                <div
-                  className="p-4 rounded-xl text-center"
-                  style={{ backgroundColor: 'var(--color-bg-elevated)' }}
-                >
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Zap size={16} style={{ color: 'var(--color-success)' }} />
-                  </div>
-                  <div
-                    className="text-2xl font-semibold"
+                <div>
+                  <h3
+                    className="font-medium mb-1"
                     style={{ color: 'var(--color-text-primary)' }}
                   >
-                    {actionCount}
-                  </div>
-                  <div className="text-xs text-muted">{t.actions}</div>
-                </div>
-                <div
-                  className="p-4 rounded-xl text-center"
-                  style={{ backgroundColor: 'var(--color-bg-elevated)' }}
-                >
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Link2 size={16} style={{ color: 'var(--color-warning)' }} />
-                  </div>
-                  <div
-                    className="text-2xl font-semibold"
-                    style={{ color: 'var(--color-text-primary)' }}
-                  >
-                    {linkCount}
-                  </div>
-                  <div className="text-xs text-muted">{t.links}</div>
+                    {step.title}
+                  </h3>
+                  <p className="text-sm text-muted">{step.desc}</p>
                 </div>
               </div>
+            ))}
+          </div>
+        </section>
 
-              {/* Next Step Recommendation */}
+        {/* Learning Paths */}
+        <section>
+          <h2
+            className="text-xl font-semibold mb-6"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            {t.pathsTitle}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Beginner Path */}
+            <button
+              onClick={() => onNavigate('academy')}
+              className="group p-6 rounded-xl text-left transition-all hover:scale-[1.02]"
+              style={{
+                backgroundColor: 'var(--color-bg-surface)',
+                border: '2px solid var(--color-info)'
+              }}
+            >
               <div
-                className="mb-4 p-3 rounded-lg flex items-center justify-between"
-                style={{ backgroundColor: 'var(--color-accent)10', border: '1px solid var(--color-accent)30' }}
+                className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+                style={{ backgroundColor: 'var(--color-info)15', color: 'var(--color-info)' }}
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium" style={{ color: 'var(--color-accent)' }}>
-                    {t.nextStep}:
-                  </span>
-                  <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                    {nextStep.label}
-                  </span>
-                </div>
-                {nextStep.icon}
+                <GraduationCap size={24} />
               </div>
+              <h3
+                className="font-medium mb-1"
+                style={{ color: 'var(--color-text-primary)' }}
+              >
+                {t.pathBeginner}
+              </h3>
+              <p className="text-sm text-muted mb-4">{t.pathBeginnerDesc}</p>
+              <div
+                className="flex items-center gap-1 text-sm font-medium group-hover:translate-x-1 transition-transform"
+                style={{ color: 'var(--color-info)' }}
+              >
+                {t.pathBeginnerAction}
+                <ChevronRight size={16} />
+              </div>
+            </button>
 
-              <button
-                onClick={() => onNavigate(nextStep.tab)}
-                className="w-full py-3 rounded-xl font-medium text-sm transition-all hover:opacity-90"
+            {/* Template Path */}
+            <button
+              onClick={() => onNavigate('archetypes')}
+              className="group p-6 rounded-xl text-left transition-all hover:scale-[1.02]"
+              style={{
+                backgroundColor: 'var(--color-bg-surface)',
+                border: '2px solid var(--color-success)'
+              }}
+            >
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+                style={{ backgroundColor: 'var(--color-success)15', color: 'var(--color-success)' }}
+              >
+                <Package size={24} />
+              </div>
+              <h3
+                className="font-medium mb-1"
+                style={{ color: 'var(--color-text-primary)' }}
+              >
+                {t.pathTemplate}
+              </h3>
+              <p className="text-sm text-muted mb-4">{t.pathTemplateDesc}</p>
+              <div
+                className="flex items-center gap-1 text-sm font-medium group-hover:translate-x-1 transition-transform"
+                style={{ color: 'var(--color-success)' }}
+              >
+                {t.pathTemplateAction}
+                <ChevronRight size={16} />
+              </div>
+            </button>
+
+            {/* Direct Path */}
+            <button
+              onClick={() => setShowNewProject(true)}
+              className="group p-6 rounded-xl text-left transition-all hover:scale-[1.02]"
+              style={{
+                backgroundColor: 'var(--color-bg-surface)',
+                border: '2px solid var(--color-accent)'
+              }}
+            >
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+                style={{ backgroundColor: 'var(--color-accent)15', color: 'var(--color-accent)' }}
+              >
+                <Rocket size={24} />
+              </div>
+              <h3
+                className="font-medium mb-1"
+                style={{ color: 'var(--color-text-primary)' }}
+              >
+                {t.pathDive}
+              </h3>
+              <p className="text-sm text-muted mb-4">{t.pathDiveDesc}</p>
+              <div
+                className="flex items-center gap-1 text-sm font-medium group-hover:translate-x-1 transition-transform"
+                style={{ color: 'var(--color-accent)' }}
+              >
+                {t.pathDiveAction}
+                <ChevronRight size={16} />
+              </div>
+            </button>
+          </div>
+        </section>
+
+        {/* Industry Examples */}
+        <section>
+          <h2
+            className="text-xl font-semibold mb-6"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            {t.examplesTitle}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {examples.map(example => (
+              <div
+                key={example.id}
+                onClick={() => onNavigate('archetypes')}
+                className="p-5 rounded-xl cursor-pointer transition-all hover:scale-[1.02]"
                 style={{
-                  backgroundColor: 'var(--color-accent)',
-                  color: 'var(--color-bg-base)'
+                  backgroundColor: 'var(--color-bg-surface)',
+                  border: '1px solid var(--color-border)'
                 }}
               >
-                {t.continueDesign} →
-              </button>
-            </>
-          ) : (
-            <div
-              className="py-8 text-center rounded-xl"
-              style={{ backgroundColor: 'var(--color-bg-elevated)' }}
+                <div className="flex items-center gap-3 mb-2">
+                  <span style={{ color: 'var(--color-accent)' }}>{example.icon}</span>
+                  <h3
+                    className="font-medium"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    {example.title}
+                  </h3>
+                </div>
+                <p className="text-xs text-muted">{example.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Pro Tips */}
+        <section
+          className="p-6 rounded-xl"
+          style={{
+            backgroundColor: 'var(--color-warning)08',
+            border: '1px solid var(--color-warning)30'
+          }}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Lightbulb size={20} style={{ color: 'var(--color-warning)' }} />
+            <h3
+              className="font-medium"
+              style={{ color: 'var(--color-text-primary)' }}
             >
-              <div className="text-muted mb-2">{t.noProject}</div>
-              <div className="text-xs text-muted">{t.noProjectDesc}</div>
-            </div>
-          )}
-        </div>
+              {t.tipsTitle}
+            </h3>
+          </div>
+          <ul className="space-y-2">
+            <li className="flex items-start gap-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+              <CheckCircle2 size={16} className="flex-shrink-0 mt-0.5" style={{ color: 'var(--color-warning)' }} />
+              {t.tip1}
+            </li>
+            <li className="flex items-start gap-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+              <CheckCircle2 size={16} className="flex-shrink-0 mt-0.5" style={{ color: 'var(--color-warning)' }} />
+              {t.tip2}
+            </li>
+            <li className="flex items-start gap-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+              <CheckCircle2 size={16} className="flex-shrink-0 mt-0.5" style={{ color: 'var(--color-warning)' }} />
+              {t.tip3}
+            </li>
+          </ul>
+        </section>
+
+        {/* Final CTA */}
+        <section
+          className="text-center py-12 rounded-2xl"
+          style={{
+            background: 'linear-gradient(135deg, var(--color-accent)10 0%, var(--color-accent)05 100%)',
+            border: '1px solid var(--color-accent)30'
+          }}
+        >
+          <h2
+            className="text-2xl font-semibold mb-6"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            {t.ctaTitle}
+          </h2>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <button
+              onClick={() => setShowNewProject(true)}
+              className="px-6 py-3 rounded-xl font-medium transition-all hover:opacity-90"
+              style={{ backgroundColor: 'var(--color-accent)', color: '#fff' }}
+            >
+              {t.ctaCreate}
+            </button>
+            <button
+              onClick={() => onNavigate('archetypes')}
+              className="px-6 py-3 rounded-xl font-medium transition-all hover:opacity-90"
+              style={{
+                backgroundColor: 'var(--color-bg-surface)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text-primary)'
+              }}
+            >
+              {t.ctaExplore}
+            </button>
+            <button
+              onClick={() => onNavigate('academy')}
+              className="px-6 py-3 rounded-xl font-medium transition-all hover:opacity-90"
+              style={{
+                backgroundColor: 'transparent',
+                color: 'var(--color-accent)'
+              }}
+            >
+              {t.ctaLearn} →
+            </button>
+          </div>
+        </section>
+
+        {/* Spacer for bottom chat bar */}
+        <div className="h-24" />
       </div>
+
+      {/* New Project Dialog */}
+      {showNewProject && (
+        <NewProjectDialog
+          lang={lang}
+          onClose={() => setShowNewProject(false)}
+          onCreated={() => {
+            setShowNewProject(false);
+            onNavigate('scouting');
+          }}
+        />
+      )}
     </div>
   );
 };

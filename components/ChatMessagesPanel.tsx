@@ -128,7 +128,7 @@ const ChatMessagesPanel: React.FC<ChatMessagesPanelProps> = ({
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-6 py-4">
+      <div className="flex-1 overflow-y-auto px-6 py-4 pb-24">
         {/* Welcome message if no messages */}
         {messages.length === 0 && (
           <div className="max-w-3xl mx-auto">
@@ -179,26 +179,42 @@ const ChatMessagesPanel: React.FC<ChatMessagesPanelProps> = ({
         {/* Chat Messages */}
         <div className="max-w-3xl mx-auto space-y-4">
           {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm ${
-                  msg.role === 'user' ? 'rounded-br-md' : 'rounded-bl-md'
-                }`}
-                style={{
-                  backgroundColor: msg.role === 'user'
-                    ? 'var(--color-accent)'
-                    : 'var(--color-bg-surface)',
-                  color: msg.role === 'user'
-                    ? 'white'
-                    : 'var(--color-text-primary)'
-                }}
-              >
-                <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+            msg.role === 'system' ? (
+              // System message - context boundary
+              <div key={index} className="flex justify-center my-6">
+                <div
+                  className="max-w-[90%] px-5 py-4 rounded-xl text-sm border"
+                  style={{
+                    backgroundColor: 'var(--color-bg-hover)',
+                    borderColor: 'var(--color-border)',
+                    color: 'var(--color-text-secondary)'
+                  }}
+                >
+                  <p className="whitespace-pre-wrap leading-relaxed text-center">{msg.content}</p>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div
+                key={index}
+                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm ${
+                    msg.role === 'user' ? 'rounded-br-md' : 'rounded-bl-md'
+                  }`}
+                  style={{
+                    backgroundColor: msg.role === 'user'
+                      ? 'var(--color-accent)'
+                      : 'var(--color-bg-surface)',
+                    color: msg.role === 'user'
+                      ? 'white'
+                      : 'var(--color-text-primary)'
+                  }}
+                >
+                  <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                </div>
+              </div>
+            )
           ))}
 
           {/* Loading indicator */}

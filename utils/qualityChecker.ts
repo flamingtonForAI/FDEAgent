@@ -1,5 +1,49 @@
 
-import { ProjectState, OntologyObject, OntologyLink, AIPAction } from '../types';
+import { ProjectState, OntologyObject, OntologyLink, AIPAction, RollbackStrategy } from '../types';
+
+// ============= Pre-computed Quality Check Context =============
+// Cached data structures to avoid redundant computations across rules
+
+interface QualityCheckContext {
+  objectById: Map<string, OntologyObject>;
+  connectedObjectIds: Set<string>;
+  objectsWithActions: Set<string>;
+  objectsWithAIFeatures: Set<string>;
+}
+
+// Module-level cache for current check (cleared after each runQualityCheck)
+let currentContext: QualityCheckContext | null = null;
+
+function buildContext(project: ProjectState): QualityCheckContext {
+  const objectById = new Map<string, OntologyObject>();
+  const connectedObjectIds = new Set<string>();
+  const objectsWithActions = new Set<string>();
+  const objectsWithAIFeatures = new Set<string>();
+
+  // Single pass over objects
+  for (const obj of project.objects) {
+    objectById.set(obj.id, obj);
+    if (obj.actions && obj.actions.length > 0) {
+      objectsWithActions.add(obj.id);
+    }
+    if (obj.aiFeatures && obj.aiFeatures.length > 0) {
+      objectsWithAIFeatures.add(obj.id);
+    }
+  }
+
+  // Single pass over links
+  for (const link of project.links) {
+    connectedObjectIds.add(link.source);
+    connectedObjectIds.add(link.target);
+  }
+
+  return { objectById, connectedObjectIds, objectsWithActions, objectsWithAIFeatures };
+}
+
+// Helper to get cached context (for use in rules)
+export function getCheckContext(): QualityCheckContext | null {
+  return currentContext;
+}
 
 // ============= Quality Check Types =============
 
@@ -352,6 +396,47 @@ export const qualityRules: QualityRule[] = [
       return issues;
     }
   },
+  {
+    id: 'high-tier-action-has-rollback',
+    name: { en: 'High-Tier Action Rollback Strategy', cn: '高风险动作回滚策略' },
+    description: { en: 'Tier 3-4 actions must have rollback strategy defined', cn: 'Tier 3-4 动作必须定义回滚策略' },
+    category: 'action',
+    severity: 'warning',
+    check: (project) => {
+      const issues: QualityIssue[] = [];
+      project.objects.forEach(obj => {
+        obj.actions?.forEach(action => {
+          const tier = action.governance?.permissionTier;
+          // Check if action is Tier 3 or 4 and lacks rollback strategy
+          if (tier && tier >= 3) {
+            const hasValidRollback = action.rollbackStrategy &&
+              action.rollbackStrategy.type &&
+              (action.rollbackStrategy.type === 'none' ||
+               action.rollbackStrategy.type === 'manual' ||
+               (action.rollbackStrategy.type === 'compensating_action' && action.rollbackStrategy.compensatingAction));
+
+            if (!hasValidRollback) {
+              issues.push({
+                ruleId: 'high-tier-action-has-rollback',
+                severity: 'warning',
+                category: 'action',
+                message: {
+                  en: `Tier ${tier} action "${action.name}" on "${obj.name}" requires a rollback strategy`,
+                  cn: `"${obj.name}" 的 Tier ${tier} 动作 "${action.name}" 需要定义回滚策略`
+                },
+                target: { type: 'action', id: obj.id, name: `${obj.name}.${action.name}` },
+                suggestion: {
+                  en: 'Define a rollback strategy (compensating_action, manual, or none) for high-risk operations',
+                  cn: '为高风险操作定义回滚策略（补偿动作、手动回滚或无需回滚）'
+                }
+              });
+            }
+          }
+        });
+      });
+      return issues;
+    }
+  },
 
   // === Link Rules ===
   {
@@ -394,11 +479,9 @@ export const qualityRules: QualityRule[] = [
     check: (project) => {
       const issues: QualityIssue[] = [];
       if (project.objects.length > 1) {
-        const connectedIds = new Set<string>();
-        project.links.forEach(link => {
-          connectedIds.add(link.source);
-          connectedIds.add(link.target);
-        });
+        // Use pre-computed connectedIds from context for O(1) lookup
+        const ctx = getCheckContext();
+        const connectedIds = ctx?.connectedObjectIds ?? new Set<string>();
 
         project.objects.forEach(obj => {
           if (!connectedIds.has(obj.id)) {
@@ -517,11 +600,13 @@ export const qualityRules: QualityRule[] = [
     severity: 'info',
     check: (project) => {
       const issues: QualityIssue[] = [];
-      const objectsWithAI = project.objects.filter(obj =>
-        obj.aiFeatures && obj.aiFeatures.length > 0
-      );
+      // Use pre-computed context for O(1) check
+      const ctx = getCheckContext();
+      const hasAnyAIFeatures = ctx
+        ? ctx.objectsWithAIFeatures.size > 0
+        : project.objects.some(obj => obj.aiFeatures && obj.aiFeatures.length > 0);
 
-      if (project.objects.length > 0 && objectsWithAI.length === 0) {
+      if (project.objects.length > 0 && !hasAnyAIFeatures) {
         issues.push({
           ruleId: 'has-ai-features',
           severity: 'info',
@@ -609,9 +694,10 @@ export function checkActionThreeLayers(project: ProjectState): ThreeLayerReport 
       const hasParameters = !!(ll?.parameters && ll.parameters.length > 0);
       const hasPostconditions = !!(ll?.postconditions && ll.postconditions.length > 0);
       const hasSideEffects = !!(ll?.sideEffects && ll.sideEffects.length > 0);
-      const logicScore = [hasPreconditions, hasParameters, hasPostconditions]
-        .filter(Boolean).length * 33 + (hasSideEffects ? 1 : 0);
-      const logicComplete = logicScore >= 66; // At least 2 of 3 required
+      // Score: 4 fields, 25 points each = 100 max (consistent with business layer)
+      const logicScore = [hasPreconditions, hasParameters, hasPostconditions, hasSideEffects]
+        .filter(Boolean).length * 25;
+      const logicComplete = logicScore >= 75; // At least 3 of 4
 
       // Check Implementation Layer
       const il = action.implementationLayer;
@@ -706,13 +792,39 @@ export function checkActionThreeLayers(project: ProjectState): ThreeLayerReport 
 // ============= Quality Check Runner =============
 
 export function runQualityCheck(project: ProjectState): QualityReport {
+  // Build pre-computed context for optimized rule execution
+  currentContext = buildContext(project);
+
   const issues: QualityIssue[] = [];
 
-  // Run all rules
-  qualityRules.forEach(rule => {
-    const ruleIssues = rule.check(project);
-    issues.push(...ruleIssues);
-  });
+  try {
+    // Run all rules with error isolation (one rule failure doesn't break entire check)
+    qualityRules.forEach(rule => {
+      try {
+        const ruleIssues = rule.check(project);
+        issues.push(...ruleIssues);
+      } catch (error) {
+        // Log error but continue with other rules
+        console.error(`Quality rule "${rule.id}" failed:`, error);
+        issues.push({
+          ruleId: rule.id,
+          severity: 'warning',
+          category: rule.category,
+          message: {
+            en: `Rule "${rule.name.en}" failed to execute`,
+            cn: `规则 "${rule.name.cn}" 执行失败`
+          },
+          suggestion: {
+            en: 'This may indicate a data structure issue. Please check the project data.',
+            cn: '这可能表示数据结构有问题，请检查项目数据。'
+          }
+        });
+      }
+    });
+  } finally {
+    // Clear context after check to avoid memory leaks
+    currentContext = null;
+  }
 
   // Calculate stats
   const bySeverity: Record<Severity, number> = { error: 0, warning: 0, info: 0 };
@@ -751,13 +863,15 @@ export function runQualityCheck(project: ProjectState): QualityReport {
   else grade = 'F';
 
   const totalChecks = qualityRules.length;
-  const passed = totalChecks - issues.length;
+  // Count unique rules that passed (no issues for that rule)
+  const rulesWithIssues = new Set(issues.map(i => i.ruleId));
+  const passed = totalChecks - rulesWithIssues.size;
 
   return {
     score,
     grade,
     totalChecks,
-    passed: Math.max(0, passed),
+    passed,
     issues,
     byCategory,
     bySeverity

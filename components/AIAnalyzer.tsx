@@ -360,7 +360,7 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
       )}
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-6 pb-24">
         {error && (
           <div
             className="p-4 rounded-lg mb-4 flex items-start gap-3"

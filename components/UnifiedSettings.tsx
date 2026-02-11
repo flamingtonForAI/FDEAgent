@@ -3,12 +3,12 @@
  * 统一设置面板 - 整合 AI 设置、主题、语言等
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Language, AISettings, AI_PROVIDERS } from '../types';
-import { Theme, themes } from '../lib/themes';
+import { Theme, ThemeMode, themeOptions, applyThemeMode, getSavedThemeMode, getThemeForMode } from '../lib/themes';
 import {
   X, Settings, Cpu, Palette, Globe, RotateCcw, AlertTriangle,
-  Check, ChevronDown, ExternalLink, Key
+  Check, Moon, Sun, Monitor, Key
 } from 'lucide-react';
 
 interface Props {
@@ -89,6 +89,21 @@ export default function UnifiedSettings({
   const [activeTab, setActiveTab] = useState<SettingsTab>('ai');
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [localApiKey, setLocalApiKey] = useState(aiSettings.apiKey);
+  const [currentThemeMode, setCurrentThemeMode] = useState<ThemeMode>(getSavedThemeMode);
+
+  const handleThemeModeChange = (mode: ThemeMode) => {
+    setCurrentThemeMode(mode);
+    applyThemeMode(mode);
+    onThemeChange(getThemeForMode(mode));
+  };
+
+  const getThemeIcon = (mode: ThemeMode) => {
+    switch (mode) {
+      case 'dark': return <Moon size={18} />;
+      case 'light': return <Sun size={18} />;
+      case 'system': return <Monitor size={18} />;
+    }
+  };
 
   const currentProvider = AI_PROVIDERS.find(p => p.id === aiSettings.provider);
   const currentModel = currentProvider?.models.find(m => m.id === aiSettings.model);
@@ -313,29 +328,40 @@ export default function UnifiedSettings({
                   </h3>
                   <p className="text-xs text-muted mb-4">{t.themeDesc}</p>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    {Object.values(themes).map((theme) => (
+                  <div className="flex flex-col gap-2">
+                    {themeOptions.map((option) => (
                       <button
-                        key={theme.id}
-                        onClick={() => onThemeChange(theme)}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
-                          currentTheme.id === theme.id ? 'ring-2' : ''
-                        }`}
+                        key={option.id}
+                        onClick={() => handleThemeModeChange(option.id)}
+                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all"
                         style={{
-                          backgroundColor: 'var(--color-bg-surface)',
-                          border: '1px solid var(--color-border)',
-                          ringColor: 'var(--color-accent)',
+                          backgroundColor: currentThemeMode === option.id
+                            ? 'var(--color-bg-hover)'
+                            : 'var(--color-bg-surface)',
+                          border: currentThemeMode === option.id
+                            ? '2px solid var(--color-accent)'
+                            : '1px solid var(--color-border)',
                         }}
                       >
-                        <div
-                          className="w-6 h-6 rounded-full"
-                          style={{ backgroundColor: theme.colors.accent }}
-                        />
-                        <span style={{ color: 'var(--color-text-primary)' }}>
-                          {theme.name}
+                        <span style={{
+                          color: currentThemeMode === option.id
+                            ? 'var(--color-accent)'
+                            : 'var(--color-text-muted)'
+                        }}>
+                          {getThemeIcon(option.id)}
                         </span>
-                        {currentTheme.id === theme.id && (
-                          <Check size={14} style={{ color: 'var(--color-accent)' }} className="ml-auto" />
+                        <span
+                          className="flex-1 text-left font-medium"
+                          style={{
+                            color: currentThemeMode === option.id
+                              ? 'var(--color-accent)'
+                              : 'var(--color-text-primary)'
+                          }}
+                        >
+                          {option.name[lang]}
+                        </span>
+                        {currentThemeMode === option.id && (
+                          <Check size={16} style={{ color: 'var(--color-accent)' }} />
                         )}
                       </button>
                     ))}

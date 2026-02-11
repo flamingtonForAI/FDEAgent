@@ -376,7 +376,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
   ), [links, t]);
 
   return (
-    <div className="p-6 h-full bg-[var(--color-bg-elevated)] overflow-y-auto">
+    <div className="p-6 pb-24 h-full bg-[var(--color-bg-elevated)] overflow-y-auto">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>

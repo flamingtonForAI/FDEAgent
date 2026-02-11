@@ -79,6 +79,9 @@ export function ProjectProvider({ children }: ProjectProviderProps) {
           storage.migrateOldData();
         }
 
+        // Clean up legacy global data (e.g., old ontology-chat-messages key)
+        storage.cleanupLegacyData();
+
         // Load projects list
         const projectList = storage.listProjectsLocal();
         setProjects(projectList);

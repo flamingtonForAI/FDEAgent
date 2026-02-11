@@ -476,7 +476,12 @@ export const checkMethodology = (
 ): MethodologyCheckResult => {
   const currentStage = determineCurrentStage(project, messages);
   const stageIndex = METHODOLOGY_STAGES.findIndex(s => s.id === currentStage);
-  const stageDef = METHODOLOGY_STAGES[stageIndex];
+
+  // Defensive check: fall back to discovery stage if stage not found
+  const stageDef = stageIndex >= 0
+    ? METHODOLOGY_STAGES[stageIndex]
+    : METHODOLOGY_STAGES[0]; // Default to discovery stage
+  const safeStageIndex = stageIndex >= 0 ? stageIndex : 0;
 
   // Check requirements
   const completedReqs: string[] = [];
@@ -516,8 +521,8 @@ export const checkMethodology = (
   // Determine if can proceed
   const criticalMissing = missingReqs.filter(r => r.importance === 'critical');
   const canProceedToNext = criticalMissing.length === 0;
-  const nextStage = stageIndex < METHODOLOGY_STAGES.length - 1
-    ? METHODOLOGY_STAGES[stageIndex + 1].id
+  const nextStage = safeStageIndex < METHODOLOGY_STAGES.length - 1
+    ? METHODOLOGY_STAGES[safeStageIndex + 1].id
     : null;
 
   // Generate copilot suggestions

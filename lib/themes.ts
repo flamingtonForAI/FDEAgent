@@ -469,8 +469,27 @@ export const themes: Record<string, Theme> = {
 
 export const defaultThemeId = 'githubDark';
 
+// Theme mode: 'dark', 'light', or 'system'
+export type ThemeMode = 'dark' | 'light' | 'system';
+
+// Simplified theme options for UI
+export const themeOptions: { id: ThemeMode; name: { cn: string; en: string }; icon: string }[] = [
+  { id: 'dark', name: { cn: '深色', en: 'Dark' }, icon: '🌙' },
+  { id: 'light', name: { cn: '浅色', en: 'Light' }, icon: '☀️' },
+  { id: 'system', name: { cn: '跟随系统', en: 'System' }, icon: '💻' },
+];
+
 export function getTheme(id: string): Theme {
   return themes[id] || themes[defaultThemeId];
+}
+
+// Get the actual theme based on mode
+export function getThemeForMode(mode: ThemeMode): Theme {
+  if (mode === 'system') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return prefersDark ? themes.githubDark : themes.githubLight;
+  }
+  return mode === 'dark' ? themes.githubDark : themes.githubLight;
 }
 
 export function applyTheme(theme: Theme): void {
@@ -511,12 +530,40 @@ export function applyTheme(theme: Theme): void {
   root.style.setProperty('--shadow-md', colors.shadowMd);
   root.style.setProperty('--shadow-lg', colors.shadowLg);
   root.style.setProperty('--shadow-glow', colors.shadowGlow);
-
-  // Store theme preference
-  localStorage.setItem('ontology-architect-theme', theme.id);
 }
 
+// Apply theme mode and save preference
+export function applyThemeMode(mode: ThemeMode): void {
+  const theme = getThemeForMode(mode);
+  applyTheme(theme);
+  localStorage.setItem('ontology-architect-theme-mode', mode);
+}
+
+// Get saved theme mode
+export function getSavedThemeMode(): ThemeMode {
+  const saved = localStorage.getItem('ontology-architect-theme-mode');
+  if (saved === 'dark' || saved === 'light' || saved === 'system') {
+    return saved;
+  }
+  return 'system'; // Default to system
+}
+
+// Listen for system theme changes (call this on app init)
+export function setupSystemThemeListener(callback: (mode: ThemeMode) => void): () => void {
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const handler = () => {
+    const currentMode = getSavedThemeMode();
+    if (currentMode === 'system') {
+      applyThemeMode('system');
+      callback('system');
+    }
+  };
+  mediaQuery.addEventListener('change', handler);
+  return () => mediaQuery.removeEventListener('change', handler);
+}
+
+// Legacy support
 export function loadSavedTheme(): Theme {
-  const savedThemeId = localStorage.getItem('ontology-architect-theme');
-  return getTheme(savedThemeId || defaultThemeId);
+  const mode = getSavedThemeMode();
+  return getThemeForMode(mode);
 }

@@ -17,7 +17,7 @@ import GlobalChatBar from './components/GlobalChatBar';
 import { getMergedArchetypeById } from './content/archetypes';
 import { LayoutDashboard, MessageSquare, Database, Network, Settings as SettingsIcon, Sparkles, GraduationCap, ShieldCheck, Package, Rocket, LogIn, FolderOpen } from 'lucide-react';
 // ThemeSwitcher moved to UnifiedSettings
-import { Theme, loadSavedTheme, applyTheme } from './lib/themes';
+import { Theme, loadSavedTheme, applyThemeMode, getSavedThemeMode, setupSystemThemeListener } from './lib/themes';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider, useSync } from './contexts/SyncContext';
 import { ProjectProvider, useProject } from './contexts/ProjectContext';
@@ -124,63 +124,20 @@ const parseStoredMessages = (raw: string): ChatMessage[] => {
   return normalizeMessagesForStorage(safe as ChatMessage[]);
 };
 
-// 从localStorage加载聊天记录
-const loadChatMessages = (): ChatMessage[] => {
-  try {
-    const saved = localStorage.getItem('ontology-chat-messages');
-    if (saved) {
-      return parseStoredMessages(saved);
-    }
-  } catch (e) {
-    console.error('加载聊天记录失败:', e);
-  }
-  return [];
-};
-
-// 从localStorage加载项目状态
-const loadProjectState = (): ProjectState => {
-  try {
-    const saved = localStorage.getItem('ontology-project-state');
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch (e) {
-    console.error('加载项目状态失败:', e);
-  }
-  return {
-    industry: '',
-    useCase: '',
-    objects: [],
-    links: [],
-    integrations: [],
-    aiRequirements: [],
-    status: 'scouting'
-  };
-};
+// Chat messages are now loaded by ProjectContext per-project
+// Keeping parseStoredMessages for potential compatibility
 
 // 有效的工作流标签页（用于恢复上次位置）
 type WorkflowTab = 'projects' | 'quickStart' | 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview' | 'aiEnhancement';
 const validWorkflowTabs: WorkflowTab[] = ['projects', 'quickStart', 'academy', 'archetypes', 'scouting', 'workbench', 'ontology', 'actionDesigner', 'systemMap', 'aip', 'overview', 'aiEnhancement'];
 
 // 从localStorage加载上次活跃的标签页
+// Note: Workflow tabs requiring a project will be redirected by useEffect if no project exists
 const loadLastActiveTab = (): WorkflowTab => {
   try {
     const saved = localStorage.getItem('ontology-last-tab');
-    const project = loadProjectState();
-
-    // 如果有保存的标签且有效，则恢复
     if (saved && validWorkflowTabs.includes(saved as WorkflowTab)) {
-      // 如果是需要项目数据的标签，但没有项目数据，则回到 quickStart
-      const requiresProject = ['ontology', 'actionDesigner', 'systemMap', 'aip', 'overview', 'aiEnhancement'];
-      if (requiresProject.includes(saved) && project.objects.length === 0) {
-        return 'quickStart';
-      }
       return saved as WorkflowTab;
-    }
-
-    // 如果有项目数据，默认到 scouting（老手模式）
-    if (project.objects.length > 0) {
-      return 'scouting';
     }
   } catch (e) {
     console.error('加载上次标签失败:', e);
@@ -188,22 +145,50 @@ const loadLastActiveTab = (): WorkflowTab => {
   return 'quickStart';
 };
 
+// Default empty project state
+const emptyProjectState: ProjectState = {
+  industry: '',
+  useCase: '',
+  objects: [],
+  links: [],
+  integrations: [],
+  aiRequirements: [],
+  status: 'scouting'
+};
+
 const AppContent: React.FC = () => {
   const [lang, setLang] = useState<Language>('cn');
   const [activeTab, setActiveTab] = useState<'projects' | 'quickStart' | 'academy' | 'archetypes' | 'archetypeViewer' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview' | 'aiEnhancement'>(loadLastActiveTab);
-  const [project, setProject] = useState<ProjectState>(loadProjectState);
   const [isDesigning, setIsDesigning] = useState(false);
-  const initialChatMessages = useMemo(loadChatMessages, []);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(initialChatMessages);
-  const chatHistoryRef = useRef<ChatMessage[]>(initialChatMessages);
-  const chatSaveTimeoutRef = useRef<number | null>(null);
+
+  // Use ProjectContext for both chat and ontology (per-project storage)
+  const { currentChat: chatMessages, setChatMessages, activeProjectId, currentOntology, setCurrentOntology } = useProject();
+  const chatHistoryRef = useRef<ChatMessage[]>(chatMessages);
+
+  // Derive project from context (with fallback for null)
+  const project = currentOntology || emptyProjectState;
+
+  // Create setProject wrapper for backward compatibility with child components
+  // This allows functional updates like setProject(prev => ({...prev, ...changes}))
+  const setProject = useCallback((update: ProjectState | ((prev: ProjectState) => ProjectState)) => {
+    if (typeof update === 'function') {
+      setCurrentOntology(update(project));
+    } else {
+      setCurrentOntology(update);
+    }
+  }, [project, setCurrentOntology]);
+
+  // Sync chatHistoryRef with chatMessages from context
+  useEffect(() => {
+    chatHistoryRef.current = chatMessages;
+  }, [chatMessages]);
 
   // AI设置状态
   const [aiSettings, setAiSettings] = useState<AISettings>(loadAISettings);
   const [showSettings, setShowSettings] = useState(false);
   const [showQualityPanel, setShowQualityPanel] = useState(false);
 
-  // Theme state
+  // Theme state - using new simplified theme mode
   const [currentTheme, setCurrentTheme] = useState<Theme>(loadSavedTheme);
 
   // Archetype状态
@@ -261,10 +246,19 @@ const AppContent: React.FC = () => {
     }
   }, [activeTab]);
 
-  // Apply theme on mount
+  // Apply theme on mount and setup system theme listener
   useEffect(() => {
-    applyTheme(currentTheme);
-  }, [currentTheme]);
+    // Apply saved theme mode
+    const savedMode = getSavedThemeMode();
+    applyThemeMode(savedMode);
+
+    // Listen for system theme changes
+    const cleanup = setupSystemThemeListener(() => {
+      setCurrentTheme(loadSavedTheme());
+    });
+
+    return cleanup;
+  }, []);
 
   // 异步加载本地配置文件（api-config.local.json）
   useEffect(() => {
@@ -285,67 +279,43 @@ const AppContent: React.FC = () => {
     aiService.current.updateSettings(aiSettings);
   }, [aiSettings]);
 
-  // 保存聊天记录到localStorage（仅保存显示内容）
-  // 注意：chatHistoryRef 由 ChatInterface 单独维护，包含完整的文件内容
-  // 不要在这里覆盖 chatHistoryRef.current，否则会丢失文件内容
+  // Chat messages are now saved by ProjectContext automatically
+  // No need for manual save here
+
+  // Redirect to projects page when no active project and on workflow tab
   useEffect(() => {
-    if (chatMessages.length === 0) return undefined;
-
-    if (chatSaveTimeoutRef.current !== null) {
-      window.clearTimeout(chatSaveTimeoutRef.current);
+    const workflowTabs = ['scouting', 'workbench', 'ontology', 'actionDesigner', 'systemMap', 'overview', 'aiEnhancement', 'aip'];
+    if (!activeProjectId && workflowTabs.includes(activeTab)) {
+      setActiveTab('projects');
     }
+  }, [activeProjectId, activeTab]);
 
-    chatSaveTimeoutRef.current = window.setTimeout(() => {
-      try {
-        const payload = normalizeMessagesForStorage(chatMessages);
-        localStorage.setItem('ontology-chat-messages', JSON.stringify(payload));
-      } catch (e) {
-        console.error('保存聊天记录失败:', e);
-      }
-    }, 250);
-
-    return () => {
-      if (chatSaveTimeoutRef.current !== null) {
-        window.clearTimeout(chatSaveTimeoutRef.current);
-      }
-    };
-  }, [chatMessages]);
-
-  // 保存项目状态到localStorage并同步到云端
-  // 注意：只在有实际数据时才保存，避免空状态触发迁移逻辑
+  // Project state is now saved automatically by ProjectContext
+  // Cloud sync for authenticated users
   useEffect(() => {
-    // 只有当项目有实际数据时才保存到旧格式 localStorage
-    // 这样新用户不会因为空状态而触发迁移创建 "迁移项目"
-    const hasData = project.objects.length > 0 ||
-                    project.industry ||
-                    project.useCase;
+    if (!isAuthenticated || !activeProjectId || !currentOntology) return;
 
-    if (!hasData) {
-      return; // 不保存空状态
-    }
+    const hasData = currentOntology.objects.length > 0 ||
+                    currentOntology.industry ||
+                    currentOntology.useCase;
 
-    try {
-      localStorage.setItem('ontology-project-state', JSON.stringify(project));
-      // Queue cloud sync if authenticated
-      if (isAuthenticated && project.objects.length > 0) {
-        sync({
-          projects: [{
-            id: storage.getCloudProjectId() || undefined,
-            name: project.projectName || 'Untitled Project',
-            industry: project.industry,
-            useCase: project.useCase,
-            status: project.status,
-            objects: project.objects,
-            links: project.links,
-            integrations: project.integrations,
-            aiRequirements: project.aiRequirements,
-          }],
-        });
-      }
-    } catch (e) {
-      console.error('保存项目状态失败:', e);
-    }
-  }, [project, isAuthenticated, sync]);
+    if (!hasData) return;
+
+    // Queue cloud sync
+    sync({
+      projects: [{
+        id: activeProjectId,
+        name: currentOntology.projectName || 'Untitled Project',
+        industry: currentOntology.industry,
+        useCase: currentOntology.useCase,
+        status: currentOntology.status,
+        objects: currentOntology.objects,
+        links: currentOntology.links,
+        integrations: currentOntology.integrations,
+        aiRequirements: currentOntology.aiRequirements,
+      }],
+    });
+  }, [currentOntology, isAuthenticated, activeProjectId, sync]);
 
   // 保存当前标签页到localStorage（用于恢复上次工作位置）
   useEffect(() => {
@@ -412,13 +382,13 @@ const AppContent: React.FC = () => {
         aiFeatures: Array.isArray(obj.aiFeatures) ? obj.aiFeatures : [],
       }));
 
-      setProject(prev => ({
-        ...prev,
+      setCurrentOntology({
+        ...project,
         objects: normalizedObjects,
         links: links,
         integrations: integrations,
         status: 'designing'
-      }));
+      });
       setActiveTab('ontology');
     } catch (e) {
       console.error("Failed to parse ontology design", e);
@@ -464,19 +434,11 @@ const AppContent: React.FC = () => {
 
   const handleNewSession = () => {
     if (window.confirm(t.confirmNewSession)) {
-      // 清除本地存储
-      localStorage.removeItem('ontology-chat-messages');
-      localStorage.removeItem('ontology-project-state');
-      localStorage.removeItem('ontology-last-tab');
-      // 重置状态
+      // Reset current project's state via context
       setChatMessages([]);
-      setProject({
-        industry: '',
-        useCase: '',
-        objects: [],
-        links: [],
-        integrations: [],
-        status: 'scouting'
+      setCurrentOntology({
+        ...emptyProjectState,
+        projectName: project.projectName, // Keep project name
       });
       chatHistoryRef.current = [];
       setActiveTab('quickStart');
@@ -549,8 +511,8 @@ const AppContent: React.FC = () => {
     // Clear AI analysis result (it's no longer relevant to the new ontology)
     setAiAnalysisResult(null);
 
-    setProject(prev => ({
-      ...prev,
+    setCurrentOntology({
+      ...project,
       projectName: archetype.metadata.name,
       industry: archetype.metadata.industry,
       useCase: archetype.metadata.domain,
@@ -558,10 +520,10 @@ const AppContent: React.FC = () => {
       links,
       integrations,
       status: 'designing'
-    }));
+    });
 
     setActiveTab('ontology');
-  }, [t.applyArchetype]);
+  }, [t.applyArchetype, project]);
 
   return (
     <div className="flex h-screen overflow-hidden text-secondary" style={{ backgroundColor: 'var(--color-bg-base)' }}>
@@ -593,7 +555,7 @@ const AppContent: React.FC = () => {
             label={t.quickStart}
           />
 
-          {/* Core Workflow - 3 Phases */}
+          {/* Core Workflow - 4 Phases (requires project) */}
           <NavSection label={t.sectionCoreWorkflow} />
 
           {/* Phase 1: Discover */}
@@ -603,6 +565,7 @@ const AppContent: React.FC = () => {
             icon={<MessageSquare size={16} />}
             label={t.phase1}
             sublabel={t.phase1Desc}
+            disabled={!activeProjectId}
           />
 
           {/* Phase 2: Model */}
@@ -612,6 +575,7 @@ const AppContent: React.FC = () => {
             icon={<Database size={16} />}
             label={t.phase2}
             sublabel={t.phase2Desc}
+            disabled={!activeProjectId}
           />
 
           {/* Phase 3: Integrate */}
@@ -621,7 +585,7 @@ const AppContent: React.FC = () => {
             icon={<Network size={16} />}
             label={t.phase3}
             sublabel={t.phase3Desc}
-            disabled={project.objects.length === 0}
+            disabled={!activeProjectId || project.objects.length === 0}
           />
 
           {/* Phase 4: AI Enhancement */}
@@ -631,7 +595,7 @@ const AppContent: React.FC = () => {
             icon={<Sparkles size={16} />}
             label={t.phase4}
             sublabel={t.phase4Desc}
-            disabled={project.objects.length === 0}
+            disabled={!activeProjectId || project.objects.length === 0}
           />
 
           {/* Resources Section - Reference for all users */}
@@ -849,6 +813,8 @@ const AppContent: React.FC = () => {
           messagesInMainArea={activeTab === 'scouting'}
           onLoadingChange={setIsChatLoading}
           historyRef={chatHistoryRef}
+          activeProjectId={activeProjectId}
+          onNavigateToProjects={() => setActiveTab('projects')}
         />
       )}
 

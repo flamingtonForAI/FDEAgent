@@ -33,7 +33,7 @@ const SystemMap: React.FC<Props> = ({ lang, project }) => {
   const t = translations[lang];
 
   return (
-    <div className="p-8 h-full bg-[var(--color-bg-elevated)] space-y-12 overflow-y-auto">
+    <div className="p-8 pb-24 h-full bg-[var(--color-bg-elevated)] space-y-12 overflow-y-auto">
       <div>
         <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h2>
         <p className="text-muted text-sm">{t.subtitle}</p>
