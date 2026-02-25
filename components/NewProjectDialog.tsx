@@ -121,9 +121,9 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
   const filteredTemplates = templates.filter(t => {
     if (!templateSearch.trim()) return true;
     const query = templateSearch.toLowerCase();
-    const name = lang === 'cn' ? t.metadata.nameCn || t.metadata.name : t.metadata.name;
+    const name = lang === 'cn' ? (t.description?.cn || t.name) : t.name;
     return name.toLowerCase().includes(query) ||
-           t.metadata.industry.toLowerCase().includes(query);
+           t.industry.toLowerCase().includes(query);
   });
 
   const handleCreate = async () => {
@@ -166,7 +166,7 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
 
       createProject({
         name: projectName,
-        industry: industry || (selectedTemplate?.metadata.industry) || '',
+        industry: industry || selectedTemplate?.industry || '',
         useCase: useCase,
         description: description || undefined,
         baseArchetypeId,
@@ -352,8 +352,8 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
                   <div className="grid gap-2 max-h-64 overflow-y-auto">
                     {filteredTemplates.map((template) => {
                       const name = lang === 'cn'
-                        ? template.metadata.nameCn || template.metadata.name
-                        : template.metadata.name;
+                        ? (template.description?.cn || template.name)
+                        : template.name;
                       const isSelected = selectedTemplate?.id === template.id;
 
                       return (
@@ -370,9 +370,9 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
                             <div>
                               <h4 className="font-medium">{name}</h4>
                               <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
-                                <span>{template.metadata.industry}</span>
-                                <span>{template.stats.objectCount} objects</span>
-                                <span>{template.stats.actionCount} actions</span>
+                                <span>{template.industry}</span>
+                                <span>{template.stats?.objectCount || 0} objects</span>
+                                <span>{template.stats?.actionCount || 0} actions</span>
                               </div>
                             </div>
                             {isSelected && (
