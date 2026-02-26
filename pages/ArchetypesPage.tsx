@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArchetypeBrowser } from '../components/ArchetypeBrowser';
+import ArchetypeBrowser from '../components/ArchetypeBrowser';
 import type { Language, AISettings } from '../types';
 
 interface ArchetypesPageProps {

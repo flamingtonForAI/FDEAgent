@@ -1,5 +1,5 @@
 import React from 'react';
-import { QuickStart } from '../components/QuickStart';
+import QuickStart from '../components/QuickStart';
 import type { ProjectState, Language } from '../types';
 
 type WorkflowTab = 'projects' | 'quickStart' | 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview' | 'aiEnhancement';

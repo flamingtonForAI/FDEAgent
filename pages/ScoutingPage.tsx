@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChatMessagesPanel } from '../components/ChatMessagesPanel';
+import ChatMessagesPanel from '../components/ChatMessagesPanel';
 import type { ProjectState, ChatMessage, Language } from '../types';
 
 interface ScoutingPageProps {

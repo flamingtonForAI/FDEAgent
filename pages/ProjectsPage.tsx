@@ -1,5 +1,5 @@
 import React from 'react';
-import { ProjectDashboard } from '../components/ProjectDashboard';
+import ProjectDashboard from '../components/ProjectDashboard';
 import type { Language } from '../types';
 
 interface DiscoveryPageProps {
