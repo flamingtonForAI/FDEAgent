@@ -19,14 +19,16 @@ export interface Property {
   name: string;
   type: string;
   description?: string;       // Property description for documentation
+  required?: boolean;
   isAIDerived?: boolean;
   logicDescription?: string;
 }
+export type PropertyDefinition = Property;
 
 // Action参数定义
 export interface ActionParameter {
   name: string;
-  type: 'string' | 'number' | 'boolean' | 'date' | 'object' | 'array';
+  type: 'string' | 'number' | 'boolean' | 'date' | 'datetime' | 'timestamp' | 'object' | 'array';
   required: boolean;
   description: string;
 }
@@ -42,9 +44,12 @@ export interface RollbackStrategy {
 // Action三层定义
 export interface AIPAction {
   name: string;
-  type: 'traditional' | 'generative';
+  nameCn?: string;
+  type?: 'traditional' | 'generative' | 'ai-assisted' | 'automated';
   description: string;
+  descriptionCn?: string;
   aiLogic?: string;
+  aiCapability?: unknown;
 
   // === 三层定义 ===
 
@@ -96,11 +101,21 @@ export interface AIPAction {
 }
 
 export interface ExternalIntegration {
-  systemName: string;
-  dataPoints: string[];
-  mechanism: string;
-  targetObjectId: string;
+  id?: string;
+  name?: string;
+  nameCn?: string;
+  type?: string;
+  systemName?: string;
+  sourceSystem?: string;
+  dataPoints?: string[];
+  syncedObjects?: string[];
+  mechanism?: string;
+  frequency?: string;
+  targetObjectId?: string;
+  description?: string;
+  [key: string]: unknown;
 }
+export type Integration = ExternalIntegration;
 
 // ============= State Machine Modeling =============
 
@@ -141,8 +156,9 @@ export interface OntologyObject {
   objectType?: 'entity' | 'event' | 'document' | 'reference';  // Object classification
   properties: Property[];
   actions: AIPAction[];
-  aiFeatures: {
-    type: AIIntegrationType;
+  aiFeatures?: {
+    type: AIIntegrationType | string;
+    name?: string;
     description: string;
   }[];
   stateMachine?: StateMachine;  // Optional state machine for lifecycle management
@@ -150,11 +166,21 @@ export interface OntologyObject {
 
 export interface OntologyLink {
   id: string;
-  source: string;
-  target: string;
-  label: string;
+  name?: string;
+  nameCn?: string;
+  description?: string;
+  source?: string;
+  target?: string;
+  sourceObject?: string;
+  targetObject?: string;
+  sourceObjectId?: string;
+  targetObjectId?: string;
+  sourceId?: string;
+  targetId?: string;
+  label?: string;
+  type?: string;
   isSemantic?: boolean;
-  cardinality?: '1:1' | '1:N' | 'N:1' | 'N:N';  // Relationship cardinality
+  cardinality?: '1:1' | '1:N' | 'N:1' | 'N:N' | 'one-to-one' | 'one-to-many' | 'many-to-one' | 'many-to-many' | 'manyToOne' | 'oneToMany' | 'manyToMany' | 'oneToOne';  // Relationship cardinality
 }
 
 // 用户提出的智能化需求

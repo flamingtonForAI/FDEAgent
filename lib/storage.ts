@@ -10,6 +10,7 @@
 import { syncService, type BatchSyncInput, type FullSyncState } from '../services/syncService';
 import { projectService, type Project as CloudProject } from '../services/projectService';
 import type { ProjectState, ChatMessage, Project, ProjectListItem } from '../types';
+import { normalizeProjectState } from './cardinality';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -284,7 +285,7 @@ class HybridStorage {
         return false;
       }
       
-      if (project.userId !== currentUserId) {
+      if (project.userId && project.userId !== currentUserId) {
         console.warn(`[Security] Ownership mismatch: project.userId=${project.userId}, current=${currentUserId}`);
         return false;
       }
@@ -380,7 +381,7 @@ class HybridStorage {
    */
   private async fetchCloudProjectState(
     projectId?: string
-  ): Promise<Project | null> {
+  ): Promise<CloudProject | null> {
     if (!projectId) {
       // Try to get the most recent project
       const projects = await projectService.listProjects();
@@ -418,8 +419,8 @@ class HybridStorage {
   /**
    * Convert cloud project to local state
    */
-  private cloudProjectToState(project: Project): ProjectState {
-    return {
+  private cloudProjectToState(project: CloudProject): ProjectState {
+    return normalizeProjectState({
       projectName: project.name,
       industry: project.industry || '',
       useCase: project.useCase || '',
@@ -428,7 +429,7 @@ class HybridStorage {
       links: project.links || [],
       integrations: project.integrations || [],
       aiRequirements: project.aiRequirements || [],
-    };
+    });
   }
 
   // ============================================
@@ -901,9 +902,9 @@ class HybridStorage {
       const data = JSON.parse(stored);
       // Handle both old format (direct state) and new format (wrapped with updatedAt)
       if (data.state) {
-        return data.state;
+        return normalizeProjectState(data.state);
       }
-      return data;
+      return normalizeProjectState(data);
     } catch {
       return null;
     }
@@ -913,26 +914,27 @@ class HybridStorage {
    * Save project state by ID
    */
   saveProjectStateById(projectId: string, state: ProjectState): void {
+    const normalizedState = normalizeProjectState(state);
     const now = new Date().toISOString();
     const key = getProjectStateKey(projectId);
 
     try {
       localStorage.setItem(key, JSON.stringify({
-        state,
+        state: normalizedState,
         updatedAt: now,
       }));
 
       // Update projects index
       this.updateProjectInIndex(projectId, {
         updatedAt: now,
-        progress: this.calculateProgress(state),
+        progress: this.calculateProgress(normalizedState),
       });
     } catch (error) {
       console.error('Failed to save project state:', error);
       if (error instanceof DOMException && error.name === 'QuotaExceededError') {
         this.clearOldLocalData();
         try {
-          localStorage.setItem(key, JSON.stringify({ state, updatedAt: now }));
+          localStorage.setItem(key, JSON.stringify({ state: normalizedState, updatedAt: now }));
         } catch {
           console.error('localStorage quota exceeded even after cleanup');
         }

@@ -41,7 +41,15 @@ export type DataSourceType =
   | 'database'      // 关系数据库
   | 'api'           // REST/GraphQL API
   | 'file'          // 文件系统 (CSV, Excel, etc.)
-  | 'streaming';    // 流数据 (Kafka, etc.)
+  | 'streaming'     // 流数据 (Kafka, etc.)
+  | 'ehr'
+  | 'lis'
+  | 'ris'
+  | 'pharmacy'
+  | 'scheduling'
+  | 'pos'
+  | 'ecommerce'
+  | 'loyalty';
 
 /**
  * 同步频率
@@ -58,20 +66,20 @@ export type SyncFrequency =
  * Kinetic Layer 的核心 - 连接概念模型到真实数据
  */
 export interface DataConnector {
-  id: string;
-  name: string;
-  description: {
+  id?: string;
+  name?: string;
+  description?: {
     en: string;
     cn: string;
-  };
+  } | string;
 
   // 源系统信息
-  sourceType: DataSourceType;
-  sourceSystem: string;        // e.g., "SAP S/4HANA", "Salesforce"
+  sourceType?: DataSourceType;
+  sourceSystem?: string;        // e.g., "SAP S/4HANA", "Salesforce"
   sourceVersion?: string;
 
   // 连接配置模板
-  connectionTemplate: {
+  connectionTemplate?: {
     // 必需的配置项
     requiredFields: {
       name: string;
@@ -89,7 +97,7 @@ export interface DataConnector {
   };
 
   // 同步配置
-  sync: {
+  sync?: {
     direction: 'inbound' | 'outbound' | 'bidirectional';
     frequency: SyncFrequency;
     // 增量同步支持
@@ -99,7 +107,7 @@ export interface DataConnector {
   };
 
   // 映射的对象
-  mappedObjects: {
+  mappedObjects?: {
     objectId: string;
     // 源表/实体
     sourceEntity: string;
@@ -110,6 +118,8 @@ export interface DataConnector {
       transformation?: string;  // 转换表达式
     }[];
   }[];
+  targetObjects?: string[];
+  [key: string]: any;
 }
 
 // ============= Dynamic Layer - 业务逻辑层 =============
@@ -118,15 +128,16 @@ export interface DataConnector {
  * 工作流步骤
  */
 export interface WorkflowStep {
-  id: string;
-  name: string;
-  description: {
+  id?: string;
+  name?: string;
+  nameCn?: string;
+  description?: {
     en: string;
     cn: string;
-  };
+  } | string;
 
   // 步骤类型
-  type: 'action' | 'condition' | 'parallel' | 'wait' | 'notification';
+  type?: 'action' | 'condition' | 'parallel' | 'wait' | 'notification';
 
   // 关联的 Action（如果是 action 类型）
   actionRef?: string;
@@ -136,16 +147,18 @@ export interface WorkflowStep {
     expression: string;
     trueBranch: string;   // 下一步骤 ID
     falseBranch: string;
-  };
+  } | string;
 
   // 下一步骤
   nextSteps?: string[];
+  order?: number;
 
   // 超时配置
   timeout?: {
     duration: string;     // e.g., "1h", "24h"
     action: 'fail' | 'skip' | 'escalate';
   };
+  [key: string]: any;
 }
 
 /**
@@ -155,30 +168,36 @@ export interface WorkflowStep {
 export interface BusinessWorkflow {
   id: string;
   name: string;
+  nameCn?: string;
+  descriptionCn?: string;
   description: {
     en: string;
     cn: string;
-  };
+  } | string;
 
   // 触发条件
-  trigger: {
+  trigger?: {
     type: 'manual' | 'scheduled' | 'event' | 'condition';
     config: Record<string, any>;
   };
+  triggerType?: string;
+  triggerCondition?: string;
 
   // 工作流步骤
   steps: WorkflowStep[];
 
   // 入口步骤
-  entryStep: string;
+  entryStep?: string;
 
   // 涉及的角色
-  roles: string[];
+  roles?: string[];
 
   // SLA 配置
   sla?: {
-    maxDuration: string;
-    escalationPath: string[];
+    maxDuration?: string;
+    escalationPath?: string[];
+    targetTime?: string;
+    escalationTime?: string;
   };
 }
 
@@ -188,19 +207,21 @@ export interface BusinessWorkflow {
 export interface BusinessRule {
   id: string;
   name: string;
-  description: {
+  nameCn?: string;
+  category?: string;
+  description?: {
     en: string;
     cn: string;
-  };
+  } | string;
 
   // 规则类型
-  type: 'validation' | 'calculation' | 'trigger' | 'constraint';
+  type?: 'validation' | 'calculation' | 'trigger' | 'constraint';
 
   // 应用的对象
-  appliesTo: string[];  // Object IDs
+  appliesTo?: string[];  // Object IDs
 
   // 规则表达式
-  expression: string;
+  expression?: string;
 
   // 违反时的处理
   onViolation?: {
@@ -210,6 +231,7 @@ export interface BusinessRule {
       cn: string;
     };
   };
+  [key: string]: any;
 }
 
 // ============= UI Layer - 界面模板层 =============
@@ -231,12 +253,12 @@ export type WidgetType =
  * Widget 配置
  */
 export interface DashboardWidget {
-  id: string;
+  id?: string;
   type: WidgetType;
   title: {
     en: string;
     cn: string;
-  };
+  } | string;
 
   // 数据源配置
   dataSource: {
@@ -244,10 +266,10 @@ export interface DashboardWidget {
     query?: string;
     filters?: Record<string, any>;
     aggregation?: string;
-  };
+  } | string;
 
   // 布局配置
-  layout: {
+  layout?: {
     x: number;
     y: number;
     width: number;
@@ -262,6 +284,7 @@ export interface DashboardWidget {
     onClick?: string;      // Action ID
     onDrilldown?: string;  // 下钻目标
   };
+  [key: string]: any;
 }
 
 /**
@@ -270,17 +293,20 @@ export interface DashboardWidget {
 export interface DashboardTemplate {
   id: string;
   name: string;
+  nameCn?: string;
   description: {
     en: string;
     cn: string;
-  };
+  } | string;
 
   // 目标角色
-  targetRole: string;
+  targetRole?: string;
+  targetAudience?: string[];
 
   // 布局网格
-  gridColumns: number;
-  gridRows: number;
+  gridColumns?: number;
+  gridRows?: number;
+  layout?: string;
 
   // Widgets
   widgets: DashboardWidget[];
@@ -291,6 +317,8 @@ export interface DashboardTemplate {
     label: string;
     type: 'select' | 'date-range' | 'search';
   }[];
+  refreshInterval?: number;
+  [key: string]: any;
 }
 
 /**
@@ -310,7 +338,7 @@ export interface ViewTemplate {
     label: {
       en: string;
       cn: string;
-    };
+    } | string;
     visible: boolean;
     sortable?: boolean;
     filterable?: boolean;
@@ -333,7 +361,7 @@ export interface ViewTemplate {
  */
 export interface DeploymentConfig {
   // 最低要求
-  requirements: {
+  requirements?: {
     platform: string[];     // e.g., ["DataPlatform", "AgentFramework"]
     minVersion?: string;
     resources?: {
@@ -344,7 +372,7 @@ export interface DeploymentConfig {
   };
 
   // 环境变量
-  environmentVariables: {
+  environmentVariables?: {
     name: string;
     description: string;
     required: boolean;
@@ -356,6 +384,9 @@ export interface DeploymentConfig {
     archetypeId: string;
     version: string;
   }[];
+  prerequisites?: string[];
+  phases?: unknown[];
+  [key: string]: any;
 }
 
 /**
@@ -364,10 +395,11 @@ export interface DeploymentConfig {
 export interface ArchetypeMetadata {
   id: string;
   name: string;
+  nameCn?: string;
   description: {
     en: string;
     cn: string;
-  };
+  } | string;
 
   // 行业
   industry: string;
@@ -431,8 +463,9 @@ export interface Archetype {
 
   // ===== Dynamic Layer =====
   // 业务逻辑层 - WHAT can be done (Actions, Workflows, Rules)
-  workflows: BusinessWorkflow[];
-  rules: BusinessRule[];
+  workflows?: BusinessWorkflow[];
+  rules?: BusinessRule[];
+  businessRules?: BusinessRule[];
 
   // ═══════════════════════════════════════════════════════════════════
   // AI CAPABILITY OVERLAY (Not a 4th layer)
@@ -444,36 +477,41 @@ export interface Archetype {
   aiCapabilities: {
     id: string;
     name: string;
-    type: 'parsing' | 'prediction' | 'optimization' | 'generation';
+    nameCn?: string;
+    type: 'parsing' | 'prediction' | 'optimization' | 'generation' | 'predictive' | 'classification' | 'clustering' | 'recommendation' | string;
     description: {
       en: string;
       cn: string;
-    };
+    } | string;
+    descriptionCn?: string;
     // 关联的 Actions
-    enabledActions: string[];
+    enabledActions?: string[];
     // 模型配置
     modelConfig?: {
       modelType: string;
       trainingDataRequirements?: string;
     };
+    inputObjects?: string[];
+    outputObjects?: string[];
+    [key: string]: any;
   }[];
 
   // ===== UI Templates =====
   // 预配置的界面
-  dashboards: DashboardTemplate[];
-  views: ViewTemplate[];
+  dashboards?: DashboardTemplate[];
+  views?: ViewTemplate[];
 
   // ===== Deployment =====
   // 部署配置
-  deployment: DeploymentConfig;
+  deployment?: DeploymentConfig;
 
   // ===== Documentation =====
   // 文档和学习资源
-  documentation: {
+  documentation?: {
     quickStart: {
       en: string;
       cn: string;
-    };
+    } | string;
     tutorials?: {
       title: string;
       content: string;
@@ -530,7 +568,7 @@ export interface ArchetypeIndex {
   description: {
     en: string;
     cn: string;
-  };
+  } | string;
   industry: string;
   domain: string;
   version: string;

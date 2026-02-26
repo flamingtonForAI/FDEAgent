@@ -1,6 +1,7 @@
 import React from 'react';
 import AIEnhancement from '../components/AIEnhancement';
-import type { ProjectState, Language, AISettings, AnalysisResult } from '../types';
+import type { ProjectState, Language, AISettings } from '../types';
+import type { AnalysisResult } from '../services/aiAnalysisService';
 
 interface AIEnhancementPageProps {
   lang: Language;

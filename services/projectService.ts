@@ -17,6 +17,8 @@ export interface ProjectSummary {
 }
 
 export interface Project extends ProjectSummary {
+  userId?: string;
+  version?: number;
   objects: ProjectState['objects'];
   links: ProjectState['links'];
   integrations: ProjectState['integrations'];
@@ -139,7 +141,7 @@ class ProjectService {
    */
   async addChatMessage(
     projectId: string,
-    message: { role: 'user' | 'assistant'; content: string; metadata?: unknown }
+    message: { role: 'user' | 'assistant' | 'system'; content: string; metadata?: unknown }
   ): Promise<ChatMessage> {
     return apiClient.post<ChatMessage>(`/projects/${projectId}/chat`, message);
   }
@@ -149,7 +151,7 @@ class ProjectService {
    */
   async addChatMessages(
     projectId: string,
-    messages: Array<{ role: 'user' | 'assistant'; content: string; metadata?: unknown }>
+    messages: Array<{ role: 'user' | 'assistant' | 'system'; content: string; metadata?: unknown }>
   ): Promise<{ count: number }> {
     return apiClient.post<{ count: number }>(
       `/projects/${projectId}/chat/batch`,

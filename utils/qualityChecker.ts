@@ -631,7 +631,7 @@ export const qualityRules: QualityRule[] = [
 export interface ActionLayerStatus {
   objectName: string;
   actionName: string;
-  actionType: 'traditional' | 'generative';
+  actionType: 'traditional' | 'generative' | 'ai-assisted' | 'automated' | undefined;
   businessLayer: {
     complete: boolean;
     score: number; // 0-100

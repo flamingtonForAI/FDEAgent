@@ -10,6 +10,7 @@ import { Language, ProjectState } from '../types';
 import { useProject } from '../contexts/ProjectContext';
 import { getMergedArchetypeIndexList, getMergedArchetypeById } from '../content/archetypes';
 import { ArchetypeIndex } from '../types/archetype';
+import { normalizeLinks } from '../lib/cardinality';
 import {
   X, FileText, Package, ChevronRight, ChevronLeft,
   Check, Loader2, Sparkles, Info
@@ -152,14 +153,19 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
             industry: archetype.metadata.industry || industry,
             useCase: useCase || archetype.metadata.domain || '',
             objects: archetype.ontology.objects || [],
-            links: archetype.ontology.links || [],
+            links: normalizeLinks(archetype.ontology.links || []),
             integrations: integrations,
             aiRequirements: [],
             status: 'scouting',
           };
           baseArchetypeId = archetype.metadata.id;
+          const metadataDescription = archetype.metadata.description;
+          const archetypeDescriptionCn =
+            typeof metadataDescription === 'string'
+              ? metadataDescription
+              : metadataDescription?.cn;
           baseArchetypeName = lang === 'cn'
-            ? archetype.metadata.description?.cn || archetype.metadata.name
+            ? archetypeDescriptionCn || archetype.metadata.name
             : archetype.metadata.name;
         }
       }

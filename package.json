@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:cardinality": "rm -rf .tmp-tests && tsc --pretty false --noEmit false --module esnext --moduleResolution bundler --target es2022 --outDir .tmp-tests tests/cardinality.test.ts lib/cardinality.ts types.ts && node --experimental-specifier-resolution=node .tmp-tests/tests/cardinality.test.js && rm -rf .tmp-tests"
   },
   "dependencies": {
     "@google/genai": "^1.35.0",

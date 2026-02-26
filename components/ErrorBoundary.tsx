@@ -1,4 +1,5 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React from 'react';
+import type { ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 
 interface Props {
@@ -17,7 +18,10 @@ interface State {
  * 全局错误边界组件
  * 捕获子组件渲染错误，防止白屏
  */
-export class ErrorBoundary extends Component<Props, State> {
+export class ErrorBoundary extends (React as any).Component<Props, State> {
+  declare props: Props;
+  declare state: State;
+  declare setState: (state: Partial<State>) => void;
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false, error: null, errorInfo: null };

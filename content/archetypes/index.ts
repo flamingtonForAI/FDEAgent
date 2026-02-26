@@ -211,10 +211,16 @@ export function getArchetypeById(id: string): Archetype | undefined {
 export function searchArchetypes(query: string): ArchetypeIndex[] {
   const lowerQuery = query.toLowerCase();
   return getArchetypeIndexList().filter(a =>
+    {
+      const descriptionEn = typeof a.description === 'string' ? a.description : a.description.en;
+      const descriptionCn = typeof a.description === 'string' ? a.description : a.description.cn;
+      return (
     a.name.toLowerCase().includes(lowerQuery) ||
-    a.description.en.toLowerCase().includes(lowerQuery) ||
-    a.description.cn.includes(query) ||
+    descriptionEn.toLowerCase().includes(lowerQuery) ||
+    descriptionCn.includes(query) ||
     a.tags.some(t => t.toLowerCase().includes(lowerQuery))
+      );
+    }
   );
 }
 

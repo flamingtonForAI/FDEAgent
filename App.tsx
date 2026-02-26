@@ -28,6 +28,7 @@ import { ProjectProvider, useProject } from './contexts/ProjectContext';
 import { AuthModal, UserMenu } from './components/auth';
 import { storage } from './lib/storage';
 import { syncService } from './services/syncService';
+import { normalizeLinks } from './lib/cardinality';
 import ProjectDashboard from './components/ProjectDashboard';
 import UnifiedSettings from './components/UnifiedSettings';
 
@@ -495,9 +496,7 @@ const AppContent: React.FC = () => {
       aiFeatures: obj.aiFeatures || [],
     }));
 
-    const links = archetype.ontology.links.map(link => ({
-      ...link,
-    }));
+    const links = normalizeLinks(archetype.ontology.links || []);
 
     // Create integrations from connectors
     const integrations = archetype.connectors.map(connector => ({

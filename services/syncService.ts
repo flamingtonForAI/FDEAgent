@@ -44,7 +44,7 @@ export interface FullSyncState {
     aiRequirements: ProjectState['aiRequirements'];
     chatMessages: Array<{
       id: string;
-      role: 'user' | 'assistant';
+      role: 'user' | 'assistant' | 'system';
       content: string;
       metadata?: unknown;
       createdAt: string;
@@ -89,7 +89,7 @@ export interface BatchSyncInput {
   chatMessages?: Array<{
     projectId: string;
     messages: Array<{
-      role: 'user' | 'assistant';
+      role: 'user' | 'assistant' | 'system';
       content: string;
       metadata?: unknown;
     }>;
