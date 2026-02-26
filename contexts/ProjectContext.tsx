@@ -68,6 +68,8 @@ export function ProjectProvider({ children }: ProjectProviderProps) {
 
   // Ref to track if we're switching projects (to prevent save during switch)
   const isSwitchingRef = useRef(false);
+  const switchingLockRef = useRef<string | null>(null);
+  const saveDebounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Initialize on mount
   useEffect(() => {
@@ -119,14 +121,27 @@ export function ProjectProvider({ children }: ProjectProviderProps) {
     if (!isInitialized || !activeProjectId || isSwitchingRef.current) return;
     if (!currentOntology) return;
 
+    // Cancel any pending save
+    if (saveDebounceTimerRef.current) {
+      clearTimeout(saveDebounceTimerRef.current);
+    }
+
     // Debounce save
-    const timer = setTimeout(() => {
-      storage.saveProjectStateById(activeProjectId, currentOntology);
-      // Refresh projects list to update progress
-      setProjects(storage.listProjectsLocal());
+    saveDebounceTimerRef.current = setTimeout(() => {
+      // Double-check we haven't started switching
+      if (!isSwitchingRef.current && switchingLockRef.current === null) {
+        storage.saveProjectStateById(activeProjectId, currentOntology);
+        // Refresh projects list to update progress
+        setProjects(storage.listProjectsLocal());
+      }
+      saveDebounceTimerRef.current = null;
     }, 500);
 
-    return () => clearTimeout(timer);
+    return () => {
+      if (saveDebounceTimerRef.current) {
+        clearTimeout(saveDebounceTimerRef.current);
+      }
+    };
   }, [currentOntology, activeProjectId, isInitialized]);
 
   // Auto-save chat messages when they change
@@ -173,10 +188,23 @@ export function ProjectProvider({ children }: ProjectProviderProps) {
   const switchProject = useCallback(async (projectId: string) => {
     if (projectId === activeProjectId) return;
 
+    // Prevent concurrent switches
+    if (switchingLockRef.current) {
+      console.warn('[ProjectContext] Project switch already in progress:', switchingLockRef.current);
+      return;
+    }
+
+    switchingLockRef.current = projectId;
     isSwitchingRef.current = true;
     setIsLoading(true);
 
     try {
+      // Cancel any pending save
+      if (saveDebounceTimerRef.current) {
+        clearTimeout(saveDebounceTimerRef.current);
+        saveDebounceTimerRef.current = null;
+      }
+
       // Save current project data first
       if (activeProjectId && currentOntology) {
         storage.saveProjectStateById(activeProjectId, currentOntology);
@@ -200,6 +228,7 @@ export function ProjectProvider({ children }: ProjectProviderProps) {
     } finally {
       setIsLoading(false);
       isSwitchingRef.current = false;
+      switchingLockRef.current = null;
     }
   }, [activeProjectId, currentOntology, currentChat]);
 

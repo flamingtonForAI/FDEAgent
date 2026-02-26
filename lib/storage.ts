@@ -32,13 +32,53 @@ const STORAGE_KEYS = {
   MIGRATION_DONE: 'ontology-migration-v2-done',   // 迁移标记
 } as const;
 
-// Generate per-project storage keys
-const getProjectStateKey = (projectId: string) => `${STORAGE_KEYS.PROJECT_PREFIX}${projectId}-state`;
-const getProjectChatKey = (projectId: string) => `${STORAGE_KEYS.PROJECT_PREFIX}${projectId}-chat`;
+// Generate per-project storage keys (user-scoped)
+const getProjectStateKey = (projectId: string) => getScopedKey(`project:${projectId}:state`);
+const getProjectChatKey = (projectId: string) => getScopedKey(`project:${projectId}:chat`);
 
 // Maximum chat messages to store locally
 const MAX_LOCAL_MESSAGES = 200;
 const MAX_MESSAGE_LENGTH = 4000;
+
+// Anonymous user session ID for non-authenticated users
+const getAnonymousId = (): string => {
+  let anonId = sessionStorage.getItem('ontology-anon-id');
+  if (!anonId) {
+    anonId = `anon-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    sessionStorage.setItem('ontology-anon-id', anonId);
+  }
+  return anonId;
+};
+
+// Get current user ID from auth storage
+const getCurrentUserId = (): string | null => {
+  try {
+    const authData = localStorage.getItem('ontology-auth-session');
+    if (authData) {
+      const parsed = JSON.parse(authData);
+      return parsed.user?.id || null;
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  return null;
+};
+
+// Generate user-scoped storage key
+const getScopedKey = (key: string): string => {
+  const userId = getCurrentUserId();
+  if (userId) {
+    return `u:${userId}:${key}`;
+  }
+  return `${getAnonymousId()}:${key}`;
+};
+
+// Legacy keys for migration
+const LEGACY_KEYS = {
+  PROJECTS_INDEX: 'ontology-projects-index',
+  ACTIVE_PROJECT_ID: 'ontology-active-project',
+  PROJECT_PREFIX: 'ontology-project-',
+};
 
 interface LocalProjectData {
   state: ProjectState;
@@ -62,6 +102,7 @@ class HybridStorage {
   private authCheck: AuthCheckFn = () => false;
   private syncDebounceTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly SYNC_DEBOUNCE_MS = 2000;
+  private migrationDone = false;
 
   /**
    * Set the authentication check function
@@ -77,6 +118,94 @@ class HybridStorage {
     return this.authCheck();
   }
 
+  /**
+   * Migrate legacy data to user-scoped keys
+   * SECURITY: Only migrates data when a user is logged in
+   * Anonymous users get fresh data to prevent cross-user contamination
+   */
+  migrateToUserScoped(): void {
+    if (this.migrationDone) return;
+    
+    const userId = getCurrentUserId();
+    const scopedIndexKey = getScopedKey('projects-index');
+    
+    // SECURITY: Only migrate for authenticated users
+    // Anonymous users start fresh to prevent cross-user data exposure
+    if (!userId) {
+      console.log('[Security] Anonymous user - skipping migration, starting fresh');
+      this.migrationDone = true;
+      return;
+    }
+    
+    // Check if already migrated for this user
+    if (localStorage.getItem(scopedIndexKey)) {
+      this.migrationDone = true;
+      return;
+    }
+    
+    // Check for legacy data
+    const legacyIndex = localStorage.getItem(LEGACY_KEYS.PROJECTS_INDEX);
+    if (legacyIndex) {
+      try {
+        // Migrate projects index
+        localStorage.setItem(scopedIndexKey, legacyIndex);
+        
+        // Migrate active project ID
+        const legacyActive = localStorage.getItem(LEGACY_KEYS.ACTIVE_PROJECT_ID);
+        if (legacyActive) {
+          localStorage.setItem(getScopedKey('active-project'), legacyActive);
+        }
+        
+        // Migrate cloud project ID
+        const legacyCloudId = localStorage.getItem(STORAGE_KEYS.CLOUD_PROJECT_ID);
+        if (legacyCloudId) {
+          localStorage.setItem(getScopedKey('cloud-project-id'), legacyCloudId);
+        }
+        
+        // Migrate chat messages
+        const legacyChat = localStorage.getItem(LEGACY_KEYS.CHAT_MESSAGES);
+        if (legacyChat) {
+          localStorage.setItem(getScopedKey('chat-messages'), legacyChat);
+        }
+        
+        // Migrate individual project data
+        const projects = JSON.parse(legacyIndex) as ProjectListItem[];
+        for (const project of projects) {
+          const legacyStateKey = `${LEGACY_KEYS.PROJECT_PREFIX}${project.id}-state`;
+          const legacyChatKey = `${LEGACY_KEYS.PROJECT_PREFIX}${project.id}-chat`;
+          
+          const stateData = localStorage.getItem(legacyStateKey);
+          const chatData = localStorage.getItem(legacyChatKey);
+          
+          if (stateData) {
+            localStorage.setItem(getScopedKey(`project:${project.id}:state`), stateData);
+          }
+          if (chatData) {
+            localStorage.setItem(getScopedKey(`project:${project.id}:chat`), chatData);
+          }
+        }
+        
+        console.log(`[Security] Migrated ${projects.length} projects to user-scoped storage for user ${userId}`);
+        
+        // Clear legacy keys after successful migration to prevent re-migration
+        this.clearLegacyKeys();
+      } catch (error) {
+        console.error('[Security] Migration failed:', error);
+      }
+    }
+    
+    this.migrationDone = true;
+  }
+
+  /**
+   * Clear legacy storage keys (call after confirming migration success)
+   */
+  private clearLegacyKeys(): void {
+    localStorage.removeItem(LEGACY_KEYS.PROJECTS_INDEX);
+    localStorage.removeItem(LEGACY_KEYS.ACTIVE_PROJECT_ID);
+    // Note: Individual project keys are not cleared to allow rollback
+  }
+
   // ============================================
   // PROJECT STATE
   // ============================================
@@ -89,9 +218,9 @@ class HybridStorage {
     options?: { skipCloud?: boolean }
   ): Promise<void> {
     const now = new Date().toISOString();
-    const cloudProjectId = localStorage.getItem(STORAGE_KEYS.CLOUD_PROJECT_ID);
+    const cloudProjectId = localStorage.getItem(getScopedKey('cloud-project-id'));
 
-    // 1. Save to localStorage immediately
+    // 1. Save to localStorage immediately (user-scoped)
     const localData: LocalProjectData = {
       state,
       updatedAt: now,
@@ -99,7 +228,7 @@ class HybridStorage {
     };
 
     try {
-      localStorage.setItem(STORAGE_KEYS.PROJECT_STATE, JSON.stringify(localData));
+      localStorage.setItem(getScopedKey('project-state'), JSON.stringify(localData));
     } catch (error) {
       // Handle QuotaExceededError or other localStorage errors
       console.error('Failed to save to localStorage:', error);
@@ -107,7 +236,7 @@ class HybridStorage {
         // Try to clear old data and retry
         this.clearOldLocalData();
         try {
-          localStorage.setItem(STORAGE_KEYS.PROJECT_STATE, JSON.stringify(localData));
+          localStorage.setItem(getScopedKey('project-state'), JSON.stringify(localData));
         } catch {
           console.error('localStorage quota exceeded even after cleanup');
         }
@@ -115,11 +244,18 @@ class HybridStorage {
     }
 
     // 2. Queue cloud sync if authenticated
-    if (!options?.skipCloud && this.isAuthenticated()) {
+    if (!options?.skipCloud && this.isAuthenticated() && cloudProjectId) {
+      // SECURITY: Verify ownership before cloud sync
+      const isOwner = await this.verifyProjectOwnership(cloudProjectId);
+      if (!isOwner) {
+        console.warn('[Security] Rejecting cloud sync: ownership verification failed');
+        return;
+      }
+      
       this.queueCloudSync({
         projects: [
           {
-            id: cloudProjectId || undefined,
+            id: cloudProjectId,
             name: state.projectName || 'Untitled Project',
             industry: state.industry,
             useCase: state.useCase,
@@ -135,13 +271,40 @@ class HybridStorage {
   }
 
   /**
-   * Load project state (local first, then cloud if newer)
+   * Verify cloud project ownership before using data
+   */
+  private async verifyProjectOwnership(cloudProjectId: string): Promise<boolean> {
+    try {
+      const project = await projectService.getProject(cloudProjectId);
+      const currentUserId = getCurrentUserId();
+      
+      if (!currentUserId) {
+        console.warn('[Security] Cannot verify ownership: no current user');
+        return false;
+      }
+      
+      if (project.userId !== currentUserId) {
+        console.warn(`[Security] Ownership mismatch: project.userId=${project.userId}, current=${currentUserId}`);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.warn('[Security] Failed to verify project ownership:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Load project state (local first, then cloud if newer and owned)
+   * SECURITY: Ownership is always verified in fetchCloudProjectState
    */
   async loadProjectState(options?: SyncOptions): Promise<ProjectState | null> {
     // 1. Load from localStorage
     const localData = this.getLocalProjectData();
 
     // 2. If authenticated, check cloud for newer data
+    // Note: fetchCloudProjectState now always verifies ownership
     if (options?.isAuthenticated || this.isAuthenticated()) {
       try {
         const cloudData = await this.fetchCloudProjectState(
@@ -170,11 +333,12 @@ class HybridStorage {
   }
 
   /**
-   * Get local project data with runtime validation
+   * Get local project data with runtime validation (user-scoped)
    */
   private getLocalProjectData(): LocalProjectData | null {
+    this.migrateToUserScoped();
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.PROJECT_STATE);
+      const stored = localStorage.getItem(getScopedKey('project-state'));
       if (!stored) return null;
 
       const parsed = JSON.parse(stored);
@@ -189,7 +353,7 @@ class HybridStorage {
         typeof parsed.updatedAt !== 'string'
       ) {
         console.warn('Invalid local project data structure, clearing...');
-        localStorage.removeItem(STORAGE_KEYS.PROJECT_STATE);
+        localStorage.removeItem(getScopedKey('project-state'));
         return null;
       }
 
@@ -197,20 +361,21 @@ class HybridStorage {
       const state = parsed.state;
       if (!Array.isArray(state.objects) || !Array.isArray(state.links)) {
         console.warn('Invalid ProjectState structure, clearing...');
-        localStorage.removeItem(STORAGE_KEYS.PROJECT_STATE);
+        localStorage.removeItem(getScopedKey('project-state'));
         return null;
       }
 
       return parsed as LocalProjectData;
     } catch {
       // Invalid data - clear corrupt entry
-      localStorage.removeItem(STORAGE_KEYS.PROJECT_STATE);
+      localStorage.removeItem(getScopedKey('project-state'));
       return null;
     }
   }
 
   /**
    * Fetch project state from cloud
+   * SECURITY: Always verifies ownership before storing cloud project ID
    */
   private async fetchCloudProjectState(
     projectId?: string
@@ -220,15 +385,30 @@ class HybridStorage {
       const projects = await projectService.listProjects();
       if (projects.length > 0) {
         const fullProject = await projectService.getProject(projects[0].id);
-        // Store the cloud project ID for future syncs
-        localStorage.setItem(STORAGE_KEYS.CLOUD_PROJECT_ID, fullProject.id);
+        
+        // SECURITY: Verify ownership before storing cloud project ID
+        const isOwner = await this.verifyProjectOwnership(fullProject.id);
+        if (!isOwner) {
+          console.warn('[Security] Rejecting cloud project: ownership verification failed');
+          return null;
+        }
+        
+        // Store the cloud project ID for future syncs (user-scoped)
+        localStorage.setItem(getScopedKey('cloud-project-id'), fullProject.id);
         return fullProject;
       }
       return null;
     }
 
     try {
-      return await projectService.getProject(projectId);
+      const project = await projectService.getProject(projectId);
+      // SECURITY: Verify ownership even when projectId is provided
+      const isOwner = await this.verifyProjectOwnership(projectId);
+      if (!isOwner) {
+        console.warn('[Security] Rejecting cloud project: ownership verification failed');
+        return null;
+      }
+      return project;
     } catch {
       return null;
     }
@@ -272,19 +452,26 @@ class HybridStorage {
           : msg.content,
     }));
 
-    // 1. Save to localStorage
+    // 1. Save to localStorage (user-scoped)
     const localData: LocalChatData = {
       messages: truncatedMessages,
       updatedAt: now,
     };
-    localStorage.setItem(STORAGE_KEYS.CHAT_MESSAGES, JSON.stringify(localData));
+    localStorage.setItem(getScopedKey('chat-messages'), JSON.stringify(localData));
 
     // 2. Queue cloud sync if authenticated
     if (!options?.skipCloud && this.isAuthenticated()) {
-      const cloudProjectId = localStorage.getItem(STORAGE_KEYS.CLOUD_PROJECT_ID);
+      const cloudProjectId = localStorage.getItem(getScopedKey('cloud-project-id'));
       if (cloudProjectId) {
+        // SECURITY: Verify ownership before cloud sync
+        const isOwner = await this.verifyProjectOwnership(cloudProjectId);
+        if (!isOwner) {
+          console.warn('[Security] Rejecting chat cloud sync: ownership verification failed');
+          return;
+        }
+
         // Only sync the most recent messages that haven't been synced
-        const lastSync = localStorage.getItem(STORAGE_KEYS.LAST_SYNC);
+        const lastSync = localStorage.getItem(getScopedKey('last-sync'));
         const lastSyncTime = lastSync ? new Date(lastSync) : new Date(0);
 
         // For simplicity, we sync all messages (in production, track which are synced)
@@ -304,11 +491,12 @@ class HybridStorage {
   }
 
   /**
-   * Load chat messages
+   * Load chat messages (user-scoped)
    */
   async loadChatMessages(): Promise<ChatMessage[]> {
+    this.migrateToUserScoped();
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.CHAT_MESSAGES);
+      const stored = localStorage.getItem(getScopedKey('chat-messages'));
       if (stored) {
         const data: LocalChatData = JSON.parse(stored);
         return data.messages;
@@ -374,9 +562,9 @@ class HybridStorage {
     // Queue the sync
     syncService.queueSync(data);
 
-    // Set new timer to mark sync complete
+    // Set new timer to mark sync complete (user-scoped)
     this.syncDebounceTimer = setTimeout(() => {
-      localStorage.setItem(STORAGE_KEYS.LAST_SYNC, new Date().toISOString());
+      localStorage.setItem(getScopedKey('last-sync'), new Date().toISOString());
     }, this.SYNC_DEBOUNCE_MS + 1000);
   }
 
@@ -388,7 +576,7 @@ class HybridStorage {
 
     try {
       const cloudState = await syncService.getFullState();
-      localStorage.setItem(STORAGE_KEYS.LAST_SYNC, new Date().toISOString());
+      localStorage.setItem(getScopedKey('last-sync'), new Date().toISOString());
       return cloudState;
     } catch (error) {
       console.error('Full sync failed:', error);
@@ -423,11 +611,11 @@ class HybridStorage {
         aiRequirements: localProject.state.aiRequirements,
       });
 
-      // Update local storage with cloud project ID
-      localStorage.setItem(STORAGE_KEYS.CLOUD_PROJECT_ID, newProject.id);
+      // Update local storage with cloud project ID (user-scoped)
+      localStorage.setItem(getScopedKey('cloud-project-id'), newProject.id);
       localProject.cloudProjectId = newProject.id;
       localStorage.setItem(
-        STORAGE_KEYS.PROJECT_STATE,
+        getScopedKey('project-state'),
         JSON.stringify(localProject)
       );
 
@@ -456,10 +644,10 @@ class HybridStorage {
    */
   private clearOldLocalData(): void {
     try {
-      // Remove chat messages first (usually the largest)
-      localStorage.removeItem(STORAGE_KEYS.CHAT_MESSAGES);
-      // Remove old sync timestamp
-      localStorage.removeItem(STORAGE_KEYS.LAST_SYNC);
+      // Remove chat messages first (usually the largest) - user-scoped
+      localStorage.removeItem(getScopedKey('chat-messages'));
+      // Remove old sync timestamp - user-scoped
+      localStorage.removeItem(getScopedKey('last-sync'));
       console.info('Cleared old local data to free storage space');
     } catch (error) {
       console.error('Failed to clear old local data:', error);
@@ -467,29 +655,45 @@ class HybridStorage {
   }
 
   /**
-   * Clear all local storage
+   * Clear all local storage for current user
    */
   clearAll(): void {
+    // Clear user-scoped keys
+    const scopedKeys = [
+      'projects-index',
+      'active-project',
+      'project-state',
+      'chat-messages',
+      'cloud-project-id',
+      'last-sync',
+    ];
+    scopedKeys.forEach(key => {
+      localStorage.removeItem(getScopedKey(key));
+    });
+    
+    // Also clear legacy keys for backward compatibility
     Object.values(STORAGE_KEYS).forEach((key) => {
       localStorage.removeItem(key);
     });
   }
 
   /**
-   * Get current cloud project ID
+   * Get current cloud project ID (user-scoped)
    */
   getCloudProjectId(): string | null {
-    return localStorage.getItem(STORAGE_KEYS.CLOUD_PROJECT_ID);
+    this.migrateToUserScoped();
+    return localStorage.getItem(getScopedKey('cloud-project-id'));
   }
 
   /**
-   * Set cloud project ID
+   * Set cloud project ID (user-scoped)
+   * SECURITY: This should only be called after verifying project ownership
    */
   setCloudProjectId(id: string | null): void {
     if (id) {
-      localStorage.setItem(STORAGE_KEYS.CLOUD_PROJECT_ID, id);
+      localStorage.setItem(getScopedKey('cloud-project-id'), id);
     } else {
-      localStorage.removeItem(STORAGE_KEYS.CLOUD_PROJECT_ID);
+      localStorage.removeItem(getScopedKey('cloud-project-id'));
     }
   }
 
@@ -505,29 +709,31 @@ class HybridStorage {
   }
 
   /**
-   * Get the active project ID
+   * Get the active project ID (user-scoped)
    */
   getActiveProjectId(): string | null {
-    return localStorage.getItem(STORAGE_KEYS.ACTIVE_PROJECT_ID);
+    this.migrateToUserScoped();
+    return localStorage.getItem(getScopedKey('active-project'));
   }
 
   /**
-   * Set the active project ID
+   * Set the active project ID (user-scoped)
    */
   setActiveProjectId(projectId: string | null): void {
     if (projectId) {
-      localStorage.setItem(STORAGE_KEYS.ACTIVE_PROJECT_ID, projectId);
+      localStorage.setItem(getScopedKey('active-project'), projectId);
     } else {
-      localStorage.removeItem(STORAGE_KEYS.ACTIVE_PROJECT_ID);
+      localStorage.removeItem(getScopedKey('active-project'));
     }
   }
 
   /**
-   * List all local projects
+   * List all local projects (user-scoped)
    */
   listProjectsLocal(): ProjectListItem[] {
+    this.migrateToUserScoped();
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.PROJECTS_INDEX);
+      const stored = localStorage.getItem(getScopedKey('projects-index'));
       if (!stored) return [];
       const projects = JSON.parse(stored);
       if (!Array.isArray(projects)) return [];
@@ -538,11 +744,11 @@ class HybridStorage {
   }
 
   /**
-   * Save the projects index
+   * Save the projects index (user-scoped)
    */
   private saveProjectsIndex(projects: ProjectListItem[]): void {
     try {
-      localStorage.setItem(STORAGE_KEYS.PROJECTS_INDEX, JSON.stringify(projects));
+      localStorage.setItem(getScopedKey('projects-index'), JSON.stringify(projects));
     } catch (error) {
       console.error('Failed to save projects index:', error);
     }

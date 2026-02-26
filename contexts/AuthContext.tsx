@@ -42,9 +42,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         try {
           const currentUser = await authService.getCurrentUser();
           setUser(currentUser);
+          // Store user ID for storage layer isolation
+          if (currentUser?.id) {
+            localStorage.setItem('ontology-auth-session', JSON.stringify({ user: { id: currentUser.id } }));
+          }
         } catch {
           // Token is invalid, clear it
           setUser(null);
+          localStorage.removeItem('ontology-auth-session');
         }
       }
       setIsLoading(false);
@@ -70,6 +75,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const loggedInUser = await authService.login(input);
       setUser(loggedInUser);
+      // Store user ID for storage layer isolation
+      if (loggedInUser?.id) {
+        localStorage.setItem('ontology-auth-session', JSON.stringify({ user: { id: loggedInUser.id } }));
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Login failed';
       setError(message);
@@ -99,6 +108,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await authService.logout();
       setUser(null);
+      // Clear user session for storage isolation
+      localStorage.removeItem('ontology-auth-session');
+      // Note: We intentionally keep project data for next login
+      // The user-scoped keys ensure it won't leak to other users
     } finally {
       setIsLoading(false);
     }

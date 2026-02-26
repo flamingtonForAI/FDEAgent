@@ -1,22 +1,26 @@
 
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AIService, loadAISettings, loadAISettingsAsync, saveAISettings } from './services/aiService';
 import { AnalysisResult } from './services/aiAnalysisService';
-import { ProjectState, ChatMessage, OntologyObject, OntologyLink, Language, AISettings, AI_PROVIDERS } from './types';
-import ChatMessagesPanel from './components/ChatMessagesPanel';
-import OntologyModeler from './components/OntologyModeler';
-import SystemIntegration from './components/SystemIntegration';
-import AIEnhancement from './components/AIEnhancement';
-// Settings replaced by UnifiedSettings
-import Academy from './components/Academy';
-import QualityPanel from './components/QualityPanel';
-import ArchetypeBrowser from './components/ArchetypeBrowser';
+import { ProjectState, ChatMessage, Language, AISettings, AI_PROVIDERS } from './types';
+// Page components - refactored for better maintainability
+import {
+  ProjectsPage,
+  QuickStartPage,
+  AcademyPage,
+  ArchetypesPage,
+  ScoutingPage,
+  ModelingPage,
+  IntegrationPage,
+  AIEnhancementPage,
+} from './pages';
+// Components (only those still used directly in App.tsx)
 import ArchetypeViewer from './components/ArchetypeViewer';
-import QuickStart from './components/QuickStart';
 import GlobalChatBar from './components/GlobalChatBar';
+import ErrorBoundary from './components/ErrorBoundary';
+import QualityPanel from './components/QualityPanel';
 import { getMergedArchetypeById } from './content/archetypes';
-import { LayoutDashboard, MessageSquare, Database, Network, Settings as SettingsIcon, Sparkles, GraduationCap, ShieldCheck, Package, Rocket, LogIn, FolderOpen } from 'lucide-react';
-// ThemeSwitcher moved to UnifiedSettings
+import { MessageSquare, Database, Network, Settings as SettingsIcon, Sparkles, GraduationCap, ShieldCheck, Package, Rocket, LogIn, FolderOpen } from 'lucide-react';
 import { Theme, loadSavedTheme, applyThemeMode, getSavedThemeMode, setupSystemThemeListener } from './lib/themes';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider, useSync } from './contexts/SyncContext';
@@ -169,14 +173,15 @@ const AppContent: React.FC = () => {
   const project = currentOntology || emptyProjectState;
 
   // Create setProject wrapper for backward compatibility with child components
-  // This allows functional updates like setProject(prev => ({...prev, ...changes}))
+  // Fixed: Avoid stale closure by using functional update pattern
   const setProject = useCallback((update: ProjectState | ((prev: ProjectState) => ProjectState)) => {
     if (typeof update === 'function') {
-      setCurrentOntology(update(project));
+      // Use functional update to always get latest state, avoiding stale closure
+      setCurrentOntology(prev => update(prev || emptyProjectState));
     } else {
       setCurrentOntology(update);
     }
-  }, [project, setCurrentOntology]);
+  }, [setCurrentOntology]);
 
   // Sync chatHistoryRef with chatMessages from context
   useEffect(() => {
@@ -673,71 +678,73 @@ const AppContent: React.FC = () => {
         )}
 
         <div className="flex-1 overflow-y-auto">
-          {activeTab === 'projects' && (
-            <ProjectDashboard
-              lang={lang}
-              onOpenProject={() => setActiveTab('scouting')}
-            />
-          )}
-          {activeTab === 'quickStart' && (
-            <QuickStart lang={lang} project={project} onNavigate={setActiveTab} />
-          )}
-          {activeTab === 'academy' && (
-            <Academy lang={lang} />
-          )}
-          {activeTab === 'archetypes' && (
-            <ArchetypeBrowser
-              lang={lang}
-              aiSettings={aiSettings}
-              onSelectArchetype={handleSelectArchetype}
-              onApplyArchetype={handleApplyArchetype}
-            />
-          )}
-          {activeTab === 'archetypeViewer' && selectedArchetypeId && (
-            <ArchetypeViewer
-              lang={lang}
-              archetypeId={selectedArchetypeId}
-              onBack={() => { setActiveTab('archetypes'); setSelectedArchetypeId(null); }}
-              onApply={() => handleApplyArchetype(selectedArchetypeId)}
-            />
-          )}
-          {activeTab === 'scouting' && (
-            <ChatMessagesPanel
-              lang={lang}
-              messages={chatMessages}
-              project={project}
-              isLoading={isChatLoading}
-              hasApiKey={!!aiSettings.apiKey}
-              onDesignTrigger={triggerAutoDesign}
-              onOpenSettings={() => setShowSettings(true)}
-            />
-          )}
-          {/* Phase 2: Ontology Modeling */}
-          {(activeTab === 'workbench' || activeTab === 'ontology' || activeTab === 'actionDesigner') && (
-            <OntologyModeler
-              lang={lang}
-              project={project}
-              setProject={setProject}
-              chatMessages={chatHistoryRef.current}
-              onNavigateToScouting={() => setActiveTab('scouting')}
-              onNavigateToArchetypes={() => setActiveTab('archetypes')}
-            />
-          )}
-          {/* Phase 3: System Integration */}
-          {(activeTab === 'systemMap' || activeTab === 'overview') && (
-            <SystemIntegration lang={lang} project={project} />
-          )}
-          {/* Phase 4: AI Enhancement */}
-          {(activeTab === 'aiEnhancement' || activeTab === 'aip') && (
-            <AIEnhancement
-              lang={lang}
-              project={project}
-              setProject={setProject}
-              aiSettings={aiSettings}
-              analysisResult={aiAnalysisResult}
-              onAnalysisResult={setAiAnalysisResult}
-            />
-          )}
+          <ErrorBoundary onReset={() => setActiveTab('projects')}>
+            {activeTab === 'projects' && (
+              <ProjectsPage
+                lang={lang}
+                onOpenProject={() => setActiveTab('scouting')}
+              />
+            )}
+            {activeTab === 'quickStart' && (
+              <QuickStartPage lang={lang} project={project} onNavigate={setActiveTab} />
+            )}
+            {activeTab === 'academy' && (
+              <AcademyPage lang={lang} />
+            )}
+            {activeTab === 'archetypes' && (
+              <ArchetypesPage
+                lang={lang}
+                aiSettings={aiSettings}
+                onSelectArchetype={handleSelectArchetype}
+                onApplyArchetype={handleApplyArchetype}
+              />
+            )}
+            {activeTab === 'archetypeViewer' && selectedArchetypeId && (
+              <ArchetypeViewer
+                lang={lang}
+                archetypeId={selectedArchetypeId}
+                onBack={() => { setActiveTab('archetypes'); setSelectedArchetypeId(null); }}
+                onApply={() => handleApplyArchetype(selectedArchetypeId)}
+              />
+            )}
+            {activeTab === 'scouting' && (
+              <ScoutingPage
+                lang={lang}
+                messages={chatMessages}
+                project={project}
+                isLoading={isChatLoading}
+                hasApiKey={!!aiSettings.apiKey}
+                onDesignTrigger={triggerAutoDesign}
+                onOpenSettings={() => setShowSettings(true)}
+              />
+            )}
+            {/* Phase 2: Ontology Modeling */}
+            {(activeTab === 'workbench' || activeTab === 'ontology' || activeTab === 'actionDesigner') && (
+              <ModelingPage
+                lang={lang}
+                project={project}
+                setProject={setProject}
+                chatMessages={chatHistoryRef}
+                onNavigateToScouting={() => setActiveTab('scouting')}
+                onNavigateToArchetypes={() => setActiveTab('archetypes')}
+              />
+            )}
+            {/* Phase 3: System Integration */}
+            {(activeTab === 'systemMap' || activeTab === 'overview') && (
+              <IntegrationPage lang={lang} project={project} />
+            )}
+            {/* Phase 4: AI Enhancement */}
+            {(activeTab === 'aiEnhancement' || activeTab === 'aip') && (
+              <AIEnhancementPage
+                lang={lang}
+                project={project}
+                setProject={setProject}
+                aiSettings={aiSettings}
+                analysisResult={aiAnalysisResult}
+                onAnalysisResult={setAiAnalysisResult}
+              />
+            )}
+          </ErrorBoundary>
         </div>
       </main>
 
