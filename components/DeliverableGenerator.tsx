@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Language, ProjectState, OntologyObject, AIPAction } from '../types';
+import { runQualityCheck, checkActionThreeLayers } from '../utils/qualityChecker';
+import YAML from 'yaml';
 import {
   FileText,
   Code,
@@ -26,6 +28,17 @@ interface DeliverableGeneratorProps {
 }
 
 type DeliverableType = 'api-spec' | 'data-model' | 'agent-tools' | 'brd' | 'integration';
+type ExportMode = 'draft' | 'client';
+
+interface DeliveryBlocker {
+  key: string;
+  message: string;
+}
+
+interface ZipTextFile {
+  name: string;
+  content: string;
+}
 
 interface DeliverableConfig {
   id: DeliverableType;
@@ -93,7 +106,20 @@ const translations = {
     selectType: '选择交付物类型',
     generating: '生成中...',
     generated: '已生成',
-    tip: '基于当前 Ontology 设计自动生成文档'
+    tip: '基于当前 Ontology 设计自动生成文档',
+    exportMode: '导出模式',
+    draftMode: '内部草稿',
+    clientMode: '客户交付',
+    deliveryBlockedTitle: '客户交付模式未通过质量门槛',
+    deliveryBlockedHint: '请先修复以下问题，再执行导出：',
+    clientName: '客户名称',
+    clientNamePlaceholder: '例如：某制造集团',
+    designerName: '方案设计人',
+    designerNamePlaceholder: '例如：FDE Team',
+    deliveryVersion: '交付版本',
+    releaseNotes: '版本变更摘要',
+    releaseNotesPlaceholder: '例如：新增订单审批动作与ERP集成映射',
+    downloadZip: '打包下载 ZIP'
   },
   en: {
     title: 'Deliverable Generator',
@@ -108,8 +134,137 @@ const translations = {
     selectType: 'Select deliverable type',
     generating: 'Generating...',
     generated: 'Generated',
-    tip: 'Auto-generate documents based on current Ontology design'
+    tip: 'Auto-generate documents based on current Ontology design',
+    exportMode: 'Export Mode',
+    draftMode: 'Internal Draft',
+    clientMode: 'Client Delivery',
+    deliveryBlockedTitle: 'Client delivery gate check failed',
+    deliveryBlockedHint: 'Please resolve the following issues before export:',
+    clientName: 'Client Name',
+    clientNamePlaceholder: 'e.g. Acme Manufacturing',
+    designerName: 'Designer',
+    designerNamePlaceholder: 'e.g. FDE Team',
+    deliveryVersion: 'Delivery Version',
+    releaseNotes: 'Release Notes',
+    releaseNotesPlaceholder: 'e.g. Added approval actions and ERP mapping',
+    downloadZip: 'Download ZIP Package'
   }
+};
+
+const textEncoder = new TextEncoder();
+
+const CRC32_TABLE = (() => {
+  const table = new Uint32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let j = 0; j < 8; j++) {
+      c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+    }
+    table[i] = c >>> 0;
+  }
+  return table;
+})();
+
+const toU16LE = (value: number): Uint8Array =>
+  new Uint8Array([value & 0xff, (value >>> 8) & 0xff]);
+
+const toU32LE = (value: number): Uint8Array =>
+  new Uint8Array([
+    value & 0xff,
+    (value >>> 8) & 0xff,
+    (value >>> 16) & 0xff,
+    (value >>> 24) & 0xff,
+  ]);
+
+const concatBytes = (chunks: Uint8Array[]): Uint8Array => {
+  const total = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+  const merged = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    merged.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return merged;
+};
+
+const computeCRC32 = (bytes: Uint8Array): number => {
+  let crc = 0xffffffff;
+  for (let i = 0; i < bytes.length; i++) {
+    crc = CRC32_TABLE[(crc ^ bytes[i]) & 0xff] ^ (crc >>> 8);
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+};
+
+/** Minimal ZIP builder (store-only, no compression, no external deps).
+ *  Limits: max 65535 files, max ~4GB per file. Sufficient for text deliverables. */
+const buildZipBlob = (files: ZipTextFile[]): Blob => {
+  const localChunks: Uint8Array[] = [];
+  const centralChunks: Uint8Array[] = [];
+  let offset = 0;
+
+  for (const file of files) {
+    const fileNameBytes = textEncoder.encode(file.name);
+    const fileDataBytes = textEncoder.encode(file.content);
+    const crc32 = computeCRC32(fileDataBytes);
+
+    const localHeader = concatBytes([
+      toU32LE(0x04034b50),
+      toU16LE(20), // version needed
+      toU16LE(0),  // flags
+      toU16LE(0),  // method: store
+      toU16LE(0),  // mod time
+      toU16LE(0),  // mod date
+      toU32LE(crc32),
+      toU32LE(fileDataBytes.length),
+      toU32LE(fileDataBytes.length),
+      toU16LE(fileNameBytes.length),
+      toU16LE(0), // extra length
+      fileNameBytes,
+    ]);
+
+    localChunks.push(localHeader, fileDataBytes);
+
+    const centralHeader = concatBytes([
+      toU32LE(0x02014b50),
+      toU16LE(20), // version made by
+      toU16LE(20), // version needed
+      toU16LE(0),  // flags
+      toU16LE(0),  // method
+      toU16LE(0),  // mod time
+      toU16LE(0),  // mod date
+      toU32LE(crc32),
+      toU32LE(fileDataBytes.length),
+      toU32LE(fileDataBytes.length),
+      toU16LE(fileNameBytes.length),
+      toU16LE(0), // extra
+      toU16LE(0), // comment
+      toU16LE(0), // disk start
+      toU16LE(0), // internal attrs
+      toU32LE(0), // external attrs
+      toU32LE(offset),
+      fileNameBytes,
+    ]);
+
+    centralChunks.push(centralHeader);
+    offset += localHeader.length + fileDataBytes.length;
+  }
+
+  const centralDirectory = concatBytes(centralChunks);
+  const localData = concatBytes(localChunks);
+
+  const endRecord = concatBytes([
+    toU32LE(0x06054b50),
+    toU16LE(0), // disk number
+    toU16LE(0), // central disk
+    toU16LE(files.length),
+    toU16LE(files.length),
+    toU32LE(centralDirectory.length),
+    toU32LE(localData.length),
+    toU16LE(0), // comment length
+  ]);
+
+  const zipBytes = concatBytes([localData, centralDirectory, endRecord]);
+  return new Blob([zipBytes], { type: 'application/zip' });
 };
 
 // Generate OpenAPI Specification
@@ -239,7 +394,7 @@ function generateAPISpec(project: ProjectState): string {
     });
   });
 
-  return formatYAML(spec);
+  return YAML.stringify(spec);
 }
 
 // Generate Data Model Documentation
@@ -503,40 +658,6 @@ function mapPropertyType(type: string): string {
   return typeMap[type.toLowerCase()] || 'string';
 }
 
-function formatYAML(obj: any, indent = 0): string {
-  const spaces = '  '.repeat(indent);
-  let yaml = '';
-
-  if (Array.isArray(obj)) {
-    obj.forEach(item => {
-      if (typeof item === 'object' && item !== null) {
-        yaml += `${spaces}-\n${formatYAML(item, indent + 1).replace(/^/, spaces + '  ').slice(spaces.length + 2)}`;
-      } else {
-        yaml += `${spaces}- ${item}\n`;
-      }
-    });
-  } else if (typeof obj === 'object' && obj !== null) {
-    Object.entries(obj).forEach(([key, value]) => {
-      if (value === undefined) return;
-      if (typeof value === 'object' && value !== null) {
-        if (Array.isArray(value) && value.length === 0) {
-          yaml += `${spaces}${key}: []\n`;
-        } else if (Object.keys(value).length === 0) {
-          yaml += `${spaces}${key}: {}\n`;
-        } else {
-          yaml += `${spaces}${key}:\n${formatYAML(value, indent + 1)}`;
-        }
-      } else if (typeof value === 'string' && (value.includes('\n') || value.includes(':'))) {
-        yaml += `${spaces}${key}: "${value.replace(/"/g, '\\"')}"\n`;
-      } else {
-        yaml += `${spaces}${key}: ${value}\n`;
-      }
-    });
-  }
-
-  return yaml;
-}
-
 const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
   lang,
   project,
@@ -547,33 +668,135 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
   const [generatedContent, setGeneratedContent] = useState<string>('');
   const [copied, setCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [exportMode, setExportMode] = useState<ExportMode>('draft');
+  const [deliveryBlockers, setDeliveryBlockers] = useState<DeliveryBlocker[]>([]);
+  const [showDeliveryBlockers, setShowDeliveryBlockers] = useState(false);
+  const [clientName, setClientName] = useState('');
+  const [designerName, setDesignerName] = useState('');
+  const [deliveryVersion, setDeliveryVersion] = useState('v1.0');
+  const [releaseNotes, setReleaseNotes] = useState('');
 
   const hasData = project.objects.length > 0;
 
+  const buildClientDeliveryBlockers = (): DeliveryBlocker[] => {
+    const blockers: DeliveryBlocker[] = [];
+
+    if (!clientName.trim()) {
+      blockers.push({
+        key: 'missing-client-name',
+        message: lang === 'cn' ? '客户名称为必填项' : 'Client name is required',
+      });
+    }
+    if (!designerName.trim()) {
+      blockers.push({
+        key: 'missing-designer-name',
+        message: lang === 'cn' ? '方案设计人为必填项' : 'Designer name is required',
+      });
+    }
+
+    const qualityReport = runQualityCheck(project);
+
+    qualityReport.issues
+      .filter(issue => issue.severity === 'error')
+      .forEach((issue, idx) => {
+        const target = issue.target?.name ? ` (${issue.target.name})` : '';
+        blockers.push({
+          key: `quality-error-${idx}`,
+          message: `${issue.message[lang]}${target}`,
+        });
+      });
+
+    const threeLayerReport = checkActionThreeLayers(project);
+    threeLayerReport.actions
+      .filter(action => action.overallStatus === 'minimal')
+      .forEach((action, idx) => {
+        blockers.push({
+          key: `three-layer-minimal-${idx}`,
+          message: lang === 'cn'
+            ? `Action "${action.objectName}.${action.actionName}" 三层完整度低于 partial`
+            : `Action "${action.objectName}.${action.actionName}" is below partial three-layer completeness`,
+        });
+      });
+
+    return blockers;
+  };
+
   const handleGenerate = (type: DeliverableType) => {
     setSelectedType(type);
-    let content = '';
+    setShowDeliveryBlockers(false);
 
+    if (exportMode === 'client') {
+      const blockers = buildClientDeliveryBlockers();
+      if (blockers.length > 0) {
+        setDeliveryBlockers(blockers);
+        setShowDeliveryBlockers(true);
+        setGeneratedContent('');
+        setShowPreview(false);
+        return;
+      }
+      setDeliveryBlockers([]);
+    }
+
+    let content = '';
     switch (type) {
-      case 'api-spec':
-        content = generateAPISpec(project);
-        break;
-      case 'data-model':
-        content = generateDataModel(project, lang);
-        break;
-      case 'agent-tools':
-        content = generateAgentTools(project);
-        break;
-      case 'brd':
-        content = generateBRD(project, lang);
-        break;
-      case 'integration':
-        content = generateIntegrationGuide(project, lang);
-        break;
+      case 'api-spec': content = generateAPISpec(project); break;
+      case 'data-model': content = generateDataModel(project, lang); break;
+      case 'agent-tools': content = generateAgentTools(project); break;
+      case 'brd': content = generateBRD(project, lang); break;
+      case 'integration': content = generateIntegrationGuide(project, lang); break;
     }
 
     setGeneratedContent(content);
     setShowPreview(true);
+  };
+
+  const buildCoverPage = (): string => {
+    const now = new Date().toLocaleString();
+    const totalActions = project.objects.reduce((sum, obj) => sum + (obj.actions?.length || 0), 0);
+    return lang === 'cn'
+      ? `# 交付封面\n\n- 项目名称: ${project.projectName || '未命名项目'}\n- 客户名称: ${clientName || '待填写'}\n- 版本号: ${deliveryVersion || 'v1.0'}\n- 设计师: ${designerName || '待填写'}\n- 生成时间: ${now}\n\n## 交付摘要\n\n- 对象数: ${project.objects.length}\n- 动作数: ${totalActions}\n- 关系数: ${project.links.length}\n- 集成数: ${project.integrations.length}\n\n## 版本变更摘要\n\n${releaseNotes || '无'}\n`
+      : `# Delivery Cover\n\n- Project: ${project.projectName || 'Untitled Project'}\n- Client: ${clientName || 'TBD'}\n- Version: ${deliveryVersion || 'v1.0'}\n- Designer: ${designerName || 'TBD'}\n- Generated At: ${now}\n\n## Summary\n\n- Objects: ${project.objects.length}\n- Actions: ${totalActions}\n- Links: ${project.links.length}\n- Integrations: ${project.integrations.length}\n\n## Release Notes\n\n${releaseNotes || 'N/A'}\n`;
+  };
+
+  const handleDownloadZip = () => {
+    if (exportMode === 'client') {
+      const blockers = buildClientDeliveryBlockers();
+      if (blockers.length > 0) {
+        setDeliveryBlockers(blockers);
+        setShowDeliveryBlockers(true);
+        return;
+      }
+    }
+
+    const now = new Date().toISOString();
+    const files: ZipTextFile[] = [
+      ...(exportMode === 'client' ? [{ name: '00-cover.md', content: buildCoverPage() }] : []),
+      { name: '01-api-spec.yaml', content: generateAPISpec(project) },
+      { name: '02-data-model.md', content: generateDataModel(project, lang) },
+      { name: '03-agent-tools.json', content: generateAgentTools(project) },
+      { name: '04-brd.md', content: generateBRD(project, lang) },
+      { name: '05-integration-guide.md', content: generateIntegrationGuide(project, lang) },
+      {
+        name: 'delivery-metadata.json',
+        content: JSON.stringify({
+          exportMode,
+          projectName: project.projectName || '',
+          clientName,
+          designerName,
+          deliveryVersion,
+          releaseNotes,
+          generatedAt: now,
+        }, null, 2),
+      },
+    ];
+
+    const zipBlob = buildZipBlob(files);
+    const url = URL.createObjectURL(zipBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `delivery-package-${deliveryVersion || 'v1.0'}-${Date.now()}.zip`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   const handleCopy = () => {
@@ -595,7 +818,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
     a.href = url;
     a.download = `${selectedType}-${Date.now()}.${ext}`;
     a.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   return (
@@ -705,7 +928,110 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
         <>
           {/* Deliverable type selection */}
           <div className="flex-1 overflow-auto p-4">
-            <div className="grid gap-3">
+          <div className="grid gap-3">
+              <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}>
+                <div className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>
+                  {t.exportMode}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setExportMode('draft')}
+                    className="px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+                    style={{
+                      backgroundColor: exportMode === 'draft' ? 'var(--color-accent)' : 'var(--color-bg-hover)',
+                      color: exportMode === 'draft' ? '#fff' : 'var(--color-text-secondary)',
+                    }}
+                  >
+                    {t.draftMode}
+                  </button>
+                  <button
+                    onClick={() => setExportMode('client')}
+                    className="px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+                    style={{
+                      backgroundColor: exportMode === 'client' ? 'var(--color-warning)' : 'var(--color-bg-hover)',
+                      color: exportMode === 'client' ? '#fff' : 'var(--color-text-secondary)',
+                    }}
+                  >
+                    {t.clientMode}
+                  </button>
+                </div>
+              </div>
+
+              {exportMode === 'draft' && (
+                <button
+                  onClick={handleDownloadZip}
+                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors w-full"
+                  style={{ backgroundColor: 'var(--color-success)', color: '#fff' }}
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  {t.downloadZip}
+                </button>
+              )}
+
+              {exportMode === 'client' && (
+              <div className="p-3 rounded-lg grid gap-2" style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}>
+                <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t.clientName}</label>
+                <input
+                  type="text"
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  placeholder={t.clientNamePlaceholder}
+                  className="px-2 py-1.5 rounded text-xs"
+                  style={{ backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
+                />
+                <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t.designerName}</label>
+                <input
+                  type="text"
+                  value={designerName}
+                  onChange={(e) => setDesignerName(e.target.value)}
+                  placeholder={t.designerNamePlaceholder}
+                  className="px-2 py-1.5 rounded text-xs"
+                  style={{ backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
+                />
+                <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t.deliveryVersion}</label>
+                <input
+                  type="text"
+                  value={deliveryVersion}
+                  onChange={(e) => setDeliveryVersion(e.target.value)}
+                  className="px-2 py-1.5 rounded text-xs"
+                  style={{ backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
+                />
+                <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t.releaseNotes}</label>
+                <textarea
+                  value={releaseNotes}
+                  onChange={(e) => setReleaseNotes(e.target.value)}
+                  placeholder={t.releaseNotesPlaceholder}
+                  rows={2}
+                  className="px-2 py-1.5 rounded text-xs resize-y"
+                  style={{ backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
+                />
+                <button
+                  onClick={handleDownloadZip}
+                  className="mt-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+                  style={{ backgroundColor: 'var(--color-success)', color: '#fff' }}
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  {t.downloadZip}
+                </button>
+              </div>
+              )}
+
+              {showDeliveryBlockers && (
+                <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-error)' }}>
+                  <div className="text-sm font-medium mb-2" style={{ color: 'var(--color-error)' }}>
+                    {t.deliveryBlockedTitle}
+                  </div>
+                  <div className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>
+                    {t.deliveryBlockedHint}
+                  </div>
+                  <ul className="space-y-1 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                    {deliveryBlockers.map((blocker) => (
+                      <li key={blocker.key}>• {blocker.message}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               {deliverableConfigs.map(config => {
                 const Icon = config.icon;
                 return (
