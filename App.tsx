@@ -209,7 +209,7 @@ const AppContent: React.FC = () => {
   const [isChatLoading, setIsChatLoading] = useState(false);
 
   // Auth state
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { sync, status: syncStatus } = useSync();
   const [showAuthModal, setShowAuthModal] = useState(false);
 

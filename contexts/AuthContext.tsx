@@ -63,6 +63,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const unsubscribe = authService.onAuthChange((isAuthenticated) => {
       if (!isAuthenticated) {
         setUser(null);
+        localStorage.removeItem('ontology-auth-session');
       }
     });
 
@@ -94,6 +95,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const newUser = await authService.register(input);
       setUser(newUser);
+      // Store user ID for storage layer isolation
+      if (newUser?.id) {
+        localStorage.setItem('ontology-auth-session', JSON.stringify({ user: { id: newUser.id } }));
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Registration failed';
       setError(message);

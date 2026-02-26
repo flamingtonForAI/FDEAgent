@@ -8,6 +8,7 @@
 import React, { useState, useMemo } from 'react';
 import { Language } from '../types';
 import { useProject } from '../contexts/ProjectContext';
+import { useAuth } from '../contexts/AuthContext';
 import {
   FolderOpen, Plus, Search, Trash2, Clock, Package,
   GitBranch, Layers, Zap, MoreVertical, Star, Edit2,
@@ -31,7 +32,10 @@ const translations = {
     createFirst: 'Create First Project',
     open: 'Open',
     delete: 'Delete',
+    rename: 'Rename',
     deleteConfirm: 'Are you sure you want to delete this project?',
+    renamePrompt: 'Enter a new project name',
+    renameEmpty: 'Project name cannot be empty',
     lastModified: 'Last modified',
     objects: 'Objects',
     links: 'Links',
@@ -44,6 +48,8 @@ const translations = {
     completed: 'Completed',
     current: 'Current',
     emptySearch: 'No projects match your search',
+    loginRequired: 'Please sign in to create projects',
+    authHint: 'Demo: demo@example.com / Demo123!',
   },
   cn: {
     title: '我的项目',
@@ -55,7 +61,10 @@ const translations = {
     createFirst: '创建第一个项目',
     open: '打开',
     delete: '删除',
+    rename: '重命名',
     deleteConfirm: '确定要删除这个项目吗？',
+    renamePrompt: '请输入新的项目名称',
+    renameEmpty: '项目名称不能为空',
     lastModified: '最后修改',
     objects: '对象',
     links: '链接',
@@ -68,6 +77,8 @@ const translations = {
     completed: '已完成',
     current: '当前',
     emptySearch: '没有匹配的项目',
+    loginRequired: '请先登录后再创建项目',
+    authHint: '测试账号：demo@example.com / Demo123!',
   }
 };
 
@@ -85,12 +96,22 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
     activeProjectId,
     switchProject,
     deleteProject,
+    updateProject,
     isLoading
   } = useProject();
+  const { isAuthenticated } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showNewDialog, setShowNewDialog] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  const handleOpenCreateDialog = () => {
+    if (!isAuthenticated) {
+      alert(`${t.loginRequired}\n${t.authHint}`);
+      return;
+    }
+    setShowNewDialog(true);
+  };
 
   // Filter projects by search query
   const filteredProjects = useMemo(() => {
@@ -129,6 +150,17 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
     setDeleteConfirmId(null);
   };
 
+  const handleRenameProject = (projectId: string, currentName: string) => {
+    const nextName = window.prompt(t.renamePrompt, currentName);
+    if (nextName === null) return;
+    const trimmed = nextName.trim();
+    if (!trimmed) {
+      alert(t.renameEmpty);
+      return;
+    }
+    updateProject(projectId, { name: trimmed });
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -154,11 +186,11 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
           </p>
         </div>
         <button
-          onClick={() => setShowNewDialog(true)}
+          onClick={handleOpenCreateDialog}
           className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors hover:opacity-90"
           style={{
-            backgroundColor: 'var(--color-accent)',
-            color: 'var(--color-bg-base)'
+            backgroundColor: isAuthenticated ? 'var(--color-accent)' : 'var(--color-bg-hover)',
+            color: isAuthenticated ? 'var(--color-bg-base)' : 'var(--color-text-muted)'
           }}
         >
           <Plus size={18} />
@@ -213,11 +245,11 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
             {t.noProjectsHint}
           </p>
           <button
-            onClick={() => setShowNewDialog(true)}
+            onClick={handleOpenCreateDialog}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg transition-colors hover:opacity-90"
             style={{
-              backgroundColor: 'var(--color-accent)',
-              color: 'var(--color-bg-base)'
+              backgroundColor: isAuthenticated ? 'var(--color-accent)' : 'var(--color-bg-hover)',
+              color: isAuthenticated ? 'var(--color-bg-base)' : 'var(--color-text-muted)'
             }}
           >
             <Plus size={18} />
@@ -385,6 +417,17 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
                   {formatRelativeTime(project.updatedAt)}
                 </span>
                 <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRenameProject(project.id, project.name);
+                    }}
+                    className="p-1.5 rounded transition-colors"
+                    style={{ color: 'var(--color-text-muted)' }}
+                    title={t.rename}
+                  >
+                    <Edit2 size={14} />
+                  </button>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
