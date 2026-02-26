@@ -1,6 +1,6 @@
 # Ontology Architect
 
-![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.4.1-blue.svg)
 ![React](https://img.shields.io/badge/React-19-61dafb.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
@@ -17,7 +17,16 @@ Ontology Architect 是一个基于 AI 的企业智能系统设计工具，帮助
 - Ontology 是动态的（可以执行）
 - 核心差异：**Action（动作）** 连接自然语义到可执行函数
 
-## 新功能 (v0.4.0)
+## 新功能 (v0.4.1)
+
+### 认证与数据隔离优化
+- **未登录可浏览** - 允许查看教程、模板和案例内容
+- **登录后可创建项目** - 未登录状态禁止新建/修改项目数据
+- **用户作用域存储修复** - 注册后会正确写入用户会话，避免项目落入匿名存储空间
+- **历史数据迁移可见** - 登录后可看到自动迁移的历史项目（如“迁移项目”）
+
+### 项目管理增强
+- **项目重命名** - 在项目卡片中支持直接重命名并持久化保存
 
 ### 多项目管理
 - **项目隔离** - 每个项目独立的本体设计、聊天记录和设置
@@ -141,6 +150,12 @@ npm run dev
    - **空白项目** - 从零开始，适合自定义需求
    - **从模板开始** - 选择行业模板快速启动
 4. 填写项目名称，开始设计
+
+### 认证说明
+
+- 未登录：可浏览学习中心、模板、案例等只读内容
+- 已登录：可创建、编辑、删除项目，并进行项目级聊天与同步
+- 测试账号：`demo@example.com` / `Demo123!`
 
 ## 项目结构
 
