@@ -1,0 +1,1193 @@
+{
+  "version": "1.0",
+  "exportedAt": "2026-02-06T09:38:39.975Z",
+  "source": "Palantir Case Studies",
+  "archetype": {
+    "metadata": {
+      "id": "defense-intelligence",
+      "name": "Defense & Military Intelligence",
+      "description": {
+        "en": "Military intelligence and battlefield operations platform inspired by Palantir TITAN and Maven systems, covering situational awareness, target identification, logistics optimization, and command decision support with AI-powered sensor fusion.",
+        "cn": "基于 Palantir TITAN 和 Maven 系统的军事情报与战场作战平台，覆盖态势感知、目标识别、后勤优化和指挥决策支持，配备AI驱动的传感器融合能力。"
+      },
+      "industry": "defense",
+      "domain": "military-intelligence",
+      "version": "1.0.0",
+      "changelog": [
+        {
+          "version": "1.0.0",
+          "date": "2026-02-06",
+          "changes": [
+            "Initial archetype based on Palantir defense solutions",
+            "TITAN-inspired sensor fusion and targeting",
+            "Maven-inspired AI object detection",
+            "Vantage-inspired logistics and readiness",
+            "CJADC2 multi-domain integration"
+          ]
+        }
+      ],
+      "origin": {
+        "sourceEngagement": "US Army, NATO, Department of Defense",
+        "fdeContributors": [
+          "Defense Solutions Team",
+          "AI Research Group"
+        ],
+        "abstractionDate": "2026-02-06"
+      },
+      "usage": {
+        "deployments": 15,
+        "industries": [
+          "Military",
+          "Defense Contractors",
+          "Intelligence Agencies",
+          "Allied Forces"
+        ],
+        "avgDeploymentTime": "5 weeks"
+      }
+    },
+    "ontology": {
+      "objects": [
+        {
+          "id": "target",
+          "name": "Target",
+          "nameCn": "目标",
+          "description": "A detected entity of interest requiring tracking and potential engagement",
+          "descriptionCn": "需要跟踪和潜在交战的已检测感兴趣实体",
+          "properties": [
+            {
+              "name": "targetId",
+              "type": "string",
+              "description": "Unique target identifier"
+            },
+            {
+              "name": "targetType",
+              "type": "string",
+              "description": "Vehicle/Personnel/Structure/Unknown"
+            },
+            {
+              "name": "classification",
+              "type": "string",
+              "description": "Friendly/Hostile/Neutral/Unknown"
+            },
+            {
+              "name": "location",
+              "type": "object",
+              "description": "Current geolocation (lat, lon, alt)"
+            },
+            {
+              "name": "velocity",
+              "type": "object",
+              "description": "Speed and heading"
+            },
+            {
+              "name": "firstDetected",
+              "type": "timestamp",
+              "description": "First detection timestamp"
+            },
+            {
+              "name": "lastUpdated",
+              "type": "timestamp",
+              "description": "Last position update"
+            },
+            {
+              "name": "sensorSources",
+              "type": "array",
+              "description": "Contributing sensor IDs"
+            },
+            {
+              "name": "confidenceScore",
+              "type": "number",
+              "description": "Classification confidence 0-1"
+            },
+            {
+              "name": "threatLevel",
+              "type": "string",
+              "description": "High/Medium/Low/None"
+            },
+            {
+              "name": "trackStatus",
+              "type": "string",
+              "description": "Active/Lost/Dormant"
+            },
+            {
+              "name": "predictedPath",
+              "type": "array",
+              "description": "Predicted future positions",
+              "isAIDerived": true,
+              "logicDescription": "ML trajectory prediction based on historical movement patterns"
+            },
+            {
+              "name": "identityAssessment",
+              "type": "string",
+              "description": "AI-assessed probable identity",
+              "isAIDerived": true,
+              "logicDescription": "Multi-modal identification combining imagery, signals, and behavior"
+            }
+          ],
+          "primaryKey": "targetId",
+          "actions": [
+            {
+              "name": "Update Classification",
+              "nameCn": "更新分类",
+              "type": "traditional",
+              "description": "Update target classification based on new intelligence",
+              "businessLayer": {
+                "description": "根据新情报更新目标分类",
+                "targetObject": "Target",
+                "executorRole": "Intelligence Analyst",
+                "triggerCondition": "新情报到达或分类置信度变化"
+              },
+              "logicLayer": {
+                "preconditions": [
+                  "目标存在于系统中",
+                  "分析人员有权限"
+                ],
+                "parameters": [
+                  {
+                    "name": "targetId",
+                    "type": "string",
+                    "required": true,
+                    "description": "目标ID"
+                  },
+                  {
+                    "name": "newClassification",
+                    "type": "string",
+                    "required": true,
+                    "description": "新分类"
+                  },
+                  {
+                    "name": "confidenceScore",
+                    "type": "number",
+                    "required": true,
+                    "description": "置信度"
+                  },
+                  {
+                    "name": "justification",
+                    "type": "string",
+                    "required": true,
+                    "description": "分类依据"
+                  }
+                ],
+                "postconditions": [
+                  "分类已更新",
+                  "变更历史已记录"
+                ],
+                "sideEffects": [
+                  "通知相关单位",
+                  "更新威胁评估"
+                ]
+              },
+              "governance": {
+                "permissionTier": 3,
+                "requiresHumanApproval": true,
+                "auditLog": true,
+                "riskLevel": "high"
+              }
+            },
+            {
+              "name": "Nominate for Strike",
+              "nameCn": "提名打击",
+              "type": "traditional",
+              "description": "Nominate target for precision strike consideration",
+              "businessLayer": {
+                "description": "将目标提名进入精确打击考虑流程",
+                "targetObject": "Target",
+                "executorRole": "Operations Officer",
+                "triggerCondition": "目标确认为敌方高价值目标"
+              },
+              "logicLayer": {
+                "preconditions": [
+                  "目标分类为Hostile",
+                  "威胁等级为High",
+                  "有可用打击资产"
+                ],
+                "parameters": [
+                  {
+                    "name": "targetId",
+                    "type": "string",
+                    "required": true,
+                    "description": "目标ID"
+                  },
+                  {
+                    "name": "priority",
+                    "type": "string",
+                    "required": true,
+                    "description": "优先级"
+                  },
+                  {
+                    "name": "recommendedAsset",
+                    "type": "string",
+                    "required": false,
+                    "description": "建议打击资产"
+                  },
+                  {
+                    "name": "timeConstraint",
+                    "type": "string",
+                    "required": false,
+                    "description": "时间窗口"
+                  }
+                ],
+                "postconditions": [
+                  "目标进入打击队列",
+                  "资产分配流程启动"
+                ],
+                "sideEffects": [
+                  "通知指挥链",
+                  "法务审查触发"
+                ]
+              },
+              "governance": {
+                "permissionTier": 4,
+                "requiresHumanApproval": true,
+                "auditLog": true,
+                "riskLevel": "high"
+              }
+            }
+          ],
+          "aiFeatures": [
+            {
+              "type": "Parsing Pipeline (Unstructured to Structured)",
+              "description": "Computer vision for object detection from satellite/drone imagery"
+            },
+            {
+              "type": "Smart Property (LLM Derived)",
+              "description": "AI-powered threat assessment and identity analysis"
+            }
+          ]
+        },
+        {
+          "id": "sensor",
+          "name": "Sensor",
+          "nameCn": "传感器",
+          "description": "An intelligence collection asset (satellite, drone, ground station, SIGINT)",
+          "descriptionCn": "情报收集资产（卫星、无人机、地面站、信号情报）",
+          "properties": [
+            {
+              "name": "sensorId",
+              "type": "string",
+              "description": "Unique sensor identifier"
+            },
+            {
+              "name": "sensorType",
+              "type": "string",
+              "description": "Satellite/UAV/Ground/SIGINT/HUMINT"
+            },
+            {
+              "name": "platform",
+              "type": "string",
+              "description": "Platform name or designation"
+            },
+            {
+              "name": "capabilities",
+              "type": "array",
+              "description": "Sensing capabilities (EO, IR, SAR, etc.)"
+            },
+            {
+              "name": "coverage",
+              "type": "object",
+              "description": "Geographic coverage area"
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "description": "Operational/Maintenance/Offline"
+            },
+            {
+              "name": "availableFrom",
+              "type": "timestamp",
+              "description": "Next availability window"
+            },
+            {
+              "name": "resolution",
+              "type": "string",
+              "description": "Sensor resolution specification"
+            },
+            {
+              "name": "revisitRate",
+              "type": "number",
+              "description": "Revisit rate in hours"
+            }
+          ],
+          "primaryKey": "sensorId",
+          "actions": [
+            {
+              "name": "Task Collection",
+              "nameCn": "任务指派",
+              "type": "traditional",
+              "description": "Task sensor for collection on area of interest",
+              "businessLayer": {
+                "description": "指派传感器对感兴趣区域进行收集",
+                "targetObject": "Sensor",
+                "executorRole": "Collection Manager",
+                "triggerCondition": "情报需求请求或常规监视计划"
+              },
+              "logicLayer": {
+                "preconditions": [
+                  "传感器可用",
+                  "在覆盖范围内",
+                  "有收集配额"
+                ],
+                "parameters": [
+                  {
+                    "name": "sensorId",
+                    "type": "string",
+                    "required": true,
+                    "description": "传感器ID"
+                  },
+                  {
+                    "name": "targetArea",
+                    "type": "object",
+                    "required": true,
+                    "description": "目标区域"
+                  },
+                  {
+                    "name": "priority",
+                    "type": "number",
+                    "required": true,
+                    "description": "优先级1-5"
+                  },
+                  {
+                    "name": "collectionMode",
+                    "type": "string",
+                    "required": true,
+                    "description": "收集模式"
+                  }
+                ],
+                "postconditions": [
+                  "任务已加入队列",
+                  "预计收集时间已计算"
+                ],
+                "sideEffects": [
+                  "更新传感器调度",
+                  "通知请求方"
+                ]
+              },
+              "governance": {
+                "permissionTier": 2,
+                "requiresHumanApproval": false,
+                "auditLog": true,
+                "riskLevel": "medium"
+              }
+            }
+          ],
+          "aiFeatures": []
+        },
+        {
+          "id": "unit",
+          "name": "Unit",
+          "nameCn": "作战单位",
+          "description": "A military unit with assigned personnel, equipment, and mission",
+          "descriptionCn": "具有分配人员、装备和任务的军事单位",
+          "properties": [
+            {
+              "name": "unitId",
+              "type": "string",
+              "description": "Unit identification code"
+            },
+            {
+              "name": "unitName",
+              "type": "string",
+              "description": "Unit designation"
+            },
+            {
+              "name": "unitType",
+              "type": "string",
+              "description": "Infantry/Armor/Aviation/Logistics/etc."
+            },
+            {
+              "name": "echelon",
+              "type": "string",
+              "description": "Squad/Platoon/Company/Battalion/etc."
+            },
+            {
+              "name": "parentUnit",
+              "type": "string",
+              "description": "Higher headquarters"
+            },
+            {
+              "name": "location",
+              "type": "object",
+              "description": "Current position"
+            },
+            {
+              "name": "personnelStrength",
+              "type": "number",
+              "description": "Current personnel count"
+            },
+            {
+              "name": "equipmentStatus",
+              "type": "object",
+              "description": "Equipment readiness summary"
+            },
+            {
+              "name": "currentMission",
+              "type": "string",
+              "description": "Assigned mission"
+            },
+            {
+              "name": "readinessLevel",
+              "type": "string",
+              "description": "C1/C2/C3/C4 readiness"
+            },
+            {
+              "name": "predictedReadiness",
+              "type": "string",
+              "description": "Predicted readiness for next mission",
+              "isAIDerived": true,
+              "logicDescription": "ML model based on maintenance schedules, supply levels, and fatigue"
+            }
+          ],
+          "primaryKey": "unitId",
+          "actions": [
+            {
+              "name": "Assign Mission",
+              "nameCn": "分配任务",
+              "type": "traditional",
+              "description": "Assign operational mission to unit",
+              "businessLayer": {
+                "description": "向单位分配作战任务",
+                "targetObject": "Unit",
+                "executorRole": "Commander",
+                "triggerCondition": "作战计划确定或态势变化"
+              },
+              "logicLayer": {
+                "preconditions": [
+                  "单位战备等级满足要求",
+                  "有可用资源"
+                ],
+                "parameters": [
+                  {
+                    "name": "unitId",
+                    "type": "string",
+                    "required": true,
+                    "description": "单位ID"
+                  },
+                  {
+                    "name": "missionType",
+                    "type": "string",
+                    "required": true,
+                    "description": "任务类型"
+                  },
+                  {
+                    "name": "objective",
+                    "type": "string",
+                    "required": true,
+                    "description": "任务目标"
+                  },
+                  {
+                    "name": "startTime",
+                    "type": "timestamp",
+                    "required": true,
+                    "description": "开始时间"
+                  }
+                ],
+                "postconditions": [
+                  "任务已分配",
+                  "单位状态已更新"
+                ],
+                "sideEffects": [
+                  "通知下属单位",
+                  "更新作战图"
+                ]
+              },
+              "governance": {
+                "permissionTier": 3,
+                "requiresHumanApproval": true,
+                "auditLog": true,
+                "riskLevel": "high"
+              }
+            },
+            {
+              "name": "Report Status",
+              "nameCn": "报告状态",
+              "type": "traditional",
+              "description": "Submit unit status report",
+              "businessLayer": {
+                "description": "提交单位状态报告",
+                "targetObject": "Unit",
+                "executorRole": "Unit Commander",
+                "triggerCondition": "定时报告或状态变化"
+              },
+              "logicLayer": {
+                "preconditions": [
+                  "报告人员已授权"
+                ],
+                "parameters": [
+                  {
+                    "name": "unitId",
+                    "type": "string",
+                    "required": true,
+                    "description": "单位ID"
+                  },
+                  {
+                    "name": "personnelStatus",
+                    "type": "object",
+                    "required": true,
+                    "description": "人员状态"
+                  },
+                  {
+                    "name": "equipmentStatus",
+                    "type": "object",
+                    "required": true,
+                    "description": "装备状态"
+                  },
+                  {
+                    "name": "supplyStatus",
+                    "type": "object",
+                    "required": true,
+                    "description": "补给状态"
+                  }
+                ],
+                "postconditions": [
+                  "状态已更新",
+                  "上级已通知"
+                ],
+                "sideEffects": [
+                  "更新战备评估",
+                  "触发补给请求（如需要）"
+                ]
+              },
+              "governance": {
+                "permissionTier": 1,
+                "requiresHumanApproval": false,
+                "auditLog": true,
+                "riskLevel": "low"
+              }
+            }
+          ],
+          "aiFeatures": [
+            {
+              "type": "Smart Property (LLM Derived)",
+              "description": "AI-predicted unit readiness and capability assessment"
+            }
+          ]
+        },
+        {
+          "id": "supply-request",
+          "name": "Supply Request",
+          "nameCn": "补给请求",
+          "description": "A request for logistics support (ammunition, fuel, food, medical)",
+          "descriptionCn": "后勤支援请求（弹药、燃料、食品、医疗）",
+          "properties": [
+            {
+              "name": "requestId",
+              "type": "string",
+              "description": "Unique request identifier"
+            },
+            {
+              "name": "requestingUnit",
+              "type": "string",
+              "description": "Unit making request"
+            },
+            {
+              "name": "supplyClass",
+              "type": "string",
+              "description": "Class I-X supply classification"
+            },
+            {
+              "name": "items",
+              "type": "array",
+              "description": "Requested items and quantities"
+            },
+            {
+              "name": "priority",
+              "type": "string",
+              "description": "Routine/Priority/Immediate/Flash"
+            },
+            {
+              "name": "deliveryLocation",
+              "type": "object",
+              "description": "Delivery coordinates"
+            },
+            {
+              "name": "requestTime",
+              "type": "timestamp",
+              "description": "Request submission time"
+            },
+            {
+              "name": "requiredBy",
+              "type": "timestamp",
+              "description": "Required delivery time"
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "description": "Pending/Approved/InTransit/Delivered"
+            },
+            {
+              "name": "predictedDeliveryTime",
+              "type": "timestamp",
+              "description": "AI-predicted delivery time",
+              "isAIDerived": true,
+              "logicDescription": "Based on route analysis, asset availability, and threat assessment"
+            },
+            {
+              "name": "routeRisk",
+              "type": "string",
+              "description": "Delivery route risk assessment",
+              "isAIDerived": true,
+              "logicDescription": "Risk scoring based on enemy activity and terrain"
+            }
+          ],
+          "primaryKey": "requestId",
+          "actions": [
+            {
+              "name": "Approve Request",
+              "nameCn": "批准请求",
+              "type": "traditional",
+              "description": "Approve supply request for fulfillment",
+              "businessLayer": {
+                "description": "批准补给请求进入履行流程",
+                "targetObject": "Supply Request",
+                "executorRole": "Logistics Officer",
+                "triggerCondition": "收到补给请求"
+              },
+              "logicLayer": {
+                "preconditions": [
+                  "库存可用",
+                  "运输资产可用"
+                ],
+                "parameters": [
+                  {
+                    "name": "requestId",
+                    "type": "string",
+                    "required": true,
+                    "description": "请求ID"
+                  },
+                  {
+                    "name": "approvalNotes",
+                    "type": "string",
+                    "required": false,
+                    "description": "批准备注"
+                  },
+                  {
+                    "name": "assignedConvoy",
+                    "type": "string",
+                    "required": false,
+                    "description": "分配车队"
+                  }
+                ],
+                "postconditions": [
+                  "状态更新为Approved",
+                  "车队任务已创建"
+                ],
+                "sideEffects": [
+                  "通知请求单位",
+                  "更新库存预留"
+                ]
+              },
+              "governance": {
+                "permissionTier": 2,
+                "requiresHumanApproval": false,
+                "auditLog": true,
+                "riskLevel": "medium"
+              }
+            },
+            {
+              "name": "AI Optimize Route",
+              "nameCn": "AI优化路线",
+              "type": "generative",
+              "description": "AI-generated optimal delivery route considering threats",
+              "aiLogic": "Analyze threat data, terrain, and unit positions to recommend safest/fastest route",
+              "businessLayer": {
+                "description": "AI 分析威胁、地形和单位位置，推荐最安全/最快路线",
+                "targetObject": "Supply Request",
+                "executorRole": "AI Agent",
+                "triggerCondition": "补给请求批准后"
+              },
+              "logicLayer": {
+                "preconditions": [
+                  "请求已批准",
+                  "地理数据可用"
+                ],
+                "parameters": [
+                  {
+                    "name": "requestId",
+                    "type": "string",
+                    "required": true,
+                    "description": "请求ID"
+                  },
+                  {
+                    "name": "optimizeFor",
+                    "type": "string",
+                    "required": true,
+                    "description": "优化目标(speed/safety/fuel)"
+                  }
+                ],
+                "postconditions": [
+                  "路线已生成",
+                  "风险已评估"
+                ],
+                "sideEffects": [
+                  "路线发送给车队"
+                ]
+              },
+              "governance": {
+                "permissionTier": 2,
+                "requiresHumanApproval": true,
+                "auditLog": true,
+                "riskLevel": "medium"
+              }
+            }
+          ],
+          "aiFeatures": [
+            {
+              "type": "Smart Property (LLM Derived)",
+              "description": "AI route optimization and delivery time prediction"
+            },
+            {
+              "type": "Generative Action (AI Output)",
+              "description": "AI-generated route recommendations with threat avoidance"
+            }
+          ]
+        }
+      ],
+      "links": [
+        {
+          "id": "target-sensor",
+          "source": "target",
+          "target": "sensor",
+          "label": "detected_by",
+          "isSemantic": true
+        },
+        {
+          "id": "unit-target",
+          "source": "unit",
+          "target": "target",
+          "label": "tracks",
+          "isSemantic": true
+        },
+        {
+          "id": "unit-supply",
+          "source": "unit",
+          "target": "supply-request",
+          "label": "requests",
+          "isSemantic": true
+        },
+        {
+          "id": "unit-parent",
+          "source": "unit",
+          "target": "unit",
+          "label": "reports_to",
+          "isSemantic": true
+        }
+      ]
+    },
+    "connectors": [
+      {
+        "id": "isr-platform",
+        "name": "ISR Platform Integration",
+        "description": {
+          "en": "Real-time sensor feeds from reconnaissance assets (satellite, UAV)",
+          "cn": "ISR平台实时传感器数据流（卫星、无人机）"
+        },
+        "sourceType": "streaming",
+        "sourceSystem": "ISR Platform (Satellite/UAV)",
+        "connectionTemplate": {
+          "requiredFields": [
+            {
+              "name": "endpoint",
+              "type": "string",
+              "description": "Streaming endpoint URL"
+            },
+            {
+              "name": "credentials",
+              "type": "secret",
+              "description": "Authentication credentials"
+            }
+          ]
+        },
+        "sync": {
+          "direction": "inbound",
+          "frequency": "streaming",
+          "incrementalSync": true
+        },
+        "mappedObjects": [
+          {
+            "objectId": "sensor",
+            "sourceEntity": "SensorFeed",
+            "fieldMappings": []
+          },
+          {
+            "objectId": "target",
+            "sourceEntity": "DetectedObject",
+            "fieldMappings": []
+          }
+        ]
+      },
+      {
+        "id": "c2-system",
+        "name": "C2 System Integration",
+        "description": {
+          "en": "Command and control system integration (GCCS)",
+          "cn": "指挥控制系统集成（全球指挥控制系统）"
+        },
+        "sourceType": "api",
+        "sourceSystem": "GCCS / C2 System",
+        "connectionTemplate": {
+          "requiredFields": [
+            {
+              "name": "apiUrl",
+              "type": "string",
+              "description": "C2 API URL"
+            },
+            {
+              "name": "apiKey",
+              "type": "secret",
+              "description": "API key"
+            }
+          ]
+        },
+        "sync": {
+          "direction": "bidirectional",
+          "frequency": "realtime",
+          "incrementalSync": true
+        },
+        "mappedObjects": [
+          {
+            "objectId": "unit",
+            "sourceEntity": "UnitStatus",
+            "fieldMappings": []
+          }
+        ]
+      },
+      {
+        "id": "logistics-system",
+        "name": "Logistics System",
+        "description": {
+          "en": "Military logistics and supply chain system",
+          "cn": "军事后勤与补给链系统"
+        },
+        "sourceType": "api",
+        "sourceSystem": "LOGSA / Logistics System",
+        "connectionTemplate": {
+          "requiredFields": [
+            {
+              "name": "apiUrl",
+              "type": "string",
+              "description": "Logistics API URL"
+            },
+            {
+              "name": "apiKey",
+              "type": "secret",
+              "description": "API key"
+            }
+          ]
+        },
+        "sync": {
+          "direction": "bidirectional",
+          "frequency": "hourly",
+          "incrementalSync": true
+        },
+        "mappedObjects": [
+          {
+            "objectId": "supply-request",
+            "sourceEntity": "SupplyOrder",
+            "fieldMappings": []
+          }
+        ]
+      }
+    ],
+    "workflows": [
+      {
+        "id": "target-engagement",
+        "name": "Target Engagement Workflow",
+        "description": {
+          "en": "End-to-end target identification to engagement workflow",
+          "cn": "目标识别到交战的端到端流程"
+        },
+        "trigger": {
+          "type": "event",
+          "config": {
+            "eventType": "target_detected"
+          }
+        },
+        "steps": [
+          {
+            "id": "detect",
+            "name": "Detect Target",
+            "description": {
+              "en": "Sensor detection",
+              "cn": "传感器检测"
+            },
+            "type": "action",
+            "nextSteps": [
+              "classify"
+            ]
+          },
+          {
+            "id": "classify",
+            "name": "Classify Target",
+            "description": {
+              "en": "AI classification",
+              "cn": "AI分类"
+            },
+            "type": "action",
+            "nextSteps": [
+              "assess"
+            ]
+          },
+          {
+            "id": "assess",
+            "name": "Threat Assessment",
+            "description": {
+              "en": "Assess threat level",
+              "cn": "威胁评估"
+            },
+            "type": "action",
+            "nextSteps": [
+              "decide"
+            ]
+          },
+          {
+            "id": "decide",
+            "name": "Decision",
+            "description": {
+              "en": "Commander decision",
+              "cn": "指挥官决策"
+            },
+            "type": "action"
+          }
+        ],
+        "entryStep": "detect",
+        "roles": [
+          "Sensor Operator",
+          "Intelligence Analyst",
+          "Commander"
+        ],
+        "sla": {
+          "maxDuration": "30m",
+          "escalationPath": [
+            "Watch Officer",
+            "Commander"
+          ]
+        }
+      }
+    ],
+    "rules": [
+      {
+        "id": "hostile-escalation",
+        "name": "Hostile Target Escalation",
+        "description": {
+          "en": "Escalate high-threat hostile targets",
+          "cn": "高威胁敌方目标升级"
+        },
+        "type": "trigger",
+        "appliesTo": [
+          "target"
+        ],
+        "expression": "classification === \"Hostile\" && threatLevel === \"High\""
+      }
+    ],
+    "aiCapabilities": [
+      {
+        "id": "sensor-fusion",
+        "name": "Multi-Sensor Target Fusion",
+        "type": "parsing",
+        "description": {
+          "en": "Fuse data from multiple sensors for unified target picture",
+          "cn": "融合多传感器数据形成统一目标图像"
+        },
+        "enabledActions": [
+          "Update Classification"
+        ],
+        "modelConfig": {
+          "modelType": "fusion-model",
+          "trainingDataRequirements": "Historical sensor data with ground truth"
+        }
+      },
+      {
+        "id": "threat-analysis",
+        "name": "AI Threat Assessment",
+        "type": "prediction",
+        "description": {
+          "en": "Assess threat level based on behavior and intelligence",
+          "cn": "基于行为和情报评估威胁等级"
+        },
+        "enabledActions": [
+          "Update Classification"
+        ],
+        "modelConfig": {
+          "modelType": "threat-classifier",
+          "trainingDataRequirements": "Historical threat assessments"
+        }
+      },
+      {
+        "id": "route-optimization",
+        "name": "Supply Route Optimization",
+        "type": "optimization",
+        "description": {
+          "en": "AI-optimized logistics routing",
+          "cn": "AI优化后勤路线"
+        },
+        "enabledActions": [
+          "AI Optimize Route"
+        ],
+        "modelConfig": {
+          "modelType": "route-optimizer",
+          "trainingDataRequirements": "Historical route data and threat incidents"
+        }
+      }
+    ],
+    "dashboards": [
+      {
+        "id": "situational-awareness",
+        "name": "Situational Awareness",
+        "description": {
+          "en": "Real-time battlefield situational awareness",
+          "cn": "实时战场态势感知"
+        },
+        "targetRole": "Commander",
+        "gridColumns": 12,
+        "gridRows": 8,
+        "widgets": [
+          {
+            "id": "map",
+            "type": "map",
+            "title": {
+              "en": "Operational Map",
+              "cn": "作战地图"
+            },
+            "dataSource": {
+              "objectId": "target"
+            },
+            "layout": {
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 6
+            }
+          },
+          {
+            "id": "threats",
+            "type": "list",
+            "title": {
+              "en": "Active Threats",
+              "cn": "活跃威胁"
+            },
+            "dataSource": {
+              "objectId": "target",
+              "query": "threatLevel = High"
+            },
+            "layout": {
+              "x": 8,
+              "y": 0,
+              "width": 4,
+              "height": 3
+            }
+          },
+          {
+            "id": "units",
+            "type": "list",
+            "title": {
+              "en": "Unit Status",
+              "cn": "单位状态"
+            },
+            "dataSource": {
+              "objectId": "unit"
+            },
+            "layout": {
+              "x": 8,
+              "y": 3,
+              "width": 4,
+              "height": 3
+            }
+          }
+        ]
+      }
+    ],
+    "views": [
+      {
+        "id": "target-list",
+        "name": "Target List",
+        "type": "list",
+        "objectId": "target",
+        "fields": [
+          {
+            "property": "targetId",
+            "label": {
+              "en": "ID",
+              "cn": "ID"
+            },
+            "visible": true,
+            "sortable": true
+          },
+          {
+            "property": "targetType",
+            "label": {
+              "en": "Type",
+              "cn": "类型"
+            },
+            "visible": true,
+            "filterable": true
+          },
+          {
+            "property": "classification",
+            "label": {
+              "en": "Class",
+              "cn": "分类"
+            },
+            "visible": true,
+            "filterable": true
+          },
+          {
+            "property": "threatLevel",
+            "label": {
+              "en": "Threat",
+              "cn": "威胁"
+            },
+            "visible": true,
+            "sortable": true
+          }
+        ],
+        "defaultSort": {
+          "property": "threatLevel",
+          "direction": "desc"
+        }
+      }
+    ],
+    "deployment": {
+      "requirements": {
+        "platform": [
+          "DataPlatform",
+          "AgentFramework",
+          "SecurityModule"
+        ],
+        "minVersion": "2.0.0",
+        "resources": {
+          "cpu": "16 cores",
+          "memory": "64GB",
+          "storage": "1TB"
+        }
+      },
+      "environmentVariables": [
+        {
+          "name": "ISR_ENDPOINT",
+          "description": "ISR platform streaming endpoint",
+          "required": true
+        },
+        {
+          "name": "C2_API_URL",
+          "description": "C2 system API URL",
+          "required": true
+        },
+        {
+          "name": "SECURITY_CLASSIFICATION",
+          "description": "System security classification level",
+          "required": true
+        }
+      ]
+    },
+    "documentation": {
+      "quickStart": {
+        "en": "1. Configure secure network connectivity\\n2. Connect to ISR platform\\n3. Integrate with C2 system\\n4. Configure security policies\\n5. Enable AI threat analysis",
+        "cn": "1. 配置安全网络连接\\n2. 连接ISR平台\\n3. 集成C2系统\\n4. 配置安全策略\\n5. 启用AI威胁分析"
+      },
+      "bestPractices": [
+        "Implement strict access controls based on clearance levels",
+        "Enable real-time sensor fusion for accurate target tracking",
+        "Use AI-assisted analysis for high-volume intelligence"
+      ]
+    }
+  }
+}

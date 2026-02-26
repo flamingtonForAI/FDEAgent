@@ -1,0 +1,751 @@
+/**
+ * 保险风险管理 Archetype
+ * Insurance Risk Management Archetype
+ *
+ * 基于 Palantir 与 Sompo Holdings、Swiss Re 合作案例的保险行业原型
+ * 覆盖：理赔管理、欺诈检测、精算分析、再保险优化
+ *
+ * 参考来源：
+ * - Palantir & Sompo Holdings Partnership
+ * - Palantir & Swiss Re Digital Solutions
+ * - Palantir Insurance Data Platform
+ * - Global Insurance Industry Best Practices
+ *
+ * 适用行业：财产险、人寿险、再保险、保险科技
+ * 部署周期：3-5 周（含合规审查和数据对接）
+ */
+
+import { Archetype } from '../../types/archetype';
+
+export const insuranceRiskArchetype: Archetype = {
+  metadata: {
+    id: 'insurance-risk-management',
+    name: 'Insurance Risk Management',
+    description: {
+      en: 'Comprehensive insurance risk management platform inspired by Palantir partnerships with Sompo Holdings and Swiss Re, covering claims management, fraud detection, actuarial analytics, and reinsurance optimization with AI-powered risk assessment.',
+      cn: '基于 Palantir 与 Sompo Holdings、Swiss Re 合作案例的综合保险风险管理平台，覆盖理赔管理、欺诈检测、精算分析和再保险优化，配备AI驱动的风险评估能力。'
+    },
+    industry: 'insurance',
+    domain: 'risk-management',
+    version: '1.0.0',
+    changelog: [
+      {
+        version: '1.0.0',
+        date: '2026-02-06',
+        changes: [
+          'Initial archetype based on Palantir insurance solutions',
+          'Sompo-inspired claims automation',
+          'Swiss Re-inspired reinsurance optimization',
+          'AI fraud detection engine',
+          'Catastrophe modeling integration'
+        ]
+      }
+    ],
+    origin: {
+      sourceEngagement: 'Sompo Holdings, Swiss Re, Global Insurers',
+      fdeContributors: ['Insurance Solutions Team', 'Actuarial Analytics Group'],
+      abstractionDate: '2026-02-06'
+    },
+    usage: {
+      deployments: 12,
+      industries: ['Property Insurance', 'Life Insurance', 'Reinsurance', 'InsurTech'],
+      avgDeploymentTime: '4 weeks'
+    }
+  },
+
+  ontology: {
+    objects: [
+      // ============= 保单 (Policy) =============
+      {
+        id: 'insurance-policy',
+        name: 'Insurance Policy',
+        nameCn: '保险保单',
+        description: 'Insurance contract with coverage details, premiums, and terms',
+        descriptionCn: '保险合同，包含承保详情、保费和条款',
+        properties: [
+          { name: 'policyId', type: 'string', description: 'Policy unique identifier' },
+          { name: 'policyNumber', type: 'string', description: 'Policy number' },
+          { name: 'policyType', type: 'string', description: 'Policy type (Property/Life/Liability/Reinsurance)' },
+          { name: 'productCode', type: 'string', description: 'Insurance product code' },
+          { name: 'productName', type: 'string', description: 'Insurance product name' },
+          { name: 'policyholderId', type: 'string', description: 'Policyholder ID' },
+          { name: 'insuredId', type: 'string', description: 'Insured party ID' },
+          { name: 'effectiveDate', type: 'datetime', description: 'Policy effective date' },
+          { name: 'expiryDate', type: 'datetime', description: 'Policy expiry date' },
+          { name: 'premiumAmount', type: 'number', description: 'Premium amount' },
+          { name: 'sumInsured', type: 'number', description: 'Sum insured' },
+          { name: 'deductible', type: 'number', description: 'Deductible amount' },
+          { name: 'coverageDetails', type: 'object', description: 'Coverage details' },
+          { name: 'exclusions', type: 'array', description: 'Policy exclusions' },
+          { name: 'status', type: 'string', description: 'Policy status (Active/Expired/Cancelled/Claim)' },
+          { name: 'channel', type: 'string', description: 'Sales channel' },
+          { name: 'agentId', type: 'string', description: 'Sales agent ID' },
+          {
+            name: 'riskScore',
+            type: 'number',
+            description: 'AI-computed risk score (0-100)',
+            isAIDerived: true,
+            logicDescription: 'ML model analyzing policyholder profile, coverage, and historical data'
+          },
+          {
+            name: 'churnProbability',
+            type: 'number',
+            description: 'AI-predicted renewal churn probability',
+            isAIDerived: true,
+            logicDescription: 'Predictive model based on customer behavior and engagement'
+          }
+        ],
+        primaryKey: 'policyId',
+        actions: [
+          {
+            name: 'AI Risk Assessment',
+            nameCn: 'AI 风险评估',
+            type: 'generative',
+            description: 'AI-powered policy risk assessment',
+            descriptionCn: 'AI驱动的保单风险评估',
+            aiLogic: 'Analyze policyholder profile, claims history, and external risk factors',
+            businessLayer: {
+              description: '分析投保人画像、理赔历史和外部风险因素',
+              targetObject: 'Insurance Policy',
+              executorRole: 'Underwriter',
+              triggerCondition: '新保单申请或续保评估'
+            }
+          }
+        ]
+      },
+      // ============= 理赔 (Claim) =============
+      {
+        id: 'insurance-claim',
+        name: 'Insurance Claim',
+        nameCn: '保险理赔',
+        description: 'Insurance claim case from first notice to settlement',
+        descriptionCn: '保险理赔案件，从报案到结案的完整记录',
+        properties: [
+          { name: 'claimId', type: 'string', description: 'Claim unique identifier' },
+          { name: 'claimNumber', type: 'string', description: 'Claim case number' },
+          { name: 'policyId', type: 'string', description: 'Related policy ID' },
+          { name: 'claimantId', type: 'string', description: 'Claimant ID' },
+          { name: 'incidentDate', type: 'datetime', description: 'Incident date' },
+          { name: 'reportDate', type: 'datetime', description: 'Report date' },
+          { name: 'incidentType', type: 'string', description: 'Incident type' },
+          { name: 'incidentDescription', type: 'string', description: 'Incident description' },
+          { name: 'incidentLocation', type: 'object', description: 'Incident location' },
+          { name: 'claimedAmount', type: 'number', description: 'Claimed amount' },
+          { name: 'assessedAmount', type: 'number', description: 'Assessed amount' },
+          { name: 'paidAmount', type: 'number', description: 'Paid amount' },
+          { name: 'reserveAmount', type: 'number', description: 'Reserve amount' },
+          { name: 'status', type: 'string', description: 'Claim status (Reported/Investigating/Assessed/Settled/Denied)' },
+          { name: 'adjusterId', type: 'string', description: 'Adjuster ID' },
+          { name: 'documents', type: 'array', description: 'Claim documents' },
+          { name: 'settlementDate', type: 'datetime', description: 'Settlement date' },
+          { name: 'settlementType', type: 'string', description: 'Settlement type' },
+          {
+            name: 'fraudScore',
+            type: 'number',
+            description: 'AI-computed fraud score (0-100)',
+            isAIDerived: true,
+            logicDescription: 'ML fraud detection based on claim patterns, network analysis, and anomalies'
+          },
+          {
+            name: 'fraudIndicators',
+            type: 'array',
+            description: 'AI-detected fraud indicators',
+            isAIDerived: true,
+            logicDescription: 'Rule-based and ML-based fraud signal detection'
+          },
+          {
+            name: 'triagePath',
+            type: 'string',
+            description: 'AI-recommended triage path',
+            isAIDerived: true,
+            logicDescription: 'Auto-assignment based on complexity, amount, and risk'
+          }
+        ],
+        primaryKey: 'claimId',
+        actions: [
+          {
+            name: 'AI Fraud Detection',
+            nameCn: 'AI 欺诈检测',
+            type: 'generative',
+            description: 'AI-powered fraud detection and scoring',
+            descriptionCn: 'AI驱动的欺诈检测和评分',
+            aiLogic: 'Analyze claim patterns, network relationships, and historical fraud cases',
+            businessLayer: {
+              description: '分析理赔模式、关系网络和历史欺诈案例',
+              targetObject: 'Insurance Claim',
+              executorRole: 'SIU Investigator',
+              triggerCondition: '新理赔提交或高风险告警'
+            }
+          },
+          {
+            name: 'Smart Triage',
+            nameCn: '智能分流',
+            type: 'generative',
+            description: 'AI-powered claim triage and routing',
+            descriptionCn: 'AI驱动的理赔分流和路由',
+            aiLogic: 'Assess complexity, risk, and amount to determine optimal handling path',
+            businessLayer: {
+              description: '评估复杂度、风险和金额以确定最优处理路径',
+              targetObject: 'Insurance Claim',
+              executorRole: 'Claims Manager',
+              triggerCondition: '理赔案件创建'
+            }
+          }
+        ]
+      },
+      // ============= 客户 (Customer) =============
+      {
+        id: 'insurance-customer',
+        name: 'Insurance Customer',
+        nameCn: '保险客户',
+        description: 'Policyholder or insured party information',
+        descriptionCn: '投保人或被保险人信息',
+        properties: [
+          { name: 'customerId', type: 'string', description: 'Customer unique identifier' },
+          { name: 'customerType', type: 'string', description: 'Customer type (Individual/Corporate)' },
+          { name: 'name', type: 'string', description: 'Customer name' },
+          { name: 'idType', type: 'string', description: 'ID document type' },
+          { name: 'idNumber', type: 'string', description: 'ID document number' },
+          { name: 'dateOfBirth', type: 'datetime', description: 'Date of birth' },
+          { name: 'gender', type: 'string', description: 'Gender' },
+          { name: 'occupation', type: 'string', description: 'Occupation' },
+          { name: 'industry', type: 'string', description: 'Industry' },
+          { name: 'address', type: 'string', description: 'Address' },
+          { name: 'phone', type: 'string', description: 'Phone number' },
+          { name: 'email', type: 'string', description: 'Email address' },
+          { name: 'segment', type: 'string', description: 'Customer segment' },
+          { name: 'kycStatus', type: 'string', description: 'KYC status' },
+          { name: 'kycDate', type: 'datetime', description: 'KYC date' },
+          {
+            name: 'lifetimeValue',
+            type: 'number',
+            description: 'AI-computed customer lifetime value',
+            isAIDerived: true,
+            logicDescription: 'Predictive model based on policy history and behavior'
+          },
+          {
+            name: 'fraudRiskScore',
+            type: 'number',
+            description: 'AI-computed customer fraud risk score',
+            isAIDerived: true,
+            logicDescription: 'Historical claim patterns and network analysis'
+          }
+        ],
+        primaryKey: 'customerId',
+        actions: []
+      },
+      // ============= 风险事件 (Risk Event) =============
+      {
+        id: 'risk-event',
+        name: 'Risk Event',
+        nameCn: '风险事件',
+        description: 'Natural disasters, accidents, and other risk events',
+        descriptionCn: '自然灾害、事故等风险事件',
+        properties: [
+          { name: 'eventId', type: 'string', description: 'Event unique identifier' },
+          { name: 'eventType', type: 'string', description: 'Event type (Natural Disaster/Accident/Epidemic)' },
+          { name: 'eventName', type: 'string', description: 'Event name' },
+          { name: 'eventCategory', type: 'string', description: 'Event category (Typhoon/Earthquake/Flood/Fire)' },
+          { name: 'startTime', type: 'datetime', description: 'Event start time' },
+          { name: 'endTime', type: 'datetime', description: 'Event end time' },
+          { name: 'affectedRegion', type: 'object', description: 'Affected region (GeoJSON)' },
+          { name: 'severityLevel', type: 'string', description: 'Severity level' },
+          { name: 'estimatedLoss', type: 'number', description: 'Estimated loss' },
+          { name: 'actualLoss', type: 'number', description: 'Actual loss' },
+          { name: 'affectedPoliciesCount', type: 'number', description: 'Affected policies count' },
+          { name: 'claimsCount', type: 'number', description: 'Claims count' },
+          { name: 'dataSource', type: 'string', description: 'Data source' },
+          { name: 'weatherData', type: 'object', description: 'Weather data' },
+          {
+            name: 'predictedImpact',
+            type: 'object',
+            description: 'AI-predicted event impact',
+            isAIDerived: true,
+            logicDescription: 'Catastrophe modeling based on event parameters and exposure'
+          }
+        ],
+        primaryKey: 'eventId',
+        actions: [
+          {
+            name: 'Catastrophe Response',
+            nameCn: '巨灾响应',
+            type: 'generative',
+            description: 'AI-powered catastrophe response and loss estimation',
+            descriptionCn: 'AI驱动的巨灾响应和损失估算',
+            aiLogic: 'Identify affected policies, estimate losses, and trigger proactive outreach',
+            businessLayer: {
+              description: '识别受影响保单，估算损失，触发主动联系',
+              targetObject: 'Risk Event',
+              executorRole: 'Cat Manager',
+              triggerCondition: '重大灾害事件发生'
+            }
+          }
+        ]
+      },
+      // ============= 精算模型 (Actuarial Model) =============
+      {
+        id: 'actuarial-model',
+        name: 'Actuarial Model',
+        nameCn: '精算模型',
+        description: 'Actuarial pricing and reserve models',
+        descriptionCn: '精算定价和准备金模型',
+        properties: [
+          { name: 'modelId', type: 'string', description: 'Model unique identifier' },
+          { name: 'modelName', type: 'string', description: 'Model name' },
+          { name: 'modelType', type: 'string', description: 'Model type (Pricing/Reserve/Capital)' },
+          { name: 'productScope', type: 'array', description: 'Product scope' },
+          { name: 'methodology', type: 'string', description: 'Actuarial methodology' },
+          { name: 'assumptions', type: 'object', description: 'Actuarial assumptions' },
+          { name: 'mortalityTable', type: 'string', description: 'Mortality table' },
+          { name: 'interestRate', type: 'number', description: 'Interest rate' },
+          { name: 'expenseRatio', type: 'number', description: 'Expense ratio' },
+          { name: 'lapseRate', type: 'number', description: 'Lapse rate' },
+          { name: 'lossRatio', type: 'number', description: 'Loss ratio' },
+          { name: 'version', type: 'string', description: 'Model version' },
+          { name: 'effectiveDate', type: 'datetime', description: 'Effective date' },
+          { name: 'approvedBy', type: 'string', description: 'Approved by' },
+          { name: 'status', type: 'string', description: 'Status (Draft/Active/Archived)' }
+        ],
+        primaryKey: 'modelId',
+        actions: []
+      },
+      // ============= 再保险合同 (Reinsurance Treaty) =============
+      {
+        id: 'reinsurance-treaty',
+        name: 'Reinsurance Treaty',
+        nameCn: '再保险合同',
+        description: 'Reinsurance treaties and arrangements',
+        descriptionCn: '再保险合同和安排',
+        properties: [
+          { name: 'treatyId', type: 'string', description: 'Treaty unique identifier' },
+          { name: 'treatyNumber', type: 'string', description: 'Treaty number' },
+          { name: 'treatyType', type: 'string', description: 'Treaty type (Proportional/Non-proportional)' },
+          { name: 'businessType', type: 'string', description: 'Business type (Cession/Assumption)' },
+          { name: 'cedantId', type: 'string', description: 'Cedant company ID' },
+          { name: 'reinsurerId', type: 'string', description: 'Reinsurer ID' },
+          { name: 'coveredProducts', type: 'array', description: 'Covered products' },
+          { name: 'retention', type: 'number', description: 'Retention amount' },
+          { name: 'cessionRatio', type: 'number', description: 'Cession ratio' },
+          { name: 'limit', type: 'number', description: 'Limit amount' },
+          { name: 'effectiveDate', type: 'datetime', description: 'Effective date' },
+          { name: 'expiryDate', type: 'datetime', description: 'Expiry date' },
+          { name: 'premiumIncome', type: 'number', description: 'Premium income' },
+          { name: 'claimsPaid', type: 'number', description: 'Claims paid' },
+          { name: 'commissionRate', type: 'number', description: 'Commission rate' },
+          { name: 'status', type: 'string', description: 'Treaty status' }
+        ],
+        primaryKey: 'treatyId',
+        actions: [
+          {
+            name: 'Reinsurance Optimization',
+            nameCn: '再保险优化',
+            type: 'generative',
+            description: 'AI-powered reinsurance portfolio optimization',
+            descriptionCn: 'AI驱动的再保险组合优化',
+            aiLogic: 'Analyze exposure, run catastrophe scenarios, optimize coverage structure',
+            businessLayer: {
+              description: '分析风险敞口，运行巨灾场景，优化保障结构',
+              targetObject: 'Reinsurance Treaty',
+              executorRole: 'Reinsurance Manager',
+              triggerCondition: '再保险续约或结构调整'
+            }
+          }
+        ]
+      },
+      // ============= 欺诈案例 (Fraud Case) =============
+      {
+        id: 'fraud-case',
+        name: 'Fraud Case',
+        nameCn: '欺诈案例',
+        description: 'Confirmed or suspected insurance fraud cases',
+        descriptionCn: '已确认或疑似的保险欺诈案例',
+        properties: [
+          { name: 'fraudCaseId', type: 'string', description: 'Fraud case unique identifier' },
+          { name: 'relatedClaimIds', type: 'array', description: 'Related claim IDs' },
+          { name: 'fraudType', type: 'string', description: 'Fraud type (False Claim/Exaggeration/Identity/Internal)' },
+          { name: 'detectionMethod', type: 'string', description: 'Detection method (AI/Manual/Tip)' },
+          { name: 'detectionDate', type: 'datetime', description: 'Detection date' },
+          { name: 'suspects', type: 'array', description: 'Suspects list' },
+          { name: 'fraudAmount', type: 'number', description: 'Fraud amount' },
+          { name: 'recoveredAmount', type: 'number', description: 'Recovered amount' },
+          { name: 'evidence', type: 'array', description: 'Evidence list' },
+          { name: 'investigationStatus', type: 'string', description: 'Investigation status' },
+          { name: 'legalAction', type: 'string', description: 'Legal action taken' },
+          { name: 'caseOutcome', type: 'string', description: 'Case outcome' },
+          { name: 'networkAnalysis', type: 'object', description: 'Network analysis results' }
+        ],
+        primaryKey: 'fraudCaseId',
+        actions: []
+      }
+    ],
+    links: [
+      {
+        id: 'policy-customer',
+        name: 'Policy Customer',
+        sourceObjectId: 'insurance-policy',
+        targetObjectId: 'insurance-customer',
+        cardinality: 'manyToOne',
+        description: 'Policy policyholder relationship'
+      },
+      {
+        id: 'claim-policy',
+        name: 'Claim Policy',
+        sourceObjectId: 'insurance-claim',
+        targetObjectId: 'insurance-policy',
+        cardinality: 'manyToOne',
+        description: 'Claim related policy'
+      },
+      {
+        id: 'claim-customer',
+        name: 'Claim Customer',
+        sourceObjectId: 'insurance-claim',
+        targetObjectId: 'insurance-customer',
+        cardinality: 'manyToOne',
+        description: 'Claim claimant'
+      },
+      {
+        id: 'claim-event',
+        name: 'Claim Event',
+        sourceObjectId: 'insurance-claim',
+        targetObjectId: 'risk-event',
+        cardinality: 'manyToOne',
+        description: 'Claim related risk event'
+      },
+      {
+        id: 'claim-fraud',
+        name: 'Claim Fraud Case',
+        sourceObjectId: 'insurance-claim',
+        targetObjectId: 'fraud-case',
+        cardinality: 'manyToOne',
+        description: 'Claim fraud investigation'
+      },
+      {
+        id: 'policy-treaty',
+        name: 'Policy Reinsurance',
+        sourceObjectId: 'insurance-policy',
+        targetObjectId: 'reinsurance-treaty',
+        cardinality: 'manyToMany',
+        description: 'Policy reinsurance coverage'
+      }
+    ]
+  },
+
+  // ===== Kinetic Layer - 数据连接层 =====
+  connectors: [
+    {
+      id: 'policy-admin-system',
+      name: 'Policy Administration System',
+      description: {
+        en: 'Core policy administration system connection',
+        cn: '核心保单管理系统连接'
+      },
+      sourceType: 'database',
+      sourceSystem: 'Policy Admin System',
+      connectionTemplate: {
+        requiredFields: [
+          { name: 'host', type: 'string', description: 'Database host' },
+          { name: 'database', type: 'string', description: 'Database name' },
+          { name: 'username', type: 'string', description: 'Username' },
+          { name: 'password', type: 'secret', description: 'Password' }
+        ]
+      },
+      sync: {
+        direction: 'bidirectional',
+        frequency: 'hourly',
+        incrementalSync: true
+      },
+      mappedObjects: [
+        {
+          objectId: 'insurance-policy',
+          sourceEntity: 'POLICIES',
+          fieldMappings: [
+            { sourceField: 'POLICY_ID', targetProperty: 'policyId' },
+            { sourceField: 'POLICY_NO', targetProperty: 'policyNumber' },
+            { sourceField: 'POLICY_TYPE', targetProperty: 'policyType' }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'claims-system',
+      name: 'Claims Management System',
+      description: {
+        en: 'Claims processing system connection',
+        cn: '理赔处理系统连接'
+      },
+      sourceType: 'api',
+      sourceSystem: 'Claims Management System',
+      connectionTemplate: {
+        requiredFields: [
+          { name: 'apiUrl', type: 'string', description: 'API URL' },
+          { name: 'apiKey', type: 'secret', description: 'API key' }
+        ]
+      },
+      sync: {
+        direction: 'bidirectional',
+        frequency: 'realtime',
+        incrementalSync: true
+      },
+      mappedObjects: [
+        {
+          objectId: 'insurance-claim',
+          sourceEntity: 'claims',
+          fieldMappings: [
+            { sourceField: 'claim_id', targetProperty: 'claimId' },
+            { sourceField: 'claim_no', targetProperty: 'claimNumber' }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'weather-risk-api',
+      name: 'Weather Risk Data',
+      description: {
+        en: 'Weather and catastrophe risk data API',
+        cn: '天气和巨灾风险数据API'
+      },
+      sourceType: 'api',
+      sourceSystem: 'Weather Risk Provider',
+      connectionTemplate: {
+        requiredFields: [
+          { name: 'apiUrl', type: 'string', description: 'API URL' },
+          { name: 'apiKey', type: 'secret', description: 'API key' }
+        ]
+      },
+      sync: {
+        direction: 'inbound',
+        frequency: 'hourly',
+        incrementalSync: true
+      },
+      mappedObjects: []
+    }
+  ],
+
+  // ===== Dynamic Layer - 业务逻辑层 =====
+  workflows: [
+    {
+      id: 'claims-processing',
+      name: 'Claims Processing Workflow',
+      description: {
+        en: 'End-to-end claims processing workflow',
+        cn: '端到端理赔处理流程'
+      },
+      trigger: {
+        type: 'event',
+        config: { eventType: 'new_claim' }
+      },
+      steps: [
+        {
+          id: 'fnol',
+          name: 'First Notice of Loss',
+          description: { en: 'Receive and record claim', cn: '接收并记录理赔' },
+          type: 'action',
+          nextSteps: ['triage']
+        },
+        {
+          id: 'triage',
+          name: 'AI Triage',
+          description: { en: 'AI-powered claim triage', cn: 'AI驱动的理赔分流' },
+          type: 'action',
+          nextSteps: ['fraud-check']
+        },
+        {
+          id: 'fraud-check',
+          name: 'Fraud Detection',
+          description: { en: 'AI fraud detection', cn: 'AI欺诈检测' },
+          type: 'action',
+          nextSteps: ['assessment']
+        },
+        {
+          id: 'assessment',
+          name: 'Claim Assessment',
+          description: { en: 'Adjuster assessment', cn: '理赔员评估' },
+          type: 'action',
+          nextSteps: ['settlement']
+        },
+        {
+          id: 'settlement',
+          name: 'Settlement',
+          description: { en: 'Claim settlement and payment', cn: '理赔结案和支付' },
+          type: 'action'
+        }
+      ],
+      entryStep: 'fnol',
+      roles: ['Claims Handler', 'Adjuster', 'SIU Investigator'],
+      sla: {
+        maxDuration: '72h',
+        escalationPath: ['Claims Manager', 'Claims Director']
+      }
+    }
+  ],
+
+  rules: [
+    {
+      id: 'high-value-claim',
+      name: 'High Value Claim Review',
+      description: {
+        en: 'Claims above threshold require senior review',
+        cn: '超过阈值的理赔需要高级审核'
+      },
+      type: 'trigger',
+      appliesTo: ['insurance-claim'],
+      expression: 'claimedAmount > 100000'
+    },
+    {
+      id: 'fraud-alert',
+      name: 'Fraud Alert Escalation',
+      description: {
+        en: 'High fraud score triggers SIU referral',
+        cn: '高欺诈评分触发SIU转介'
+      },
+      type: 'trigger',
+      appliesTo: ['insurance-claim'],
+      expression: 'fraudScore > 70'
+    }
+  ],
+
+  // ===== AI Capability Overlay =====
+  aiCapabilities: [
+    {
+      id: 'fraud-detection',
+      name: 'AI Fraud Detection',
+      type: 'prediction',
+      description: {
+        en: 'Machine learning fraud detection and scoring',
+        cn: '机器学习欺诈检测和评分'
+      },
+      enabledActions: ['AI Fraud Detection'],
+      modelConfig: {
+        modelType: 'fraud-classifier',
+        trainingDataRequirements: 'Historical claims with fraud labels'
+      }
+    },
+    {
+      id: 'claims-triage',
+      name: 'Smart Claims Triage',
+      type: 'prediction',
+      description: {
+        en: 'AI-powered claims complexity assessment and routing',
+        cn: 'AI驱动的理赔复杂度评估和路由'
+      },
+      enabledActions: ['Smart Triage'],
+      modelConfig: {
+        modelType: 'triage-classifier',
+        trainingDataRequirements: 'Historical claims with resolution paths'
+      }
+    },
+    {
+      id: 'catastrophe-modeling',
+      name: 'Catastrophe Modeling',
+      type: 'prediction',
+      description: {
+        en: 'AI-powered catastrophe impact prediction',
+        cn: 'AI驱动的巨灾影响预测'
+      },
+      enabledActions: ['Catastrophe Response'],
+      modelConfig: {
+        modelType: 'cat-model',
+        trainingDataRequirements: 'Historical events and loss data'
+      }
+    },
+    {
+      id: 'dynamic-pricing',
+      name: 'Dynamic Pricing',
+      type: 'optimization',
+      description: {
+        en: 'AI-powered dynamic risk pricing',
+        cn: 'AI驱动的动态风险定价'
+      },
+      enabledActions: ['AI Risk Assessment'],
+      modelConfig: {
+        modelType: 'pricing-model',
+        trainingDataRequirements: 'Policy data with loss outcomes'
+      }
+    }
+  ],
+
+  // ===== UI Templates =====
+  dashboards: [
+    {
+      id: 'claims-operations',
+      name: 'Claims Operations Dashboard',
+      description: {
+        en: 'Real-time claims operations monitoring',
+        cn: '实时理赔运营监控'
+      },
+      targetRole: 'Claims Manager',
+      gridColumns: 12,
+      gridRows: 8,
+      widgets: [
+        {
+          id: 'claims-pipeline',
+          type: 'chart',
+          title: { en: 'Claims Pipeline', cn: '理赔管道' },
+          dataSource: { objectId: 'insurance-claim', aggregation: 'count by status' },
+          layout: { x: 0, y: 0, width: 6, height: 3 }
+        },
+        {
+          id: 'fraud-alerts',
+          type: 'list',
+          title: { en: 'High Risk Alerts', cn: '高风险告警' },
+          dataSource: { objectId: 'insurance-claim', query: 'fraudScore > 60' },
+          layout: { x: 6, y: 0, width: 6, height: 3 }
+        },
+        {
+          id: 'claims-kpis',
+          type: 'kpi',
+          title: { en: 'Claims KPIs', cn: '理赔KPI' },
+          dataSource: { objectId: 'insurance-claim' },
+          layout: { x: 0, y: 3, width: 12, height: 2 }
+        }
+      ]
+    }
+  ],
+
+  views: [
+    {
+      id: 'claims-list',
+      name: 'Claims List',
+      type: 'list',
+      objectId: 'insurance-claim',
+      fields: [
+        { property: 'claimNumber', label: { en: 'Claim No', cn: '理赔号' }, visible: true, sortable: true },
+        { property: 'incidentType', label: { en: 'Incident Type', cn: '出险类型' }, visible: true, filterable: true },
+        { property: 'claimedAmount', label: { en: 'Claimed', cn: '索赔金额' }, visible: true, sortable: true },
+        { property: 'fraudScore', label: { en: 'Fraud Score', cn: '欺诈评分' }, visible: true, sortable: true },
+        { property: 'status', label: { en: 'Status', cn: '状态' }, visible: true, filterable: true }
+      ],
+      defaultSort: { property: 'reportDate', direction: 'desc' }
+    }
+  ],
+
+  // ===== Deployment Configuration =====
+  deployment: {
+    requirements: {
+      platform: ['DataPlatform', 'AgentFramework'],
+      minVersion: '2.0.0',
+      resources: {
+        cpu: '4 cores',
+        memory: '16GB',
+        storage: '200GB'
+      }
+    },
+    environmentVariables: [
+      { name: 'CLAIMS_API_URL', description: 'Claims system API URL', required: true },
+      { name: 'FRAUD_MODEL_ENDPOINT', description: 'Fraud detection model endpoint', required: true }
+    ]
+  },
+
+  // ===== Documentation =====
+  documentation: {
+    quickStart: {
+      en: '1. Connect to policy administration system\n2. Configure claims integration\n3. Set up fraud detection model\n4. Configure catastrophe data feeds\n5. Enable AI triage workflows',
+      cn: '1. 连接保单管理系统\n2. 配置理赔集成\n3. 设置欺诈检测模型\n4. 配置巨灾数据源\n5. 启用AI分流工作流'
+    },
+    bestPractices: [
+      'Enable AI fraud detection for all claims above threshold',
+      'Use smart triage to optimize adjuster workload',
+      'Integrate weather data for proactive catastrophe response'
+    ]
+  }
+};
