@@ -27,6 +27,7 @@ import { SyncProvider, useSync } from './contexts/SyncContext';
 import { ProjectProvider, useProject } from './contexts/ProjectContext';
 import { AuthModal, UserMenu } from './components/auth';
 import { storage } from './lib/storage';
+import { syncService } from './services/syncService';
 import ProjectDashboard from './components/ProjectDashboard';
 import UnifiedSettings from './components/UnifiedSettings';
 
@@ -306,10 +307,15 @@ const AppContent: React.FC = () => {
 
     if (!hasData) return;
 
+    const mappedCloudProjectId = storage.getCloudProjectIdByLocalId(activeProjectId);
+    const isLocalOnlyId = activeProjectId.startsWith('proj-');
+    const syncProjectId = mappedCloudProjectId || (isLocalOnlyId ? undefined : activeProjectId);
+
     // Queue cloud sync
     sync({
       projects: [{
-        id: activeProjectId,
+        id: syncProjectId,
+        localId: activeProjectId,
         name: currentOntology.projectName || 'Untitled Project',
         industry: currentOntology.industry,
         useCase: currentOntology.useCase,
@@ -321,6 +327,20 @@ const AppContent: React.FC = () => {
       }],
     });
   }, [currentOntology, isAuthenticated, activeProjectId, sync]);
+
+  // Persist local->cloud project ID mappings returned by sync API
+  useEffect(() => {
+    const unsubscribe = syncService.subscribe((result) => {
+      const mappings = result?.results.projects?.mappings;
+      if (!mappings || mappings.length === 0) return;
+
+      for (const mapping of mappings) {
+        storage.setCloudProjectIdByLocalId(mapping.localId, mapping.cloudId);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   // 保存当前标签页到localStorage（用于恢复上次工作位置）
   useEffect(() => {

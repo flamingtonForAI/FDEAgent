@@ -77,6 +77,7 @@ const getScopedKey = (key: string): string => {
 const LEGACY_KEYS = {
   PROJECTS_INDEX: 'ontology-projects-index',
   ACTIVE_PROJECT_ID: 'ontology-active-project',
+  CHAT_MESSAGES: 'ontology-chat-messages',
   PROJECT_PREFIX: 'ontology-project-',
 };
 
@@ -665,6 +666,7 @@ class HybridStorage {
       'project-state',
       'chat-messages',
       'cloud-project-id',
+      'project-cloud-map',
       'last-sync',
     ];
     scopedKeys.forEach(key => {
@@ -694,6 +696,40 @@ class HybridStorage {
       localStorage.setItem(getScopedKey('cloud-project-id'), id);
     } else {
       localStorage.removeItem(getScopedKey('cloud-project-id'));
+    }
+  }
+
+  /**
+   * Get cloud project ID mapped from a local project ID (user-scoped)
+   */
+  getCloudProjectIdByLocalId(localProjectId: string): string | null {
+    this.migrateToUserScoped();
+    try {
+      const raw = localStorage.getItem(getScopedKey('project-cloud-map'));
+      if (!raw) return null;
+      const map = JSON.parse(raw) as Record<string, string>;
+      return map[localProjectId] || null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Persist local -> cloud project ID mapping (user-scoped)
+   */
+  setCloudProjectIdByLocalId(localProjectId: string, cloudProjectId: string | null): void {
+    this.migrateToUserScoped();
+    try {
+      const raw = localStorage.getItem(getScopedKey('project-cloud-map'));
+      const map = raw ? (JSON.parse(raw) as Record<string, string>) : {};
+      if (cloudProjectId) {
+        map[localProjectId] = cloudProjectId;
+      } else {
+        delete map[localProjectId];
+      }
+      localStorage.setItem(getScopedKey('project-cloud-map'), JSON.stringify(map));
+    } catch (error) {
+      console.error('Failed to save project cloud mapping:', error);
     }
   }
 
@@ -977,6 +1013,7 @@ class HybridStorage {
     // Remove project data
     localStorage.removeItem(getProjectStateKey(projectId));
     localStorage.removeItem(getProjectChatKey(projectId));
+    this.setCloudProjectIdByLocalId(projectId, null);
 
     // If this was the active project, clear it
     if (this.getActiveProjectId() === projectId) {

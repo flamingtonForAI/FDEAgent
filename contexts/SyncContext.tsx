@@ -46,7 +46,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
         setStatus('idle');
         // Trigger sync if there are pending changes
         if (hasPendingChanges) {
-          syncService.forceSync();
+          void syncService.forceSync();
         }
       }
     };
@@ -69,6 +69,26 @@ export function SyncProvider({ children }: SyncProviderProps) {
     };
   }, [status, hasPendingChanges]);
 
+  useEffect(() => {
+    const unsubscribe = syncService.subscribe((result, syncError) => {
+      if (result) {
+        setStatus('synced');
+        setLastSyncedAt(new Date(result.syncedAt));
+        setHasPendingChanges(false);
+        setError(null);
+        return;
+      }
+
+      if (syncError) {
+        setStatus(navigator.onLine ? 'error' : 'offline');
+        setError(syncError.message);
+        setHasPendingChanges(syncService.hasPendingSync());
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
   // Sync before page unload if authenticated
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -90,20 +110,6 @@ export function SyncProvider({ children }: SyncProviderProps) {
       setStatus('syncing');
 
       syncService.queueSync(data);
-
-      // The actual sync happens after debounce
-      // We'll update status when it completes
-      const checkSyncComplete = setInterval(() => {
-        if (!syncService.hasPendingSync()) {
-          clearInterval(checkSyncComplete);
-          setHasPendingChanges(false);
-          setStatus('synced');
-          setLastSyncedAt(new Date());
-        }
-      }, 500);
-
-      // Cleanup interval after 30 seconds
-      setTimeout(() => clearInterval(checkSyncComplete), 30000);
     },
     [isAuthenticated]
   );
@@ -119,6 +125,9 @@ export function SyncProvider({ children }: SyncProviderProps) {
         setLastSyncedAt(new Date(result.syncedAt));
         setHasPendingChanges(false);
         setError(null);
+      } else if (!syncService.hasPendingSync()) {
+        setStatus('idle');
+        setHasPendingChanges(false);
       }
     } catch (err) {
       setStatus('error');

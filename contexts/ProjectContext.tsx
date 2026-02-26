@@ -44,8 +44,8 @@ interface ProjectContextType {
   updateProject: (projectId: string, updates: Partial<Pick<ProjectListItem, 'name' | 'description' | 'industry' | 'status' | 'tags'>>) => void;
 
   // Current project data operations
-  setCurrentOntology: (state: ProjectState) => void;
-  setChatMessages: (messages: ChatMessage[]) => void;
+  setCurrentOntology: React.Dispatch<React.SetStateAction<ProjectState | null>>;
+  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   addChatMessage: (message: ChatMessage) => void;
 
   // Refresh projects list
@@ -266,12 +266,12 @@ export function ProjectProvider({ children }: ProjectProviderProps) {
   }, []);
 
   // Set current ontology (for external updates)
-  const setCurrentOntology = useCallback((state: ProjectState) => {
+  const setCurrentOntology = useCallback((state: React.SetStateAction<ProjectState | null>) => {
     setCurrentOntologyState(state);
   }, []);
 
   // Set chat messages
-  const setChatMessages = useCallback((messages: ChatMessage[]) => {
+  const setChatMessages = useCallback((messages: React.SetStateAction<ChatMessage[]>) => {
     setCurrentChatState(messages);
   }, []);
 

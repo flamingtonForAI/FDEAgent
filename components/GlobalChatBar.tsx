@@ -13,7 +13,7 @@ import {
   FolderPlus
 } from 'lucide-react';
 import { Language, ProjectState, ChatMessage, AISettings, AIProvider } from '../types';
-import { FileUploadButton, UploadedFile } from './FileUpload';
+import { FileUploadButton, UploadedFile, getProviderCompatibility } from './FileUpload';
 import { AIService } from '../services/aiService';
 
 type PhaseType = 'discover' | 'model' | 'integrate' | 'enhance';
@@ -234,6 +234,27 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
     // Prepare message text
     let userMessage = input.trim();
 
+    if (uploadedFiles.length > 0) {
+      const blockedFiles = uploadedFiles.filter(file => {
+        const compat = getProviderCompatibility(
+          file.mimeType,
+          aiSettings.provider as AIProvider,
+          aiSettings.model
+        );
+        return compat.blockSend;
+      });
+
+      if (blockedFiles.length > 0) {
+        const fileNames = blockedFiles.map(f => f.name).join(', ');
+        setError(
+          lang === 'cn'
+            ? `以下文件类型不受支持，请移除后重试：${fileNames}`
+            : `The following file types are not supported, please remove and retry: ${fileNames}`
+        );
+        return;
+      }
+    }
+
     // If no text input but has files, add a default instruction
     if (!userMessage && uploadedFiles.length > 0) {
       userMessage = lang === 'cn'
@@ -362,6 +383,21 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
         const file = item.getAsFile();
         if (!file) continue;
 
+        const mimeType = file.type || 'application/octet-stream';
+        const compat = getProviderCompatibility(
+          mimeType,
+          aiSettings.provider as AIProvider,
+          aiSettings.model
+        );
+        if (compat.blockSend) {
+          setError(
+            lang === 'cn'
+              ? `当前模型不支持粘贴该文件类型：${file.name}`
+              : `Current model does not support this pasted file type: ${file.name}`
+          );
+          continue;
+        }
+
         // Check size (max 10MB)
         if (file.size > 10 * 1024 * 1024) continue;
 
@@ -398,7 +434,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
                 content: base64,
                 preview: `[${isImage ? (lang === 'cn' ? '图片' : 'Image') : file.type}]`,
                 isBase64: true,
-                mimeType: file.type || 'application/octet-stream',
+                mimeType,
               });
             }
           };

@@ -14,6 +14,10 @@ export interface SyncResult {
       created: string[];
       updated: string[];
       failed: string[];
+      mappings?: Array<{
+        localId: string;
+        cloudId: string;
+      }>;
     };
     chatMessages?: {
       added: number;
@@ -72,6 +76,7 @@ export interface FullSyncState {
 export interface BatchSyncInput {
   projects?: Array<{
     id?: string;
+    localId?: string;
     name: string;
     industry?: string;
     useCase?: string;
@@ -110,6 +115,20 @@ class SyncService {
   private syncQueue: BatchSyncInput | null = null;
   private syncTimeout: ReturnType<typeof setTimeout> | null = null;
   private readonly SYNC_DEBOUNCE_MS = 2000;
+  private listeners = new Set<(result: SyncResult | null, error: Error | null) => void>();
+
+  subscribe(listener: (result: SyncResult | null, error: Error | null) => void): () => void {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
+
+  private notify(result: SyncResult | null, error: Error | null): void {
+    for (const listener of this.listeners) {
+      listener(result, error);
+    }
+  }
 
   /**
    * Get full sync state from server (initial load)
@@ -160,7 +179,10 @@ class SyncService {
       }
       for (const project of data.projects) {
         const existingIndex = this.syncQueue.projects.findIndex(
-          (p) => (project.id && p.id === project.id) || p.name === project.name
+          (p) =>
+            (project.id && p.id === project.id) ||
+            (project.localId && p.localId === project.localId) ||
+            p.name === project.name
         );
         if (existingIndex >= 0) {
           this.syncQueue.projects[existingIndex] = project;
@@ -224,10 +246,13 @@ class SyncService {
     this.syncTimeout = null;
 
     try {
-      return await this.batchSync(dataToSync);
+      const result = await this.batchSync(dataToSync);
+      this.notify(result, null);
+      return result;
     } catch (error) {
       // Re-queue on failure (will retry after debounce)
       console.error('Sync failed, re-queuing:', error);
+      this.notify(null, error instanceof Error ? error : new Error('Sync failed'));
       this.queueSync(dataToSync);
       return null;
     }
