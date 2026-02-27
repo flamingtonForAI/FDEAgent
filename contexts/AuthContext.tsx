@@ -35,6 +35,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const persistStorageSession = (authUser: User | null) => {
+    if (!authUser?.id) {
+      localStorage.removeItem('ontology-auth-session');
+      return;
+    }
+    // Keep demo account in a stable local storage scope even if backend user IDs change.
+    const stableId = authUser.email?.toLowerCase() === 'demo@example.com'
+      ? 'demo-user-001'
+      : authUser.id;
+    localStorage.setItem('ontology-auth-session', JSON.stringify({
+      user: {
+        id: stableId,
+        rawId: authUser.id,
+        email: authUser.email,
+      },
+    }));
+  };
+
   // Check for existing session on mount
   useEffect(() => {
     const checkAuth = async () => {
@@ -42,14 +60,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         try {
           const currentUser = await authService.getCurrentUser();
           setUser(currentUser);
-          // Store user ID for storage layer isolation
-          if (currentUser?.id) {
-            localStorage.setItem('ontology-auth-session', JSON.stringify({ user: { id: currentUser.id } }));
-          }
+          persistStorageSession(currentUser);
         } catch {
           // Token is invalid, clear it
           setUser(null);
-          localStorage.removeItem('ontology-auth-session');
+          persistStorageSession(null);
         }
       }
       setIsLoading(false);
@@ -63,7 +78,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const unsubscribe = authService.onAuthChange((isAuthenticated) => {
       if (!isAuthenticated) {
         setUser(null);
-        localStorage.removeItem('ontology-auth-session');
+        persistStorageSession(null);
       }
     });
 
@@ -76,10 +91,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const loggedInUser = await authService.login(input);
       setUser(loggedInUser);
-      // Store user ID for storage layer isolation
-      if (loggedInUser?.id) {
-        localStorage.setItem('ontology-auth-session', JSON.stringify({ user: { id: loggedInUser.id } }));
-      }
+      persistStorageSession(loggedInUser);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Login failed';
       setError(message);
@@ -95,10 +107,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const newUser = await authService.register(input);
       setUser(newUser);
-      // Store user ID for storage layer isolation
-      if (newUser?.id) {
-        localStorage.setItem('ontology-auth-session', JSON.stringify({ user: { id: newUser.id } }));
-      }
+      persistStorageSession(newUser);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Registration failed';
       setError(message);
@@ -114,7 +123,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await authService.logout();
       setUser(null);
       // Clear user session for storage isolation
-      localStorage.removeItem('ontology-auth-session');
+      persistStorageSession(null);
       // Note: We intentionally keep project data for next login
       // The user-scoped keys ensure it won't leak to other users
     } finally {

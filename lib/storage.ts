@@ -57,13 +57,36 @@ const getCurrentUserId = (): string | null => {
     const authData = localStorage.getItem('ontology-auth-session');
     if (authData) {
       const parsed = JSON.parse(authData);
-      return parsed.user?.id || null;
+      const userId = parsed.user?.id || null;
+      const email = String(parsed.user?.email || '').toLowerCase();
+      // Keep demo account storage scope stable across backend/offline mode differences.
+      if (email === 'demo@example.com') {
+        return 'demo-user-001';
+      }
+      return userId;
     }
   } catch {
     // Ignore parse errors
   }
   return null;
 };
+
+const getAuthSessionUser = (): { id: string | null; rawId: string | null; email: string | null } => {
+  try {
+    const authData = localStorage.getItem('ontology-auth-session');
+    if (!authData) return { id: null, rawId: null, email: null };
+    const parsed = JSON.parse(authData);
+    return {
+      id: parsed.user?.id || null,
+      rawId: parsed.user?.rawId || null,
+      email: parsed.user?.email ? String(parsed.user.email).toLowerCase() : null,
+    };
+  } catch {
+    return { id: null, rawId: null, email: null };
+  }
+};
+
+const getScopedKeyByUserId = (userId: string, key: string): string => `u:${userId}:${key}`;
 
 // Generate user-scoped storage key
 const getScopedKey = (key: string): string => {
@@ -104,7 +127,7 @@ class HybridStorage {
   private authCheck: AuthCheckFn = () => false;
   private syncDebounceTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly SYNC_DEBOUNCE_MS = 2000;
-  private migrationDone = false;
+  private migrationDoneForUserId: string | null = null;
 
   /**
    * Set the authentication check function
@@ -126,22 +149,48 @@ class HybridStorage {
    * Anonymous users get fresh data to prevent cross-user contamination
    */
   migrateToUserScoped(): void {
-    if (this.migrationDone) return;
-    
     const userId = getCurrentUserId();
-    const scopedIndexKey = getScopedKey('projects-index');
-    
-    // SECURITY: Only migrate for authenticated users
-    // Anonymous users start fresh to prevent cross-user data exposure
     if (!userId) {
-      console.log('[Security] Anonymous user - skipping migration, starting fresh');
-      this.migrationDone = true;
+      // Anonymous sessions are isolated by session key and should not lock migration permanently.
       return;
     }
-    
+
+    if (this.migrationDoneForUserId === userId) return;
+    const scopedIndexKey = getScopedKey('projects-index');
+
+    // Demo rescue: backend may return varying IDs for demo@example.com.
+    // If canonical demo scope is empty but raw backend scope has data, copy it once.
+    const authUser = getAuthSessionUser();
+    if (userId === 'demo-user-001' && authUser.email === 'demo@example.com' && authUser.rawId && authUser.rawId !== userId) {
+      const demoIndex = localStorage.getItem(getScopedKeyByUserId(userId, 'projects-index'));
+      const rawIndex = localStorage.getItem(getScopedKeyByUserId(authUser.rawId, 'projects-index'));
+      if (!demoIndex && rawIndex) {
+        localStorage.setItem(getScopedKeyByUserId(userId, 'projects-index'), rawIndex);
+        const rawActive = localStorage.getItem(getScopedKeyByUserId(authUser.rawId, 'active-project'));
+        if (rawActive) {
+          localStorage.setItem(getScopedKeyByUserId(userId, 'active-project'), rawActive);
+        }
+        const rawCloud = localStorage.getItem(getScopedKeyByUserId(authUser.rawId, 'cloud-project-id'));
+        if (rawCloud) {
+          localStorage.setItem(getScopedKeyByUserId(userId, 'cloud-project-id'), rawCloud);
+        }
+        try {
+          const projects = JSON.parse(rawIndex) as ProjectListItem[];
+          for (const project of projects) {
+            const rawState = localStorage.getItem(getScopedKeyByUserId(authUser.rawId, `project:${project.id}:state`));
+            const rawChat = localStorage.getItem(getScopedKeyByUserId(authUser.rawId, `project:${project.id}:chat`));
+            if (rawState) localStorage.setItem(getScopedKeyByUserId(userId, `project:${project.id}:state`), rawState);
+            if (rawChat) localStorage.setItem(getScopedKeyByUserId(userId, `project:${project.id}:chat`), rawChat);
+          }
+        } catch {
+          // Ignore malformed legacy index.
+        }
+      }
+    }
+
     // Check if already migrated for this user
     if (localStorage.getItem(scopedIndexKey)) {
-      this.migrationDone = true;
+      this.migrationDoneForUserId = userId;
       return;
     }
     
@@ -196,7 +245,7 @@ class HybridStorage {
       }
     }
     
-    this.migrationDone = true;
+    this.migrationDoneForUserId = userId;
   }
 
   /**
