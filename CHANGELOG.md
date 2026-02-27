@@ -19,7 +19,7 @@ All notable changes to this project will be documented in this file.
 - Required metadata check in `Client Delivery` mode:
   - client name required
   - designer name required
-- One-click ZIP package export (frontend-only implementation, no extra dependency):
+- One-click ZIP package export (frontend-only, zero-dependency ZIP implementation):
   - `00-cover.md` (client mode only)
   - `01-api-spec.yaml`
   - `02-data-model.md`
@@ -27,6 +27,7 @@ All notable changes to this project will be documented in this file.
   - `04-brd.md`
   - `05-integration-guide.md`
   - `delivery-metadata.json`
+- New centralized model capability map in `lib/llmCapabilities.ts` for consistent UI and file-compatibility behavior.
 
 ### Changed
 - README updated to include:
@@ -37,6 +38,21 @@ All notable changes to this project will be documented in this file.
   - draft mode still has ZIP download entry
 - Object URL cleanup in downloads now uses delayed revoke (`setTimeout`) to avoid browser async download race issues.
 - YAML export serialization switched from custom formatter to `yaml` package (`YAML.stringify`) for better compatibility with special characters.
+- Chat send UX after file upload improved in `GlobalChatBar`:
+  - send button now disabled when uploaded files are provider-blocked
+  - blocking reason is shown inline near the input area
+  - per-file compatibility warning is shown in uploaded file list
+- Model configuration warning added:
+  - `UnifiedSettings` and `Settings` now show Office compatibility warning when selected provider/model may block `.docx/.xlsx/.pptx`.
+- Model selection UX upgrades in `UnifiedSettings` and `Settings`:
+  - searchable model list (name/ID keyword)
+  - recommended Office-capable latest models highlighted with `★` + bold + `Recommended`
+  - per-model capability tags (`Office`, `PDF`) and selected-model capability summary (`Office/PDF/Image`)
+
+### Fixed
+- File compatibility rules aligned with current multimodal implementation:
+  - Gemini provider now treated as Office/PDF supported for uploads
+  - Office blocking warnings now explicitly guide users to Gemini models
 
 ## [0.4.1] - 2026-02-26
 
