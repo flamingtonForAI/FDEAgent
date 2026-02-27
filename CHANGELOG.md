@@ -28,6 +28,14 @@ All notable changes to this project will be documented in this file.
   - `05-integration-guide.md`
   - `delivery-metadata.json`
 - New centralized model capability map in `lib/llmCapabilities.ts` for consistent UI and file-compatibility behavior.
+- Dynamic model registry system:
+  - `lib/modelRegistry.ts` with memory + sessionStorage cache
+  - cache key uses SHA-256 hash of API key prefix (no plain key stored)
+  - provider-level TTL (OpenRouter 30m, others 10m)
+- `hooks/useModelRegistry.ts`:
+  - auto-refresh on provider/API key change (800ms debounce)
+  - request cancellation via `AbortController`
+  - fallback state exposed for no-key mode
 
 ### Changed
 - README updated to include:
@@ -48,11 +56,20 @@ All notable changes to this project will be documented in this file.
   - searchable model list (name/ID keyword)
   - recommended Office-capable latest models highlighted with `★` + bold + `Recommended`
   - per-model capability tags (`Office`, `PDF`) and selected-model capability summary (`Office/PDF/Image`)
+- `UnifiedSettings` model panel upgraded:
+  - real-time model list fetch + manual refresh
+  - quick filters (`Recommended` / `Vision` / `Office` / `Long Context`)
+  - OpenRouter default collapsed view (recommended + search matches)
+- `AIService.fetchAvailableModels()` now returns enriched model metadata when available:
+  - modalities, context length, tools support, structured-output support, pricing
 
 ### Fixed
 - File compatibility rules aligned with current multimodal implementation:
   - Gemini provider now treated as Office/PDF supported for uploads
   - Office blocking warnings now explicitly guide users to Gemini models
+- Unified capability source:
+  - `FileUpload` compatibility checks now reuse `llmCapabilities` logic
+  - fixed prior over-permissive assumption where image support was effectively treated as universal
 
 ## [0.4.1] - 2026-02-26
 

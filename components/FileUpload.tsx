@@ -1,6 +1,8 @@
 
 import React, { useRef, useState, useCallback } from 'react';
 import { Language, AIProvider } from '../types';
+import { getModelCapabilities } from '../lib/llmCapabilities';
+import { EnrichedModelInfo } from '../services/aiService';
 import {
   Paperclip, X, FileText, FileSpreadsheet,
   File, Upload, AlertCircle, Loader2, Image, FileImage, Presentation, AlertTriangle
@@ -49,8 +51,11 @@ export interface ProviderCompatibilityResult {
 export function getProviderCompatibility(
   mimeType: string,
   provider?: AIProvider,
-  model?: string
+  model?: string,
+  modelInfo?: EnrichedModelInfo
 ): ProviderCompatibilityResult {
+  const capabilities = getModelCapabilities(provider, model, modelInfo);
+
   // 文本文件总是支持的
   if (mimeType.startsWith('text/') || mimeType === 'application/json') {
     return { supported: true, blockSend: false };
@@ -58,22 +63,27 @@ export function getProviderCompatibility(
 
   // 图片文件 - 大多数视觉模型支持
   if (mimeType.startsWith('image/')) {
-    return { supported: true, blockSend: false };
+    if (capabilities.image === 'full') {
+      return { supported: true, blockSend: false };
+    }
+    return {
+      supported: false,
+      blockSend: true,
+      warning: '当前模型不支持视觉输入，请切换支持图片的模型',
+    };
   }
 
   // PDF 文件
   if (mimeType === 'application/pdf') {
-    // Claude 通过 OpenRouter 支持 PDF
-    if (provider === 'openrouter' && model?.toLowerCase().includes('claude')) {
+    if (capabilities.pdf === 'full') {
       return { supported: true, blockSend: false };
     }
-    // 其他 provider 不完全支持，但允许发送（会降级处理为文本提示）
     return {
       supported: false,
-      blockSend: false,  // PDF 不硬拦截，允许发送
+      blockSend: false,
       warning: provider === 'openrouter'
-        ? 'PDF 需使用 Claude 模型'
-        : 'PDF 文件在当前 AI 不受支持'
+        ? 'PDF 推荐使用 Claude 模型'
+        : 'PDF 文件为降级支持，建议优先使用 Gemini 或 Claude'
     };
   }
 
@@ -81,10 +91,13 @@ export function getProviderCompatibility(
   if (mimeType.includes('spreadsheet') || mimeType.includes('excel') ||
       mimeType.includes('presentation') || mimeType.includes('powerpoint') ||
       mimeType.includes('wordprocessing') || mimeType.includes('msword')) {
+    if (capabilities.office === 'full') {
+      return { supported: true, blockSend: false };
+    }
     return {
       supported: false,
-      blockSend: true,  // Office 文档硬拦截
-      warning: 'Office 文档在当前 AI 不受支持，建议导出为文本'
+      blockSend: true,
+      warning: 'Office 文档在当前模型不受支持，请切换到 Gemini 系列模型'
     };
   }
 

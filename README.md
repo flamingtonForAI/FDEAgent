@@ -58,6 +58,8 @@ Ontology Architect 是一个基于 AI 的企业智能系统设计工具，帮助
 - **模型搜索** - 支持按模型名/ID搜索，适配 OpenRouter 大模型列表
 - **推荐模型高亮** - 默认推荐的最新 Office 兼容模型会加粗并显示 `★ 推荐`
 - **能力标签可视化** - 模型列表展示 Office/PDF 能力等级，降低误选风险
+- **动态模型刷新** - 输入 API Key 后自动拉取实时模型列表（带缓存与手动刷新）
+- **快速筛选** - 支持按 推荐/视觉/Office/长上下文 快速过滤模型
 
 ## 功能特性
 
@@ -199,7 +201,10 @@ ontology-assistant/
 ├── lib/
 │   ├── storage.ts             # 混合存储（本地 + 云）
 │   ├── themes.ts              # 主题配置
-│   └── llmCapabilities.ts     # 模型能力映射（Office/PDF/Image）
+│   ├── llmCapabilities.ts     # 模型能力映射（能力评分与推荐）
+│   └── modelRegistry.ts       # 模型注册中心（缓存 + 实时拉取）
+├── hooks/
+│   └── useModelRegistry.ts    # 模型列表 Hook（防抖刷新 + 回退）
 ├── content/
 │   ├── archetypes/            # 行业模板
 │   ├── cases/                 # 案例库

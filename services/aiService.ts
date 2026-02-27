@@ -8,6 +8,21 @@ export interface FileAttachment {
   isBase64: boolean;
 }
 
+export type ModelSource = 'hardcoded' | 'api';
+
+export interface EnrichedModelInfo {
+  id: string;
+  name: string;
+  description?: string;
+  source?: ModelSource;
+  inputModalities?: string[];
+  contextLength?: number;
+  supportsTools?: boolean;
+  supportsStructuredOutput?: boolean;
+  promptPrice?: number;
+  completionPrice?: number;
+}
+
 // System Prompt - 方法论核心
 const SYSTEM_INSTRUCTION = `
 你是一位资深的Ontology架构师，专注于"Ontology-First"的企业智能系统设计。
@@ -756,21 +771,21 @@ export class AIService {
   }
 
   // 获取可用模型列表
-  async fetchAvailableModels(): Promise<{ id: string; name: string; description?: string }[]> {
+  async fetchAvailableModels(signal?: AbortSignal): Promise<EnrichedModelInfo[]> {
     try {
       switch (this.settings.provider) {
         case 'gemini':
           return await this.fetchGeminiModels();
         case 'openrouter':
-          return await this.fetchOpenRouterModels();
+          return await this.fetchOpenRouterModels(signal);
         case 'openai':
-          return await this.fetchOpenAIModels();
+          return await this.fetchOpenAIModels(signal);
         case 'zhipu':
-          return await this.fetchZhipuModels();
+          return await this.fetchZhipuModels(signal);
         case 'moonshot':
-          return await this.fetchMoonshotModels();
+          return await this.fetchMoonshotModels(signal);
         case 'custom':
-          return await this.fetchCustomModels();
+          return await this.fetchCustomModels(signal);
         default:
           return [];
       }
@@ -780,22 +795,29 @@ export class AIService {
     }
   }
 
-  private async fetchGeminiModels(): Promise<{ id: string; name: string; description?: string }[]> {
+  private async fetchGeminiModels(): Promise<EnrichedModelInfo[]> {
     const { GoogleGenAI } = await import('@google/genai');
     const ai = new GoogleGenAI({ apiKey: this.settings.apiKey });
 
     // Use the pager to get all models
-    const models: { id: string; name: string; description?: string }[] = [];
+    const models: EnrichedModelInfo[] = [];
     const pager = await ai.models.list({ config: { pageSize: 100 } });
 
     for await (const model of pager) {
       // Filter to only include generative models that support generateContent
       if (model.name && model.supportedActions?.includes('generateContent')) {
         const modelId = model.name.replace('models/', '');
+        const idLower = modelId.toLowerCase();
+        const supportsFile = idLower.includes('gemini-1.5') || idLower.includes('gemini-2');
         models.push({
           id: modelId,
           name: model.displayName || modelId,
           description: model.description?.slice(0, 50) || undefined,
+          source: 'api',
+          inputModalities: supportsFile ? ['text', 'image', 'file'] : ['text', 'image'],
+          contextLength: Number((model as any).inputTokenLimit) || undefined,
+          supportsTools: true,
+          supportsStructuredOutput: true,
         });
       }
     }
@@ -809,13 +831,14 @@ export class AIService {
     });
   }
 
-  private async fetchOpenRouterModels(): Promise<{ id: string; name: string; description?: string }[]> {
+  private async fetchOpenRouterModels(signal?: AbortSignal): Promise<EnrichedModelInfo[]> {
     const response = await fetch('https://openrouter.ai/api/v1/models', {
       headers: {
         'Authorization': `Bearer ${this.settings.apiKey}`,
         'HTTP-Referer': window.location.origin,
         'X-Title': 'Ontology Architect',
       },
+      signal,
     });
 
     if (!response.ok) {
@@ -828,11 +851,27 @@ export class AIService {
     // Filter and format models, prioritize popular ones
     return models
       .filter((m: any) => m.id && !m.id.includes(':free'))
-      .map((m: any) => ({
-        id: m.id,
-        name: m.name || m.id,
-        description: m.pricing ? `$${(m.pricing.prompt * 1000000).toFixed(2)}/M tokens` : undefined,
-      }))
+      .map((m: any) => {
+        const inputModalities = Array.isArray(m.architecture?.input_modalities)
+          ? m.architecture.input_modalities
+          : undefined;
+        const supported = Array.isArray(m.supported_parameters) ? m.supported_parameters : [];
+        const promptPrice = Number(m.pricing?.prompt);
+        const completionPrice = Number(m.pricing?.completion);
+
+        return {
+          id: m.id,
+          name: m.name || m.id,
+          description: Number.isFinite(promptPrice) ? `$${(promptPrice * 1000000).toFixed(2)}/M tokens` : undefined,
+          source: 'api' as const,
+          inputModalities,
+          contextLength: Number(m.context_length) || undefined,
+          supportsTools: supported.includes('tools'),
+          supportsStructuredOutput: supported.includes('response_format'),
+          promptPrice: Number.isFinite(promptPrice) ? promptPrice : undefined,
+          completionPrice: Number.isFinite(completionPrice) ? completionPrice : undefined,
+        };
+      })
       .sort((a: any, b: any) => {
         // Prioritize well-known providers
         const providers = ['anthropic', 'openai', 'google', 'meta-llama', 'deepseek', 'qwen'];
@@ -847,11 +886,12 @@ export class AIService {
       });
   }
 
-  private async fetchOpenAIModels(): Promise<{ id: string; name: string; description?: string }[]> {
+  private async fetchOpenAIModels(signal?: AbortSignal): Promise<EnrichedModelInfo[]> {
     const response = await fetch('https://api.openai.com/v1/models', {
       headers: {
         'Authorization': `Bearer ${this.settings.apiKey}`,
       },
+      signal,
     });
 
     if (!response.ok) {
@@ -868,11 +908,23 @@ export class AIService {
         return (id.includes('gpt') || id.includes('o1') || id.includes('o3')) &&
                !id.includes('instruct') && !id.includes('realtime') && !id.includes('audio');
       })
-      .map((m: any) => ({
-        id: m.id,
-        name: m.id,
-        description: m.owned_by || undefined,
-      }))
+      .map((m: any) => {
+        const id = String(m.id || '').toLowerCase();
+        const isVision = id.includes('4o') || id.includes('vision');
+        const isLongContext = id.includes('gpt-4.1') || id.includes('128k');
+        const isReasoningOnly = id.startsWith('o1');
+
+        return {
+          id: m.id,
+          name: m.id,
+          description: m.owned_by || undefined,
+          source: 'api' as const,
+          inputModalities: isVision ? ['text', 'image'] : ['text'],
+          contextLength: isLongContext ? 1000000 : (id.includes('o3') ? 200000 : undefined),
+          supportsTools: !isReasoningOnly,
+          supportsStructuredOutput: !isReasoningOnly,
+        };
+      })
       .sort((a: any, b: any) => {
         // Prioritize newer models
         const priority = ['o3', 'o1', 'gpt-4o', 'gpt-4', 'gpt-3.5'];
@@ -888,13 +940,14 @@ export class AIService {
     return chatModels;
   }
 
-  private async fetchZhipuModels(): Promise<{ id: string; name: string; description?: string }[]> {
+  private async fetchZhipuModels(signal?: AbortSignal): Promise<EnrichedModelInfo[]> {
     // 尝试从 API 获取模型列表（智谱 API 兼容 OpenAI 格式）
     try {
       const response = await fetch(`${this.getBaseUrl()}/models`, {
         headers: {
           'Authorization': `Bearer ${this.settings.apiKey}`,
         },
+        signal,
       });
 
       if (response.ok) {
@@ -904,11 +957,22 @@ export class AIService {
         if (models.length > 0) {
           return models
             .filter((m: any) => m.id && (m.id.includes('glm') || m.id.includes('cogview') || m.id.includes('cog')))
-            .map((m: any) => ({
-              id: m.id,
-              name: m.id,
-              description: m.owned_by || undefined,
-            }))
+            .map((m: any) => {
+              const id = String(m.id || '').toLowerCase();
+              const hasVision = id.includes('4v') || id.includes('4.6v') || id.includes('cog');
+              const longContext = id.includes('long') ? 1000000 : undefined;
+
+              return {
+                id: m.id,
+                name: m.id,
+                description: m.owned_by || undefined,
+                source: 'api' as const,
+                inputModalities: hasVision ? ['text', 'image'] : ['text'],
+                contextLength: longContext,
+                supportsTools: true,
+                supportsStructuredOutput: true,
+              };
+            })
             .sort((a: any, b: any) => {
               // 优先显示 glm-4 系列
               const priority = ['glm-4-plus', 'glm-4.', 'glm-4-', 'glm-4v', 'glm-4', 'glm-3'];
@@ -929,46 +993,46 @@ export class AIService {
     // 如果 API 调用失败，返回已知的模型列表（2025年1月最新）
     return [
       // GLM-4.7 系列 - 最新
-      { id: 'glm-4.7', name: 'GLM-4.7', description: '最新旗舰，支持思考模式' },
-      { id: 'glm-4.7-flash', name: 'GLM-4.7 Flash', description: '最新快速版' },
+      { id: 'glm-4.7', name: 'GLM-4.7', description: '最新旗舰，支持思考模式', source: 'hardcoded', inputModalities: ['text'], supportsTools: true, supportsStructuredOutput: true },
+      { id: 'glm-4.7-flash', name: 'GLM-4.7 Flash', description: '最新快速版', source: 'hardcoded', inputModalities: ['text'], supportsTools: true, supportsStructuredOutput: true },
       // GLM-4.6 系列
-      { id: 'glm-4.6', name: 'GLM-4.6', description: '高性能对话' },
-      { id: 'glm-4.6-flash', name: 'GLM-4.6 Flash', description: '快速版' },
-      { id: 'glm-4.6v', name: 'GLM-4.6V', description: '多模态' },
-      { id: 'glm-4.6v-flash', name: 'GLM-4.6V Flash', description: '多模态快速' },
+      { id: 'glm-4.6', name: 'GLM-4.6', description: '高性能对话', source: 'hardcoded', inputModalities: ['text'], supportsTools: true, supportsStructuredOutput: true },
+      { id: 'glm-4.6-flash', name: 'GLM-4.6 Flash', description: '快速版', source: 'hardcoded', inputModalities: ['text'], supportsTools: true, supportsStructuredOutput: true },
+      { id: 'glm-4.6v', name: 'GLM-4.6V', description: '多模态', source: 'hardcoded', inputModalities: ['text', 'image'], supportsTools: true, supportsStructuredOutput: true },
+      { id: 'glm-4.6v-flash', name: 'GLM-4.6V Flash', description: '多模态快速', source: 'hardcoded', inputModalities: ['text', 'image'], supportsTools: true, supportsStructuredOutput: true },
       // GLM-4.5 系列
-      { id: 'glm-4.5', name: 'GLM-4.5', description: '高性能' },
-      { id: 'glm-4.5v', name: 'GLM-4.5V', description: '多模态' },
+      { id: 'glm-4.5', name: 'GLM-4.5', description: '高性能', source: 'hardcoded', inputModalities: ['text'], supportsTools: true, supportsStructuredOutput: true },
+      { id: 'glm-4.5v', name: 'GLM-4.5V', description: '多模态', source: 'hardcoded', inputModalities: ['text', 'image'], supportsTools: true, supportsStructuredOutput: true },
       // GLM-4 系列
-      { id: 'glm-4-plus', name: 'GLM-4 Plus', description: '高性能' },
-      { id: 'glm-4-air', name: 'GLM-4 Air', description: '高性价比' },
-      { id: 'glm-4-airx', name: 'GLM-4 AirX', description: '极速推理' },
-      { id: 'glm-4-long', name: 'GLM-4 Long', description: '长文本' },
-      { id: 'glm-4-flash', name: 'GLM-4 Flash', description: '免费快速' },
-      { id: 'glm-4-flashx', name: 'GLM-4 FlashX', description: '超快免费' },
-      { id: 'glm-4', name: 'GLM-4', description: '通用对话' },
+      { id: 'glm-4-plus', name: 'GLM-4 Plus', description: '高性能', source: 'hardcoded', inputModalities: ['text'], supportsTools: true, supportsStructuredOutput: true },
+      { id: 'glm-4-air', name: 'GLM-4 Air', description: '高性价比', source: 'hardcoded', inputModalities: ['text'], supportsTools: true, supportsStructuredOutput: true },
+      { id: 'glm-4-airx', name: 'GLM-4 AirX', description: '极速推理', source: 'hardcoded', inputModalities: ['text'], supportsTools: true, supportsStructuredOutput: true },
+      { id: 'glm-4-long', name: 'GLM-4 Long', description: '长文本', source: 'hardcoded', inputModalities: ['text'], contextLength: 1000000, supportsTools: true, supportsStructuredOutput: true },
+      { id: 'glm-4-flash', name: 'GLM-4 Flash', description: '免费快速', source: 'hardcoded', inputModalities: ['text'], supportsTools: true, supportsStructuredOutput: true },
+      { id: 'glm-4-flashx', name: 'GLM-4 FlashX', description: '超快免费', source: 'hardcoded', inputModalities: ['text'], supportsTools: true, supportsStructuredOutput: true },
+      { id: 'glm-4', name: 'GLM-4', description: '通用对话', source: 'hardcoded', inputModalities: ['text'], supportsTools: true, supportsStructuredOutput: true },
       // 多模态旧版
-      { id: 'glm-4v-plus', name: 'GLM-4V Plus', description: '多模态' },
-      { id: 'glm-4v', name: 'GLM-4V', description: '多模态基础' },
+      { id: 'glm-4v-plus', name: 'GLM-4V Plus', description: '多模态', source: 'hardcoded', inputModalities: ['text', 'image'], supportsTools: true, supportsStructuredOutput: true },
+      { id: 'glm-4v', name: 'GLM-4V', description: '多模态基础', source: 'hardcoded', inputModalities: ['text', 'image'], supportsTools: true, supportsStructuredOutput: true },
       // 图像生成
-      { id: 'cogview-3-plus', name: 'CogView-3 Plus', description: '图像生成' },
-      { id: 'cogview-3', name: 'CogView-3', description: '图像生成' },
+      { id: 'cogview-3-plus', name: 'CogView-3 Plus', description: '图像生成', source: 'hardcoded', inputModalities: ['text', 'image'] },
+      { id: 'cogview-3', name: 'CogView-3', description: '图像生成', source: 'hardcoded', inputModalities: ['text', 'image'] },
     ];
   }
 
-  private async fetchMoonshotModels(): Promise<{ id: string; name: string; description?: string }[]> {
+  private async fetchMoonshotModels(signal?: AbortSignal): Promise<EnrichedModelInfo[]> {
     // Moonshot API 兼容 OpenAI 格式，从 API 获取完整模型列表
     try {
       const response = await fetch(`${this.getBaseUrl()}/models`, {
         headers: {
           'Authorization': `Bearer ${this.settings.apiKey}`,
         },
+        signal,
       });
 
       if (response.ok) {
         const data = await response.json();
         const models = data.data || [];
-        console.log('Moonshot API 返回模型:', models);
 
         if (models.length > 0) {
           // 直接返回所有模型，添加友好名称映射
@@ -986,7 +1050,7 @@ export class AIService {
             const id = m.id;
             const mapped = nameMap[id];
             if (mapped) {
-              return { id, name: mapped.name, description: mapped.description, priority: mapped.priority };
+              return { id, name: mapped.name, description: mapped.description, priority: mapped.priority, source: 'api' as const, inputModalities: ['text'], supportsTools: true };
             }
             // 未知模型，生成友好名称
             const friendlyName = id
@@ -994,30 +1058,30 @@ export class AIService {
               .replace(/^kimi-/, 'Kimi ')
               .replace(/-/g, ' ')
               .replace(/\b\w/g, (c: string) => c.toUpperCase());
-            return { id, name: friendlyName, description: m.owned_by || '新模型', priority: 50 };
+            return { id, name: friendlyName, description: m.owned_by || '新模型', priority: 50, source: 'api' as const, inputModalities: ['text'], supportsTools: true };
           });
 
           // 按优先级排序（新模型优先）
           return formatted.sort((a: any, b: any) => (a.priority || 50) - (b.priority || 50));
         }
       }
-    } catch (error) {
-      console.log('Moonshot API 获取模型列表失败，使用默认列表:', error);
+    } catch {
+      // Fallback to built-in list.
     }
 
     // 如果 API 调用失败，返回已知的模型列表（2026年最新）
     return [
-      { id: 'kimi-k2-0711-preview', name: 'Kimi K2 Preview', description: '最新 K2 模型（推荐）' },
-      { id: 'moonshot-v1-auto', name: 'Moonshot v1 Auto', description: '自动选择上下文' },
-      { id: 'moonshot-v1-128k', name: 'Moonshot v1 128K', description: '超长上下文 128K' },
-      { id: 'moonshot-v1-32k', name: 'Moonshot v1 32K', description: '长上下文 32K' },
-      { id: 'moonshot-v1-8k', name: 'Moonshot v1 8K', description: '标准 8K' },
+      { id: 'kimi-k2-0711-preview', name: 'Kimi K2 Preview', description: '最新 K2 模型（推荐）', source: 'hardcoded', inputModalities: ['text'], supportsTools: true },
+      { id: 'moonshot-v1-auto', name: 'Moonshot v1 Auto', description: '自动选择上下文', source: 'hardcoded', inputModalities: ['text'], contextLength: 128000, supportsTools: true },
+      { id: 'moonshot-v1-128k', name: 'Moonshot v1 128K', description: '超长上下文 128K', source: 'hardcoded', inputModalities: ['text'], contextLength: 128000, supportsTools: true },
+      { id: 'moonshot-v1-32k', name: 'Moonshot v1 32K', description: '长上下文 32K', source: 'hardcoded', inputModalities: ['text'], contextLength: 32000, supportsTools: true },
+      { id: 'moonshot-v1-8k', name: 'Moonshot v1 8K', description: '标准 8K', source: 'hardcoded', inputModalities: ['text'], contextLength: 8000, supportsTools: true },
     ];
   }
 
-  private async fetchCustomModels(): Promise<{ id: string; name: string; description?: string }[]> {
+  private async fetchCustomModels(signal?: AbortSignal): Promise<EnrichedModelInfo[]> {
     if (!this.settings.customBaseUrl) {
-      return [{ id: 'custom', name: '自定义模型', description: '请输入模型ID' }];
+      return [{ id: 'custom', name: '自定义模型', description: '请输入模型ID', source: 'hardcoded' }];
     }
 
     try {
@@ -1025,11 +1089,12 @@ export class AIService {
         headers: {
           'Authorization': `Bearer ${this.settings.apiKey}`,
         },
+        signal,
       });
 
       if (!response.ok) {
         // 如果获取失败，返回手动输入选项
-        return [{ id: 'custom', name: '自定义模型', description: '请手动输入模型ID' }];
+        return [{ id: 'custom', name: '自定义模型', description: '请手动输入模型ID', source: 'hardcoded' }];
       }
 
       const data = await response.json();
@@ -1039,9 +1104,10 @@ export class AIService {
         id: m.id || m.name,
         name: m.name || m.id,
         description: m.description || undefined,
+        source: 'api',
       }));
     } catch {
-      return [{ id: 'custom', name: '自定义模型', description: '请手动输入模型ID' }];
+      return [{ id: 'custom', name: '自定义模型', description: '请手动输入模型ID', source: 'hardcoded' }];
     }
   }
 
