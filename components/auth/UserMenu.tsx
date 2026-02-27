@@ -129,7 +129,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ lang = 'cn' }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 rounded-lg glass-surface border border-white/10 shadow-xl z-50 overflow-hidden">
+        <div className="absolute right-0 bottom-full mb-2 w-64 rounded-lg glass-surface border border-white/10 shadow-xl z-[100] overflow-hidden">
           {/* User Info */}
           <div className="p-4 border-b border-white/10">
             <p className="text-sm font-medium text-white truncate">
