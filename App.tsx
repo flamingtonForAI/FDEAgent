@@ -177,6 +177,7 @@ const AppContent: React.FC = () => {
   const chatHistoryRef = useRef<ChatMessage[]>(chatMessages);
   const activeProjectIdRef = useRef(activeProjectId);
   activeProjectIdRef.current = activeProjectId;
+  const designGenerationIdRef = useRef(0);
 
   // Derive project from context (with fallback for null)
   const project = currentOntology || emptyProjectState;
@@ -483,6 +484,56 @@ const AppContent: React.FC = () => {
         integrations: integrations,
         status: 'designing' as const,
       }));
+
+      // Fire async LLM summary (non-blocking — don't await)
+      // Bump generation ID so stale summaries from prior runs are discarded
+      const thisGenerationId = ++designGenerationIdRef.current;
+      const totalActions = normalizedObjects.reduce((sum: number, obj: any) => sum + (obj.actions?.length || 0), 0);
+
+      // Build a compact snapshot for the LLM to summarize from
+      const snapshot = normalizedObjects.map((o: any) => ({
+        name: o.name,
+        properties: (o.properties || []).length,
+        actions: (o.actions || []).map((a: any) => a.name),
+      }));
+      const linksSummary = links.map((l: any) => `${l.source} → ${l.target} (${l.label || l.type || ''})`).join('; ');
+      const integSummary = integrations.map((i: any) => i.name || i.type || '').filter(Boolean).join(', ');
+
+      const summaryPrompt = lang === 'cn'
+        ? `刚刚根据对话生成了 Ontology。\n\n` +
+          `对象：${JSON.stringify(snapshot)}\n` +
+          `关联：${linksSummary || '无'}\n` +
+          `集成：${integSummary || '无'}\n\n` +
+          `请用 2-3 句话总结这个 Ontology 的业务含义和覆盖范围，然后给出 1-2 条改进建议。保持简洁，不要用标题格式。`
+        : `An Ontology was just generated from the conversation.\n\n` +
+          `Objects: ${JSON.stringify(snapshot)}\n` +
+          `Links: ${linksSummary || 'none'}\n` +
+          `Integrations: ${integSummary || 'none'}\n\n` +
+          `Summarize the business meaning and coverage in 2-3 sentences, then give 1-2 improvement suggestions. Keep it concise, no headings.`;
+
+      const appendSummary = (msg: ChatMessage) => {
+        // Guard: discard if project changed or a newer generation superseded this one
+        if (activeProjectIdRef.current !== requestProjectId) return;
+        if (designGenerationIdRef.current !== thisGenerationId) return;
+        setChatMessages(prev => [...prev, msg]);
+        chatHistoryRef.current = [...chatHistoryRef.current, msg];
+      };
+
+      aiService.current.chat(chatHistoryRef.current, summaryPrompt).then(summary => {
+        appendSummary({
+          role: 'assistant',
+          content: summary,
+          metadata: { type: 'milestone', timestamp: new Date().toISOString() }
+        });
+      }).catch(() => {
+        appendSummary({
+          role: 'assistant',
+          content: lang === 'cn'
+            ? `Ontology 已生成：${normalizedObjects.length} 个对象 · ${totalActions} 个动作 · ${links.length} 个关联 · ${integrations.length} 个集成`
+            : `Ontology generated: ${normalizedObjects.length} objects · ${totalActions} actions · ${links.length} links · ${integrations.length} integrations`,
+          metadata: { type: 'milestone', timestamp: new Date().toISOString() }
+        });
+      });
 
       // Clear stale AI analysis — it was generated from the previous ontology
       // and is no longer relevant. (Same pattern as archetype apply.)
