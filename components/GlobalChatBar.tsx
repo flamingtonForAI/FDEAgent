@@ -17,7 +17,7 @@ import { Language, ProjectState, ChatMessage, AISettings, AIProvider } from '../
 import { FileUploadButton, UploadedFile, getProviderCompatibility } from './FileUpload';
 import { AIService } from '../services/aiService';
 
-type PhaseType = 'discover' | 'model' | 'integrate' | 'enhance';
+type PhaseType = 'discover' | 'model' | 'integrate' | 'enhance' | 'deliver';
 
 interface GlobalChatBarProps {
   lang: Language;
@@ -60,6 +60,10 @@ const phasePlaceholders: Record<PhaseType, { en: string; cn: string }> = {
   enhance: {
     en: 'Ask me to explain suggestions, analyze AI opportunities, or validate requirements...',
     cn: '让我解释建议、分析 AI 机会、或验证需求可行性...'
+  },
+  deliver: {
+    en: 'Ask about deliverables, export options, or quality checks...',
+    cn: '询问交付物、导出选项、或质量检查...'
   }
 };
 
@@ -68,7 +72,8 @@ const phaseColors: Record<PhaseType, string> = {
   discover: '#3b82f6',
   model: '#8b5cf6',
   integrate: '#10b981',
-  enhance: '#f59e0b'
+  enhance: '#f59e0b',
+  deliver: '#ef4444'
 };
 
 // 根据阶段生成上下文提示
@@ -83,7 +88,8 @@ function getPhaseContextPrompt(
     discover: isEn ? 'Discover' : '发现',
     model: isEn ? 'Model' : '建模',
     integrate: isEn ? 'Integrate' : '集成',
-    enhance: isEn ? 'AI Enhancement' : '智能化'
+    enhance: isEn ? 'AI Enhancement' : '智能化',
+    deliver: isEn ? 'Deliver' : '交付'
   };
 
   // 完整的项目状态

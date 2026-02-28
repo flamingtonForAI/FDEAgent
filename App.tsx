@@ -13,6 +13,7 @@ import {
   ModelingPage,
   IntegrationPage,
   AIEnhancementPage,
+  DeliveryPage,
 } from './pages';
 // Components (only those still used directly in App.tsx)
 import ArchetypeViewer from './components/ArchetypeViewer';
@@ -49,6 +50,8 @@ const translations = {
     phase3Desc: "Data Sources",
     phase4: "4. AI Design",
     phase4Desc: "AI Enhancement",
+    phase5: "5. Deliver",
+    phase5Desc: "Export Package",
     // Legacy tabs (keep for backward compatibility)
     scouting: "Requirement Scouting",
     workbench: "Structuring Workbench",
@@ -84,6 +87,8 @@ const translations = {
     phase3Desc: "数据源对接",
     phase4: "4. 智能化",
     phase4Desc: "AI 增强设计",
+    phase5: "5. 交付",
+    phase5Desc: "导出交付包",
     // Legacy tabs (keep for backward compatibility)
     scouting: "需求勘察",
     workbench: "结构化工作台",
@@ -134,8 +139,8 @@ const parseStoredMessages = (raw: string): ChatMessage[] => {
 // Keeping parseStoredMessages for potential compatibility
 
 // 有效的工作流标签页（用于恢复上次位置）
-type WorkflowTab = 'projects' | 'quickStart' | 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview' | 'aiEnhancement';
-const validWorkflowTabs: WorkflowTab[] = ['projects', 'quickStart', 'academy', 'archetypes', 'scouting', 'workbench', 'ontology', 'actionDesigner', 'systemMap', 'aip', 'overview', 'aiEnhancement'];
+type WorkflowTab = 'projects' | 'quickStart' | 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview' | 'aiEnhancement' | 'deliver';
+const validWorkflowTabs: WorkflowTab[] = ['projects', 'quickStart', 'academy', 'archetypes', 'scouting', 'workbench', 'ontology', 'actionDesigner', 'systemMap', 'aip', 'overview', 'aiEnhancement', 'deliver'];
 
 // 从localStorage加载上次活跃的标签页
 // Note: Workflow tabs requiring a project will be redirected by useEffect if no project exists
@@ -164,7 +169,7 @@ const emptyProjectState: ProjectState = {
 
 const AppContent: React.FC = () => {
   const [lang, setLang] = useState<Language>('cn');
-  const [activeTab, setActiveTab] = useState<'projects' | 'quickStart' | 'academy' | 'archetypes' | 'archetypeViewer' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview' | 'aiEnhancement'>(loadLastActiveTab);
+  const [activeTab, setActiveTab] = useState<'projects' | 'quickStart' | 'academy' | 'archetypes' | 'archetypeViewer' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview' | 'aiEnhancement' | 'deliver'>(loadLastActiveTab);
   const [isDesigning, setIsDesigning] = useState(false);
 
   // Use ProjectContext for both chat and ontology (per-project storage)
@@ -256,7 +261,7 @@ const AppContent: React.FC = () => {
   }, [isAuthenticated]);
 
   // 将 activeTab 映射到 phase 类型
-  const getCurrentPhase = useCallback((): 'discover' | 'model' | 'integrate' | 'enhance' => {
+  const getCurrentPhase = useCallback((): 'discover' | 'model' | 'integrate' | 'enhance' | 'deliver' => {
     switch (activeTab) {
       case 'scouting':
       case 'quickStart':
@@ -274,6 +279,8 @@ const AppContent: React.FC = () => {
       case 'aiEnhancement':
       case 'aip':
         return 'enhance';
+      case 'deliver':
+        return 'deliver';
       default:
         return 'discover';
     }
@@ -321,7 +328,7 @@ const AppContent: React.FC = () => {
 
   // Redirect to projects page when no active project and on workflow tab
   useEffect(() => {
-    const workflowTabs = ['scouting', 'workbench', 'ontology', 'actionDesigner', 'systemMap', 'overview', 'aiEnhancement', 'aip'];
+    const workflowTabs = ['scouting', 'workbench', 'ontology', 'actionDesigner', 'systemMap', 'overview', 'aiEnhancement', 'aip', 'deliver'];
     if (!activeProjectId && workflowTabs.includes(activeTab)) {
       setActiveTab('projects');
     }
@@ -702,6 +709,16 @@ const AppContent: React.FC = () => {
             disabled={!activeProjectId || project.objects.length === 0}
           />
 
+          {/* Phase 5: Deliver */}
+          <NavItem
+            active={activeTab === 'deliver'}
+            onClick={() => setActiveTab('deliver')}
+            icon={<Package size={16} />}
+            label={t.phase5}
+            sublabel={t.phase5Desc}
+            disabled={!activeProjectId || project.objects.length === 0}
+          />
+
           {/* Resources Section - Reference for all users */}
           <NavSection label={t.sectionResources} />
           <NavItem
@@ -847,6 +864,14 @@ const AppContent: React.FC = () => {
                 onAnalysisError={setAiAnalysisError}
               />
             )}
+            {/* Phase 5: Delivery */}
+            {activeTab === 'deliver' && (
+              <DeliveryPage
+                lang={lang}
+                project={project}
+                onOpenQualityPanel={() => setShowQualityPanel(true)}
+              />
+            )}
           </ErrorBoundary>
         </div>
       </main>
@@ -908,7 +933,7 @@ const AppContent: React.FC = () => {
       )}
 
       {/* Global Chat Bar - 底部固定聊天栏，所有工作流阶段显示 */}
-      {(activeTab === 'scouting' || activeTab === 'workbench' || activeTab === 'ontology' || activeTab === 'actionDesigner' || activeTab === 'systemMap' || activeTab === 'overview' || activeTab === 'aiEnhancement' || activeTab === 'aip') && (
+      {(activeTab === 'scouting' || activeTab === 'workbench' || activeTab === 'ontology' || activeTab === 'actionDesigner' || activeTab === 'systemMap' || activeTab === 'overview' || activeTab === 'aiEnhancement' || activeTab === 'aip' || activeTab === 'deliver') && (
         <GlobalChatBar
           lang={lang}
           project={project}

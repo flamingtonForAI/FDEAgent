@@ -25,6 +25,7 @@ interface DeliverableGeneratorProps {
   lang: Language;
   project: ProjectState;
   onClose?: () => void;
+  embedded?: boolean;
 }
 
 type DeliverableType = 'api-spec' | 'data-model' | 'agent-tools' | 'brd' | 'integration';
@@ -661,7 +662,8 @@ function mapPropertyType(type: string): string {
 const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
   lang,
   project,
-  onClose
+  onClose,
+  embedded
 }) => {
   const t = translations[lang];
   const [selectedType, setSelectedType] = useState<DeliverableType | null>(null);
@@ -823,37 +825,39 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
 
   return (
     <div
-      className="rounded-xl overflow-hidden h-full flex flex-col"
-      style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-elevated)' }}
+      className={`${embedded ? '' : 'rounded-xl'} overflow-hidden h-full flex flex-col`}
+      style={embedded ? undefined : { border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-elevated)' }}
     >
-      {/* Header */}
-      <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--color-border)' }}>
-        <div className="flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-lg flex items-center justify-center"
-            style={{ backgroundColor: 'rgba(var(--color-accent-rgb, 88, 166, 255), 0.15)' }}
-          >
-            <FileText className="w-5 h-5" style={{ color: 'var(--color-accent)' }} />
+      {/* Header - hidden in embedded mode */}
+      {!embedded && (
+        <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--color-border)' }}>
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: 'rgba(var(--color-accent-rgb, 88, 166, 255), 0.15)' }}
+            >
+              <FileText className="w-5 h-5" style={{ color: 'var(--color-accent)' }} />
+            </div>
+            <div>
+              <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                {t.title}
+              </h3>
+              <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                {t.subtitle}
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              {t.title}
-            </h3>
-            <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-              {t.subtitle}
-            </p>
-          </div>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg transition-colors hover:bg-[var(--color-bg-hover)]"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="p-2 rounded-lg transition-colors hover:bg-[var(--color-bg-hover)]"
-            style={{ color: 'var(--color-text-muted)' }}
-          >
-            <X className="w-5 h-5" />
-          </button>
-        )}
-      </div>
+      )}
 
       {!hasData ? (
         <div className="flex-1 flex items-center justify-center p-8">
