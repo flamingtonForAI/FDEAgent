@@ -54,7 +54,9 @@ export function getProviderCompatibility(
   mimeType: string,
   provider?: AIProvider,
   model?: string,
-  modelInfo?: EnrichedModelInfo
+  modelInfo?: EnrichedModelInfo,
+  fileName?: string,
+  lang?: Language
 ): ProviderCompatibilityResult {
   const capabilities = getModelCapabilities(provider, model, modelInfo);
 
@@ -89,20 +91,50 @@ export function getProviderCompatibility(
     };
   }
 
-  // Office 文档 (Excel, PPT, Word) - 支持原生 API 或客户端提取文本兜底
-  if (mimeType.includes('spreadsheet') || mimeType.includes('excel') ||
-      mimeType.includes('presentation') || mimeType.includes('powerpoint') ||
-      mimeType.includes('wordprocessing') || mimeType.includes('msword')) {
-    if (capabilities.office === 'full') {
+  // Office 文档 — 基于真实发送链路判断，而非模型能力标签
+  const ext = (fileName || '').split('.').pop()?.toLowerCase() || '';
+  const isOffice = mimeType.includes('spreadsheet') || mimeType.includes('excel') ||
+    mimeType.includes('presentation') || mimeType.includes('powerpoint') ||
+    mimeType.includes('wordprocessing') || mimeType.includes('msword') ||
+    ['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt'].includes(ext);
+
+  if (isOffice) {
+    // 只有 Gemini 直连走原生 File API
+    if (provider === 'gemini') {
       return { supported: true, blockSend: false };
     }
-    return {
-      supported: false,
-      blockSend: false,
-      warning: provider === 'openrouter' || provider === 'openai' || provider === 'gemini'
-        ? 'Office 文档将通过原生 API 解析'
-        : 'Office 文档将自动提取文本内容供 AI 分析'
-    };
+
+    // 其他所有 provider：extractedText 文本提取
+    const isPptx = mimeType.includes('presentation') || mimeType.includes('powerpoint') || ['pptx', 'ppt'].includes(ext);
+    const isDocx = mimeType.includes('wordprocessing') || mimeType.includes('msword') || ['docx', 'doc'].includes(ext);
+    const cn = !lang || lang === 'cn';
+
+    if (isPptx) {
+      return {
+        supported: false,
+        blockSend: false,
+        warning: cn
+          ? '演示文稿将仅提取文字，图片/图表/排版将丢失。使用 Gemini 可让模型读取原始文件'
+          : 'Only text will be extracted. Images, charts, and layout will be lost. Use Gemini to let the model read the original file',
+      };
+    } else if (isDocx) {
+      return {
+        supported: false,
+        blockSend: false,
+        warning: cn
+          ? 'Word 文档将提取纯文本，嵌入图片和格式将丢失。使用 Gemini 可让模型读取原始文件'
+          : 'Plain text will be extracted. Embedded images and formatting will be lost. Use Gemini to let the model read the original file',
+      };
+    } else {
+      // xlsx — 文本提取损失最小
+      return {
+        supported: false,
+        blockSend: false,
+        warning: cn
+          ? '表格将转换为 CSV 文本格式'
+          : 'Spreadsheet will be converted to CSV text format',
+      };
+    }
   }
 
   // 未知类型 - 允许发送但显示警告
@@ -466,7 +498,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         <div className="space-y-2">
           {files.map(file => {
             const config = getFileTypeConfig(file.mimeType, file.name);
-            const compat = getProviderCompatibility(file.mimeType, aiProvider, aiModel);
+            const compat = getProviderCompatibility(file.mimeType, aiProvider, aiModel, undefined, file.name, lang);
             return (
               <div
                 key={file.id}

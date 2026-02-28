@@ -215,7 +215,10 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
     getProviderCompatibility(
       file.mimeType,
       aiSettings.provider as AIProvider,
-      aiSettings.model
+      aiSettings.model,
+      undefined,
+      file.name,
+      lang
     ).blockSend
   );
   const hasBlockedFiles = blockedFiles.length > 0;
@@ -253,7 +256,10 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
         const compat = getProviderCompatibility(
           file.mimeType,
           aiSettings.provider as AIProvider,
-          aiSettings.model
+          aiSettings.model,
+          undefined,
+          file.name,
+          lang
         );
         return compat.blockSend;
       });
@@ -407,7 +413,10 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
         const compat = getProviderCompatibility(
           mimeType,
           aiSettings.provider as AIProvider,
-          aiSettings.model
+          aiSettings.model,
+          undefined,
+          file.name,
+          lang
         );
         if (compat.blockSend) {
           setError(
@@ -653,7 +662,10 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
                       const compat = getProviderCompatibility(
                         file.mimeType,
                         aiSettings.provider as AIProvider,
-                        aiSettings.model
+                        aiSettings.model,
+                        undefined,
+                        file.name,
+                        lang
                       );
                       if (!compat.warning) return null;
                       return (

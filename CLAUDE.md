@@ -69,6 +69,17 @@ Every Action must be defined across three layers:
 - Supports file attachments (PDF, Excel, PPT, images)
 - All AI requests go through this abstraction layer
 
+### File Compatibility Feedback (Two-Layer Design)
+File upload warnings use a two-layer architecture — **model capabilities** vs **actual processing method**:
+- **`lib/llmCapabilities.ts`** — Declares what the model _can_ do natively. Used for model recommendation scores and UI capability labels. **Do not modify for upload warnings.**
+- **`components/FileUpload.tsx` → `getProviderCompatibility()`** — Describes how the product _actually_ processes each file type. Upload warnings are derived solely from this function.
+
+Office document processing by provider:
+| Provider | Office handling |
+|----------|---------------|
+| Gemini (direct) | Native File API upload → no warning |
+| All others (OpenAI, OpenRouter, Moonshot, Zhipu, custom) | Client-side `extractedText` → type-specific warning (pptx loses images/charts, docx loses embedded images, xlsx converts to CSV) |
+
 ## Key Patterns
 
 ### Decision-First Principle
