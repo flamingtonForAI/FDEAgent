@@ -201,10 +201,32 @@ const AppContent: React.FC = () => {
   // Archetype状态
   const [selectedArchetypeId, setSelectedArchetypeId] = useState<string | null>(null);
 
-  // AI 分析状态（持久化跨标签页）
+  // AI 分析状态（持久化跨标签页 + 跨刷新）
   const [aiAnalysisResult, setAiAnalysisResult] = useState<AnalysisResult | null>(null);
   const [isAiAnalyzing, setIsAiAnalyzing] = useState(false);
   const [aiAnalysisError, setAiAnalysisError] = useState<string | null>(null);
+
+  // Load analysis result when project switches
+  useEffect(() => {
+    if (activeProjectId) {
+      const saved = storage.getAnalysisResultById(activeProjectId);
+      setAiAnalysisResult(saved as AnalysisResult | null);
+    } else {
+      setAiAnalysisResult(null);
+    }
+    // Reset transient state on project switch
+    setIsAiAnalyzing(false);
+    setAiAnalysisError(null);
+  }, [activeProjectId]);
+
+  // Auto-save analysis result when it changes
+  useEffect(() => {
+    if (!activeProjectId || isAiAnalyzing) return;
+    // Save (including null to clear)
+    if (aiAnalysisResult) {
+      storage.saveAnalysisResultById(activeProjectId, aiAnalysisResult);
+    }
+  }, [aiAnalysisResult, activeProjectId, isAiAnalyzing]);
 
   // 全局聊天栏状态
   const [isChatExpanded, setIsChatExpanded] = useState(false);
@@ -583,6 +605,9 @@ const AppContent: React.FC = () => {
 
     // Clear AI analysis result (it's no longer relevant to the new ontology)
     setAiAnalysisResult(null);
+    if (activeProjectId) {
+      storage.saveAnalysisResultById(activeProjectId, null);
+    }
 
     setCurrentOntology({
       ...project,

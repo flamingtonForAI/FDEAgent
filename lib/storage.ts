@@ -36,6 +36,7 @@ const STORAGE_KEYS = {
 // Generate per-project storage keys (user-scoped)
 const getProjectStateKey = (projectId: string) => getScopedKey(`project:${projectId}:state`);
 const getProjectChatKey = (projectId: string) => getScopedKey(`project:${projectId}:chat`);
+const getProjectAnalysisKey = (projectId: string) => getScopedKey(`project:${projectId}:analysis`);
 
 // Maximum chat messages to store locally
 const MAX_LOCAL_MESSAGES = 200;
@@ -1041,6 +1042,36 @@ class HybridStorage {
   }
 
   /**
+   * Get AI analysis result by project ID
+   */
+  getAnalysisResultById(projectId: string): unknown | null {
+    try {
+      const key = getProjectAnalysisKey(projectId);
+      const stored = localStorage.getItem(key);
+      if (!stored) return null;
+      const data = JSON.parse(stored);
+      return data.analysis ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Save AI analysis result by project ID
+   */
+  saveAnalysisResultById(projectId: string, analysis: unknown): void {
+    const key = getProjectAnalysisKey(projectId);
+    try {
+      localStorage.setItem(key, JSON.stringify({
+        analysis,
+        updatedAt: new Date().toISOString(),
+      }));
+    } catch (error) {
+      console.error('Failed to save analysis result:', error);
+    }
+  }
+
+  /**
    * Update a project in the index
    */
   private updateProjectInIndex(projectId: string, updates: Partial<ProjectListItem>): void {
@@ -1064,6 +1095,7 @@ class HybridStorage {
     // Remove project data
     localStorage.removeItem(getProjectStateKey(projectId));
     localStorage.removeItem(getProjectChatKey(projectId));
+    localStorage.removeItem(getProjectAnalysisKey(projectId));
     this.setCloudProjectIdByLocalId(projectId, null);
 
     // If this was the active project, clear it

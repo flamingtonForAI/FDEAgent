@@ -119,6 +119,10 @@ All notable changes to this project will be documented in this file.
 - AI Analysis state lost on tab switch:
   - `isAnalyzing` and `error` states lifted from local `AIAnalyzer` state to App.tsx level — previously, switching tabs during analysis unmounted the component, losing the loading spinner and error state; the user would see "Ready to Analyze" with no indication that analysis was still running in the background
   - `hasApiKey` check in `AIAnalyzer` now also checks `apiKeys[provider]` map (not just legacy `apiKey` field), consistent with multi-provider key isolation
+- AI analysis result persistence across page refresh and project switch:
+  - new `storage.getAnalysisResultById()` / `storage.saveAnalysisResultById()` in `lib/storage.ts` with per-project key (`u:{userId}:project:{projectId}:analysis`)
+  - auto-save on analysis completion, auto-load on project switch, auto-clear on archetype import
+  - analysis data cleaned up on project deletion
 
 ## [0.4.1] - 2026-02-26
 
