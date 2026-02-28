@@ -476,6 +476,15 @@ const AppContent: React.FC = () => {
         integrations: integrations,
         status: 'designing' as const,
       }));
+
+      // Clear stale AI analysis — it was generated from the previous ontology
+      // and is no longer relevant. (Same pattern as archetype apply.)
+      setAiAnalysisResult(null);
+      const pid = activeProjectIdRef.current;
+      if (pid) {
+        storage.saveAnalysisResultById(pid, null);
+      }
+
       setActiveTab('ontology');
     } catch (error) {
       console.error('Design failed:', error);
