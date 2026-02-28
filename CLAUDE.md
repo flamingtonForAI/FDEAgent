@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Ontology Architect** (本体架构师) is an AI-powered enterprise system design tool that helps users build intelligent operating systems through a 4-phase workflow: Discovery → Modeling → Integration → AI Enhancement. It follows Palantir's "Ontology-First" methodology.
+**Ontology Architect** (本体架构师) is an AI-powered enterprise system design tool that helps users build intelligent operating systems through a 5-phase workflow: Discovery → Modeling → Integration → AI Enhancement → Delivery. It follows Palantir's "Ontology-First" methodology.
 
 ## Development Commands
 
@@ -42,11 +42,12 @@ npm run lint             # ESLint
 AuthProvider → SyncProvider → ProjectProvider → AppContent
 ```
 
-### 4-Phase Workflow
+### 5-Phase Workflow
 1. **DISCOVER (Phase 1):** Conversational requirement collection via GlobalChatBar
 2. **MODEL (Phase 2):** Define Ontology via StructuringWorkbench, ObjectEditor, ActionDesigner
 3. **INTEGRATE (Phase 3):** Map data sources to Ontology properties
 4. **AI DESIGN (Phase 4):** AI analysis and enhancement points via AIAnalyzer/AIEnhancement
+5. **DELIVER (Phase 5):** Design completeness overview, quality summary, document generation & ZIP export via DeliveryPage
 
 ### Three-Layer Action Definition
 Every Action must be defined across three layers:
@@ -151,3 +152,10 @@ Independent Node.js app in `backend/`:
 - `GET/POST /api/projects/*` — CRUD with ownership verification
 - `POST /api/sync` — Batch sync, `GET /api/sync/full` — Full state pull
 - `POST /api/preferences/*`, `GET/POST /api/archetypes/*`
+
+## Git & Documentation Rules
+
+**Every `git push` must include corresponding documentation updates.** Before pushing, check whether the change affects any of the following and update them in the same commit or a follow-up commit before push:
+- `README.md` — Feature list, workflow description, project structure tree
+- `CLAUDE.md` — Architecture notes, workflow phases, key patterns
+- `CHANGELOG.md` — Unreleased section for user-facing changes
