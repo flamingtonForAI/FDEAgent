@@ -628,7 +628,9 @@ export class AIService {
 
     const isOpenRouter = this.settings.provider === 'openrouter';
     const isOpenAI = this.settings.provider === 'openai';
-    const supportsNativeOffice = isOpenRouter || isOpenAI;
+    // Only direct OpenAI has reliable native Office file support.
+    // OpenRouter proxies to various models — Gemini rejects docx MIME, others may too.
+    const supportsNativeFile = isOpenRouter || isOpenAI;
 
     // Build content array for the user message
     const content: any[] = [];
@@ -641,6 +643,9 @@ export class AIService {
     // Add files
     for (const file of files) {
       if (file.isBase64) {
+        const isOffice = this.isOfficeMimeType(file.mimeType);
+        const isPdf = file.mimeType === 'application/pdf';
+
         if (file.mimeType.startsWith('image/')) {
           // Image - all providers support image_url
           content.push({
@@ -649,10 +654,25 @@ export class AIService {
               url: `data:${file.mimeType};base64,${file.content}`,
             },
           });
-        } else if (supportsNativeOffice || file.mimeType === 'application/pdf') {
-          // OpenRouter: supports all file types (PDF, docx, xlsx, pptx) via type:'file'
-          // OpenAI: natively supports PDF, docx, xlsx, pptx via type:'file'
-          // PDF: also supported via type:'file' for these providers
+        } else if (isOffice && file.extractedText) {
+          // Office files: always prefer client-side extracted text.
+          // OpenRouter model support varies (Gemini rejects docx MIME),
+          // and even for OpenAI the text content is functionally equivalent.
+          content.push({
+            type: 'text',
+            text: `\n--- 附件: ${file.name} (文本提取) ---\n${file.extractedText}\n--- 附件结束 ---`,
+          });
+        } else if (isOffice && isOpenAI) {
+          // Direct OpenAI without extractedText: try native file upload
+          content.push({
+            type: 'file',
+            file: {
+              filename: file.name,
+              file_data: `data:${file.mimeType};base64,${file.content}`,
+            },
+          });
+        } else if (isPdf && supportsNativeFile) {
+          // PDF: well-supported across OpenRouter and OpenAI via type:'file'
           content.push({
             type: 'file',
             file: {
@@ -661,7 +681,7 @@ export class AIService {
             },
           });
         } else if (file.extractedText) {
-          // Other providers (Moonshot, custom, etc.): use extracted text as fallback
+          // Fallback: use extracted text for any file with extraction available
           content.push({
             type: 'text',
             text: `\n--- 附件: ${file.name} (文本提取) ---\n${file.extractedText}\n--- 附件结束 ---`,
