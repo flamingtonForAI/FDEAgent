@@ -5,9 +5,8 @@
  * Used as fallback for providers that don't natively support Office files.
  */
 
-import mammoth from 'mammoth';
-import * as XLSX from 'xlsx';
-import JSZip from 'jszip';
+// mammoth, xlsx, jszip are dynamically imported inside parse functions
+// to avoid bundling them into the main chunk.
 
 export interface ParseResult {
   text: string;
@@ -22,6 +21,7 @@ export interface ParseResult {
  * Extract text from a .docx file using mammoth
  */
 export async function parseDocx(arrayBuffer: ArrayBuffer): Promise<ParseResult> {
+  const mammoth = (await import('mammoth')).default;
   const result = await mammoth.extractRawText({ arrayBuffer });
   const text = result.value;
   return {
@@ -37,6 +37,7 @@ export async function parseDocx(arrayBuffer: ArrayBuffer): Promise<ParseResult> 
  * Each sheet is output as CSV format
  */
 export async function parseXlsx(arrayBuffer: ArrayBuffer): Promise<ParseResult> {
+  const XLSX = await import('xlsx');
   const workbook = XLSX.read(arrayBuffer, { type: 'array' });
   const sheets: string[] = workbook.SheetNames;
   const parts: string[] = [];
@@ -64,6 +65,7 @@ export async function parseXlsx(arrayBuffer: ArrayBuffer): Promise<ParseResult> 
  * Uses JSZip to decompress, then extracts <a:t> text nodes from slide XML
  */
 export async function parsePptx(arrayBuffer: ArrayBuffer): Promise<ParseResult> {
+  const JSZip = (await import('jszip')).default;
   const zip = await JSZip.loadAsync(arrayBuffer);
   const slideFiles: string[] = [];
 

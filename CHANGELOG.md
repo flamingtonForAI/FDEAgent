@@ -5,14 +5,38 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- `lib/jsonUtils.ts` — shared `extractJSON()` utility extracted from 3 services (aiService, aiAnalysisService, archetypeGeneratorService); single source of truth for stripping markdown fences from AI JSON responses
+- `lib/apiKeyUtils.ts` — shared `getProviderApiKey()` / `requireProviderApiKey()` utility extracted from aiService + aiAnalysisService; provides consistent per-provider API key resolution with legacy `apiKey` fallback
+
+### Changed
+- `lib/documentParser.ts` — mammoth, xlsx, jszip converted from static `import` to dynamic `await import()` inside parse functions; Vite now code-splits each library into its own chunk, removing ~2 MB from the main bundle
+- `services/aiService.ts` — private `extractJSON()`, `getApiKey()`, `requireApiKey()` replaced with shared `lib/jsonUtils` and `lib/apiKeyUtils` imports
+- `services/aiAnalysisService.ts` — same: private `extractJSON()`, `getApiKey()`, `requireApiKey()` replaced with shared utilities
+- `services/archetypeGeneratorService.ts` — private `extractJSON()` replaced with shared utility; 4 occurrences of raw `this.settings.apiKey` replaced with `requireProviderApiKey(this.settings)`, fixing missing provider key isolation in this service
+
+### Removed
+- `components/Settings.tsx` — deprecated, zero references; fully replaced by `UnifiedSettings.tsx`
+- `components/ChatInterface.tsx` — deprecated, zero references; fully replaced by `GlobalChatBar.tsx`
+
+### Fixed
+- Ontology generation stats showing all zeros after clicking "生成 Ontology":
+  - Root cause: `handleDesignComplete` captured a stale `setCurrentOntology` reference (created before authentication) due to missing `useCallback` dependencies — the auth guard inside the setter silently discarded the update while `setActiveTab('ontology')` succeeded, making the page switch but stats stay at 0
+  - Merged `handleDesignComplete` into `triggerAutoDesign`; replaced `setCurrentOntology({...project, ...})` with `setProject(prev => ({...prev, ...}))` functional update to avoid stale closure over both the setter and project state
+  - Added `activeProjectIdRef` (synced every render) with pre/post-await comparison to prevent cross-project data pollution when the user switches projects during an in-flight AI design request
+  - Removed debug `console.log` statements from `triggerAutoDesign`
+- AI Enhancement tab showing stale results from a previous ontology after regeneration:
+  - `triggerAutoDesign` now clears both in-memory `aiAnalysisResult` and persisted storage on new ontology generation, matching the existing pattern used by archetype apply
+- AI responses wrapped in markdown code fences failing to parse as JSON:
+  - JSON fence stripping now handled by shared `lib/jsonUtils.ts` (`extractJSON()`), applied to Gemini and OpenAI-compatible return paths across aiService, aiAnalysisService, and archetypeGeneratorService
+
+### Added
 - Office document support across all AI providers (docx, xlsx, pptx):
   - New `lib/documentParser.ts` module for client-side text extraction
   - `parseDocx` via mammoth, `parseXlsx` via SheetJS, `parsePptx` via JSZip XML extraction
   - Dual-channel design: native API for supported providers + extractedText fallback for others
 - Provider-specific Office file handling:
   - Gemini: File API upload (`ai.files.upload()` → `fileData` URI), with extractedText fallback on failure
-  - OpenRouter: `type:'file'` base64 data URI (auto-parsed by OpenRouter for all models)
-  - OpenAI: `type:'file'` base64 data URI (native 2025 support)
+  - OpenRouter / OpenAI: client-side `extractedText` preferred for Office files (OpenRouter model support varies; Gemini rejects docx MIME); direct OpenAI falls back to `type:'file'` only when `extractedText` is unavailable; PDF uses `type:'file'` natively on both
   - Zhipu / Moonshot / Custom: client-side extracted text as text attachment
 - `UploadedFile` and `FileAttachment` interfaces extended with `extractedText` field
 - Word document branch in `getFileTypeConfig` (previously fell through to Default)
@@ -22,7 +46,7 @@ All notable changes to this project will be documented in this file.
 - Office file upload no longer hard-blocks (`blockSend: false`); all providers now have some level of support
 - Office compatibility warnings updated to reflect actual provider capability (native API vs text extraction)
 - `callGeminiMultimodal`: Office files use File API instead of unreliable `inlineData`
-- `callOpenAIMultimodal`: simplified provider branching — OpenRouter and OpenAI both use `type:'file'` for all document types
+- `callOpenAIMultimodal`: simplified provider branching — Office files always prefer client-side `extractedText`; PDF uses `type:'file'` on OpenRouter and OpenAI; direct OpenAI falls back to `type:'file'` for Office only when `extractedText` is unavailable
 - `callZhipuMultimodal`: Office files use `extractedText` instead of placeholder message
 
 ### Previously Added
@@ -79,8 +103,8 @@ All notable changes to this project will be documented in this file.
   - blocking reason is shown inline near the input area
   - per-file compatibility warning is shown in uploaded file list
 - Model configuration warning added:
-  - `UnifiedSettings` and `Settings` now show Office compatibility warning when selected provider/model may block `.docx/.xlsx/.pptx`.
-- Model selection UX upgrades in `UnifiedSettings` and `Settings`:
+  - `UnifiedSettings` now shows Office compatibility warning when selected provider/model may block `.docx/.xlsx/.pptx`.
+- Model selection UX upgrades in `UnifiedSettings`:
   - searchable model list (name/ID keyword)
   - recommended Office-capable latest models highlighted with `★` + bold + `Recommended`
   - per-model capability tags (`Office`, `PDF`) and selected-model capability summary (`Office/PDF/Image`)

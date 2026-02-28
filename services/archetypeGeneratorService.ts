@@ -11,6 +11,8 @@
 import { Archetype, ArchetypeOrigin } from '../types/archetype';
 import { AIService } from './aiService';
 import { AISettings } from '../types';
+import { extractJSON } from '../lib/jsonUtils';
+import { requireProviderApiKey } from '../lib/apiKeyUtils';
 
 /**
  * 生成进度步骤
@@ -470,7 +472,7 @@ export class ArchetypeGeneratorService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.settings.apiKey}`,
+          'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
         },
         body: JSON.stringify({
           model: this.settings.model,
@@ -540,7 +542,7 @@ Please provide a structured summary in Chinese.`;
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.settings.apiKey}`,
+          'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
           'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'https://ontology-assistant.app',
           'X-Title': 'Ontology Architect',
         },
@@ -736,7 +738,7 @@ Please provide a structured summary in Chinese.`;
 
   private async callGeminiDirect(prompt: string): Promise<string> {
     const { GoogleGenAI } = await import('@google/genai');
-    const ai = new GoogleGenAI({ apiKey: this.settings.apiKey });
+    const ai = new GoogleGenAI({ apiKey: requireProviderApiKey(this.settings) });
 
     // 添加超时控制
     const timeoutPromise = new Promise<never>((_, reject) => {
@@ -756,7 +758,7 @@ Please provide a structured summary in Chinese.`;
       const content = response.text || '{}';
 
       // 使用提取方法处理可能的格式问题
-      return this.extractJSON(content);
+      return extractJSON(content);
     } catch (error) {
       if (error instanceof Error && error.message.includes('超时')) {
         throw error;
@@ -771,7 +773,7 @@ Please provide a structured summary in Chinese.`;
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.settings.apiKey}`,
+      'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
     };
 
     if (provider === 'openrouter') {
@@ -822,7 +824,7 @@ Please provide a structured summary in Chinese.`;
       const content = data.choices[0]?.message?.content || '{}';
 
       // 对于不支持 JSON mode 的 provider，尝试提取 JSON
-      return this.extractJSON(content);
+      return extractJSON(content);
     } catch (error) {
       clearTimeout(timeoutId);
       if (error instanceof Error && error.name === 'AbortError') {
@@ -830,46 +832,6 @@ Please provide a structured summary in Chinese.`;
       }
       throw error;
     }
-  }
-
-  /**
-   * 从 AI 响应中提取 JSON（处理可能的 markdown 代码块等）
-   */
-  private extractJSON(content: string): string {
-    // 如果已经是有效 JSON，直接返回
-    try {
-      JSON.parse(content);
-      return content;
-    } catch {
-      // 继续尝试提取
-    }
-
-    // 尝试提取 markdown 代码块中的 JSON
-    const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (codeBlockMatch) {
-      const extracted = codeBlockMatch[1].trim();
-      try {
-        JSON.parse(extracted);
-        return extracted;
-      } catch {
-        // 继续尝试其他方式
-      }
-    }
-
-    // 尝试找到第一个 { 和最后一个 } 之间的内容
-    const firstBrace = content.indexOf('{');
-    const lastBrace = content.lastIndexOf('}');
-    if (firstBrace !== -1 && lastBrace > firstBrace) {
-      const extracted = content.substring(firstBrace, lastBrace + 1);
-      try {
-        JSON.parse(extracted);
-        return extracted;
-      } catch {
-        // 返回原始内容，让上层处理错误
-      }
-    }
-
-    return content;
   }
 
   private getBaseUrl(): string {

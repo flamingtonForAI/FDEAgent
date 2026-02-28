@@ -1,4 +1,6 @@
 import { AISettings, AIProvider, ChatMessage, AI_PROVIDERS } from '../types';
+import { extractJSON } from '../lib/jsonUtils';
+import { getProviderApiKey, requireProviderApiKey } from '../lib/apiKeyUtils';
 
 // File attachment interface for multimodal chat
 export interface FileAttachment {
@@ -271,52 +273,19 @@ export class AIService {
     this.settings = settings;
   }
 
-  /** Extract JSON from a response that may be wrapped in markdown code fences. */
-  private extractJSON(text: string): string {
-    const trimmed = text.trim();
-    if (trimmed.startsWith('{')) return trimmed;
-    // Extract from ```json ... ``` or ``` ... ```
-    const fenceMatch = trimmed.match(/```(?:json)?\s*\n?([\s\S]*?)\n?\s*```/);
-    if (fenceMatch) return fenceMatch[1].trim();
-    // Fallback: extract first { ... } block
-    const braceMatch = trimmed.match(/\{[\s\S]*\}/);
-    if (braceMatch) return braceMatch[0];
-    return trimmed;
-  }
-
   updateSettings(settings: AISettings) {
-    const previousKey = this.getApiKey();
+    const previousKey = getProviderApiKey(this.settings);
     this.settings = settings;
     // Clear cached Gemini instance if API key changed
-    if (this.settings.provider === 'gemini' && cachedGeminiApiKey !== this.getApiKey()) {
+    if (this.settings.provider === 'gemini' && cachedGeminiApiKey !== getProviderApiKey(this.settings)) {
       cachedGeminiInstance = null;
       cachedGeminiApiKey = null;
     }
     // Keep cache coherent even if provider changed away from Gemini.
-    if (settings.provider !== 'gemini' && previousKey !== this.getApiKey()) {
+    if (settings.provider !== 'gemini' && previousKey !== getProviderApiKey(this.settings)) {
       cachedGeminiInstance = null;
       cachedGeminiApiKey = null;
     }
-  }
-
-  private getApiKey(): string {
-    const settingsWithMap = this.settings as AISettings & {
-      apiKeys?: Partial<Record<AIProvider, string>>;
-    };
-    // When apiKeys map exists, only use the key for the current provider.
-    // Fall back to legacy apiKey field only when apiKeys map is absent (old data).
-    if (settingsWithMap.apiKeys) {
-      return (settingsWithMap.apiKeys[this.settings.provider] || '').trim();
-    }
-    return (this.settings.apiKey || '').trim();
-  }
-
-  private requireApiKey(): string {
-    const key = this.getApiKey();
-    if (!key) {
-      throw new Error(`Missing API key for provider: ${this.settings.provider}`);
-    }
-    return key;
   }
 
   private getBaseUrl(): string {
@@ -351,8 +320,8 @@ export class AIService {
     }
 
     // Reuse cached instance if API key matches
-    if (!cachedGeminiInstance || cachedGeminiApiKey !== this.getApiKey()) {
-      const apiKey = this.requireApiKey();
+    if (!cachedGeminiInstance || cachedGeminiApiKey !== getProviderApiKey(this.settings)) {
+      const apiKey = requireProviderApiKey(this.settings);
       cachedGeminiInstance = new cachedGoogleGenAI({ apiKey });
       cachedGeminiApiKey = apiKey;
     }
@@ -383,7 +352,7 @@ export class AIService {
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.requireApiKey()}`,
+      'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
     };
 
     // OpenRouter需要额外的header
@@ -434,7 +403,7 @@ export class AIService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.requireApiKey()}`,
+          'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
         },
         body: JSON.stringify({
           model: this.settings.model,
@@ -544,7 +513,7 @@ export class AIService {
     files: FileAttachment[]
   ): Promise<string> {
     const { GoogleGenAI } = await import('@google/genai');
-    const ai = new GoogleGenAI({ apiKey: this.requireApiKey() });
+    const ai = new GoogleGenAI({ apiKey: requireProviderApiKey(this.settings) });
 
     // Build parts for the message
     const parts: any[] = [];
@@ -631,7 +600,7 @@ export class AIService {
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.requireApiKey()}`,
+      'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
     };
 
     if (this.settings.provider === 'openrouter') {
@@ -789,7 +758,7 @@ export class AIService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.requireApiKey()}`,
+        'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
       },
       body: JSON.stringify({
         model: this.settings.model,
@@ -823,7 +792,7 @@ export class AIService {
       switch (this.settings.provider) {
         case 'gemini': {
           const { GoogleGenAI } = await import('@google/genai');
-          const ai = new GoogleGenAI({ apiKey: this.requireApiKey() });
+          const ai = new GoogleGenAI({ apiKey: requireProviderApiKey(this.settings) });
           const response = await ai.models.generateContent({
             model: this.settings.model,
             contents: prompt,
@@ -831,7 +800,7 @@ export class AIService {
               responseMimeType: 'application/json',
             },
           });
-          return this.extractJSON(response.text || '{}');
+          return extractJSON(response.text || '{}');
         }
         case 'zhipu':
         case 'openrouter':
@@ -841,7 +810,7 @@ export class AIService {
           const baseUrl = this.getBaseUrl();
           const headers: Record<string, string> = {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.requireApiKey()}`,
+            'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
           };
           if (this.settings.provider === 'openrouter') {
             headers['HTTP-Referer'] = window.location.origin;
@@ -869,7 +838,7 @@ export class AIService {
           }
 
           const data = await response.json();
-          return this.extractJSON(data.choices[0]?.message?.content || '{}');
+          return extractJSON(data.choices[0]?.message?.content || '{}');
         }
       }
     } catch (error) {
@@ -918,7 +887,7 @@ export class AIService {
 
   private async fetchGeminiModels(): Promise<EnrichedModelInfo[]> {
     const { GoogleGenAI } = await import('@google/genai');
-    const ai = new GoogleGenAI({ apiKey: this.requireApiKey() });
+    const ai = new GoogleGenAI({ apiKey: requireProviderApiKey(this.settings) });
 
     // Use the pager to get all models
     const models: EnrichedModelInfo[] = [];
@@ -955,7 +924,7 @@ export class AIService {
   private async fetchOpenRouterModels(signal?: AbortSignal): Promise<EnrichedModelInfo[]> {
     const response = await fetch('https://openrouter.ai/api/v1/models', {
       headers: {
-        'Authorization': `Bearer ${this.requireApiKey()}`,
+        'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
         'HTTP-Referer': window.location.origin,
         'X-Title': 'Ontology Architect',
       },
@@ -1010,7 +979,7 @@ export class AIService {
   private async fetchOpenAIModels(signal?: AbortSignal): Promise<EnrichedModelInfo[]> {
     const response = await fetch('https://api.openai.com/v1/models', {
       headers: {
-        'Authorization': `Bearer ${this.requireApiKey()}`,
+        'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
       },
       signal,
     });
@@ -1066,7 +1035,7 @@ export class AIService {
     try {
       const response = await fetch(`${this.getBaseUrl()}/models`, {
         headers: {
-          'Authorization': `Bearer ${this.requireApiKey()}`,
+          'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
         },
         signal,
       });
@@ -1146,7 +1115,7 @@ export class AIService {
     try {
       const response = await fetch(`${this.getBaseUrl()}/models`, {
         headers: {
-          'Authorization': `Bearer ${this.requireApiKey()}`,
+          'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
         },
         signal,
       });
@@ -1208,7 +1177,7 @@ export class AIService {
     try {
       const response = await fetch(`${this.settings.customBaseUrl}/models`, {
         headers: {
-          'Authorization': `Bearer ${this.requireApiKey()}`,
+          'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
         },
         signal,
       });
@@ -1268,7 +1237,7 @@ ${historyText}
       if (this.settings.provider === 'gemini') {
         // Gemini 使用 SDK
         const { GoogleGenAI } = await import('@google/genai');
-        const ai = new GoogleGenAI({ apiKey: this.requireApiKey() });
+        const ai = new GoogleGenAI({ apiKey: requireProviderApiKey(this.settings) });
         const response = await ai.models.generateContent({
           model: this.settings.model,
           contents: validationPrompt,
@@ -1282,7 +1251,7 @@ ${historyText}
         const baseUrl = this.getBaseUrl();
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.requireApiKey()}`,
+          'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
         };
         if (this.settings.provider === 'openrouter') {
           headers['HTTP-Referer'] = window.location.origin;
@@ -1391,7 +1360,7 @@ ${historyText}
       if (this.settings.provider === 'gemini') {
         // Gemini 使用 SDK
         const { GoogleGenAI } = await import('@google/genai');
-        const ai = new GoogleGenAI({ apiKey: this.requireApiKey() });
+        const ai = new GoogleGenAI({ apiKey: requireProviderApiKey(this.settings) });
         const response = await ai.models.generateContent({
           model: this.settings.model,
           contents: analysisPrompt,
@@ -1405,7 +1374,7 @@ ${historyText}
         const baseUrl = this.getBaseUrl();
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.requireApiKey()}`,
+          'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
         };
         if (this.settings.provider === 'openrouter') {
           headers['HTTP-Referer'] = window.location.origin;
@@ -1515,7 +1484,7 @@ ${text}
       if (this.settings.provider === 'gemini') {
         // Gemini 使用 SDK
         const { GoogleGenAI } = await import('@google/genai');
-        const ai = new GoogleGenAI({ apiKey: this.requireApiKey() });
+        const ai = new GoogleGenAI({ apiKey: requireProviderApiKey(this.settings) });
         const response = await ai.models.generateContent({
           model: this.settings.model,
           contents: extractionPrompt,
@@ -1529,7 +1498,7 @@ ${text}
         const baseUrl = this.getBaseUrl();
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.requireApiKey()}`,
+          'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
         };
         if (this.settings.provider === 'openrouter') {
           headers['HTTP-Referer'] = window.location.origin;
@@ -1614,7 +1583,7 @@ ${text}
 
       if (this.settings.provider === 'gemini') {
         const { GoogleGenAI } = await import('@google/genai');
-        const ai = new GoogleGenAI({ apiKey: this.requireApiKey() });
+        const ai = new GoogleGenAI({ apiKey: requireProviderApiKey(this.settings) });
         const response = await ai.models.generateContent({
           model: this.settings.model,
           contents: extractionPrompt,
@@ -1627,7 +1596,7 @@ ${text}
         const baseUrl = this.getBaseUrl();
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.requireApiKey()}`,
+          'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
         };
         if (this.settings.provider === 'openrouter') {
           headers['HTTP-Referer'] = window.location.origin;

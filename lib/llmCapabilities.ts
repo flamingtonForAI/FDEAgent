@@ -52,7 +52,7 @@ function fromMetadata(provider?: AIProvider, modelId?: string, modelInfo?: Enric
   const office = (provider === 'gemini' && isGemini15OrNewer(provider, modelId))
     ? 'full'
     : hasFileInput(modelInfo.inputModalities)
-      ? 'full'
+      ? 'partial'
       : 'none';
 
   const pdf = (office === 'full' || hasFileInput(modelInfo.inputModalities))

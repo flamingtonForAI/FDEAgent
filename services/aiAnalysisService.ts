@@ -3,6 +3,8 @@
  * 分析 Ontology 设计（Objects/Links/Actions），识别 AI 增强机会
  */
 import { AISettings, OntologyObject, OntologyLink, AIPAction, AIIntegrationType, AI_PROVIDERS } from '../types';
+import { extractJSON } from '../lib/jsonUtils';
+import { requireProviderApiKey } from '../lib/apiKeyUtils';
 
 // AI 增强建议类型
 export type SuggestionCategory =
@@ -176,6 +178,7 @@ export class AIAnalysisService {
     return provider?.baseUrl || '';
   }
 
+
   /**
    * 分析 Ontology 并生成 AI 增强建议
    */
@@ -235,7 +238,7 @@ export class AIAnalysisService {
 
   private async callGemini(prompt: string): Promise<string> {
     const { GoogleGenAI } = await import('@google/genai');
-    const ai = new GoogleGenAI({ apiKey: this.settings.apiKey });
+    const ai = new GoogleGenAI({ apiKey: requireProviderApiKey(this.settings) });
 
     const response = await ai.models.generateContent({
       model: this.settings.model,
@@ -245,7 +248,7 @@ export class AIAnalysisService {
       },
     });
 
-    return response.text || '{}';
+    return extractJSON(response.text || '{}');
   }
 
   private async callOpenAICompatible(prompt: string): Promise<string> {
@@ -253,7 +256,7 @@ export class AIAnalysisService {
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.settings.apiKey}`,
+      'Authorization': `Bearer ${requireProviderApiKey(this.settings)}`,
     };
 
     if (this.settings.provider === 'openrouter') {
@@ -282,7 +285,7 @@ export class AIAnalysisService {
     }
 
     const data = await response.json();
-    return data.choices[0]?.message?.content || '{}';
+    return extractJSON(data.choices[0]?.message?.content || '{}');
   }
 
   private parseResponse(responseText: string): AnalysisResult {

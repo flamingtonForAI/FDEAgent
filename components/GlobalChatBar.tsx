@@ -204,7 +204,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Check if API key is configured
-  const hasApiKey = !!(aiSettings.apiKey || aiSettings.apiKeys?.[aiSettings.provider]);
+  const hasApiKey = !!(aiSettings.apiKeys ? aiSettings.apiKeys[aiSettings.provider] : aiSettings.apiKey);
 
   // Check if there's an active project
   const hasProject = !!activeProjectId;
