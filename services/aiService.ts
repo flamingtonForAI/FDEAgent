@@ -271,6 +271,19 @@ export class AIService {
     this.settings = settings;
   }
 
+  /** Extract JSON from a response that may be wrapped in markdown code fences. */
+  private extractJSON(text: string): string {
+    const trimmed = text.trim();
+    if (trimmed.startsWith('{')) return trimmed;
+    // Extract from ```json ... ``` or ``` ... ```
+    const fenceMatch = trimmed.match(/```(?:json)?\s*\n?([\s\S]*?)\n?\s*```/);
+    if (fenceMatch) return fenceMatch[1].trim();
+    // Fallback: extract first { ... } block
+    const braceMatch = trimmed.match(/\{[\s\S]*\}/);
+    if (braceMatch) return braceMatch[0];
+    return trimmed;
+  }
+
   updateSettings(settings: AISettings) {
     const previousKey = this.getApiKey();
     this.settings = settings;
@@ -818,7 +831,7 @@ export class AIService {
               responseMimeType: 'application/json',
             },
           });
-          return response.text || '{}';
+          return this.extractJSON(response.text || '{}');
         }
         case 'zhipu':
         case 'openrouter':
@@ -856,7 +869,7 @@ export class AIService {
           }
 
           const data = await response.json();
-          return data.choices[0]?.message?.content || '{}';
+          return this.extractJSON(data.choices[0]?.message?.content || '{}');
         }
       }
     } catch (error) {

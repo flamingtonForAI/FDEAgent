@@ -170,6 +170,8 @@ const AppContent: React.FC = () => {
   // Use ProjectContext for both chat and ontology (per-project storage)
   const { currentChat: chatMessages, setChatMessages, activeProjectId, currentOntology, setCurrentOntology } = useProject();
   const chatHistoryRef = useRef<ChatMessage[]>(chatMessages);
+  const activeProjectIdRef = useRef(activeProjectId);
+  activeProjectIdRef.current = activeProjectId;
 
   // Derive project from context (with fallback for null)
   const project = currentOntology || emptyProjectState;
@@ -400,67 +402,7 @@ const AppContent: React.FC = () => {
     ? aiSettings.apiKeys[aiSettings.provider as AIProvider]
     : aiSettings.apiKey;
 
-  const handleDesignComplete = useCallback((data: any) => {
-    try {
-      const parsed = typeof data === 'string' ? JSON.parse(data) : data;
-
-      // 验证必要结构
-      if (!parsed || typeof parsed !== 'object') {
-        throw new Error('AI返回的数据格式无效');
-      }
-
-      // 验证objects数组
-      const objects = Array.isArray(parsed.objects) ? parsed.objects : [];
-      const links = Array.isArray(parsed.links) ? parsed.links : [];
-      const integrations = Array.isArray(parsed.integrations) ? parsed.integrations : [];
-
-      // 如果没有objects，提示用户
-      if (objects.length === 0) {
-        console.warn('AI未能识别出业务对象，可能需要更多对话信息');
-        alert(lang === 'cn'
-          ? 'AI未能识别出业务对象。请在对话中提供更多业务细节后重试。'
-          : 'AI could not identify business objects. Please provide more business details in the conversation and try again.');
-        return;
-      }
-
-      // 验证每个object的基本结构
-      const validObjects = objects.filter((obj: any) =>
-        obj && typeof obj === 'object' && obj.id && obj.name
-      );
-
-      if (validObjects.length === 0) {
-        throw new Error('AI返回的对象结构无效');
-      }
-
-      // 确保每个object有actions数组
-      const normalizedObjects = validObjects.map((obj: any) => ({
-        ...obj,
-        properties: Array.isArray(obj.properties) ? obj.properties : [],
-        actions: Array.isArray(obj.actions) ? obj.actions : [],
-        aiFeatures: Array.isArray(obj.aiFeatures) ? obj.aiFeatures : [],
-      }));
-
-      setCurrentOntology({
-        ...project,
-        objects: normalizedObjects,
-        links: links,
-        integrations: integrations,
-        status: 'designing'
-      });
-      setActiveTab('ontology');
-    } catch (e) {
-      console.error("Failed to parse ontology design", e);
-      alert(lang === 'cn'
-        ? `解析AI结果失败: ${e instanceof Error ? e.message : '未知错误'}。请重试或检查API设置。`
-        : `Failed to parse AI result: ${e instanceof Error ? e.message : 'Unknown error'}. Please retry or check API settings.`);
-    }
-  }, [lang]);
-
   const triggerAutoDesign = useCallback(async () => {
-    console.log('triggerAutoDesign called');
-    console.log('aiSettings:', aiSettings);
-    console.log('chatHistoryRef.current:', chatHistoryRef.current);
-
     // 检查是否配置了模型
     if (!aiSettings.model) {
       alert(lang === 'cn' ? '请先在设置中选择一个模型' : 'Please select a model in settings first');
@@ -474,12 +416,67 @@ const AppContent: React.FC = () => {
       return;
     }
 
+    // Capture the project ID before the async call so we can verify it hasn't
+    // changed when the response comes back (prevents cross-project data write).
+    const requestProjectId = activeProjectIdRef.current;
+
     setIsDesigning(true);
     try {
-      console.log('Calling designOntology...');
       const result = await aiService.current.designOntology(chatHistoryRef.current);
-      console.log('designOntology result:', result);
-      handleDesignComplete(result);
+
+      const parsed = typeof result === 'string' ? JSON.parse(result) : result;
+
+      if (!parsed || typeof parsed !== 'object') {
+        throw new Error('AI返回的数据格式无效');
+      }
+
+      const objects = Array.isArray(parsed.objects) ? parsed.objects : [];
+      const links = Array.isArray(parsed.links) ? parsed.links : [];
+      const integrations = Array.isArray(parsed.integrations) ? parsed.integrations : [];
+
+      if (objects.length === 0) {
+        console.warn('AI未能识别出业务对象，可能需要更多对话信息');
+        alert(lang === 'cn'
+          ? 'AI未能识别出业务对象。请在对话中提供更多业务细节后重试。'
+          : 'AI could not identify business objects. Please provide more business details in the conversation and try again.');
+        return;
+      }
+
+      const validObjects = objects.filter((obj: any) =>
+        obj && typeof obj === 'object' && obj.id && obj.name
+      );
+
+      if (validObjects.length === 0) {
+        throw new Error('AI返回的对象结构无效');
+      }
+
+      const normalizedObjects = validObjects.map((obj: any) => ({
+        ...obj,
+        properties: Array.isArray(obj.properties) ? obj.properties : [],
+        actions: Array.isArray(obj.actions) ? obj.actions : [],
+        aiFeatures: Array.isArray(obj.aiFeatures) ? obj.aiFeatures : [],
+      }));
+
+      // Guard: if the user switched projects while the AI request was in-flight,
+      // discard the result to prevent cross-project data pollution.
+      // Read from ref to get the *current* value, not the stale closure value.
+      if (activeProjectIdRef.current !== requestProjectId) {
+        console.warn('Project changed during design generation, discarding result');
+        alert(lang === 'cn'
+          ? '生成期间项目已切换，结果已丢弃。请在当前项目中重新生成。'
+          : 'Project changed during generation. Result discarded. Please regenerate in the current project.');
+        return;
+      }
+
+      // Use functional update to avoid stale closure over project state.
+      setProject(prev => ({
+        ...prev,
+        objects: normalizedObjects,
+        links: links,
+        integrations: integrations,
+        status: 'designing' as const,
+      }));
+      setActiveTab('ontology');
     } catch (error) {
       console.error('Design failed:', error);
       alert(lang === 'cn'
@@ -488,7 +485,7 @@ const AppContent: React.FC = () => {
     } finally {
       setIsDesigning(false);
     }
-  }, [lang, aiSettings.model, handleDesignComplete]);
+  }, [lang, aiSettings.model, setProject]);
 
   const handleNewSession = () => {
     if (window.confirm(t.confirmNewSession)) {
