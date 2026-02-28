@@ -141,18 +141,54 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
         const archetype = await getMergedArchetypeById(selectedTemplate.id);
         if (archetype) {
           // Convert connectors to integrations format
-          const integrations = archetype.connectors?.map(connector => ({
-            systemName: connector.sourceSystem,
-            dataPoints: connector.mappedObjects?.map(m => m.sourceEntity) || [],
-            mechanism: connector.sync?.frequency === 'realtime' ? 'Webhook' : 'API',
-            targetObjectId: connector.mappedObjects?.[0]?.objectId || '',
-          })) || [];
+          // Supports both Pattern A (sourceSystem, mappedObjects, sync)
+          // and Pattern B (name, targetObjects, syncFrequency, configuration)
+          const integrations = (archetype.connectors || []).flatMap((connector: any) => {
+            const systemName = connector.sourceSystem || connector.name || connector.id || '';
+
+            let mechanism: string;
+            if (connector.sync?.frequency) {
+              mechanism = connector.sync.frequency === 'realtime' || connector.sync.frequency === 'streaming'
+                ? 'Webhook' : 'API';
+            } else if (connector.configuration?.connectionType) {
+              mechanism = connector.configuration.connectionType;
+            } else if (connector.syncFrequency) {
+              mechanism = connector.syncFrequency === 'real-time' || connector.syncFrequency === 'realtime'
+                ? 'Webhook' : 'API';
+            } else {
+              mechanism = 'API';
+            }
+
+            const dataPoints = connector.mappedObjects
+              ? connector.mappedObjects.map((m: any) => m.sourceEntity).filter(Boolean)
+              : (connector.fieldMapping || []).map((fm: any) => fm.source).filter(Boolean);
+
+            const targetIds: string[] = connector.mappedObjects
+              ? connector.mappedObjects.map((m: any) => m.objectId).filter(Boolean)
+              : (connector.targetObjects || []);
+
+            if (targetIds.length === 0) {
+              return [{ systemName, dataPoints, mechanism, targetObjectId: '' }];
+            }
+
+            return targetIds.map((targetId: string) => ({
+              systemName,
+              dataPoints: dataPoints.length > 0 ? dataPoints : [targetId],
+              mechanism,
+              targetObjectId: targetId,
+            }));
+          });
 
           initialState = {
             projectName: projectName,
             industry: archetype.metadata.industry || industry,
             useCase: useCase || archetype.metadata.domain || '',
-            objects: archetype.ontology.objects || [],
+            objects: (archetype.ontology.objects || []).map((obj: any) => ({
+              ...obj,
+              actions: obj.actions || [],
+              properties: obj.properties || [],
+              aiFeatures: obj.aiFeatures || [],
+            })),
             links: normalizeLinks(archetype.ontology.links || []),
             integrations: integrations,
             aiRequirements: [],

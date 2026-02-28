@@ -33,9 +33,13 @@ interface AIAnalyzerProps {
   objects: OntologyObject[];
   links: OntologyLink[];
   aiSettings: AISettings;
-  // State lifted to parent for persistence across tab switches
+  // State lifted to App.tsx for persistence across tab switches
   analysisResult: AnalysisResult | null;
   onAnalysisResult: (result: AnalysisResult | null) => void;
+  isAnalyzing: boolean;
+  onIsAnalyzingChange: (v: boolean) => void;
+  analysisError: string | null;
+  onAnalysisError: (e: string | null) => void;
   // For applying suggestions to Ontology
   project: ProjectState;
   setProject: React.Dispatch<React.SetStateAction<ProjectState>>;
@@ -159,21 +163,29 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
   aiSettings,
   analysisResult,
   onAnalysisResult,
+  isAnalyzing,
+  onIsAnalyzingChange,
+  analysisError,
+  onAnalysisError,
   project,
   setProject
 }) => {
   const t = translations[lang];
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [expandedSuggestions, setExpandedSuggestions] = useState<Set<string>>(new Set());
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
-  // Use the lifted state
+  // Use the lifted state from App.tsx (persists across tab switches)
   const result = analysisResult;
   const setResult = onAnalysisResult;
+  const setIsAnalyzing = onIsAnalyzingChange;
+  const error = analysisError;
+  const setError = onAnalysisError;
 
   const hasData = objects.length > 0;
-  const hasApiKey = aiSettings.apiKey && aiSettings.apiKey.length > 0;
+  const hasApiKey = !!(
+    (aiSettings.apiKey && aiSettings.apiKey.length > 0) ||
+    (aiSettings.apiKeys && aiSettings.apiKeys[aiSettings.provider as keyof typeof aiSettings.apiKeys])
+  );
 
   const runAnalysis = useCallback(async () => {
     if (!hasData || !hasApiKey) return;
@@ -191,7 +203,7 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
     } finally {
       setIsAnalyzing(false);
     }
-  }, [objects, links, aiSettings, lang, hasData, hasApiKey, setResult]);
+  }, [objects, links, aiSettings, lang, hasData, hasApiKey, setResult, setIsAnalyzing, setError]);
 
   // Handle analyze button click - show confirmation if result exists
   const handleAnalyzeClick = useCallback(() => {

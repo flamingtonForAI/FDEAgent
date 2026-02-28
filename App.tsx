@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AIService, loadAISettings, loadAISettingsAsync, saveAISettings } from './services/aiService';
 import { AnalysisResult } from './services/aiAnalysisService';
-import { ProjectState, ChatMessage, Language, AISettings, AI_PROVIDERS } from './types';
+import { ProjectState, ChatMessage, Language, AISettings, AIProvider, AI_PROVIDERS } from './types';
 // Page components - refactored for better maintainability
 import {
   ProjectsPage,
@@ -201,8 +201,10 @@ const AppContent: React.FC = () => {
   // Archetype状态
   const [selectedArchetypeId, setSelectedArchetypeId] = useState<string | null>(null);
 
-  // AI 分析结果状态（持久化跨标签页）
+  // AI 分析状态（持久化跨标签页）
   const [aiAnalysisResult, setAiAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [isAiAnalyzing, setIsAiAnalyzing] = useState(false);
+  const [aiAnalysisError, setAiAnalysisError] = useState<string | null>(null);
 
   // 全局聊天栏状态
   const [isChatExpanded, setIsChatExpanded] = useState(false);
@@ -270,7 +272,8 @@ const AppContent: React.FC = () => {
   // 异步加载本地配置文件（api-config.local.json）
   useEffect(() => {
     loadAISettingsAsync().then(settings => {
-      if (settings.apiKey) {
+      const effectiveKey = settings.apiKeys?.[settings.provider as AIProvider] || settings.apiKey;
+      if (effectiveKey) {
         setAiSettings(settings);
         aiService.current.updateSettings(settings);
         console.log('已从本地文件加载 API 配置');
@@ -367,6 +370,10 @@ const AppContent: React.FC = () => {
     saveAISettings(newSettings);
     aiService.current.updateSettings(newSettings);
   };
+
+  const activeProviderApiKey = aiSettings.apiKeys
+    ? aiSettings.apiKeys[aiSettings.provider as AIProvider]
+    : aiSettings.apiKey;
 
   const handleDesignComplete = useCallback((data: any) => {
     try {
@@ -499,12 +506,51 @@ const AppContent: React.FC = () => {
     const links = normalizeLinks(archetype.ontology.links || []);
 
     // Create integrations from connectors
-    const integrations = archetype.connectors.map(connector => ({
-      systemName: connector.sourceSystem,
-      dataPoints: connector.mappedObjects.map(m => m.sourceEntity),
-      mechanism: connector.sync.frequency === 'realtime' ? 'Webhook' as const : 'API' as const,
-      targetObjectId: connector.mappedObjects[0]?.objectId || '',
-    }));
+    // Handles both typed format (sourceSystem, mappedObjects, sync)
+    // and flat format (name, targetObjects, syncFrequency, configuration)
+    const integrations = archetype.connectors.flatMap(connector => {
+      const systemName = connector.sourceSystem || connector.name || connector.id || '';
+
+      // Determine mechanism
+      let mechanism: string;
+      if (connector.sync?.frequency) {
+        mechanism = connector.sync.frequency === 'realtime' || connector.sync.frequency === 'streaming'
+          ? 'Webhook' : 'API';
+      } else if (connector.configuration?.connectionType) {
+        mechanism = connector.configuration.connectionType;
+      } else if (connector.syncFrequency) {
+        mechanism = connector.syncFrequency === 'real-time' || connector.syncFrequency === 'realtime'
+          ? 'Webhook' : 'API';
+      } else {
+        mechanism = 'API';
+      }
+
+      // Determine data points
+      const dataPoints = connector.mappedObjects
+        ? connector.mappedObjects.map((m: any) => m.sourceEntity).filter(Boolean)
+        : (connector.fieldMapping || []).map((fm: any) => fm.source).filter(Boolean);
+
+      // Determine target objects — flatten one connector to multiple integrations
+      const targetIds: string[] = connector.mappedObjects
+        ? connector.mappedObjects.map((m: any) => m.objectId).filter(Boolean)
+        : (connector.targetObjects || []);
+
+      if (targetIds.length === 0) {
+        return [{
+          systemName,
+          dataPoints: dataPoints.length > 0 ? dataPoints : [],
+          mechanism,
+          targetObjectId: '',
+        }];
+      }
+
+      return targetIds.map((targetId: string) => ({
+        systemName,
+        dataPoints: dataPoints.length > 0 ? dataPoints : [targetId],
+        mechanism,
+        targetObjectId: targetId,
+      }));
+    });
 
     // Add a system message marking the context boundary (instead of clearing everything)
     const systemMessage: ChatMessage = {
@@ -668,12 +714,12 @@ const AppContent: React.FC = () => {
               <span>{lang === 'cn' ? '设置' : 'Settings'}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] truncate max-w-[60px]" style={{ color: 'var(--color-accent)' }}>
-                {getCurrentModelName()}
-              </span>
+                <span className="text-[10px] truncate max-w-[60px]" style={{ color: 'var(--color-accent)' }}>
+                  {getCurrentModelName()}
+                </span>
               <div
                 className="w-1.5 h-1.5 rounded-full"
-                style={{ backgroundColor: aiSettings.apiKey ? 'var(--color-success)' : 'var(--color-warning)' }}
+                style={{ backgroundColor: activeProviderApiKey ? 'var(--color-success)' : 'var(--color-warning)' }}
               />
             </div>
           </button>
@@ -732,7 +778,7 @@ const AppContent: React.FC = () => {
                 messages={chatMessages}
                 project={project}
                 isLoading={isChatLoading}
-                hasApiKey={!!aiSettings.apiKey}
+                hasApiKey={!!activeProviderApiKey}
                 onDesignTrigger={triggerAutoDesign}
                 onOpenSettings={() => setShowSettings(true)}
               />
@@ -761,6 +807,10 @@ const AppContent: React.FC = () => {
                 aiSettings={aiSettings}
                 analysisResult={aiAnalysisResult}
                 onAnalysisResult={setAiAnalysisResult}
+                isAnalyzing={isAiAnalyzing}
+                onIsAnalyzingChange={setIsAiAnalyzing}
+                analysisError={aiAnalysisError}
+                onAnalysisError={setAiAnalysisError}
               />
             )}
           </ErrorBoundary>

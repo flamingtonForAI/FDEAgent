@@ -445,7 +445,7 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
         obj.id === objectId
           ? {
               ...obj,
-              actions: obj.actions.map((action, idx) =>
+              actions: (obj.actions || []).map((action, idx) =>
                 idx === actionIndex ? updatedAction : action
               )
             }

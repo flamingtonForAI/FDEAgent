@@ -8,13 +8,13 @@ import { Language, AISettings, AI_PROVIDERS, AIProvider } from '../types';
 import { Theme, ThemeMode, themeOptions, applyThemeMode, getSavedThemeMode, getThemeForMode } from '../lib/themes';
 import { getProviderCompatibility } from './FileUpload';
 import { useModelRegistry } from '../hooks/useModelRegistry';
-import { EnrichedModelInfo } from '../services/aiService';
+import { AIService, EnrichedModelInfo } from '../services/aiService';
 import {
   getModelCapabilities,
 } from '../lib/llmCapabilities';
 import {
   X, Settings, Cpu, Palette, Globe, RotateCcw, AlertTriangle,
-  Check, Moon, Sun, Monitor, Key, Search, RefreshCw, Loader2
+  Check, Moon, Sun, Monitor, Key, Search, RefreshCw, Loader2, Plug
 } from 'lucide-react';
 
 interface Props {
@@ -80,6 +80,11 @@ const translations = {
     openrouterCollapsedHint: 'Showing recommended + search matches only',
     showAll: 'Show all',
     hideAll: 'Collapse',
+    testConnection: 'Test Connection',
+    testing: 'Testing...',
+    testSuccess: 'Connection successful!',
+    testFailed: 'Connection failed',
+    confirm: 'Confirm',
   },
   cn: {
     title: '设置',
@@ -130,6 +135,11 @@ const translations = {
     openrouterCollapsedHint: '当前仅展示推荐模型和搜索命中的模型',
     showAll: '显示全部',
     hideAll: '收起',
+    testConnection: '测试连接',
+    testing: '测试中...',
+    testSuccess: '连接成功！',
+    testFailed: '连接失败',
+    confirm: '确认',
   }
 };
 
@@ -152,13 +162,20 @@ export default function UnifiedSettings({
   onClose,
 }: Props) {
   const t = translations[lang];
+  // Only fall back to legacy apiKey when apiKeys map doesn't exist (old data).
+  // When apiKeys exists, strictly use the current provider's key to prevent cross-provider leakage.
+  const currentProviderKey = aiSettings.apiKeys
+    ? (aiSettings.apiKeys[aiSettings.provider as AIProvider] ?? '')
+    : (aiSettings.apiKey || '');
   const [activeTab, setActiveTab] = useState<SettingsTab>('ai');
   const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [localApiKey, setLocalApiKey] = useState(aiSettings.apiKey);
+  const [localApiKey, setLocalApiKey] = useState(currentProviderKey);
   const [currentThemeMode, setCurrentThemeMode] = useState<ThemeMode>(getSavedThemeMode);
   const [modelSearch, setModelSearch] = useState('');
   const [quickFilter, setQuickFilter] = useState<QuickFilter>('all');
   const [showAllOpenRouterModels, setShowAllOpenRouterModels] = useState(false);
+  const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'failed'>('idle');
+  const [testMessage, setTestMessage] = useState('');
 
   const {
     models,
@@ -175,8 +192,11 @@ export default function UnifiedSettings({
   });
 
   useEffect(() => {
-    setLocalApiKey(aiSettings.apiKey);
-  }, [aiSettings.apiKey]);
+    const key = aiSettings.apiKeys
+      ? (aiSettings.apiKeys[aiSettings.provider as AIProvider] || '')
+      : (aiSettings.apiKey || '');
+    setLocalApiKey(key);
+  }, [aiSettings.apiKey, aiSettings.apiKeys, aiSettings.provider]);
 
   useEffect(() => {
     setModelSearch('');
@@ -244,10 +264,15 @@ export default function UnifiedSettings({
   const handleProviderChange = (providerId: string) => {
     const provider = AI_PROVIDERS.find((p) => p.id === providerId);
     if (!provider) return;
+    // Flush current provider's key before switching, so un-blurred input isn't lost
+    const updatedKeys = localApiKey !== currentProviderKey
+      ? { ...(aiSettings.apiKeys || {}), [aiSettings.provider as AIProvider]: localApiKey }
+      : (aiSettings.apiKeys || {});
     onAISettingsChange({
       ...aiSettings,
       provider: provider.id,
       model: provider.models[0]?.id || '',
+      apiKeys: updatedKeys as AISettings['apiKeys'],
     });
   };
 
@@ -255,10 +280,44 @@ export default function UnifiedSettings({
     onAISettingsChange({ ...aiSettings, model: modelId });
   };
 
-  const handleApiKeyBlur = () => {
-    if (localApiKey !== aiSettings.apiKey) {
-      onAISettingsChange({ ...aiSettings, apiKey: localApiKey });
+  const flushApiKey = () => {
+    if (localApiKey !== currentProviderKey) {
+      onAISettingsChange({
+        ...aiSettings,
+        // Don't overwrite legacy apiKey with current provider's key — prevents cross-provider leakage.
+        // Only update the provider-specific slot in apiKeys.
+        apiKeys: {
+          ...(aiSettings.apiKeys || {}),
+          [aiSettings.provider as AIProvider]: localApiKey,
+        },
+      });
     }
+  };
+
+  const handleApiKeyBlur = () => {
+    flushApiKey();
+  };
+
+  const handleTestConnection = async () => {
+    flushApiKey();
+    setTestStatus('testing');
+    setTestMessage('');
+    const service = new AIService({
+      ...aiSettings,
+      apiKey: localApiKey,
+      apiKeys: {
+        ...(aiSettings.apiKeys || {}),
+        [aiSettings.provider as AIProvider]: localApiKey,
+      },
+    });
+    const result = await service.testConnection();
+    setTestStatus(result.success ? 'success' : 'failed');
+    setTestMessage(result.message);
+  };
+
+  const handleConfirm = () => {
+    flushApiKey();
+    onClose();
   };
 
   const handleReset = () => {
@@ -274,7 +333,7 @@ export default function UnifiedSettings({
   ];
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[120] p-4">
       <div
         className="w-full max-w-2xl max-h-[80vh] rounded-xl shadow-2xl overflow-hidden flex flex-col"
         style={{ backgroundColor: 'var(--color-bg-elevated)' }}
@@ -284,7 +343,7 @@ export default function UnifiedSettings({
             <Settings size={20} style={{ color: 'var(--color-accent)' }} />
             <h2 className="text-lg font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h2>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/[0.06] transition-colors">
+          <button onClick={() => { flushApiKey(); onClose(); }} className="p-1.5 rounded-lg hover:bg-white/[0.06] transition-colors">
             <X size={18} className="text-muted" />
           </button>
         </div>
@@ -342,7 +401,39 @@ export default function UnifiedSettings({
                           style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
                         />
                       </div>
-                      <p className="text-[10px] text-muted mt-1.5">{t.apiKeyHint}</p>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <p className="text-[10px] text-muted flex-1">{t.apiKeyHint}</p>
+                        <button
+                          type="button"
+                          onClick={handleTestConnection}
+                          disabled={!localApiKey || testStatus === 'testing'}
+                          className="text-[11px] px-2.5 py-1 rounded-lg border transition-colors flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+                          style={{ borderColor: 'var(--color-border)', color: 'var(--color-accent)', backgroundColor: 'var(--color-bg-surface)' }}
+                        >
+                          {testStatus === 'testing' ? (
+                            <Loader2 size={12} className="animate-spin" />
+                          ) : (
+                            <Plug size={12} />
+                          )}
+                          {testStatus === 'testing' ? t.testing : t.testConnection}
+                        </button>
+                      </div>
+                      {testStatus !== 'idle' && testStatus !== 'testing' && (
+                        <div
+                          className="text-xs mt-1.5 px-3 py-2 rounded-lg flex items-center gap-2"
+                          style={{
+                            color: testStatus === 'success' ? 'var(--color-success)' : 'var(--color-error)',
+                            backgroundColor: testStatus === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                            border: `1px solid ${testStatus === 'success' ? 'rgba(16, 185, 129, 0.35)' : 'rgba(239, 68, 68, 0.35)'}`,
+                          }}
+                        >
+                          {testStatus === 'success' ? <Check size={13} /> : <X size={13} />}
+                          <span className="truncate">
+                            {testStatus === 'success' ? t.testSuccess : t.testFailed}
+                            {testMessage && ` ${testMessage.slice(0, 80)}`}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     <div>
@@ -503,8 +594,8 @@ export default function UnifiedSettings({
                     )}
 
                     <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: aiSettings.apiKey ? 'var(--color-success)' : 'var(--color-warning)' }} />
-                      <span className="text-xs text-muted">{aiSettings.apiKey ? t.connected : t.notConfigured}</span>
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: localApiKey ? 'var(--color-success)' : 'var(--color-warning)' }} />
+                      <span className="text-xs text-muted">{localApiKey ? t.connected : t.notConfigured}</span>
                       {selectedModelInfo && (
                         <>
                           <span className="text-muted">•</span>
@@ -615,6 +706,23 @@ export default function UnifiedSettings({
               </div>
             )}
           </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 px-4 py-3" style={{ borderTop: '1px solid var(--color-border)' }}>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg text-sm transition-colors"
+            style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)' }}
+          >
+            {t.cancel}
+          </button>
+          <button
+            onClick={handleConfirm}
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            style={{ backgroundColor: 'var(--color-accent)', color: 'white' }}
+          >
+            {t.confirm}
+          </button>
         </div>
       </div>
     </div>

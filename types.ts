@@ -322,6 +322,7 @@ export interface AIModelConfig {
 export interface AISettings {
   provider: AIProvider;
   apiKey: string;
+  apiKeys?: Partial<Record<AIProvider, string>>;
   model: string;
   customBaseUrl?: string;
 }

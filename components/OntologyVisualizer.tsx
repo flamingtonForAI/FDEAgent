@@ -261,7 +261,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
                 <p className="text-micro text-muted font-mono">{obj.id}</p>
               </div>
             </div>
-            {obj.aiFeatures.length > 0 && (
+            {obj.aiFeatures?.length > 0 && (
               <span className="px-2 py-0.5 text-micro rounded" style={{ color: 'var(--color-accent)', backgroundColor: 'var(--color-bg-hover)' }}>
                 AI
               </span>
@@ -279,7 +279,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
           <div className="mb-4">
             <span className="text-micro text-muted block mb-2">{t.attributes}</span>
             <div className="flex flex-wrap gap-1.5">
-              {obj.properties.slice(0, 6).map((prop, idx) => (
+              {(obj.properties || []).slice(0, 6).map((prop, idx) => (
                 <span
                   key={idx}
                   className="px-2 py-1 rounded text-micro"
@@ -291,7 +291,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
                   {prop.name}
                 </span>
               ))}
-              {obj.properties.length > 6 && (
+              {(obj.properties?.length || 0) > 6 && (
                 <span className="px-2 py-1 text-micro text-muted">
                   +{obj.properties.length - 6}
                 </span>
@@ -303,7 +303,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
           <div>
             <span className="text-micro text-muted block mb-2">{t.actions}</span>
             <div className="space-y-1.5">
-              {obj.actions.map((action, idx) => {
+              {(obj.actions || []).map((action, idx) => {
                 const actionKey = `${obj.id}-${idx}`;
                 const isExpanded = expandedActions.has(actionKey);
                 const hasDetails = action.businessLayer || action.logicLayer || action.implementationLayer || action.governance;

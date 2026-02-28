@@ -3,6 +3,7 @@ import React, { useRef, useState, useCallback } from 'react';
 import { Language, AIProvider } from '../types';
 import { getModelCapabilities } from '../lib/llmCapabilities';
 import { EnrichedModelInfo } from '../services/aiService';
+import { parseOfficeDocument, isOfficeMimeType } from '../lib/documentParser';
 import {
   Paperclip, X, FileText, FileSpreadsheet,
   File, Upload, AlertCircle, Loader2, Image, FileImage, Presentation, AlertTriangle
@@ -17,6 +18,7 @@ export interface UploadedFile {
   preview: string;      // Preview text for display
   isBase64: boolean;    // Whether content is base64 encoded
   mimeType: string;     // Original MIME type for LLM
+  extractedText?: string; // Client-side extracted text for Office docs (fallback for unsupported providers)
 }
 
 interface FileUploadProps {
@@ -87,7 +89,7 @@ export function getProviderCompatibility(
     };
   }
 
-  // Office 文档 (Excel, PPT, Word) - 完全不支持，硬拦截
+  // Office 文档 (Excel, PPT, Word) - 支持原生 API 或客户端提取文本兜底
   if (mimeType.includes('spreadsheet') || mimeType.includes('excel') ||
       mimeType.includes('presentation') || mimeType.includes('powerpoint') ||
       mimeType.includes('wordprocessing') || mimeType.includes('msword')) {
@@ -96,8 +98,10 @@ export function getProviderCompatibility(
     }
     return {
       supported: false,
-      blockSend: true,
-      warning: 'Office 文档在当前模型不受支持，请切换到 Gemini 系列模型'
+      blockSend: false,
+      warning: provider === 'openrouter' || provider === 'openai' || provider === 'gemini'
+        ? 'Office 文档将通过原生 API 解析'
+        : 'Office 文档将自动提取文本内容供 AI 分析'
     };
   }
 
@@ -185,6 +189,16 @@ const getFileTypeConfig = (mimeType: string, fileName: string): FileTypeConfig =
     };
   }
 
+  // Word
+  if (mimeType.includes('wordprocessingml') || mimeType.includes('msword') || ['docx', 'doc'].includes(ext)) {
+    return {
+      icon: <FileText size={16} />,
+      color: 'var(--color-accent)',
+      isText: false,
+      label: { en: 'Word Document', cn: 'Word 文档' }
+    };
+  }
+
   // PowerPoint
   if (mimeType.includes('presentation') || mimeType.includes('powerpoint') || ['pptx', 'ppt'].includes(ext)) {
     return {
@@ -259,6 +273,22 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }
 
     const config = getFileTypeConfig(file.type, file.name);
+    const mimeType = file.type || 'application/octet-stream';
+    const isOffice = isOfficeMimeType(mimeType);
+
+    // For Office files, extract text in parallel with base64 reading
+    let extractedText: string | undefined;
+    if (isOffice) {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const parsed = await parseOfficeDocument(arrayBuffer, mimeType);
+        if (parsed && parsed.text) {
+          extractedText = parsed.text;
+        }
+      } catch (err) {
+        console.warn('Office document text extraction failed:', err);
+      }
+    }
 
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -292,7 +322,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
             content: base64,
             preview,
             isBase64: true,
-            mimeType: file.type || 'application/octet-stream'
+            mimeType: mimeType,
+            extractedText,
           });
         }
       };
@@ -533,6 +564,22 @@ export const FileUploadButton: React.FC<{
     }
 
     const config = getFileTypeConfig(file.type, file.name);
+    const mimeType = file.type || 'application/octet-stream';
+    const isOffice = isOfficeMimeType(mimeType);
+
+    // For Office files, extract text
+    let extractedText: string | undefined;
+    if (isOffice) {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const parsed = await parseOfficeDocument(arrayBuffer, mimeType);
+        if (parsed && parsed.text) {
+          extractedText = parsed.text;
+        }
+      } catch (err) {
+        console.warn('Office document text extraction failed:', err);
+      }
+    }
 
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -564,7 +611,8 @@ export const FileUploadButton: React.FC<{
             content: base64,
             preview,
             isBase64: true,
-            mimeType: file.type || 'application/octet-stream'
+            mimeType: mimeType,
+            extractedText,
           });
         }
       };

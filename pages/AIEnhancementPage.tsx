@@ -10,6 +10,10 @@ interface AIEnhancementPageProps {
   aiSettings: AISettings;
   analysisResult: AnalysisResult | null;
   onAnalysisResult: (result: AnalysisResult | null) => void;
+  isAnalyzing: boolean;
+  onIsAnalyzingChange: (v: boolean) => void;
+  analysisError: string | null;
+  onAnalysisError: (e: string | null) => void;
 }
 
 /**
@@ -23,6 +27,10 @@ export const AIEnhancementPage: React.FC<AIEnhancementPageProps> = ({
   aiSettings,
   analysisResult,
   onAnalysisResult,
+  isAnalyzing,
+  onIsAnalyzingChange,
+  analysisError,
+  onAnalysisError,
 }) => (
   <AIEnhancement
     lang={lang}
@@ -31,5 +39,9 @@ export const AIEnhancementPage: React.FC<AIEnhancementPageProps> = ({
     aiSettings={aiSettings}
     analysisResult={analysisResult}
     onAnalysisResult={onAnalysisResult}
+    isAnalyzing={isAnalyzing}
+    onIsAnalyzingChange={onIsAnalyzingChange}
+    analysisError={analysisError}
+    onAnalysisError={onAnalysisError}
   />
 );

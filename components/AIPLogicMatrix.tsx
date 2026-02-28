@@ -36,7 +36,7 @@ const translations = {
 const AIPLogicMatrix: React.FC<Props> = ({ lang, objects }) => {
   const t = translations[lang];
   const aiComponents = objects.flatMap(obj => 
-    obj.aiFeatures.map(feat => ({ ...feat, parent: obj.name }))
+    (obj.aiFeatures || []).map(feat => ({ ...feat, parent: obj.name }))
   );
 
   const getIcon = (type: string) => {
@@ -106,7 +106,7 @@ const AIPLogicMatrix: React.FC<Props> = ({ lang, objects }) => {
             </h3>
             <div className="space-y-3">
               {objects.flatMap(obj =>
-                obj.actions.filter(a => a.type === 'generative').map((a, idx) => (
+                (obj.actions || []).filter(a => a.type === 'generative').map((a, idx) => (
                   <div key={idx} className="text-xs p-3 rounded-lg font-mono" style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
                     <span style={{ color: 'var(--color-accent-secondary)' }}>{t.flow}</span> {obj.name}.{a.name}
                     <div className="mt-2 text-muted">

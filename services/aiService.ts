@@ -6,6 +6,7 @@ export interface FileAttachment {
   content: string;      // Text content or base64 for binary
   mimeType: string;
   isBase64: boolean;
+  extractedText?: string; // Client-side extracted text for Office docs (fallback)
 }
 
 export type ModelSource = 'hardcoded' | 'api';
@@ -271,12 +272,38 @@ export class AIService {
   }
 
   updateSettings(settings: AISettings) {
+    const previousKey = this.getApiKey();
     this.settings = settings;
     // Clear cached Gemini instance if API key changed
-    if (this.settings.provider === 'gemini' && cachedGeminiApiKey !== settings.apiKey) {
+    if (this.settings.provider === 'gemini' && cachedGeminiApiKey !== this.getApiKey()) {
       cachedGeminiInstance = null;
       cachedGeminiApiKey = null;
     }
+    // Keep cache coherent even if provider changed away from Gemini.
+    if (settings.provider !== 'gemini' && previousKey !== this.getApiKey()) {
+      cachedGeminiInstance = null;
+      cachedGeminiApiKey = null;
+    }
+  }
+
+  private getApiKey(): string {
+    const settingsWithMap = this.settings as AISettings & {
+      apiKeys?: Partial<Record<AIProvider, string>>;
+    };
+    // When apiKeys map exists, only use the key for the current provider.
+    // Fall back to legacy apiKey field only when apiKeys map is absent (old data).
+    if (settingsWithMap.apiKeys) {
+      return (settingsWithMap.apiKeys[this.settings.provider] || '').trim();
+    }
+    return (this.settings.apiKey || '').trim();
+  }
+
+  private requireApiKey(): string {
+    const key = this.getApiKey();
+    if (!key) {
+      throw new Error(`Missing API key for provider: ${this.settings.provider}`);
+    }
+    return key;
   }
 
   private getBaseUrl(): string {
@@ -311,9 +338,10 @@ export class AIService {
     }
 
     // Reuse cached instance if API key matches
-    if (!cachedGeminiInstance || cachedGeminiApiKey !== this.settings.apiKey) {
-      cachedGeminiInstance = new cachedGoogleGenAI({ apiKey: this.settings.apiKey });
-      cachedGeminiApiKey = this.settings.apiKey;
+    if (!cachedGeminiInstance || cachedGeminiApiKey !== this.getApiKey()) {
+      const apiKey = this.requireApiKey();
+      cachedGeminiInstance = new cachedGoogleGenAI({ apiKey });
+      cachedGeminiApiKey = apiKey;
     }
 
     const ai = cachedGeminiInstance;
@@ -342,7 +370,7 @@ export class AIService {
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.settings.apiKey}`,
+      'Authorization': `Bearer ${this.requireApiKey()}`,
     };
 
     // OpenRouter需要额外的header
@@ -351,22 +379,30 @@ export class AIService {
       headers['X-Title'] = 'Ontology Architect';
     }
 
-    const response = await fetch(`${baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        model: this.settings.model,
-        messages: [
-          { role: 'system', content: SYSTEM_INSTRUCTION },
-          ...messages.map(m => ({
-            role: m.role === 'assistant' ? 'assistant' : 'user',
-            content: m.content,
-          })),
-        ],
-        temperature: 0.7,
-        max_tokens: 4096,
-      }),
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          model: this.settings.model,
+          messages: [
+            { role: 'system', content: SYSTEM_INSTRUCTION },
+            ...messages.map(m => ({
+              role: m.role === 'assistant' ? 'assistant' : 'user',
+              content: m.content,
+            })),
+          ],
+          temperature: 0.7,
+          max_tokens: 4096,
+        }),
+      });
+    } catch (fetchError) {
+      // Network-level failure (DNS, CORS, proxy, timeout)
+      throw new Error(
+        `无法连接到 ${baseUrl}（网络错误）。请检查：1) 网络连接是否正常；2) 是否需要代理/VPN 访问该服务；3) 浏览器控制台是否有 CORS 错误。`
+      );
+    }
 
     if (!response.ok) {
       const error = await response.text();
@@ -378,25 +414,33 @@ export class AIService {
   }
 
   private async callZhipu(messages: { role: string; content: string }[]): Promise<string> {
-    const response = await fetch(`${this.getBaseUrl()}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.settings.apiKey}`,
-      },
-      body: JSON.stringify({
-        model: this.settings.model,
-        messages: [
-          { role: 'system', content: SYSTEM_INSTRUCTION },
-          ...messages.map(m => ({
-            role: m.role === 'assistant' ? 'assistant' : 'user',
-            content: m.content,
-          })),
-        ],
-        temperature: 0.7,
-        max_tokens: 4096,
-      }),
-    });
+    const baseUrl = this.getBaseUrl();
+    let response: Response;
+    try {
+      response = await fetch(`${baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.requireApiKey()}`,
+        },
+        body: JSON.stringify({
+          model: this.settings.model,
+          messages: [
+            { role: 'system', content: SYSTEM_INSTRUCTION },
+            ...messages.map(m => ({
+              role: m.role === 'assistant' ? 'assistant' : 'user',
+              content: m.content,
+            })),
+          ],
+          temperature: 0.7,
+          max_tokens: 4096,
+        }),
+      });
+    } catch (fetchError) {
+      throw new Error(
+        `无法连接到 ${baseUrl}（网络错误）。请检查网络连接或代理设置。`
+      );
+    }
 
     if (!response.ok) {
       const error = await response.text();
@@ -472,13 +516,22 @@ export class AIService {
     }
   }
 
+  private isOfficeMimeType(mimeType: string): boolean {
+    return mimeType.includes('wordprocessingml') ||
+      mimeType.includes('spreadsheetml') ||
+      mimeType.includes('presentationml') ||
+      mimeType.includes('msword') ||
+      mimeType.includes('excel') ||
+      mimeType.includes('powerpoint');
+  }
+
   private async callGeminiMultimodal(
     history: ChatMessage[],
     nextMessage: string,
     files: FileAttachment[]
   ): Promise<string> {
     const { GoogleGenAI } = await import('@google/genai');
-    const ai = new GoogleGenAI({ apiKey: this.settings.apiKey });
+    const ai = new GoogleGenAI({ apiKey: this.requireApiKey() });
 
     // Build parts for the message
     const parts: any[] = [];
@@ -491,13 +544,48 @@ export class AIService {
     // Add files
     for (const file of files) {
       if (file.isBase64) {
-        // Binary file - add as inline data
-        parts.push({
-          inlineData: {
-            mimeType: file.mimeType,
-            data: file.content,
-          },
-        });
+        if (this.isOfficeMimeType(file.mimeType)) {
+          // Office files: use File API (more reliable than inlineData for docx/xlsx/pptx)
+          try {
+            const binaryStr = atob(file.content);
+            const bytes = new Uint8Array(binaryStr.length);
+            for (let i = 0; i < binaryStr.length; i++) {
+              bytes[i] = binaryStr.charCodeAt(i);
+            }
+            const blob = new Blob([bytes], { type: file.mimeType });
+            const uploaded = await ai.files.upload({
+              file: blob,
+              config: { mimeType: file.mimeType },
+            });
+            if (uploaded.uri) {
+              parts.push({
+                fileData: { fileUri: uploaded.uri, mimeType: file.mimeType },
+              });
+            } else {
+              throw new Error('File API returned no URI');
+            }
+          } catch (err) {
+            // Fallback to extractedText if File API fails
+            console.warn('Gemini File API upload failed, falling back to extractedText:', err);
+            if (file.extractedText) {
+              parts.push({
+                text: `\n--- 附件: ${file.name} (文本提取) ---\n${file.extractedText}\n--- 附件结束 ---`,
+              });
+            } else {
+              parts.push({
+                text: `[附件: ${file.name}] - 文件上传失败，且无法提取文本内容。`,
+              });
+            }
+          }
+        } else {
+          // Image/PDF - use inlineData (reliable for these types)
+          parts.push({
+            inlineData: {
+              mimeType: file.mimeType,
+              data: file.content,
+            },
+          });
+        }
       } else {
         // Text file - add as text
         parts.push({ text: `\n--- 附件: ${file.name} ---\n${file.content}\n--- 附件结束 ---` });
@@ -530,13 +618,17 @@ export class AIService {
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.settings.apiKey}`,
+      'Authorization': `Bearer ${this.requireApiKey()}`,
     };
 
     if (this.settings.provider === 'openrouter') {
       headers['HTTP-Referer'] = window.location.origin;
       headers['X-Title'] = 'Ontology Architect';
     }
+
+    const isOpenRouter = this.settings.provider === 'openrouter';
+    const isOpenAI = this.settings.provider === 'openai';
+    const supportsNativeOffice = isOpenRouter || isOpenAI;
 
     // Build content array for the user message
     const content: any[] = [];
@@ -549,7 +641,6 @@ export class AIService {
     // Add files
     for (const file of files) {
       if (file.isBase64) {
-        // Binary file - check if it's an image or document
         if (file.mimeType.startsWith('image/')) {
           // Image - all providers support image_url
           content.push({
@@ -558,37 +649,29 @@ export class AIService {
               url: `data:${file.mimeType};base64,${file.content}`,
             },
           });
+        } else if (supportsNativeOffice || file.mimeType === 'application/pdf') {
+          // OpenRouter: supports all file types (PDF, docx, xlsx, pptx) via type:'file'
+          // OpenAI: natively supports PDF, docx, xlsx, pptx via type:'file'
+          // PDF: also supported via type:'file' for these providers
+          content.push({
+            type: 'file',
+            file: {
+              filename: file.name,
+              file_data: `data:${file.mimeType};base64,${file.content}`,
+            },
+          });
+        } else if (file.extractedText) {
+          // Other providers (Moonshot, custom, etc.): use extracted text as fallback
+          content.push({
+            type: 'text',
+            text: `\n--- 附件: ${file.name} (文本提取) ---\n${file.extractedText}\n--- 附件结束 ---`,
+          });
         } else {
-          // PDF/Excel/PPT/Word - handle based on provider capabilities
-          // OpenAI 官方 API 不支持通过 image_url 发送文档，会返回 400
-          // Claude 通过 OpenRouter 支持部分文档格式
-          const isOpenRouterClaude = this.settings.provider === 'openrouter' &&
-            this.settings.model.toLowerCase().includes('claude');
-          const isGemini = this.settings.provider === 'gemini';
-
-          if (isOpenRouterClaude && file.mimeType === 'application/pdf') {
-            // Claude 支持 PDF（通过 OpenRouter 的 file 格式）
-            content.push({
-              type: 'file',
-              file: {
-                filename: file.name,
-                file_data: `data:${file.mimeType};base64,${file.content}`,
-              },
-            });
-          } else if (isGemini) {
-            // Gemini 使用 inline_data 格式
-            content.push({
-              type: 'text',
-              text: `[附件: ${file.name}] - 请注意：当前模型可能无法直接读取此文件格式。如需分析文档内容，建议复制文本内容粘贴到对话中。`,
-            });
-          } else {
-            // 其他 provider（OpenAI 官方、智谱、Moonshot 等）不支持文档视觉
-            // 提示用户文件格式不受支持
-            content.push({
-              type: 'text',
-              text: `[附件: ${file.name}]\n⚠️ 当前 AI 模型 (${this.settings.model}) 不支持直接读取 ${file.mimeType} 格式文件。\n建议：\n1. 将文档内容复制为文本粘贴到对话中\n2. 如需文档分析，推荐使用 Claude 模型（通过 OpenRouter）`,
-            });
-          }
+          // No native support and no extracted text available
+          content.push({
+            type: 'text',
+            text: `[附件: ${file.name}] - 当前模型无法直接读取此文件格式，且文本提取不可用。`,
+          });
         }
       } else {
         // Text file - add as text
@@ -649,12 +732,17 @@ export class AIService {
             url: `data:${file.mimeType};base64,${file.content}`,
           },
         });
-      } else if (file.isBase64) {
-        // For non-image binary files, Zhipu might not support directly
-        // Add as description
+      } else if (file.isBase64 && file.extractedText) {
+        // Office/PDF files with extracted text - use text fallback
         content.push({
           type: 'text',
-          text: `[附件: ${file.name} - ${file.mimeType}，请描述此文件类型以便我理解内容]`,
+          text: `\n--- 附件: ${file.name} (文本提取) ---\n${file.extractedText}\n--- 附件结束 ---`,
+        });
+      } else if (file.isBase64) {
+        // Binary file without extracted text
+        content.push({
+          type: 'text',
+          text: `[附件: ${file.name}] - 当前模型无法直接读取此文件格式。`,
         });
       } else {
         content.push({
@@ -668,7 +756,7 @@ export class AIService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.settings.apiKey}`,
+        'Authorization': `Bearer ${this.requireApiKey()}`,
       },
       body: JSON.stringify({
         model: this.settings.model,
@@ -702,7 +790,7 @@ export class AIService {
       switch (this.settings.provider) {
         case 'gemini': {
           const { GoogleGenAI } = await import('@google/genai');
-          const ai = new GoogleGenAI({ apiKey: this.settings.apiKey });
+          const ai = new GoogleGenAI({ apiKey: this.requireApiKey() });
           const response = await ai.models.generateContent({
             model: this.settings.model,
             contents: prompt,
@@ -720,7 +808,7 @@ export class AIService {
           const baseUrl = this.getBaseUrl();
           const headers: Record<string, string> = {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.settings.apiKey}`,
+            'Authorization': `Bearer ${this.requireApiKey()}`,
           };
           if (this.settings.provider === 'openrouter') {
             headers['HTTP-Referer'] = window.location.origin;
@@ -797,7 +885,7 @@ export class AIService {
 
   private async fetchGeminiModels(): Promise<EnrichedModelInfo[]> {
     const { GoogleGenAI } = await import('@google/genai');
-    const ai = new GoogleGenAI({ apiKey: this.settings.apiKey });
+    const ai = new GoogleGenAI({ apiKey: this.requireApiKey() });
 
     // Use the pager to get all models
     const models: EnrichedModelInfo[] = [];
@@ -834,7 +922,7 @@ export class AIService {
   private async fetchOpenRouterModels(signal?: AbortSignal): Promise<EnrichedModelInfo[]> {
     const response = await fetch('https://openrouter.ai/api/v1/models', {
       headers: {
-        'Authorization': `Bearer ${this.settings.apiKey}`,
+        'Authorization': `Bearer ${this.requireApiKey()}`,
         'HTTP-Referer': window.location.origin,
         'X-Title': 'Ontology Architect',
       },
@@ -889,7 +977,7 @@ export class AIService {
   private async fetchOpenAIModels(signal?: AbortSignal): Promise<EnrichedModelInfo[]> {
     const response = await fetch('https://api.openai.com/v1/models', {
       headers: {
-        'Authorization': `Bearer ${this.settings.apiKey}`,
+        'Authorization': `Bearer ${this.requireApiKey()}`,
       },
       signal,
     });
@@ -945,7 +1033,7 @@ export class AIService {
     try {
       const response = await fetch(`${this.getBaseUrl()}/models`, {
         headers: {
-          'Authorization': `Bearer ${this.settings.apiKey}`,
+          'Authorization': `Bearer ${this.requireApiKey()}`,
         },
         signal,
       });
@@ -1025,7 +1113,7 @@ export class AIService {
     try {
       const response = await fetch(`${this.getBaseUrl()}/models`, {
         headers: {
-          'Authorization': `Bearer ${this.settings.apiKey}`,
+          'Authorization': `Bearer ${this.requireApiKey()}`,
         },
         signal,
       });
@@ -1087,7 +1175,7 @@ export class AIService {
     try {
       const response = await fetch(`${this.settings.customBaseUrl}/models`, {
         headers: {
-          'Authorization': `Bearer ${this.settings.apiKey}`,
+          'Authorization': `Bearer ${this.requireApiKey()}`,
         },
         signal,
       });
@@ -1147,7 +1235,7 @@ ${historyText}
       if (this.settings.provider === 'gemini') {
         // Gemini 使用 SDK
         const { GoogleGenAI } = await import('@google/genai');
-        const ai = new GoogleGenAI({ apiKey: this.settings.apiKey });
+        const ai = new GoogleGenAI({ apiKey: this.requireApiKey() });
         const response = await ai.models.generateContent({
           model: this.settings.model,
           contents: validationPrompt,
@@ -1161,7 +1249,7 @@ ${historyText}
         const baseUrl = this.getBaseUrl();
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.settings.apiKey}`,
+          'Authorization': `Bearer ${this.requireApiKey()}`,
         };
         if (this.settings.provider === 'openrouter') {
           headers['HTTP-Referer'] = window.location.origin;
@@ -1270,7 +1358,7 @@ ${historyText}
       if (this.settings.provider === 'gemini') {
         // Gemini 使用 SDK
         const { GoogleGenAI } = await import('@google/genai');
-        const ai = new GoogleGenAI({ apiKey: this.settings.apiKey });
+        const ai = new GoogleGenAI({ apiKey: this.requireApiKey() });
         const response = await ai.models.generateContent({
           model: this.settings.model,
           contents: analysisPrompt,
@@ -1284,7 +1372,7 @@ ${historyText}
         const baseUrl = this.getBaseUrl();
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.settings.apiKey}`,
+          'Authorization': `Bearer ${this.requireApiKey()}`,
         };
         if (this.settings.provider === 'openrouter') {
           headers['HTTP-Referer'] = window.location.origin;
@@ -1394,7 +1482,7 @@ ${text}
       if (this.settings.provider === 'gemini') {
         // Gemini 使用 SDK
         const { GoogleGenAI } = await import('@google/genai');
-        const ai = new GoogleGenAI({ apiKey: this.settings.apiKey });
+        const ai = new GoogleGenAI({ apiKey: this.requireApiKey() });
         const response = await ai.models.generateContent({
           model: this.settings.model,
           contents: extractionPrompt,
@@ -1408,7 +1496,7 @@ ${text}
         const baseUrl = this.getBaseUrl();
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.settings.apiKey}`,
+          'Authorization': `Bearer ${this.requireApiKey()}`,
         };
         if (this.settings.provider === 'openrouter') {
           headers['HTTP-Referer'] = window.location.origin;
@@ -1493,7 +1581,7 @@ ${text}
 
       if (this.settings.provider === 'gemini') {
         const { GoogleGenAI } = await import('@google/genai');
-        const ai = new GoogleGenAI({ apiKey: this.settings.apiKey });
+        const ai = new GoogleGenAI({ apiKey: this.requireApiKey() });
         const response = await ai.models.generateContent({
           model: this.settings.model,
           contents: extractionPrompt,
@@ -1506,7 +1594,7 @@ ${text}
         const baseUrl = this.getBaseUrl();
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.settings.apiKey}`,
+          'Authorization': `Bearer ${this.requireApiKey()}`,
         };
         if (this.settings.provider === 'openrouter') {
           headers['HTTP-Referer'] = window.location.origin;
@@ -1561,7 +1649,11 @@ export async function loadLocalConfig(): Promise<AISettings | null> {
     const response = await fetch('/api/config');
     if (response.ok) {
       const config = await response.json();
-      if (config && config.apiKey) {
+      if (!config) return null;
+      // Check apiKeys map first (new multi-provider format), then legacy apiKey
+      const hasApiKeys = config.apiKeys && Object.values(config.apiKeys).some((v: unknown) => typeof v === 'string' && v.length > 0);
+      const hasLegacyKey = !!config.apiKey;
+      if (hasApiKeys || hasLegacyKey) {
         console.log('已从本地文件加载 API 配置');
         return config;
       }

@@ -104,13 +104,13 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
   // Generate tools based on view mode
   const tools = useMemo(() => {
     if (viewMode === 'full') {
-      const objectsWithActions = objects.filter(o => o.actions.length > 0);
+      const objectsWithActions = objects.filter(o => (o.actions?.length || 0) > 0);
       if (objectsWithActions.length === 0) return [];
       return generateAllToolSpecs(objectsWithActions, format);
     }
 
     if (viewMode === 'object' && selectedObject) {
-      if (selectedObject.actions.length === 0) return [];
+      if (!selectedObject.actions?.length) return [];
       return generateObjectToolSpecs(selectedObject, format);
     }
 
@@ -134,7 +134,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
       const lcTools = format === 'langchain'
         ? tools as LangChainTool[]
         : objects.flatMap(obj =>
-            obj.actions.map(action => generateToolSpec(action, obj.name, 'langchain') as LangChainTool)
+            (obj.actions || []).map(action => generateToolSpec(action, obj.name, 'langchain') as LangChainTool)
           );
       return generateLangChainPython(lcTools);
     }
@@ -196,7 +196,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
   };
 
   // Check if we have any actions
-  const hasActions = objects.some(o => o.actions.length > 0);
+  const hasActions = objects.some(o => (o.actions?.length || 0) > 0);
 
   // Get tool name for display
   const getToolName = (tool: any): string => {

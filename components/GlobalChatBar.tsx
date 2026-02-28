@@ -10,7 +10,8 @@ import {
   ChevronDown,
   X,
   Sparkles,
-  FolderPlus
+  FolderPlus,
+  AlertTriangle
 } from 'lucide-react';
 import { Language, ProjectState, ChatMessage, AISettings, AIProvider } from '../types';
 import { FileUploadButton, UploadedFile, getProviderCompatibility } from './FileUpload';
@@ -210,6 +211,19 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
 
   const placeholder = phasePlaceholders[currentPhase][lang];
   const phaseColor = phaseColors[currentPhase];
+  const blockedFiles = uploadedFiles.filter((file) =>
+    getProviderCompatibility(
+      file.mimeType,
+      aiSettings.provider as AIProvider,
+      aiSettings.model
+    ).blockSend
+  );
+  const hasBlockedFiles = blockedFiles.length > 0;
+  const sendBlockedReason = hasBlockedFiles
+    ? (lang === 'cn'
+      ? `当前模型不支持发送以下文件：${blockedFiles.map((f) => f.name).join(', ')}`
+      : `Current model cannot send these files: ${blockedFiles.map((f) => f.name).join(', ')}`)
+    : null;
 
   // 滚动到底部
   useEffect(() => {
@@ -317,6 +331,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
         content: f.content,
         mimeType: f.mimeType,
         isBase64: f.isBase64,
+        extractedText: f.extractedText,
       }));
 
       // Use multimodal chat if there are files
@@ -352,7 +367,12 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
       }
 
     } catch (err) {
-      setError(lang === 'cn' ? '获取回复失败' : 'Failed to get response');
+      const details = err instanceof Error ? err.message : String(err);
+      setError(
+        lang === 'cn'
+          ? `获取回复失败：${details}`
+          : `Failed to get response: ${details}`
+      );
       console.error('Chat error:', err);
     } finally {
       setIsLoading(false);
@@ -606,28 +626,43 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
             {uploadedFiles.length > 0 && (
               <div className="max-w-4xl mx-auto mb-2 space-y-1">
                 {uploadedFiles.map(file => (
-                  <div
-                    key={file.id}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs"
-                    style={{
-                      backgroundColor: 'var(--color-bg-surface)',
-                      border: '1px solid var(--color-border)'
-                    }}
-                  >
-                    <span className="text-muted">📎</span>
-                    <span className="flex-1 truncate" style={{ color: 'var(--color-text-primary)' }}>{file.name}</span>
-                    <span className="text-muted">
-                      {file.size < 1024 * 1024
-                        ? `${(file.size / 1024).toFixed(1)} KB`
-                        : `${(file.size / 1024 / 1024).toFixed(1)} MB`}
-                    </span>
-                    <button
-                      onClick={() => setUploadedFiles(prev => prev.filter(f => f.id !== file.id))}
-                      className="p-0.5 rounded hover:bg-[var(--color-bg-hover)] transition-colors"
-                      style={{ color: 'var(--color-text-muted)' }}
+                  <div key={file.id}>
+                    <div
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs"
+                      style={{
+                        backgroundColor: 'var(--color-bg-surface)',
+                        border: '1px solid var(--color-border)'
+                      }}
                     >
-                      <X size={14} />
-                    </button>
+                      <span className="text-muted">📎</span>
+                      <span className="flex-1 truncate" style={{ color: 'var(--color-text-primary)' }}>{file.name}</span>
+                      <span className="text-muted">
+                        {file.size < 1024 * 1024
+                          ? `${(file.size / 1024).toFixed(1)} KB`
+                          : `${(file.size / 1024 / 1024).toFixed(1)} MB`}
+                      </span>
+                      <button
+                        onClick={() => setUploadedFiles(prev => prev.filter(f => f.id !== file.id))}
+                        className="p-0.5 rounded hover:bg-[var(--color-bg-hover)] transition-colors"
+                        style={{ color: 'var(--color-text-muted)' }}
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                    {(() => {
+                      const compat = getProviderCompatibility(
+                        file.mimeType,
+                        aiSettings.provider as AIProvider,
+                        aiSettings.model
+                      );
+                      if (!compat.warning) return null;
+                      return (
+                        <div className="mt-1 px-3 py-1 rounded text-xs flex items-center gap-1.5" style={{ color: 'var(--color-warning)' }}>
+                          <AlertTriangle size={12} />
+                          <span>{compat.warning}</span>
+                        </div>
+                      );
+                    })()}
                   </div>
                 ))}
               </div>
@@ -679,8 +714,9 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
               {/* 发送按钮 */}
               <button
                 onClick={handleSend}
-                disabled={(!input.trim() && uploadedFiles.length === 0) || isLoading || !hasApiKey}
+                disabled={(!input.trim() && uploadedFiles.length === 0) || isLoading || !hasApiKey || hasBlockedFiles}
                 className="p-2 rounded-xl transition-all disabled:opacity-50"
+                title={sendBlockedReason || undefined}
                 style={{
                   backgroundColor: (input.trim() || uploadedFiles.length > 0) ? phaseColor : 'var(--color-bg-hover)',
                   color: (input.trim() || uploadedFiles.length > 0) ? 'white' : 'var(--color-text-muted)'
@@ -689,6 +725,13 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
                 {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
               </button>
             </div>
+
+            {(error || sendBlockedReason) && (
+              <div className="max-w-4xl mx-auto mt-2 px-4 py-2 rounded-lg text-xs flex items-center gap-2" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
+                <AlertTriangle size={12} />
+                <span>{sendBlockedReason || error}</span>
+              </div>
+            )}
 
             {/* 阶段提示 */}
             <div className="max-w-4xl mx-auto mt-1 px-4">

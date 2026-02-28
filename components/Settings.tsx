@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AISettings, AIProvider, AI_PROVIDERS, Language } from '../types';
 import { AIService, saveAISettings } from '../services/aiService';
-import { Settings as SettingsIcon, Key, Server, Cpu, Check, X, Loader2, Eye, EyeOff, ExternalLink, RefreshCw } from 'lucide-react';
+import { Settings as SettingsIcon, Key, Server, Cpu, Check, X, Loader2, Eye, EyeOff, ExternalLink, RefreshCw, Search } from 'lucide-react';
+import { getProviderCompatibility } from './FileUpload';
+import { getModelCapabilities, isRecommendedModel } from '../lib/llmCapabilities';
 
 // 动态获取的模型类型
 interface FetchedModel {
@@ -48,6 +50,16 @@ const translations = {
     refresh: 'Refresh',
     apiKeyValid: 'API Key valid',
     apiKeyInvalid: 'API Key invalid',
+    officeWarning: 'Selected model may not support Office files (.docx/.xlsx/.pptx). Consider switching model or converting files to PDF/text.',
+    searchModel: 'Search model by name or ID',
+    noSearchResult: 'No model matches current keyword',
+    recommended: 'Recommended',
+    capabilityOffice: 'Office',
+    capabilityPdf: 'PDF',
+    capabilityImage: 'Image',
+    full: 'Full',
+    partial: 'Partial',
+    none: 'None',
   },
   cn: {
     title: 'AI 设置',
@@ -79,6 +91,16 @@ const translations = {
     refresh: '刷新',
     apiKeyValid: '密钥有效',
     apiKeyInvalid: '密钥无效',
+    officeWarning: '当前模型可能不支持 Office 文件（.docx/.xlsx/.pptx），建议切换模型或先转为 PDF/文本。',
+    searchModel: '按模型名称或 ID 搜索',
+    noSearchResult: '没有匹配的模型',
+    recommended: '推荐',
+    capabilityOffice: 'Office',
+    capabilityPdf: 'PDF',
+    capabilityImage: '图像',
+    full: '完整',
+    partial: '部分',
+    none: '不支持',
   }
 };
 
@@ -103,8 +125,27 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
   const [fetchedModels, setFetchedModels] = useState<FetchedModel[]>([]);
   const [modelFetchStatus, setModelFetchStatus] = useState<'idle' | 'fetching' | 'success' | 'failed'>('idle');
   const [modelFetchError, setModelFetchError] = useState('');
+  const [modelSearch, setModelSearch] = useState('');
 
   const currentProvider = AI_PROVIDERS.find(p => p.id === localSettings.provider);
+  const officeMimeTypes = [
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  ];
+  const officeUnsupported = officeMimeTypes.some((mimeType) =>
+    getProviderCompatibility(mimeType, localSettings.provider, localSettings.model).blockSend
+  );
+  const selectedCapabilities = getModelCapabilities(localSettings.provider, localSettings.model);
+  const searchableModels = fetchedModels.filter((model) => {
+    const keyword = modelSearch.trim().toLowerCase();
+    if (!keyword) return true;
+    return (
+      model.name.toLowerCase().includes(keyword) ||
+      model.id.toLowerCase().includes(keyword) ||
+      (model.description || '').toLowerCase().includes(keyword)
+    );
+  });
 
   // 获取模型列表
   const fetchModels = useCallback(async () => {
@@ -147,6 +188,7 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
     setModelFetchError('');
     setTestStatus('idle');
     setLocalSettings(prev => ({ ...prev, model: '' }));
+    setModelSearch('');
   }, [localSettings.provider]);
 
   // 当 API Key 输入后自动获取模型列表（延迟验证，避免每次按键都请求）
@@ -419,21 +461,94 @@ const Settings: React.FC<SettingsProps> = ({ lang, settings, onSettingsChange, o
                     style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                   />
                 ) : fetchedModels.length > 0 ? (
-                  <select
-                    value={localSettings.model}
-                    onChange={e => setLocalSettings(prev => ({ ...prev, model: e.target.value }))}
-                    className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-1 appearance-none"
-                    style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
-                  >
-                    <option value="" className="text-muted" style={{ backgroundColor: 'var(--color-bg-surface)' }}>{t.selectModel}</option>
-                    {fetchedModels.map(model => (
-                      <option key={model.id} value={model.id} style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-primary)' }}>
-                        {model.name} {model.description && `- ${model.description}`}
-                      </option>
-                    ))}
-                  </select>
+                  <>
+                    <div className="relative">
+                      <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                      <input
+                        type="text"
+                        value={modelSearch}
+                        onChange={(e) => setModelSearch(e.target.value)}
+                        placeholder={t.searchModel}
+                        className="w-full rounded-lg pl-9 pr-3 py-2.5 text-sm placeholder:text-muted focus:outline-none focus:ring-1"
+                        style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
+                      />
+                    </div>
+                    <div
+                      className="rounded-lg overflow-auto max-h-64"
+                      style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-surface)' }}
+                    >
+                      {searchableModels.length === 0 ? (
+                        <div className="px-3 py-3 text-sm text-muted">{t.noSearchResult}</div>
+                      ) : (
+                        searchableModels.map((model) => {
+                          const active = localSettings.model === model.id;
+                          const recommended = isRecommendedModel(localSettings.provider, model.id);
+                          const capability = getModelCapabilities(localSettings.provider, model.id);
+
+                          const officeText = capability.office === 'full'
+                            ? t.full
+                            : capability.office === 'partial'
+                              ? t.partial
+                              : t.none;
+                          const pdfText = capability.pdf === 'full'
+                            ? t.full
+                            : capability.pdf === 'partial'
+                              ? t.partial
+                              : t.none;
+
+                          return (
+                            <button
+                              key={model.id}
+                              type="button"
+                              onClick={() => setLocalSettings(prev => ({ ...prev, model: model.id }))}
+                              className="w-full text-left px-3 py-2.5 transition-colors"
+                              style={{
+                                backgroundColor: active ? 'var(--color-bg-hover)' : 'transparent',
+                                borderBottom: '1px solid var(--color-border)',
+                              }}
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="min-w-0">
+                                  <div className="text-sm truncate" style={{ color: 'var(--color-text-primary)', fontWeight: recommended ? 700 : 500 }}>
+                                    {recommended ? `★ ${model.name}` : model.name}
+                                  </div>
+                                  <div className="text-micro text-muted truncate">{model.id}</div>
+                                </div>
+                                <div className="flex items-center gap-1 flex-shrink-0">
+                                  {recommended && (
+                                    <span className="text-micro px-1.5 py-0.5 rounded" style={{ color: 'var(--color-success)', backgroundColor: 'rgba(16, 185, 129, 0.16)' }}>
+                                      {t.recommended}
+                                    </span>
+                                  )}
+                                  <span className="text-micro px-1.5 py-0.5 rounded" style={{ color: 'var(--color-accent)', backgroundColor: 'rgba(59, 130, 246, 0.14)' }}>
+                                    {t.capabilityOffice}:{officeText}
+                                  </span>
+                                  <span className="text-micro px-1.5 py-0.5 rounded" style={{ color: 'var(--color-warning)', backgroundColor: 'rgba(245, 158, 11, 0.14)' }}>
+                                    {t.capabilityPdf}:{pdfText}
+                                  </span>
+                                </div>
+                              </div>
+                              {model.description && <div className="text-micro text-muted mt-1 truncate">{model.description}</div>}
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
+                  </>
                 ) : (
                   <div className="text-sm text-muted py-3">{t.noModels}</div>
+                )}
+                {localSettings.model && (
+                  <div className="text-xs px-3 py-2 rounded-lg flex items-center gap-2" style={{ color: 'var(--color-text-muted)', backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}>
+                    <span>{t.capabilityOffice}: <strong>{selectedCapabilities.office === 'full' ? t.full : selectedCapabilities.office === 'partial' ? t.partial : t.none}</strong></span>
+                    <span>{t.capabilityPdf}: <strong>{selectedCapabilities.pdf === 'full' ? t.full : selectedCapabilities.pdf === 'partial' ? t.partial : t.none}</strong></span>
+                    <span>{t.capabilityImage}: <strong>{selectedCapabilities.image === 'full' ? t.full : selectedCapabilities.image === 'partial' ? t.partial : t.none}</strong></span>
+                  </div>
+                )}
+                {officeUnsupported && (
+                  <div className="text-xs px-3 py-2 rounded-lg" style={{ color: 'var(--color-warning)', backgroundColor: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.35)' }}>
+                    {t.officeWarning}
+                  </div>
                 )}
               </div>
             )}

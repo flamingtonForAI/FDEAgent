@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- Office document support across all AI providers (docx, xlsx, pptx):
+  - New `lib/documentParser.ts` module for client-side text extraction
+  - `parseDocx` via mammoth, `parseXlsx` via SheetJS, `parsePptx` via JSZip XML extraction
+  - Dual-channel design: native API for supported providers + extractedText fallback for others
+- Provider-specific Office file handling:
+  - Gemini: File API upload (`ai.files.upload()` → `fileData` URI), with extractedText fallback on failure
+  - OpenRouter: `type:'file'` base64 data URI (auto-parsed by OpenRouter for all models)
+  - OpenAI: `type:'file'` base64 data URI (native 2025 support)
+  - Zhipu / Moonshot / Custom: client-side extracted text as text attachment
+- `UploadedFile` and `FileAttachment` interfaces extended with `extractedText` field
+- Word document branch in `getFileTypeConfig` (previously fell through to Default)
+- New dependencies: `mammoth` (docx), `xlsx` (spreadsheets), `jszip` (pptx ZIP extraction)
+
+### Changed
+- Office file upload no longer hard-blocks (`blockSend: false`); all providers now have some level of support
+- Office compatibility warnings updated to reflect actual provider capability (native API vs text extraction)
+- `callGeminiMultimodal`: Office files use File API instead of unreliable `inlineData`
+- `callOpenAIMultimodal`: simplified provider branching — OpenRouter and OpenAI both use `type:'file'` for all document types
+- `callZhipuMultimodal`: Office files use `extractedText` instead of placeholder message
+
+### Previously Added
 - Delivery export mode switch in `DeliverableGenerator`:
   - `Internal Draft`
   - `Client Delivery`
@@ -36,6 +57,13 @@ All notable changes to this project will be documented in this file.
   - auto-refresh on provider/API key change (800ms debounce)
   - request cancellation via `AbortController`
   - fallback state exposed for no-key mode
+- Test connection button in `UnifiedSettings`:
+  - reuses `AIService.testConnection()` with a temporary service instance carrying the latest key
+  - disabled when no API key or test in progress
+  - shows success (green) with model response preview, or failure (red) with error message
+- Confirm / Cancel footer buttons in `UnifiedSettings`:
+  - Confirm flushes pending API key changes then closes the panel
+  - Cancel closes without persisting un-blurred key edits
 
 ### Changed
 - README updated to include:
@@ -64,12 +92,32 @@ All notable changes to this project will be documented in this file.
   - modalities, context length, tools support, structured-output support, pricing
 
 ### Fixed
+- API key not persisted when user closes settings without blurring input field:
+  - added `flushApiKey()` that syncs `localApiKey` → `aiSettings` on close/confirm
+  - X close button and confirm button both call `flushApiKey()` before closing
+- `loadAISettingsAsync` in `App.tsx` now checks `apiKeys[provider]` (not just `apiKey`) to decide whether to apply loaded config, fixing cases where multi-provider keys were silently discarded on startup.
+- Provider key isolation: `aiService.getApiKey()`, `App.tsx` `activeProviderApiKey`, and `UnifiedSettings` `currentProviderKey` no longer fall back to the generic `apiKey` field when `apiKeys` map exists — prevents cross-provider key leakage on provider switch.
 - File compatibility rules aligned with current multimodal implementation:
   - Gemini provider now treated as Office/PDF supported for uploads
   - Office blocking warnings now explicitly guide users to Gemini models
 - Unified capability source:
   - `FileUpload` compatibility checks now reuse `llmCapabilities` logic
   - fixed prior over-permissive assumption where image support was effectively treated as universal
+- Multi-provider API key management hardening (3 issues):
+  - `flushApiKey` no longer writes legacy `apiKey` field — prevents cross-provider key pollution on provider switch
+  - `loadLocalConfig` now checks `apiKeys` map (not just legacy `apiKey`) when deciding whether to apply saved config
+  - `handleProviderChange` flushes current provider key before switching, preventing loss of un-blurred input
+- Template import connector mapping in `NewProjectDialog`:
+  - connector-to-integration mapping now supports both Pattern A (`sourceSystem`, `mappedObjects`, `sync`) and Pattern B (`name`, `targetObjects`, `syncFrequency`, `configuration`) — previously only Pattern A was handled, causing empty integration names and "Unknown Object" for templates like healthcare-fhir
+  - uses `flatMap` to correctly flatten one-to-many connector→target relationships
+  - same dual-pattern logic also applied in `handleApplyArchetype` (App.tsx) for ArchetypeBrowser imports
+- Template import object normalization in `NewProjectDialog`:
+  - objects loaded from archetypes are now normalized with default empty arrays (`actions`, `properties`, `aiFeatures`) — previously raw archetype objects with missing optional fields caused `TypeError: Cannot read properties of undefined (reading 'length')` across multiple pages
+- Defensive null guards on `obj.actions`, `obj.properties`, `obj.aiFeatures` across 7 files:
+  - `OntologyVisualizer`, `AIPLogicMatrix`, `ProjectOverview`, `ToolSpecViewer`, `StructuringWorkbench`, `DeliverableGenerator`, `aiAnalysisService` — prevents crashes when objects have undefined optional array fields
+- AI Analysis state lost on tab switch:
+  - `isAnalyzing` and `error` states lifted from local `AIAnalyzer` state to App.tsx level — previously, switching tabs during analysis unmounted the component, losing the loading spinner and error state; the user would see "Ready to Analyze" with no indication that analysis was still running in the background
+  - `hasApiKey` check in `AIAnalyzer` now also checks `apiKeys[provider]` map (not just legacy `apiKey` field), consistent with multi-provider key isolation
 
 ## [0.4.1] - 2026-02-26
 

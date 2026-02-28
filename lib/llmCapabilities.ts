@@ -24,10 +24,9 @@ function hasImageInput(inputModalities?: string[]): boolean {
   return !!inputModalities?.some((m) => ['image', 'vision'].includes(String(m).toLowerCase()));
 }
 
-function isGemini15OrNewer(provider?: AIProvider, modelId?: string): boolean {
-  if (provider !== 'gemini') return false;
+function isGemini15OrNewer(_provider?: AIProvider, modelId?: string): boolean {
   const id = normalizeModelId(modelId);
-  return id.includes('gemini-1.5') || id.includes('gemini-2');
+  return id.includes('gemini-1.5') || id.includes('gemini-2') || id.includes('gemini-3');
 }
 
 function getFallbackCapabilities(provider?: AIProvider, modelId?: string): Omit<ModelCapabilities, 'recommendedForOntology'> {
@@ -97,4 +96,3 @@ export function getModelCapabilities(provider?: AIProvider, modelId?: string, mo
 export function isRecommendedModel(provider?: AIProvider, modelId?: string, modelInfo?: EnrichedModelInfo): boolean {
   return getModelCapabilities(provider, modelId, modelInfo).recommendedForOntology;
 }
-

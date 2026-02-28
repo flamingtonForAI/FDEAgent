@@ -163,7 +163,7 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
         <div className="rounded-2xl p-6" style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
           <h3 className="text-muted text-xs font-mono uppercase tracking-widest mb-4">{t.operational}</h3>
           <div className="p-4 rounded-xl border font-medium text-sm" style={{ backgroundColor: 'var(--color-bg-hover)', borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }}>
-            {project.objects.reduce((acc, obj) => acc + obj.actions.length, 0)} Augmented Workflows
+            {project.objects.reduce((acc, obj) => acc + (obj.actions?.length || 0), 0)} Augmented Workflows
             <p className="text-micro text-muted mt-1 uppercase font-mono">{t.operationalSub}</p>
           </div>
         </div>

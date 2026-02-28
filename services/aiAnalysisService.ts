@@ -190,19 +190,19 @@ export class AIAnalysisService {
         id: obj.id,
         name: obj.name,
         description: obj.description,
-        properties: obj.properties.map(p => ({
+        properties: (obj.properties || []).map(p => ({
           name: p.name,
           type: p.type,
           isAIDerived: p.isAIDerived
         })),
-        actions: obj.actions.map(a => ({
+        actions: (obj.actions || []).map(a => ({
           name: a.name,
           type: a.type,
           description: a.description,
           businessLayer: a.businessLayer,
           governance: a.governance
         })),
-        existingAIFeatures: obj.aiFeatures
+        existingAIFeatures: obj.aiFeatures || []
       })),
       links: links.map(l => ({
         source: l.source,
@@ -377,9 +377,9 @@ export function applySuggestionToOntology(
           }
 
           // 添加 AI Feature
-          if (!obj.aiFeatures.some(f => f.type === AIIntegrationType.SMART_PROPERTY && f.description === suggestion.title)) {
+          if (!(obj.aiFeatures || []).some(f => f.type === AIIntegrationType.SMART_PROPERTY && f.description === suggestion.title)) {
             obj.aiFeatures = [
-              ...obj.aiFeatures,
+              ...(obj.aiFeatures || []),
               {
                 type: AIIntegrationType.SMART_PROPERTY,
                 description: suggestion.title
@@ -399,20 +399,21 @@ export function applySuggestionToOntology(
         const objIndex = updatedObjects.findIndex(o => o.id === suggestion.targetObjectId);
         if (objIndex >= 0) {
           const obj = { ...updatedObjects[objIndex] };
-          const actionIndex = obj.actions.findIndex(a => a.name === suggestion.targetActionName);
+          const actions = obj.actions || [];
+          const actionIndex = actions.findIndex(a => a.name === suggestion.targetActionName);
 
           if (actionIndex >= 0) {
-            const action = { ...obj.actions[actionIndex] };
+            const action = { ...actions[actionIndex] };
             action.type = 'generative';
             action.aiLogic = suggestion.implementation || suggestion.description;
-            obj.actions = [...obj.actions];
+            obj.actions = [...actions];
             obj.actions[actionIndex] = action;
           }
 
           // 添加 AI Feature
-          if (!obj.aiFeatures.some(f => f.type === AIIntegrationType.GENERATIVE_ACTION && f.description.includes(suggestion.targetActionName || ''))) {
+          if (!(obj.aiFeatures || []).some(f => f.type === AIIntegrationType.GENERATIVE_ACTION && f.description.includes(suggestion.targetActionName || ''))) {
             obj.aiFeatures = [
-              ...obj.aiFeatures,
+              ...(obj.aiFeatures || []),
               {
                 type: AIIntegrationType.GENERATIVE_ACTION,
                 description: `${suggestion.targetActionName}: ${suggestion.title}`
@@ -466,9 +467,9 @@ export function applySuggestionToOntology(
             ? AIIntegrationType.SEMANTIC_SEARCH
             : AIIntegrationType.PARSING;
 
-          if (!obj.aiFeatures.some(f => f.description === suggestion.title)) {
+          if (!(obj.aiFeatures || []).some(f => f.description === suggestion.title)) {
             obj.aiFeatures = [
-              ...obj.aiFeatures,
+              ...(obj.aiFeatures || []),
               {
                 type: featureType,
                 description: suggestion.title

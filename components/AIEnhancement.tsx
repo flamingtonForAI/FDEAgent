@@ -20,6 +20,10 @@ interface AIEnhancementProps {
   // State lifted to App.tsx for persistence across all tab switches
   analysisResult: AnalysisResult | null;
   onAnalysisResult: (result: AnalysisResult | null) => void;
+  isAnalyzing: boolean;
+  onIsAnalyzingChange: (v: boolean) => void;
+  analysisError: string | null;
+  onAnalysisError: (e: string | null) => void;
 }
 
 const translations = {
@@ -51,7 +55,11 @@ const AIEnhancement: React.FC<AIEnhancementProps> = ({
   setProject,
   aiSettings,
   analysisResult,
-  onAnalysisResult
+  onAnalysisResult,
+  isAnalyzing,
+  onIsAnalyzingChange,
+  analysisError,
+  onAnalysisError
 }) => {
   const t = translations[lang];
   const [activeView, setActiveView] = useState<AIView>('analyze');
@@ -115,6 +123,10 @@ const AIEnhancement: React.FC<AIEnhancementProps> = ({
             aiSettings={aiSettings}
             analysisResult={analysisResult}
             onAnalysisResult={onAnalysisResult}
+            isAnalyzing={isAnalyzing}
+            onIsAnalyzingChange={onIsAnalyzingChange}
+            analysisError={analysisError}
+            onAnalysisError={onAnalysisError}
             project={project}
             setProject={setProject}
           />
