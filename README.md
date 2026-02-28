@@ -49,7 +49,7 @@ Ontology Architect 是一个基于 AI 的企业智能系统设计工具，帮助
 ## 新功能 (Unreleased)
 
 ### 交付质量与打包导出
-- **导出模式切换** - 支持“内部草稿 / 客户交付”双模式
+- **导出模式切换** - 支持”内部草稿 / 客户交付”双模式
 - **客户交付硬门槛** - 客户交付模式下，`error` 级质量问题与 Action 三层 `minimal` 状态会阻断导出
 - **交付元信息** - 导出前可填写客户名称、设计师、版本号、版本变更摘要
 - **一键 ZIP 打包** - 自动生成封面页、五类技术文档及交付元数据清单
@@ -60,6 +60,12 @@ Ontology Architect 是一个基于 AI 的企业智能系统设计工具，帮助
 - **能力标签可视化** - 模型列表展示 Office/PDF 能力等级，降低误选风险
 - **动态模型刷新** - 输入 API Key 后自动拉取实时模型列表（带缓存与手动刷新）
 - **快速筛选** - 支持按 推荐/视觉/Office/长上下文 快速过滤模型
+
+### 瘦身与技术债清理
+- **动态 import 瘦身** - `documentParser.ts` 中 mammoth/xlsx/jszip 改为按需动态加载，首屏主 chunk 减少约 2 MB
+- **共享工具抽取** - `extractJSON()` 收敛到 `lib/jsonUtils.ts`、`getProviderApiKey()`/`requireProviderApiKey()` 收敛到 `lib/apiKeyUtils.ts`，消除 3 个 service 间的重复代码
+- **废弃文件删除** - 移除零引用的 `Settings.tsx`（已由 `UnifiedSettings.tsx` 替代）和 `ChatInterface.tsx`（已由 `GlobalChatBar.tsx` 替代）
+- **Provider key 隔离修复** - `archetypeGeneratorService` 中 4 处裸用 `this.settings.apiKey` 统一改为 `requireProviderApiKey()`，补齐多 provider 场景下的 key 隔离
 
 ## 功能特性
 
@@ -183,7 +189,7 @@ ontology-assistant/
 │   ├── ProjectDashboard.tsx   # 项目管理仪表盘
 │   ├── NewProjectDialog.tsx   # 新建项目对话框
 │   ├── UnifiedSettings.tsx    # 统一设置面板
-│   ├── ChatInterface.tsx      # 对话式需求收集
+│   ├── GlobalChatBar.tsx      # 对话式需求收集
 │   ├── OntologyVisualizer.tsx # Ontology 可视化
 │   ├── ActionDesigner.tsx     # Action 设计器
 │   ├── ArchetypeBrowser.tsx   # 行业模板浏览器
@@ -195,13 +201,18 @@ ontology-assistant/
 │   ├── AuthContext.tsx        # 认证状态
 │   └── SyncContext.tsx        # 云同步状态
 ├── services/
-│   ├── aiService.ts           # AI 服务抽象层
+│   ├── aiService.ts           # AI 服务抽象层（多 provider）
+│   ├── aiAnalysisService.ts   # AI 增强分析（Phase 4）
+│   ├── archetypeGeneratorService.ts # 行业原型生成（含联网搜索）
 │   ├── syncService.ts         # 云同步服务
 │   └── authService.ts         # 认证服务
 ├── lib/
 │   ├── storage.ts             # 混合存储（本地 + 云）
-│   ├── themes.ts              # 主题配置
+│   ├── documentParser.ts      # Office 文档解析（动态加载 mammoth/xlsx/jszip）
+│   ├── jsonUtils.ts           # AI 响应 JSON 提取（共享）
+│   ├── apiKeyUtils.ts         # Provider API Key 解析（共享）
 │   ├── llmCapabilities.ts     # 模型能力映射（能力评分与推荐）
+│   ├── themes.ts              # 主题配置
 │   └── modelRegistry.ts       # 模型注册中心（缓存 + 实时拉取）
 ├── hooks/
 │   └── useModelRegistry.ts    # 模型列表 Hook（防抖刷新 + 回退）
@@ -241,11 +252,11 @@ ontology-assistant/
 | 格式 | 扩展名 | 处理方式 |
 |-----|-------|---------|
 | 文本文件 | .txt, .md, .json, .csv | 直接读取文本 |
-| PDF 文档 | .pdf | AI 视觉分析 |
-| Excel 表格 | .xlsx, .xls | AI 视觉分析 |
-| PPT 演示 | .pptx, .ppt | AI 视觉分析 |
-| Word 文档 | .docx, .doc | AI 视觉分析 |
-| 图片 | .png, .jpg, .gif, .webp | AI 视觉分析 |
+| PDF 文档 | .pdf | Gemini: File API; OpenRouter/OpenAI: `type:'file'` |
+| Word 文档 | .docx, .doc | Gemini: File API; 其他: 客户端 mammoth 文本提取 |
+| Excel 表格 | .xlsx, .xls | Gemini: File API; 其他: 客户端 SheetJS 文本提取 |
+| PPT 演示 | .pptx, .ppt | Gemini: File API; 其他: 客户端 JSZip XML 提取 |
+| 图片 | .png, .jpg, .gif, .webp | AI 视觉分析（所有 provider） |
 
 支持直接粘贴图片（Ctrl+V / Cmd+V）
 
