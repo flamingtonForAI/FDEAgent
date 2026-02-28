@@ -103,10 +103,11 @@ All notable changes to this project will be documented in this file.
 - Unified capability source:
   - `FileUpload` compatibility checks now reuse `llmCapabilities` logic
   - fixed prior over-permissive assumption where image support was effectively treated as universal
-- Multi-provider API key management hardening (3 issues):
-  - `flushApiKey` no longer writes legacy `apiKey` field — prevents cross-provider key pollution on provider switch
-  - `loadLocalConfig` now checks `apiKeys` map (not just legacy `apiKey`) when deciding whether to apply saved config
+- Multi-provider API key isolation closed-loop (code review P1/P2):
+  - `flushApiKey` and `handleProviderChange` now explicitly clear legacy `apiKey` field (`apiKey: ''`) on every write — eliminates the stale global key that caused cross-provider 401 errors
+  - `loadAISettingsAsync` (App.tsx) replaced `apiKeys?.[provider] || apiKey` with `apiKeys`-existence check (`Object.values(apiKeys).some(...)`) — prevents legacy `apiKey` from leaking as fallback for a different provider
   - `handleProviderChange` flushes current provider key before switching, preventing loss of un-blurred input
+  - `loadLocalConfig` checks `apiKeys` map (not just legacy `apiKey`) when deciding whether to apply saved config
 - Template import connector mapping in `NewProjectDialog`:
   - connector-to-integration mapping now supports both Pattern A (`sourceSystem`, `mappedObjects`, `sync`) and Pattern B (`name`, `targetObjects`, `syncFrequency`, `configuration`) — previously only Pattern A was handled, causing empty integration names and "Unknown Object" for templates like healthcare-fhir
   - uses `flatMap` to correctly flatten one-to-many connector→target relationships

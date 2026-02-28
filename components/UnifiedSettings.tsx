@@ -270,6 +270,7 @@ export default function UnifiedSettings({
       : (aiSettings.apiKeys || {});
     onAISettingsChange({
       ...aiSettings,
+      apiKey: '',  // Clear legacy field — all keys go through apiKeys map
       provider: provider.id,
       model: provider.models[0]?.id || '',
       apiKeys: updatedKeys as AISettings['apiKeys'],
@@ -284,8 +285,7 @@ export default function UnifiedSettings({
     if (localApiKey !== currentProviderKey) {
       onAISettingsChange({
         ...aiSettings,
-        // Don't overwrite legacy apiKey with current provider's key — prevents cross-provider leakage.
-        // Only update the provider-specific slot in apiKeys.
+        apiKey: '',  // Clear legacy field — all keys go through apiKeys map
         apiKeys: {
           ...(aiSettings.apiKeys || {}),
           [aiSettings.provider as AIProvider]: localApiKey,

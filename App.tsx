@@ -272,8 +272,11 @@ const AppContent: React.FC = () => {
   // 异步加载本地配置文件（api-config.local.json）
   useEffect(() => {
     loadAISettingsAsync().then(settings => {
-      const effectiveKey = settings.apiKeys?.[settings.provider as AIProvider] || settings.apiKey;
-      if (effectiveKey) {
+      // Check if any key is configured — apiKeys map (new) or legacy apiKey (old data)
+      const hasKey = settings.apiKeys
+        ? Object.values(settings.apiKeys).some(v => !!v)
+        : !!settings.apiKey;
+      if (hasKey) {
         setAiSettings(settings);
         aiService.current.updateSettings(settings);
         console.log('已从本地文件加载 API 配置');
