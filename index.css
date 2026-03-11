@@ -24,15 +24,15 @@
   --color-error: #f85149;             /* Red */
   --color-info: #58a6ff;              /* Blue - info/neutral */
 
-  /* Text - High contrast for readability */
-  --color-text-primary: #e6edf3;      /* Almost white */
-  --color-text-secondary: #8b949e;    /* Medium gray */
-  --color-text-muted: #6e7681;        /* Subtle gray */
+  /* Text - High contrast, warm-tinted for brand cohesion */
+  --color-text-primary: #e8e4df;      /* Warm off-white */
+  --color-text-secondary: #9a9490;    /* Warm medium gray */
+  --color-text-muted: #736e6a;        /* Warm subtle gray */
 
-  /* Borders - Subtle with blue tint */
-  --color-border: rgba(139, 148, 158, 0.15);
-  --color-border-hover: rgba(139, 148, 158, 0.3);
-  --color-border-accent: rgba(212, 166, 86, 0.4);
+  /* Borders - Warm-tinted for cohesion */
+  --color-border: rgba(154, 148, 144, 0.15);
+  --color-border-hover: rgba(154, 148, 144, 0.3);
+  --color-border-accent: rgba(212, 166, 86, 0.35);
 
   /* Layers (for Action Designer) - Adjusted for new scheme */
   --color-layer-business: #58a6ff;    /* Blue */
@@ -49,19 +49,20 @@
   --space-2xl: 3rem;
 
   /* === Typography === */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
 
-  /* === Transitions === */
-  --transition-fast: 150ms ease;
-  --transition-base: 200ms ease;
-  --transition-slow: 300ms ease;
+  /* === Transitions (ease-out-quart for natural deceleration) === */
+  --ease-out: cubic-bezier(0.25, 1, 0.5, 1);
+  --transition-fast: 150ms cubic-bezier(0.25, 1, 0.5, 1);
+  --transition-base: 200ms cubic-bezier(0.25, 1, 0.5, 1);
+  --transition-slow: 300ms cubic-bezier(0.25, 1, 0.5, 1);
 
   /* === Shadows (minimal for performance) === */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(212, 166, 86, 0.15);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-glow: 0 1px 4px rgba(212, 166, 86, 0.08);
 }
 
 /* === Base Styles === */
@@ -76,54 +77,56 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s ease, color 0.3s ease;
+  font-kerning: normal;
+  font-variant-numeric: tabular-nums;
 }
 
 /* === Light Theme Overrides === */
-/* Override hardcoded white/dark colors for light color-scheme */
-html[style*="color-scheme: light"] .border-white\/\[0\.06\],
-html[style*="color-scheme: light"] .border-white\/\[0\.08\],
-html[style*="color-scheme: light"] .border-white\/\[0\.1\],
-html[style*="color-scheme: light"] .border-white\/10,
-html[style*="color-scheme: light"] .border-white\/20 {
+/* Use data-theme-mode attribute set by themes.ts for clean specificity */
+[data-theme-mode="light"] .border-white\/\[0\.06\],
+[data-theme-mode="light"] .border-white\/\[0\.08\],
+[data-theme-mode="light"] .border-white\/\[0\.1\],
+[data-theme-mode="light"] .border-white\/10,
+[data-theme-mode="light"] .border-white\/20 {
   border-color: var(--color-border) !important;
 }
 
-html[style*="color-scheme: light"] .bg-white\/\[0\.02\],
-html[style*="color-scheme: light"] .bg-white\/\[0\.04\],
-html[style*="color-scheme: light"] .bg-white\/5,
-html[style*="color-scheme: light"] .bg-white\/10 {
+[data-theme-mode="light"] .bg-white\/\[0\.02\],
+[data-theme-mode="light"] .bg-white\/\[0\.04\],
+[data-theme-mode="light"] .bg-white\/5,
+[data-theme-mode="light"] .bg-white\/10 {
   background-color: var(--color-bg-surface) !important;
 }
 
-html[style*="color-scheme: light"] .text-white {
+[data-theme-mode="light"] .text-white {
   color: var(--color-text-primary) !important;
 }
 
-html[style*="color-scheme: light"] .hover\:bg-white\/\[0\.04\]:hover,
-html[style*="color-scheme: light"] .hover\:bg-white\/5:hover,
-html[style*="color-scheme: light"] .hover\:bg-white\/10:hover {
+[data-theme-mode="light"] .hover\:bg-white\/\[0\.04\]:hover,
+[data-theme-mode="light"] .hover\:bg-white\/5:hover,
+[data-theme-mode="light"] .hover\:bg-white\/10:hover {
   background-color: var(--color-bg-hover) !important;
 }
 
 /* Override amber/gold colors for better contrast on light themes */
-html[style*="color-scheme: light"] .text-amber-400,
-html[style*="color-scheme: light"] .text-amber-300 {
+[data-theme-mode="light"] .text-amber-400,
+[data-theme-mode="light"] .text-amber-300 {
   color: var(--color-accent) !important;
 }
 
-html[style*="color-scheme: light"] .bg-amber-400,
-html[style*="color-scheme: light"] .bg-amber-500 {
+[data-theme-mode="light"] .bg-amber-400,
+[data-theme-mode="light"] .bg-amber-500 {
   background-color: var(--color-accent) !important;
 }
 
-html[style*="color-scheme: light"] .border-amber-400,
-html[style*="color-scheme: light"] .border-amber-500 {
+[data-theme-mode="light"] .border-amber-400,
+[data-theme-mode="light"] .border-amber-500 {
   border-color: var(--color-accent) !important;
 }
 
-html[style*="color-scheme: light"] .bg-amber-500\/10,
-html[style*="color-scheme: light"] .bg-amber-500\/20,
-html[style*="color-scheme: light"] .bg-amber-400\/\[0\.08\] {
+[data-theme-mode="light"] .bg-amber-500\/10,
+[data-theme-mode="light"] .bg-amber-500\/20,
+[data-theme-mode="light"] .bg-amber-400\/\[0\.08\] {
   background-color: var(--color-bg-hover) !important;
 }
 
@@ -137,38 +140,40 @@ select option {
   color: var(--color-text-primary);
 }
 
-/* === Typography Scale === */
+/* === Typography Scale (Perfect Fourth — 1.333 ratio) === */
 .text-display {
-  font-size: 1.5rem;      /* 24px */
-  line-height: 1.25;
+  font-size: clamp(1.5rem, 1.2rem + 0.8vw, 2rem);  /* 24–32px */
+  line-height: 1.2;
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .text-heading {
-  font-size: 1.125rem;    /* 18px */
-  line-height: 1.4;
+  font-size: clamp(1.125rem, 1rem + 0.4vw, 1.333rem);  /* 18–21px */
+  line-height: 1.35;
   font-weight: 500;
+  letter-spacing: -0.005em;
 }
 
 .text-subheading {
-  font-size: 0.875rem;    /* 14px */
+  font-size: 1rem;        /* 16px — distinct from body 14px */
   line-height: 1.5;
   font-weight: 500;
 }
 
 .text-body {
   font-size: 0.875rem;    /* 14px */
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .text-caption {
   font-size: 0.75rem;     /* 12px */
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .text-micro {
   font-size: 0.6875rem;   /* 11px - minimum readable size */
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 /* === Theme-Aware Text Colors === */
@@ -224,6 +229,26 @@ select option {
   color: var(--color-accent-secondary);
 }
 
+/* === Content Width & Spacing Rhythm === */
+.prose-width {
+  max-width: 65ch;
+}
+
+.content-width {
+  max-width: 72rem;  /* 1152px — comfortable for dashboards */
+  margin-inline: auto;
+}
+
+/* Section spacing — use between major content blocks */
+.section-gap {
+  padding-block: var(--space-2xl);
+}
+
+/* Group spacing — use between related elements */
+.group-gap {
+  gap: var(--space-lg);
+}
+
 /* === Utility Classes === */
 /* Glass surface uses bg-surface for theme compatibility */
 .glass-surface {
@@ -254,37 +279,33 @@ select option {
   box-shadow: var(--shadow-md);
 }
 
-/* Accent glow effect (GPU accelerated) */
+/* Accent highlight (subtle, no glow) */
 .glow-accent {
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 0 0 1px var(--color-border-accent);
 }
 
-/* Gradient text */
+/* Accent text — solid color, no gradient */
 .text-gradient {
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-secondary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-accent);
 }
 
-/* Gradient button - Uses accent color for better theme compatibility */
+/* Primary button — solid accent, refined hover */
 .btn-gradient {
   background: var(--color-accent);
   color: #ffffff !important;
   font-weight: 600;
   border: none;
-  transition: opacity var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .btn-gradient:hover {
-  opacity: 0.9;
+  background: var(--color-accent-light);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--shadow-glow);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-gradient:active {
   transform: translateY(0) scale(0.98);
-  opacity: 0.95;
 }
 
 .btn-gradient:disabled {
@@ -295,7 +316,7 @@ select option {
 
 /* Secondary button style */
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-border);
   color: var(--color-text-secondary);
   font-weight: 500;
@@ -303,7 +324,7 @@ select option {
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-bg-hover);
   border-color: var(--color-border-hover);
   color: var(--color-text-primary);
 }
@@ -320,7 +341,7 @@ select option {
 }
 
 .btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--color-bg-surface);
   color: var(--color-text-primary);
 }
 
@@ -384,12 +405,12 @@ select option {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-border-hover);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--color-text-muted);
 }
 
 /* === Animations (GPU accelerated) === */
@@ -403,9 +424,9 @@ select option {
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(212, 166, 86, 0.1); }
-  50% { box-shadow: 0 0 30px rgba(212, 166, 86, 0.2); }
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 .animate-fadeIn {
@@ -417,7 +438,7 @@ select option {
 }
 
 .animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+  animation: pulse-subtle 2.5s ease-in-out infinite;
 }
 
 /* Skeleton loading animation */
@@ -476,7 +497,7 @@ select option {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-secondary));
+  background: var(--color-accent);
 }
 
 /* Performance: contain for isolated repaints */

@@ -263,6 +263,64 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                 </div>
               </div>
             )}
+
+            {/* YAML specification */}
+            {exData.yaml && (
+              <div className="rounded-xl overflow-hidden" style={{ backgroundColor: 'var(--color-bg-base)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
+                <div className="px-4 py-2 flex items-center gap-2" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'rgba(239, 68, 68, 0.6)' }} />
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'rgba(245, 158, 11, 0.6)' }} />
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'rgba(16, 185, 129, 0.6)' }} />
+                  <span className="text-xs text-muted ml-2">tool-spec.yaml</span>
+                </div>
+                <pre className="p-4 text-sm text-secondary font-mono overflow-x-auto whitespace-pre">
+                  {exData.yaml}
+                </pre>
+              </div>
+            )}
+
+            {/* Step-by-step flow */}
+            {exData.flow && (
+              <div className="space-y-3">
+                <h5 className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{t(exData.flow.title)}</h5>
+                <div className="space-y-2">
+                  {(exData.flow.steps?.[lang] || []).map((step: string, i: number) => (
+                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
+                      <span className="text-sm text-secondary">{step}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* State machine example (different from diagram stateMachine) */}
+            {exData.stateMachine && (
+              <div className="space-y-4">
+                <div>
+                  <div className="text-xs text-muted mb-2">{lang === 'cn' ? '状态' : 'States'}</div>
+                  <div className="flex flex-wrap gap-2">
+                    {(exData.stateMachine.states?.[lang] || []).map((state: string, i: number) => (
+                      <span key={i} className="px-2.5 py-1 rounded-lg text-sm" style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)', color: 'var(--color-text-secondary)' }}>{state}</span>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted mb-2">{lang === 'cn' ? '转换' : 'Transitions'}</div>
+                  <div className="space-y-1.5">
+                    {(exData.stateMachine.transitions || []).map((trans: any, i: number) => (
+                      <div key={i} className="flex items-center gap-2 text-sm">
+                        <span className="px-2 py-0.5 rounded text-xs font-mono" style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-muted)' }}>{trans.from}</span>
+                        <span className="text-muted">→</span>
+                        <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ backgroundColor: 'rgba(var(--color-accent-rgb), 0.15)', color: 'var(--color-accent)' }}>{trans.action}</span>
+                        <span className="text-muted">→</span>
+                        <span className="px-2 py-0.5 rounded text-xs font-mono" style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-muted)' }}>{trans.to}</span>
+                        {trans.executor && <span className="text-xs text-muted ml-1">({trans.executor})</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         );
 
@@ -326,6 +384,59 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
           );
         }
 
+        // Phases diagram (FDE methodology)
+        if (diagData.phases) {
+          const phaseColorStyles: Record<string, { bg: string; border: string; text: string }> = {
+            blue: { bg: 'rgba(59, 130, 246, 0.05)', border: 'rgba(59, 130, 246, 0.2)', text: 'var(--color-info)' },
+            emerald: { bg: 'rgba(16, 185, 129, 0.05)', border: 'rgba(16, 185, 129, 0.2)', text: 'var(--color-success)' },
+            purple: { bg: 'rgba(var(--color-accent-secondary-rgb), 0.05)', border: 'rgba(var(--color-accent-secondary-rgb), 0.2)', text: 'var(--color-accent-secondary)' },
+            orange: { bg: 'rgba(245, 158, 11, 0.05)', border: 'rgba(245, 158, 11, 0.2)', text: 'var(--color-warning)' },
+            cyan: { bg: 'rgba(6, 182, 212, 0.05)', border: 'rgba(6, 182, 212, 0.2)', text: 'rgb(6, 182, 212)' },
+          };
+          return (
+            <div className="space-y-3">
+              {diagData.phases.map((phase: any, i: number) => {
+                const colorStyle = phaseColorStyles[phase.color] || phaseColorStyles.blue;
+                return (
+                  <div
+                    key={i}
+                    className="p-4 rounded-xl"
+                    style={{ backgroundColor: colorStyle.bg, borderWidth: '1px', borderStyle: 'solid', borderColor: colorStyle.border }}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold" style={{ backgroundColor: colorStyle.border, color: colorStyle.text }}>
+                        {phase.number}
+                      </span>
+                      <div>
+                        <h5 className="font-medium" style={{ color: colorStyle.text }}>{t(phase.name)}</h5>
+                        {phase.subtitle && <span className="text-xs text-muted">{t(phase.subtitle)}</span>}
+                      </div>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-3 mt-3">
+                      <div>
+                        <div className="text-xs text-muted mb-1.5">{lang === 'cn' ? '活动' : 'Activities'}</div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {(phase.activities?.[lang] || []).map((act: string, j: number) => (
+                            <span key={j} className="px-2 py-0.5 rounded text-xs" style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-secondary)' }}>{act}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-muted mb-1.5">{lang === 'cn' ? '交付物' : 'Deliverables'}</div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {(phase.deliverables?.[lang] || []).map((del: string, j: number) => (
+                            <span key={j} className="px-2 py-0.5 rounded text-xs font-medium" style={{ backgroundColor: colorStyle.border, color: colorStyle.text }}>{del}</span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        }
+
         // Default layers diagram (Level 1)
         const layerColorStyles: Record<string, { bg: string; border: string; text: string }> = {
           amber: { bg: 'rgba(var(--color-accent-rgb), 0.05)', border: 'rgba(var(--color-accent-rgb), 0.2)', text: 'var(--color-accent)' },
@@ -333,6 +444,22 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
           emerald: { bg: 'rgba(16, 185, 129, 0.05)', border: 'rgba(16, 185, 129, 0.2)', text: 'var(--color-success)' },
           blue: { bg: 'rgba(59, 130, 246, 0.05)', border: 'rgba(59, 130, 246, 0.2)', text: 'var(--color-info)' }
         };
+        if (!diagData.layers) {
+          // ASCII art diagram — content contains the diagram as markdown code block
+          const contentText = t(section.content);
+          if (contentText) {
+            const codeContent = contentText.replace(/^```\n?/, '').replace(/\n?```$/, '');
+            return (
+              <div className="space-y-3">
+                <h4 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{t(section.title)}</h4>
+                <div className="rounded-xl overflow-x-auto" style={{ backgroundColor: 'var(--color-bg-base)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
+                  <pre className="p-4 text-sm text-secondary font-mono whitespace-pre">{codeContent}</pre>
+                </div>
+              </div>
+            );
+          }
+          return null;
+        }
         return (
           <div className="space-y-3">
             {diagData.layers.map((layer: any, i: number) => {

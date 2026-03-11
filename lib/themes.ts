@@ -91,7 +91,7 @@ export const themes: Record<string, Theme> = {
       shadowSm: '0 1px 0 rgba(0, 0, 0, 0.4)',
       shadowMd: '0 3px 6px rgba(0, 0, 0, 0.4)',
       shadowLg: '0 8px 24px rgba(0, 0, 0, 0.4)',
-      shadowGlow: '0 0 20px rgba(88, 166, 255, 0.15)',
+      shadowGlow: '0 1px 4px rgba(88, 166, 255, 0.08)',
     },
   },
 
@@ -132,7 +132,7 @@ export const themes: Record<string, Theme> = {
       shadowSm: '0 1px 2px rgba(0, 0, 0, 0.4)',
       shadowMd: '0 4px 8px rgba(0, 0, 0, 0.4)',
       shadowLg: '0 8px 24px rgba(0, 0, 0, 0.4)',
-      shadowGlow: '0 0 20px rgba(97, 175, 239, 0.15)',
+      shadowGlow: '0 1px 4px rgba(97, 175, 239, 0.08)',
     },
   },
 
@@ -173,7 +173,7 @@ export const themes: Record<string, Theme> = {
       shadowSm: '0 1px 2px rgba(0, 0, 0, 0.5)',
       shadowMd: '0 4px 12px rgba(0, 0, 0, 0.4)',
       shadowLg: '0 8px 24px rgba(0, 0, 0, 0.5)',
-      shadowGlow: '0 0 20px rgba(189, 147, 249, 0.2)',
+      shadowGlow: '0 1px 4px rgba(189, 147, 249, 0.1)',
     },
   },
 
@@ -214,7 +214,7 @@ export const themes: Record<string, Theme> = {
       shadowSm: '0 1px 2px rgba(0, 0, 0, 0.3)',
       shadowMd: '0 4px 12px rgba(0, 0, 0, 0.25)',
       shadowLg: '0 8px 24px rgba(0, 0, 0, 0.3)',
-      shadowGlow: '0 0 20px rgba(136, 192, 208, 0.15)',
+      shadowGlow: '0 1px 4px rgba(136, 192, 208, 0.08)',
     },
   },
 
@@ -254,7 +254,7 @@ export const themes: Record<string, Theme> = {
       shadowSm: '0 1px 2px rgba(0, 0, 0, 0.5)',
       shadowMd: '0 4px 12px rgba(0, 0, 0, 0.4)',
       shadowLg: '0 8px 24px rgba(0, 0, 0, 0.5)',
-      shadowGlow: '0 0 20px rgba(122, 162, 247, 0.2)',
+      shadowGlow: '0 1px 4px rgba(122, 162, 247, 0.1)',
     },
   },
 
@@ -298,7 +298,7 @@ export const themes: Record<string, Theme> = {
       shadowSm: '0 1px 0 rgba(31, 35, 40, 0.04)',
       shadowMd: '0 3px 6px rgba(31, 35, 40, 0.12)',
       shadowLg: '0 8px 24px rgba(31, 35, 40, 0.12)',
-      shadowGlow: '0 0 20px rgba(9, 105, 218, 0.1)',
+      shadowGlow: '0 1px 4px rgba(9, 105, 218, 0.06)',
     },
   },
 
@@ -339,7 +339,7 @@ export const themes: Record<string, Theme> = {
       shadowSm: '0 1px 2px rgba(46, 52, 64, 0.08)',
       shadowMd: '0 4px 8px rgba(46, 52, 64, 0.12)',
       shadowLg: '0 8px 24px rgba(46, 52, 64, 0.16)',
-      shadowGlow: '0 0 20px rgba(76, 106, 146, 0.15)',
+      shadowGlow: '0 1px 4px rgba(76, 106, 146, 0.08)',
     },
   },
 
@@ -380,7 +380,7 @@ export const themes: Record<string, Theme> = {
       shadowSm: '0 1px 2px rgba(31, 31, 31, 0.06)',
       shadowMd: '0 4px 8px rgba(31, 31, 31, 0.08)',
       shadowLg: '0 8px 24px rgba(31, 31, 31, 0.1)',
-      shadowGlow: '0 0 20px rgba(100, 74, 201, 0.1)',
+      shadowGlow: '0 1px 4px rgba(100, 74, 201, 0.06)',
     },
   },
 
@@ -421,7 +421,7 @@ export const themes: Record<string, Theme> = {
       shadowSm: '0 1px 2px rgba(7, 54, 66, 0.08)',
       shadowMd: '0 4px 8px rgba(7, 54, 66, 0.12)',
       shadowLg: '0 8px 24px rgba(7, 54, 66, 0.16)',
-      shadowGlow: '0 0 20px rgba(38, 139, 210, 0.15)',
+      shadowGlow: '0 1px 4px rgba(38, 139, 210, 0.08)',
     },
   },
 
@@ -462,7 +462,7 @@ export const themes: Record<string, Theme> = {
       shadowSm: '0 1px 2px rgba(36, 41, 47, 0.08)',
       shadowMd: '0 4px 8px rgba(36, 41, 47, 0.12)',
       shadowLg: '0 8px 24px rgba(36, 41, 47, 0.16)',
-      shadowGlow: '0 0 20px rgba(64, 120, 242, 0.15)',
+      shadowGlow: '0 1px 4px rgba(64, 120, 242, 0.08)',
     },
   },
 };
@@ -498,6 +498,7 @@ export function applyTheme(theme: Theme): void {
 
   // Apply color scheme for form elements
   root.style.colorScheme = theme.isDark ? 'dark' : 'light';
+  root.dataset.themeMode = theme.isDark ? 'dark' : 'light';
 
   // Apply CSS variables
   root.style.setProperty('--color-bg-base', colors.bgBase);

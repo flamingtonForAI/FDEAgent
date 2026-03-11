@@ -21,7 +21,7 @@ import GlobalChatBar from './components/GlobalChatBar';
 import ErrorBoundary from './components/ErrorBoundary';
 import QualityPanel from './components/QualityPanel';
 import { getMergedArchetypeById } from './content/archetypes';
-import { MessageSquare, Database, Network, Settings as SettingsIcon, Sparkles, GraduationCap, ShieldCheck, Package, Rocket, LogIn, FolderOpen } from 'lucide-react';
+import { MessageSquare, Database, Network, Settings as SettingsIcon, Sparkles, BrainCircuit, GraduationCap, ShieldCheck, Package, Rocket, LogIn, FolderOpen } from 'lucide-react';
 import { Theme, loadSavedTheme, applyThemeMode, getSavedThemeMode, setupSystemThemeListener } from './lib/themes';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider, useSync } from './contexts/SyncContext';
@@ -698,7 +698,7 @@ const AppContent: React.FC = () => {
             </div>
             <h1 className="font-medium tracking-tight text-sm" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h1>
           </div>
-          <p className="text-[10px] text-muted font-mono tracking-wide">{t.subtitle}</p>
+          <p className="text-[11px] text-muted tracking-wider uppercase" style={{ fontWeight: 400 }}>{t.subtitle}</p>
         </div>
 
         <nav className="flex-1 p-3 overflow-y-auto">
@@ -754,7 +754,7 @@ const AppContent: React.FC = () => {
           <NavItem
             active={activeTab === 'aiEnhancement' || activeTab === 'aip'}
             onClick={() => setActiveTab('aiEnhancement')}
-            icon={<Sparkles size={16} />}
+            icon={<BrainCircuit size={16} />}
             label={t.phase4}
             sublabel={t.phase4Desc}
             disabled={!activeProjectId || project.objects.length === 0}
@@ -786,22 +786,27 @@ const AppContent: React.FC = () => {
           />
         </nav>
 
-        {/* Sidebar Footer - Simplified */}
-        <div className="p-3 space-y-2" style={{ borderTop: '1px solid var(--color-border)' }}>
+        {/* Sidebar Footer */}
+        <div className="p-3 space-y-1.5" style={{ borderTop: '1px solid var(--color-border)' }}>
           {/* 用户账号区域 */}
           {isAuthenticated ? (
             <UserMenu lang={lang} />
           ) : (
             <button
               onClick={() => setShowAuthModal(true)}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs hover:bg-white/[0.04] transition-colors text-muted"
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
+              style={{
+                backgroundColor: 'var(--color-bg-hover)',
+                color: 'var(--color-text-primary)',
+                border: '1px solid var(--color-border)'
+              }}
             >
-              <div className="flex items-center gap-2">
-                <LogIn size={14} />
+              <div className="flex items-center gap-2.5">
+                <LogIn size={15} />
                 <span>{lang === 'cn' ? '登录 / 注册' : 'Sign In'}</span>
               </div>
-              <span className="text-[10px]" style={{ color: 'var(--color-accent)' }}>
-                {lang === 'cn' ? '云同步' : 'Cloud Sync'}
+              <span className="text-xs" style={{ color: 'var(--color-accent)' }}>
+                {lang === 'cn' ? '云同步' : 'Sync'}
               </span>
             </button>
           )}
@@ -809,18 +814,19 @@ const AppContent: React.FC = () => {
           {/* 统一设置入口 */}
           <button
             onClick={() => setShowSettings(true)}
-            className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs hover:bg-white/[0.04] transition-colors text-muted"
+            className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs transition-colors"
+            style={{ color: 'var(--color-text-secondary)' }}
           >
             <div className="flex items-center gap-2">
               <SettingsIcon size={14} />
               <span>{lang === 'cn' ? '设置' : 'Settings'}</span>
             </div>
             <div className="flex items-center gap-2">
-                <span className="text-[10px] truncate max-w-[60px]" style={{ color: 'var(--color-accent)' }}>
+                <span className="text-xs truncate max-w-[80px]" style={{ color: 'var(--color-accent)' }}>
                   {getCurrentModelName()}
                 </span>
               <div
-                className="w-1.5 h-1.5 rounded-full"
+                className="w-2 h-2 rounded-full"
                 style={{ backgroundColor: activeProviderApiKey ? 'var(--color-success)' : 'var(--color-warning)' }}
               />
             </div>
@@ -927,28 +933,19 @@ const AppContent: React.FC = () => {
         </div>
       </main>
 
-      {/* Quality Check Floating Button - Always visible for guidance */}
+      {/* Quality Check Floating Button */}
       {!showQualityPanel && (
         <button
           onClick={() => setShowQualityPanel(true)}
-          className="fixed bottom-6 right-6 w-14 h-14 rounded-2xl shadow-lg flex items-center justify-center hover:scale-105 transition-transform z-40 group"
+          className="fixed bottom-6 right-6 w-12 h-12 rounded-xl flex items-center justify-center hover:scale-105 transition-transform z-40"
           style={{
             backgroundColor: 'var(--color-accent)',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
           }}
           title={lang === 'cn' ? '质量检查' : 'Quality Check'}
+          aria-label={lang === 'cn' ? '质量检查' : 'Quality Check'}
         >
-          <ShieldCheck size={24} style={{ color: 'var(--color-bg-base)' }} />
-          <div
-            className="absolute -top-8 right-0 px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap"
-            style={{
-              backgroundColor: 'var(--color-bg-elevated)',
-              color: 'var(--color-text-primary)',
-              border: '1px solid var(--color-border)'
-            }}
-          >
-            {lang === 'cn' ? '质量检查' : 'Quality Check'}
-          </div>
+          <ShieldCheck size={20} style={{ color: 'var(--color-bg-base)' }} />
         </button>
       )}
 
@@ -1051,7 +1048,7 @@ const NavItem: React.FC<{
     onClick={onClick}
     className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm ${
       disabled
-        ? 'opacity-30 cursor-not-allowed'
+        ? 'opacity-50 cursor-not-allowed'
         : active
         ? ''
         : 'text-muted hover:text-primary'
