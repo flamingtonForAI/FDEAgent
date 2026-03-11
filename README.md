@@ -134,7 +134,8 @@ Ontology Architect 是一个基于 AI 的企业智能系统设计工具，帮助
 
 - **前端框架**: React 19 + TypeScript
 - **构建工具**: Vite
-- **UI**: Tailwind CSS + Lucide Icons + CSS Variables 主题系统
+- **UI**: Tailwind CSS + Lucide Icons + CSS Variables 主题系统 + Plus Jakarta Sans 字体
+- **设计系统**: Perfect Fourth (1.333) 模块化字体比例 + `clamp()` 流体排版 + `data-theme-mode` 主题切换
 - **状态管理**: React Context (Auth, Sync, Project)
 - **存储**: localStorage (离线优先) + 云同步就绪
 - **AI 服务**: 多提供商支持
@@ -243,6 +244,22 @@ ontology-assistant/
 └── types/
     └── archetype.ts           # 模板类型定义
 ```
+
+## 设计系统
+
+### 排版
+- **字体**: Plus Jakarta Sans（正文）+ JetBrains Mono（代码）
+- **字体比例**: Perfect Fourth (1.333) 模块化比例，使用 `clamp()` 实现流体响应
+- **层级**: `text-display` → `text-heading` → `text-subheading` → body → `text-small`
+
+### CSS 工具类
+- `prose-width` / `content-width` — 内容最大宽度约束
+- `section-gap` / `group-gap` — 语义化间距
+- `btn-gradient` / `btn-secondary` / `btn-ghost` — 按钮变体
+
+### 主题切换
+- 根元素设置 `data-theme-mode="light|dark"` 属性，CSS 通过 `[data-theme-mode="light"]` 选择器实现浅色覆盖
+- 暖色调中性色代替纯灰色，提升视觉一致性
 
 ## 主题
 

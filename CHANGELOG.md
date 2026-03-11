@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Typography**: Switched from Inter to Plus Jakarta Sans; applied Perfect Fourth (1.333) modular type scale with `clamp()` fluid sizing
+- **Theme system**: Added `data-theme-mode` attribute on root element for clean light/dark CSS selectors; reduced all theme `shadowGlow` values
+- **Button styles**: Replaced gradient glow hover effects with subtle `accent-light` background + natural shadow
+- **Easing**: All transitions now use `ease-out-quart` (`cubic-bezier(0.25, 1, 0.5, 1)`) instead of generic `ease`
+- **Color palette**: Warm-tinted neutrals replace pure grays for text and borders; hardcoded `rgba()` values replaced with CSS variable tokens
+- **Phase 4 icon**: Changed from `Sparkles` to `BrainCircuit` (lucide-react)
+- **Sidebar**: Enhanced login button styling, increased NavItem disabled opacity to 50%, refined settings status dot and model name display
+- **Quality FAB**: Reduced size from `w-14 h-14` to `w-12 h-12`, removed redundant tooltip div, added `aria-label`
+
+### Added
+- CSS utility classes: `prose-width`, `content-width`, `section-gap`, `group-gap`
+- `data-theme-mode` attribute for theme-aware CSS targeting
+- Fluid typography with `clamp()` for responsive text sizing
+- `font-kerning: normal` and `font-variant-numeric: tabular-nums` on body
+
+### Fixed
+- **LessonViewer crashes**: Added handlers for all unhandled diagram/example variants:
+  - `phases` diagram type (FDE methodology lesson)
+  - ASCII art diagrams (capability matrices, governance architecture)
+  - `yaml` example type (YAML spec code blocks)
+  - `flow` example type (step-by-step lists)
+  - `stateMachine` example type (states + transitions)
+- Light theme CSS overrides refactored from fragile `html[style*="color-scheme: light"]` to `[data-theme-mode="light"]`
+
 ### Added
 - `lib/jsonUtils.ts` — shared `extractJSON()` utility extracted from 3 services (aiService, aiAnalysisService, archetypeGeneratorService); single source of truth for stripping markdown fences from AI JSON responses
 - `lib/apiKeyUtils.ts` — shared `getProviderApiKey()` / `requireProviderApiKey()` utility extracted from aiService + aiAnalysisService; provides consistent per-provider API key resolution with legacy `apiKey` fallback

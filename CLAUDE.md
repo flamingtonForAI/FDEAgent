@@ -118,6 +118,34 @@ Office document libraries (mammoth, xlsx, jszip) are **dynamically imported** in
 - **`lib/llmCapabilities.ts`** — Model capability declarations. Used for recommendation scores and UI labels. **Do not modify for upload warnings.**
 - **`components/FileUpload.tsx` → `getProviderCompatibility()`** — Actual processing method per file type. Upload warnings derive solely from this function.
 
+## Typography & Design System
+
+- **Font**: Plus Jakarta Sans (body) + JetBrains Mono (code), loaded via Google Fonts in `index.html`
+- **Type Scale**: Perfect Fourth ratio (1.333) with `clamp()` fluid sizing — defined as `.text-display`, `.text-heading`, `.text-subheading`, `.text-small` in `index.css`
+- **Easing**: All transitions use `ease-out-quart` (`cubic-bezier(0.25, 1, 0.5, 1)`)
+- **Colors**: Warm-tinted neutrals (not pure gray); all values use CSS custom properties from `index.css`
+- **CSS Utilities**: `prose-width`, `content-width`, `section-gap`, `group-gap` for layout consistency
+
+### Theme System (`lib/themes.ts`)
+- Root element gets `data-theme-mode="light|dark"` attribute alongside `style.colorScheme`
+- Light theme CSS overrides target `[data-theme-mode="light"]` — never use `html[style*="color-scheme: light"]`
+- All 10 themes define reduced `shadowGlow` (`0 1px 4px` instead of `0 0 20px`)
+
+### LessonViewer Diagram/Example Types (`components/LessonViewer.tsx`)
+Supported `type: 'diagram'` data variants:
+- `data.layers` — layered architecture diagram
+- `data.stateMachine` — states + transitions
+- `data.phases` — numbered phase cards with activities/deliverables
+- ASCII art fallback — when `data` has no recognized key, renders `section.content` as `<pre>`
+
+Supported `type: 'example'` data variants:
+- `data.knowledgeGraph`, `data.ontology`, `data.input`, `data.output`, `data.traditional`, `data.decisionFirst` — key-value tables
+- `data.perspectives`, `data.mappings` — labeled list sections
+- `data.code` — syntax-highlighted code block
+- `data.yaml` — YAML spec code block
+- `data.flow` — numbered step list
+- `data.stateMachine` — state badges + transition list
+
 ## Key Patterns
 
 ### Bilingual Support
