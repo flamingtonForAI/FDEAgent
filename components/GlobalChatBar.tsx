@@ -16,6 +16,7 @@ import {
 import { Language, ProjectState, ChatMessage, AISettings, AIProvider } from '../types';
 import { FileUploadButton, UploadedFile, getProviderCompatibility } from './FileUpload';
 import { AIService } from '../services/aiService';
+import MarkdownRenderer from './MarkdownRenderer';
 
 type PhaseType = 'discover' | 'model' | 'integrate' | 'enhance' | 'deliver';
 
@@ -571,7 +572,10 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
                         color: msg.role === 'user' ? 'white' : 'var(--color-text-primary)'
                       }}
                     >
-                      <p className="whitespace-pre-wrap">{msg.content}</p>
+                      {msg.role === 'assistant'
+                        ? <MarkdownRenderer content={msg.content} />
+                        : <p className="whitespace-pre-wrap">{msg.content}</p>
+                      }
                     </div>
                   </div>
                 )

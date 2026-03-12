@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Markdown rendering in chat**: AI assistant messages now render Markdown (headings, bold, italic, code blocks, inline code, lists, links) instead of plain text; user messages remain plain text
+- **`MarkdownRenderer` component**: Lightweight built-in Markdown-to-React parser (`components/MarkdownRenderer.tsx`) — no external library dependency
+
+### Fixed
+- **Project card alignment**: Cards on the Project Dashboard now have equal height with footers aligned at the bottom, regardless of description length (`flex flex-col` + `mt-auto`)
+- **Code block styling**: Chat code blocks use design-system tokens (`--color-bg-elevated`, `--color-border`) instead of hard-coded `rgba(0,0,0,0.3)`, improving visual consistency and theme support
+
 ### Changed
 - **Typography**: Switched from Inter to Plus Jakarta Sans; applied Perfect Fourth (1.333) modular type scale with `clamp()` fluid sizing
 - **Theme system**: Added `data-theme-mode` attribute on root element for clean light/dark CSS selectors; reduced all theme `shadowGlow` values

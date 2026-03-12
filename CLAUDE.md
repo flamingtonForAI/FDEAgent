@@ -125,6 +125,7 @@ Office document libraries (mammoth, xlsx, jszip) are **dynamically imported** in
 - **Easing**: All transitions use `ease-out-quart` (`cubic-bezier(0.25, 1, 0.5, 1)`)
 - **Colors**: Warm-tinted neutrals (not pure gray); all values use CSS custom properties from `index.css`
 - **CSS Utilities**: `prose-width`, `content-width`, `section-gap`, `group-gap` for layout consistency
+- **Markdown in chat**: `components/MarkdownRenderer.tsx` renders AI assistant messages as formatted Markdown (headings, bold, italic, code blocks, lists, links). Styles scoped under `.markdown-content` in `index.css`. Used by `GlobalChatBar`, `ChatMessagesPanel`, `GlobalChatSidebar` — user messages remain plain `whitespace-pre-wrap`
 
 ### Theme System (`lib/themes.ts`)
 - Root element gets `data-theme-mode="light|dark"` attribute alongside `style.colorScheme`

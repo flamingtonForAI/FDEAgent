@@ -67,6 +67,13 @@ Ontology Architect 是一个基于 AI 的企业智能系统设计工具，帮助
 - **动态模型刷新** - 输入 API Key 后自动拉取实时模型列表（带缓存与手动刷新）
 - **快速筛选** - 支持按 推荐/视觉/Office/长上下文 快速过滤模型
 
+### 聊天 Markdown 渲染
+- **AI 回复格式化** - AI 助手消息支持 Markdown 渲染（标题、加粗、斜体、代码块、行内代码、有序/无序列表、链接），用户消息保持纯文本
+- **内置轻量解析器** - 无需外部依赖，`MarkdownRenderer` 组件覆盖 AI 输出中常见的 Markdown 子集
+
+### 项目卡片对齐
+- **等高卡片布局** - 项目管理页面卡片统一高度，底部操作栏始终对齐
+
 ### 瘦身与技术债清理
 - **动态 import 瘦身** - `documentParser.ts` 中 mammoth/xlsx/jszip 改为按需动态加载，首屏主 chunk 减少约 2 MB
 - **共享工具抽取** - `extractJSON()` 收敛到 `lib/jsonUtils.ts`、`getProviderApiKey()`/`requireProviderApiKey()` 收敛到 `lib/apiKeyUtils.ts`，消除 3 个 service 间的重复代码

@@ -5,6 +5,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Language, ChatMessage, ProjectState } from '../types';
 import { Sparkles, Lightbulb, Wand2, Settings } from 'lucide-react';
+import MarkdownRenderer from './MarkdownRenderer';
 
 interface ChatMessagesPanelProps {
   lang: Language;
@@ -211,7 +212,10 @@ const ChatMessagesPanel: React.FC<ChatMessagesPanelProps> = ({
                       : 'var(--color-text-primary)'
                   }}
                 >
-                  <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                  {msg.role === 'assistant'
+                    ? <MarkdownRenderer content={msg.content} />
+                    : <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                  }
                 </div>
               </div>
             )

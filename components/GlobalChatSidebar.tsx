@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { Language, ProjectState, ChatMessage, AISettings } from '../types';
 import { AIService } from '../services/aiService';
+import MarkdownRenderer from './MarkdownRenderer';
 
 type PhaseType = 'discover' | 'model' | 'integrate' | 'enhance';
 
@@ -340,7 +341,10 @@ const GlobalChatSidebar: React.FC<GlobalChatSidebarProps> = ({
                 color: msg.role === 'user' ? 'white' : 'var(--color-text-primary)'
               }}
             >
-              <p className="whitespace-pre-wrap">{msg.content}</p>
+              {msg.role === 'assistant'
+                ? <MarkdownRenderer content={msg.content} />
+                : <p className="whitespace-pre-wrap">{msg.content}</p>
+              }
             </div>
           </div>
         ))}

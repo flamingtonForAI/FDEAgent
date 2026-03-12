@@ -277,7 +277,7 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
           return (
             <div
               key={project.id}
-              className="relative p-4 rounded-xl border-2 transition-all cursor-pointer hover:shadow-lg"
+              className="relative p-4 rounded-xl border-2 transition-all cursor-pointer hover:shadow-lg flex flex-col"
               style={{
                 backgroundColor: isActive
                   ? 'var(--color-bg-elevated)'
@@ -406,7 +406,7 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
 
               {/* Footer */}
               <div
-                className="flex items-center justify-between pt-3"
+                className="flex items-center justify-between pt-3 mt-auto"
                 style={{ borderTop: '1px solid var(--color-border)' }}
               >
                 <span
