@@ -10,6 +10,10 @@ All notable changes to this project will be documented in this file.
 - **Vendor chunk splitting** — `manualChunks` in `vite.config.ts` separates `react`/`react-dom` and `lucide-react` into dedicated cacheable chunks
 - **E2E regression tests** — Playwright test suite (`tests/e2e/archetype-lazy-load.spec.ts`) covering: template list stats verification, archetype detail lazy-loading, and create-from-template dialog flow
 
+### Fixed
+- **Archetype incomplete index cached permanently (P1)** — if any archetype chunk failed to load (e.g. network flicker), the filtered-out index was permanently cached for the session; now failed IDs are tracked and retried on next access, self-healing without page reload
+- **Stale ontology summary injected into chat (P2)** — `designGenerationIdRef` was incremented after generation success, leaving a window where a prior run's async summary could still be appended; now incremented at `triggerAutoDesign()` entry so concurrent re-generations immediately invalidate prior summaries
+
 ### Added
 - **Markdown rendering in chat**: AI assistant messages now render Markdown (headings, bold, italic, code blocks, inline code, lists, links) instead of plain text; user messages remain plain text
 - **`MarkdownRenderer` component**: Lightweight built-in Markdown-to-React parser (`components/MarkdownRenderer.tsx`) — no external library dependency

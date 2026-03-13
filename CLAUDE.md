@@ -69,6 +69,9 @@ if (activeProjectIdRef.current !== requestProjectId) return;  // guard after awa
 ### Functional Update for State Writes
 Always use `setProject(prev => ({ ...prev, ... }))` instead of `setProject({ ...project, ... })` in callbacks. `setCurrentOntology` rebuilds when `isAuthenticated` changes, which causes stale closures if captured in `useCallback` without proper deps.
 
+### Async Summary Generation Guard
+`designGenerationIdRef` is incremented at the **entry** of `triggerAutoDesign()` (before the async AI call), not after success. This ensures that if the user triggers a second generation while the first is in-flight, the first run's summary callback immediately sees a stale ID and discards itself. The guard in `appendSummary` checks both `activeProjectIdRef` (cross-project) and `designGenerationIdRef` (cross-generation).
+
 ### Clear Stale Analysis on Ontology Regeneration
 When ontology is regenerated or an archetype is applied, the AI analysis result must be explicitly cleared from both state and storage:
 ```typescript
@@ -157,6 +160,8 @@ All UI text requires both `cn` and `en` translations in component translation ob
 Industry archetypes in `content/archetypes/` follow the `Archetype` type from `types/archetype.ts`. Can be exported as JSON, imported via UI (stored in IndexedDB), and pre-exported in `public/archetypes/`.
 
 **Lazy loading:** All 11 static archetypes are loaded via dynamic `import()` in `content/archetypes/index.ts`. The `archetypeLoaders` map holds per-archetype loader functions; `getArchetypeIndexList()` is **async** — it loads all archetypes on first call, derives index metadata (`toArchetypeIndex()`) from real data at runtime, and caches the result. Never hand-maintain index stats/tags — they are single-source-of-truth derived from archetype data.
+
+**Failure resilience:** If any archetype chunk fails to load, the index is still returned (with available items) but is NOT permanently cached. Failed IDs are stored in `failedIds` and retried on the next call to `ensureStaticIndexLoaded()`. Only when all archetypes load successfully does the fast-path cache (`cachedStaticIndex && failedIds.size === 0`) kick in.
 
 **Code-splitting:** 4 pages (Academy, Archetypes, AI Enhancement, Delivery) use `React.lazy` in `App.tsx`. Vendor libs (react/react-dom, lucide-react) are separated via `manualChunks` in `vite.config.ts`.
 
