@@ -209,3 +209,5 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({
     </div>
   );
 };
+
+export default DeliveryPage;

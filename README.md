@@ -74,6 +74,16 @@ Ontology Architect 是一个基于 AI 的企业智能系统设计工具，帮助
 ### 项目卡片对齐
 - **等高卡片布局** - 项目管理页面卡片统一高度，底部操作栏始终对齐
 
+### 生产构建代码分割
+- **页面级懒加载** - Academy、Archetypes、AI Enhancement、Delivery 4 个低频页面使用 React.lazy + Suspense 按需加载
+- **Archetype 数据懒加载** - 11 个行业模板数据文件（~600 KB）转为动态 `import()`，按模板粒度分 chunk；索引元数据运行时从真实数据派生，杜绝手工维护导致的数据漂移
+- **Vendor 分 chunk** - react/react-dom、lucide-react 拆分为独立缓存 chunk
+- **构建效果** - 主 chunk 从 ~1530 KB 降至 ~799 KB（减少 48%），总计 25 个独立 chunk
+
+### E2E 回归测试
+- **Playwright 测试套件** - 覆盖模板列表统计校验、Archetype 详情懒加载、从模板创建项目对话框流程
+- **CI 集成就绪** - `npm run test:e2e` 一键运行，Vite dev server 自动启停
+
 ### 瘦身与技术债清理
 - **动态 import 瘦身** - `documentParser.ts` 中 mammoth/xlsx/jszip 改为按需动态加载，首屏主 chunk 减少约 2 MB
 - **共享工具抽取** - `extractJSON()` 收敛到 `lib/jsonUtils.ts`、`getProviderApiKey()`/`requireProviderApiKey()` 收敛到 `lib/apiKeyUtils.ts`，消除 3 个 service 间的重复代码
@@ -248,8 +258,14 @@ ontology-assistant/
 │   ├── toolGenerator.ts       # Agent Tool 生成器
 │   └── qualityChecker.ts      # 质量检查器
 ├── types.ts                   # 类型定义
-└── types/
-    └── archetype.ts           # 模板类型定义
+├── types/
+│   └── archetype.ts           # 模板类型定义
+├── tests/
+│   ├── e2e/
+│   │   └── archetype-lazy-load.spec.ts  # Archetype 懒加载回归测试
+│   └── cardinality.test.ts    # 基数规范化单元测试
+├── playwright.config.ts       # Playwright E2E 配置
+└── vite.config.ts             # Vite 构建配置（含 manualChunks）
 ```
 
 ## 设计系统

@@ -14,6 +14,7 @@ npm run dev          # Vite dev server on localhost:3000
 npm run build        # Production build (also serves as type-error-free check)
 npm run check        # Full quality gate: cardinality tests + tsc --noEmit + build
 npm run test:cardinality  # Unit tests for link normalization
+npm run test:e2e     # Playwright E2E tests (starts Vite dev server automatically)
 ```
 
 ### Backend (backend/ directory)
@@ -154,6 +155,10 @@ All UI text requires both `cn` and `en` translations in component translation ob
 
 ### Archetype System
 Industry archetypes in `content/archetypes/` follow the `Archetype` type from `types/archetype.ts`. Can be exported as JSON, imported via UI (stored in IndexedDB), and pre-exported in `public/archetypes/`.
+
+**Lazy loading:** All 11 static archetypes are loaded via dynamic `import()` in `content/archetypes/index.ts`. The `archetypeLoaders` map holds per-archetype loader functions; `getArchetypeIndexList()` is **async** — it loads all archetypes on first call, derives index metadata (`toArchetypeIndex()`) from real data at runtime, and caches the result. Never hand-maintain index stats/tags — they are single-source-of-truth derived from archetype data.
+
+**Code-splitting:** 4 pages (Academy, Archetypes, AI Enhancement, Delivery) use `React.lazy` in `App.tsx`. Vendor libs (react/react-dom, lucide-react) are separated via `manualChunks` in `vite.config.ts`.
 
 ### Quality Checker
 `utils/qualityChecker.ts` implements 16 validation rules. Client delivery mode enforces hard gates: `error`-level issues and incomplete Action three-layer definitions block export.

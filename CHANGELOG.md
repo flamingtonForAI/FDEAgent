@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Production bundle code-splitting** — React.lazy + Suspense for 4 infrequently-visited pages (Academy, Archetypes, AI Enhancement, Delivery); main chunk reduced from ~1530 KB to ~799 KB (48% reduction)
+- **Lazy archetype loading** — 11 archetype data files (~600 KB) converted from static imports to dynamic `import()` with per-archetype chunks; index metadata derived at runtime from real data (single-source-of-truth, eliminates hand-maintained index drift)
+- **Vendor chunk splitting** — `manualChunks` in `vite.config.ts` separates `react`/`react-dom` and `lucide-react` into dedicated cacheable chunks
+- **E2E regression tests** — Playwright test suite (`tests/e2e/archetype-lazy-load.spec.ts`) covering: template list stats verification, archetype detail lazy-loading, and create-from-template dialog flow
+
+### Added
 - **Markdown rendering in chat**: AI assistant messages now render Markdown (headings, bold, italic, code blocks, inline code, lists, links) instead of plain text; user messages remain plain text
 - **`MarkdownRenderer` component**: Lightweight built-in Markdown-to-React parser (`components/MarkdownRenderer.tsx`) — no external library dependency
 

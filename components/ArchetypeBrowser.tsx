@@ -10,7 +10,6 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Language, AISettings } from '../types';
 import { Archetype, ArchetypeIndex, ArchetypeOriginType, ArchetypeOrigin } from '../types/archetype';
 import {
-  getArchetypeIndexList,
   getMergedArchetypeIndexList,
   getMergedArchetypeById,
   deleteImportedArchetype
@@ -204,8 +203,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
       setArchetypes(merged);
     } catch (error) {
       console.error('Failed to load archetypes:', error);
-      // 降级到静态列表
-      setArchetypes(getArchetypeIndexList());
+      setArchetypes([]);
     } finally {
       setIsLoading(false);
     }

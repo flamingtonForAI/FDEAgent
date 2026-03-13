@@ -13,3 +13,5 @@ interface AcademyPageProps {
 export const AcademyPage: React.FC<AcademyPageProps> = ({ lang }) => (
   <Academy lang={lang} />
 );
+
+export default AcademyPage;

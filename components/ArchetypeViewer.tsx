@@ -8,7 +8,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Language } from '../types';
 import { Archetype } from '../types/archetype';
-import { getArchetypeById, getMergedArchetypeById } from '../content/archetypes';
+import { getMergedArchetypeById } from '../content/archetypes';
 import {
   ArrowLeft, Package, Database, GitBranch, Zap, Bot, LayoutDashboard,
   Layers, FileJson, Clock, Users, CheckCircle, AlertTriangle,
@@ -142,17 +142,6 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
     setIsLoading(true);
 
     const loadArchetype = async () => {
-      // 先尝试同步获取静态原型
-      const staticArchetype = getArchetypeById(archetypeId);
-      if (staticArchetype) {
-        if (mounted) {
-          setArchetype(staticArchetype);
-          setIsLoading(false);
-        }
-        return;
-      }
-
-      // 尝试异步获取导入的原型
       try {
         const mergedArchetype = await getMergedArchetypeById(archetypeId);
         if (mounted) {

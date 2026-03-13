@@ -45,3 +45,5 @@ export const AIEnhancementPage: React.FC<AIEnhancementPageProps> = ({
     onAnalysisError={onAnalysisError}
   />
 );
+
+export default AIEnhancementPage;

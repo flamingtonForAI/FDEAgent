@@ -13,11 +13,11 @@ interface ArchetypesPageProps {
  * 行业模板库页面
  * 浏览和应用预置行业模板
  */
-export const ArchetypesPage: React.FC<ArchetypesPageProps> = ({ 
-  lang, 
-  aiSettings, 
-  onSelectArchetype, 
-  onApplyArchetype 
+export const ArchetypesPage: React.FC<ArchetypesPageProps> = ({
+  lang,
+  aiSettings,
+  onSelectArchetype,
+  onApplyArchetype
 }) => (
   <ArchetypeBrowser
     lang={lang}
@@ -26,3 +26,5 @@ export const ArchetypesPage: React.FC<ArchetypesPageProps> = ({
     onApplyArchetype={onApplyArchetype}
   />
 );
+
+export default ArchetypesPage;

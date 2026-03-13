@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "check": "npm run -s test:cardinality && npx tsc --noEmit && npm run -s build",
-    "test:cardinality": "rm -rf .tmp-tests && tsc --pretty false --noEmit false --module esnext --moduleResolution bundler --target es2022 --outDir .tmp-tests tests/cardinality.test.ts lib/cardinality.ts types.ts && node --experimental-specifier-resolution=node .tmp-tests/tests/cardinality.test.js && rm -rf .tmp-tests"
+    "test:cardinality": "rm -rf .tmp-tests && tsc --pretty false --noEmit false --module esnext --moduleResolution bundler --target es2022 --outDir .tmp-tests tests/cardinality.test.ts lib/cardinality.ts types.ts && node --experimental-specifier-resolution=node .tmp-tests/tests/cardinality.test.js && rm -rf .tmp-tests",
+    "test:e2e": "npx playwright test"
   },
   "dependencies": {
     "@google/genai": "^1.35.0",
@@ -21,6 +22,7 @@
     "yaml": "^2.8.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
     "playwright": "^1.58.1",

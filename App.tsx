@@ -3,18 +3,20 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AIService, loadAISettings, loadAISettingsAsync, saveAISettings } from './services/aiService';
 import { AnalysisResult } from './services/aiAnalysisService';
 import { ProjectState, ChatMessage, Language, AISettings, AIProvider, AI_PROVIDERS } from './types';
-// Page components - refactored for better maintainability
+// Page components — core workflow pages (eagerly loaded)
 import {
   ProjectsPage,
   QuickStartPage,
-  AcademyPage,
-  ArchetypesPage,
   ScoutingPage,
   ModelingPage,
   IntegrationPage,
-  AIEnhancementPage,
-  DeliveryPage,
 } from './pages';
+
+// Infrequently-visited pages — lazy-loaded for smaller initial bundle
+const AcademyPage = React.lazy(() => import('./pages/AcademyPage'));
+const ArchetypesPage = React.lazy(() => import('./pages/ArchetypesPage'));
+const AIEnhancementPage = React.lazy(() => import('./pages/AIEnhancementPage'));
+const DeliveryPage = React.lazy(() => import('./pages/DeliveryPage'));
 // Components (only those still used directly in App.tsx)
 import ArchetypeViewer from './components/ArchetypeViewer';
 import GlobalChatBar from './components/GlobalChatBar';
@@ -32,6 +34,19 @@ import { syncService } from './services/syncService';
 import { normalizeLinks } from './lib/cardinality';
 import ProjectDashboard from './components/ProjectDashboard';
 import UnifiedSettings from './components/UnifiedSettings';
+
+// Minimal loading fallback for lazy-loaded pages
+const PageLoadingFallback = () => (
+  <div className="flex-1 flex items-center justify-center p-8">
+    <div
+      className="w-8 h-8 border-2 rounded-full animate-spin"
+      style={{
+        borderColor: 'var(--color-border)',
+        borderTopColor: 'var(--color-accent)'
+      }}
+    />
+  </div>
+);
 
 const translations = {
   en: {
@@ -428,6 +443,12 @@ const AppContent: React.FC = () => {
     // changed when the response comes back (prevents cross-project data write).
     const requestProjectId = activeProjectIdRef.current;
 
+    // Immediately invalidate any in-flight summary from a prior generation run.
+    // This must happen BEFORE the async designOntology call so that if the user
+    // triggers a second generation while the first is still in flight, the first
+    // run's summary callback will see a stale generation ID and discard itself.
+    const thisGenerationId = ++designGenerationIdRef.current;
+
     setIsDesigning(true);
     try {
       const result = await aiService.current.designOntology(chatHistoryRef.current);
@@ -486,8 +507,9 @@ const AppContent: React.FC = () => {
       }));
 
       // Fire async LLM summary (non-blocking — don't await)
-      // Bump generation ID so stale summaries from prior runs are discarded
-      const thisGenerationId = ++designGenerationIdRef.current;
+      // thisGenerationId was captured at the top of triggerAutoDesign, before the
+      // async call, so any concurrent re-generation will have already bumped the
+      // ref and this closure's ID will be stale → summary discarded correctly.
       const totalActions = normalizedObjects.reduce((sum: number, obj: any) => sum + (obj.actions?.length || 0), 0);
 
       // Build a compact snapshot for the LLM to summarize from
@@ -862,15 +884,19 @@ const AppContent: React.FC = () => {
               <QuickStartPage lang={lang} project={project} onNavigate={setActiveTab} />
             )}
             {activeTab === 'academy' && (
-              <AcademyPage lang={lang} />
+              <React.Suspense fallback={<PageLoadingFallback />}>
+                <AcademyPage lang={lang} />
+              </React.Suspense>
             )}
             {activeTab === 'archetypes' && (
-              <ArchetypesPage
-                lang={lang}
-                aiSettings={aiSettings}
-                onSelectArchetype={handleSelectArchetype}
-                onApplyArchetype={handleApplyArchetype}
-              />
+              <React.Suspense fallback={<PageLoadingFallback />}>
+                <ArchetypesPage
+                  lang={lang}
+                  aiSettings={aiSettings}
+                  onSelectArchetype={handleSelectArchetype}
+                  onApplyArchetype={handleApplyArchetype}
+                />
+              </React.Suspense>
             )}
             {activeTab === 'archetypeViewer' && selectedArchetypeId && (
               <ArchetypeViewer
@@ -908,26 +934,30 @@ const AppContent: React.FC = () => {
             )}
             {/* Phase 4: AI Enhancement */}
             {(activeTab === 'aiEnhancement' || activeTab === 'aip') && (
-              <AIEnhancementPage
-                lang={lang}
-                project={project}
-                setProject={setProject}
-                aiSettings={aiSettings}
-                analysisResult={aiAnalysisResult}
-                onAnalysisResult={setAiAnalysisResult}
-                isAnalyzing={isAiAnalyzing}
-                onIsAnalyzingChange={setIsAiAnalyzing}
-                analysisError={aiAnalysisError}
-                onAnalysisError={setAiAnalysisError}
-              />
+              <React.Suspense fallback={<PageLoadingFallback />}>
+                <AIEnhancementPage
+                  lang={lang}
+                  project={project}
+                  setProject={setProject}
+                  aiSettings={aiSettings}
+                  analysisResult={aiAnalysisResult}
+                  onAnalysisResult={setAiAnalysisResult}
+                  isAnalyzing={isAiAnalyzing}
+                  onIsAnalyzingChange={setIsAiAnalyzing}
+                  analysisError={aiAnalysisError}
+                  onAnalysisError={setAiAnalysisError}
+                />
+              </React.Suspense>
             )}
             {/* Phase 5: Delivery */}
             {activeTab === 'deliver' && (
-              <DeliveryPage
-                lang={lang}
-                project={project}
-                onOpenQualityPanel={() => setShowQualityPanel(true)}
-              />
+              <React.Suspense fallback={<PageLoadingFallback />}>
+                <DeliveryPage
+                  lang={lang}
+                  project={project}
+                  onOpenQualityPanel={() => setShowQualityPanel(true)}
+                />
+              </React.Suspense>
             )}
           </ErrorBoundary>
         </div>
