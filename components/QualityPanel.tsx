@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { Language, ProjectState } from '../types';
+import { ProjectState } from '../types';
 import {
   runQualityCheck,
   QualityReport,
@@ -17,79 +17,15 @@ import {
   ChevronDown, ChevronRight, X, RefreshCw,
   Box, Zap, Link2, Database, Layers, Flag, Download
 } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface QualityPanelProps {
-  lang: Language;
   project: ProjectState;
   onClose?: () => void;
 }
 
 type TabType = 'quality' | 'threelayer' | 'milestones' | 'deliverables';
 
-const translations = {
-  en: {
-    title: 'Quality Check',
-    subtitle: 'Ontology design quality assessment',
-    tabQuality: 'Quality',
-    tabThreeLayer: '3-Layer',
-    tabMilestones: 'Milestones',
-    tabDeliverables: 'Export',
-    score: 'Score',
-    grade: 'Grade',
-    checks: 'checks',
-    passed: 'passed',
-    issues: 'issues',
-    runCheck: 'Run Check',
-    noIssues: 'No issues found!',
-    errors: 'Errors',
-    warnings: 'Warnings',
-    info: 'Info',
-    suggestion: 'Suggestion',
-    categories: {
-      object: 'Objects',
-      action: 'Actions',
-      link: 'Links',
-      integration: 'Integrations',
-      architecture: 'Architecture'
-    },
-    severity: {
-      error: 'Error',
-      warning: 'Warning',
-      info: 'Info'
-    }
-  },
-  cn: {
-    title: '质量检查',
-    subtitle: 'Ontology 设计质量评估',
-    tabQuality: '质量检查',
-    tabThreeLayer: '三层检查',
-    tabMilestones: '里程碑',
-    tabDeliverables: '导出',
-    score: '得分',
-    grade: '等级',
-    checks: '项检查',
-    passed: '项通过',
-    issues: '个问题',
-    runCheck: '运行检查',
-    noIssues: '未发现问题！',
-    errors: '错误',
-    warnings: '警告',
-    info: '提示',
-    suggestion: '建议',
-    categories: {
-      object: '对象',
-      action: '动作',
-      link: '关系',
-      integration: '集成',
-      architecture: '架构'
-    },
-    severity: {
-      error: '错误',
-      warning: '警告',
-      info: '提示'
-    }
-  }
-};
 
 const severityConfig: Record<Severity, { icon: React.ReactNode; colorVar: string; bgVar: string }> = {
   error: {
@@ -126,11 +62,10 @@ const gradeColorVars: Record<string, { color: string; bg: string }> = {
 };
 
 const QualityPanel: React.FC<QualityPanelProps> = ({
-  lang,
   project,
   onClose
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('common');
   const [activeTab, setActiveTab] = useState<TabType>('quality');
   const [report, setReport] = useState<QualityReport | null>(null);
   const [isChecking, setIsChecking] = useState(false);
@@ -203,8 +138,8 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
             <ShieldCheck size={20} style={{ color: 'var(--color-success)' }} />
           </div>
           <div>
-            <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h3>
-            <p className="text-xs text-muted">{t.subtitle}</p>
+            <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('qualityPanel.title')}</h3>
+            <p className="text-xs text-muted">{t('qualityPanel.subtitle')}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -215,7 +150,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium btn-gradient disabled:opacity-50 transition-all"
             >
               <RefreshCw size={12} className={isChecking ? 'animate-spin' : ''} />
-              {t.runCheck}
+              {t('qualityPanel.runCheck')}
             </button>
           )}
           {onClose && (
@@ -238,7 +173,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
         >
           <div className="flex items-center gap-2">
             <ShieldCheck size={14} />
-            {t.tabQuality}
+            {t('qualityPanel.tabQuality')}
           </div>
           {activeTab === 'quality' && (
             <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--color-success)' }} />
@@ -251,7 +186,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
         >
           <div className="flex items-center gap-2">
             <Layers size={14} />
-            {t.tabThreeLayer}
+            {t('qualityPanel.tabThreeLayer')}
           </div>
           {activeTab === 'threelayer' && (
             <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--color-accent-secondary)' }} />
@@ -264,7 +199,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
         >
           <div className="flex items-center gap-2">
             <Flag size={14} />
-            {t.tabMilestones}
+            {t('qualityPanel.tabMilestones')}
           </div>
           {activeTab === 'milestones' && (
             <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--color-accent-secondary)' }} />
@@ -277,7 +212,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
         >
           <div className="flex items-center gap-2">
             <Download size={14} />
-            {t.tabDeliverables}
+            {t('qualityPanel.tabDeliverables')}
           </div>
           {activeTab === 'deliverables' && (
             <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--color-warning)' }} />
@@ -287,12 +222,12 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
 
       {/* Tab Content */}
       {activeTab === 'deliverables' ? (
-        <DeliverableGenerator lang={lang} project={project} />
+        <DeliverableGenerator project={project} />
       ) : activeTab === 'milestones' ? (
-        <MilestonePlanner lang={lang} project={project} />
+        <MilestonePlanner project={project} />
       ) : activeTab === 'threelayer' ? (
         <div className="flex-1 overflow-y-auto p-4">
-          <ActionThreeLayerPanel lang={lang} project={project} />
+          <ActionThreeLayerPanel project={project} />
         </div>
       ) : (
         <>
@@ -304,7 +239,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
             <div className="flex items-center gap-6">
               <div className="text-center">
                 <div className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{report.score}</div>
-                <div className="text-micro text-muted">{t.score}</div>
+                <div className="text-micro text-muted">{t('qualityPanel.score')}</div>
               </div>
               <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold" style={{ color: gradeColorVars[report.grade].color, backgroundColor: gradeColorVars[report.grade].bg }}>
                 {report.grade}
@@ -315,15 +250,15 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
             <div className="flex items-center gap-4">
               <div className="text-center">
                 <div className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{report.totalChecks}</div>
-                <div className="text-micro text-muted">{t.checks}</div>
+                <div className="text-micro text-muted">{t('qualityPanel.checks')}</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-medium" style={{ color: 'var(--color-success)' }}>{report.passed}</div>
-                <div className="text-micro text-muted">{t.passed}</div>
+                <div className="text-micro text-muted">{t('qualityPanel.passed')}</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-medium" style={{ color: 'var(--color-warning)' }}>{report.issues.length}</div>
-                <div className="text-micro text-muted">{t.issues}</div>
+                <div className="text-micro text-muted">{t('qualityPanel.issues')}</div>
               </div>
             </div>
 
@@ -353,12 +288,12 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
         {!report ? (
           <div className="flex flex-col items-center justify-center h-full text-muted">
             <ShieldCheck size={40} className="mb-4 opacity-30" />
-            <p className="text-sm">{t.runCheck}</p>
+            <p className="text-sm">{t('qualityPanel.runCheck')}</p>
           </div>
         ) : report.issues.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full" style={{ color: 'var(--color-success)' }}>
             <ShieldCheck size={40} className="mb-4" />
-            <p className="text-sm">{t.noIssues}</p>
+            <p className="text-sm">{t('qualityPanel.noIssues')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -379,7 +314,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
                       {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                       <span style={{ color: config.colorVar }}>{config.icon}</span>
                       <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                        {t.categories[category]}
+                        {t(`qualityPanel.categories.${category}`)}
                       </span>
                       <span className="text-xs text-muted">({categoryIssues.length})</span>
                     </div>
@@ -423,7 +358,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
                               {issue.suggestion && (
                                 <div className="mt-2 p-2 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)', borderLeftWidth: '2px', borderLeftStyle: 'solid', borderLeftColor: 'var(--color-accent)' }}>
                                   <p className="text-xs text-muted">
-                                    <span style={{ color: 'var(--color-accent)' }}>{t.suggestion}:</span> {issue.suggestion[lang]}
+                                    <span style={{ color: 'var(--color-accent)' }}>{t('qualityPanel.suggestion')}:</span> {issue.suggestion[lang]}
                                   </p>
                                 </div>
                               )}

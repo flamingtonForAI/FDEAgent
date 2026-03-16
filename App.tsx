@@ -1,5 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import i18next from './lib/i18n';
+import { useAppTranslation } from './hooks/useAppTranslation';
 import { AIService, loadAISettings, loadAISettingsAsync, saveAISettings } from './services/aiService';
 import { AnalysisResult } from './services/aiAnalysisService';
 import { ProjectState, ChatMessage, Language, AISettings, AIProvider, AI_PROVIDERS } from './types';
@@ -48,82 +50,6 @@ const PageLoadingFallback = () => (
   </div>
 );
 
-const translations = {
-  en: {
-    title: "Ontology Architect",
-    subtitle: "Intelligent OS Studio",
-    projects: "Projects",
-    quickStart: "Quick Start",
-    academy: "Learning Center",
-    archetypes: "Templates",
-    // 4 Core Phases
-    phase1: "1. Discover",
-    phase1Desc: "Requirement Scouting",
-    phase2: "2. Model",
-    phase2Desc: "Ontology Modeling",
-    phase3: "3. Integrate",
-    phase3Desc: "Data Sources",
-    phase4: "4. AI Design",
-    phase4Desc: "AI Enhancement",
-    phase5: "5. Deliver",
-    phase5Desc: "Export Package",
-    // Legacy tabs (keep for backward compatibility)
-    scouting: "Requirement Scouting",
-    workbench: "Structuring Workbench",
-    ontology: "Logical Ontology",
-    actionDesigner: "Action Designer",
-    systemMap: "Architecture Map",
-    augmentation: "AI Augmentation",
-    blueprint: "System Blueprint",
-    sectionGettingStarted: "Getting Started",
-    sectionResources: "Resources",
-    sectionCoreWorkflow: "Design Workflow",
-    status: "Engine Status",
-    ready: "Standby",
-    synthesizing: "Synthesizing System Architecture...",
-    mapping: "Mapping Entities, Relations & Intelligence",
-    newSession: "New Session",
-    confirmNewSession: "Start a new session? Current conversation and design will be cleared.",
-    applyArchetype: "Apply template to current project? This will replace existing ontology design.",
-  },
-  cn: {
-    title: "本体架构师",
-    subtitle: "智能操作系统工作室",
-    projects: "项目管理",
-    quickStart: "快速开始",
-    academy: "学习中心",
-    archetypes: "行业模板",
-    // 4 Core Phases
-    phase1: "1. 发现",
-    phase1Desc: "需求勘察",
-    phase2: "2. 建模",
-    phase2Desc: "本体建模",
-    phase3: "3. 集成",
-    phase3Desc: "数据源对接",
-    phase4: "4. 智能化",
-    phase4Desc: "AI 增强设计",
-    phase5: "5. 交付",
-    phase5Desc: "导出交付包",
-    // Legacy tabs (keep for backward compatibility)
-    scouting: "需求勘察",
-    workbench: "结构化工作台",
-    ontology: "逻辑本体",
-    actionDesigner: "Action 设计",
-    systemMap: "架构拓扑图",
-    augmentation: "AI 能力增强",
-    blueprint: "系统蓝图",
-    sectionGettingStarted: "入门",
-    sectionResources: "参考资源",
-    sectionCoreWorkflow: "设计流程",
-    status: "引擎状态",
-    ready: "待命",
-    synthesizing: "正在合成系统架构...",
-    mapping: "映射实体、关系与智能逻辑",
-    newSession: "新建会话",
-    confirmNewSession: "确定要开始新会话吗？当前的对话和设计将被清除。",
-    applyArchetype: "应用此模板到当前项目？这将替换现有的本体设计。",
-  }
-};
 
 const MAX_SAVED_MESSAGES = 200;
 const MAX_MESSAGE_CHARS = 4000;
@@ -183,7 +109,10 @@ const emptyProjectState: ProjectState = {
 };
 
 const AppContent: React.FC = () => {
-  const [lang, setLang] = useState<Language>('cn');
+  const { t, lang } = useAppTranslation('nav');
+  const setLang = useCallback((newLang: Language) => {
+    i18next.changeLanguage(newLang);
+  }, []);
   const [activeTab, setActiveTab] = useState<'projects' | 'quickStart' | 'academy' | 'archetypes' | 'archetypeViewer' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview' | 'aiEnhancement' | 'deliver'>(loadLastActiveTab);
   const [isDesigning, setIsDesigning] = useState(false);
 
@@ -331,7 +260,6 @@ const AppContent: React.FC = () => {
     });
   }, []);
 
-  const t = translations[lang];
   const aiService = useRef(new AIService(aiSettings));
 
   // 当设置变化时更新AI服务
@@ -577,7 +505,7 @@ const AppContent: React.FC = () => {
   }, [lang, aiSettings.model, setProject]);
 
   const handleNewSession = () => {
-    if (window.confirm(t.confirmNewSession)) {
+    if (window.confirm(t('app.confirmNewSession'))) {
       // Reset current project's state via context
       setChatMessages([]);
       setCurrentOntology({
@@ -597,7 +525,7 @@ const AppContent: React.FC = () => {
 
   const handleApplyArchetype = useCallback(async (archetypeId: string, skipConfirm = false) => {
     // 跳过确认（用于导入后自动应用）或显示确认对话框
-    if (!skipConfirm && !window.confirm(t.applyArchetype)) return;
+    if (!skipConfirm && !window.confirm(t('app.applyArchetype'))) return;
 
     // 使用异步方法获取原型（支持静态和导入的原型）
     const archetype = await getMergedArchetypeById(archetypeId);
@@ -707,7 +635,7 @@ const AppContent: React.FC = () => {
     });
 
     setActiveTab('ontology');
-  }, [t.applyArchetype, project]);
+  }, [t, project]);
 
   return (
     <div className="flex h-screen overflow-hidden text-secondary" style={{ backgroundColor: 'var(--color-bg-base)' }}>
@@ -718,37 +646,37 @@ const AppContent: React.FC = () => {
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-bg-base)' }}>
               <Sparkles size={14} />
             </div>
-            <h1 className="font-medium tracking-tight text-sm" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h1>
+            <h1 className="font-medium tracking-tight text-sm" style={{ color: 'var(--color-text-primary)' }}>{t('app.title')}</h1>
           </div>
-          <p className="text-[11px] text-muted tracking-wider uppercase" style={{ fontWeight: 400 }}>{t.subtitle}</p>
+          <p className="text-[11px] text-muted tracking-wider uppercase" style={{ fontWeight: 400 }}>{t('app.subtitle')}</p>
         </div>
 
         <nav className="flex-1 p-3 overflow-y-auto">
           {/* Getting Started Section - For beginners */}
-          <NavSection label={t.sectionGettingStarted} />
+          <NavSection label={t('app.sectionGettingStarted')} />
           <NavItem
             active={activeTab === 'projects'}
             onClick={() => setActiveTab('projects')}
             icon={<FolderOpen size={16} />}
-            label={t.projects}
+            label={t('app.projects')}
           />
           <NavItem
             active={activeTab === 'quickStart'}
             onClick={() => setActiveTab('quickStart')}
             icon={<Rocket size={16} />}
-            label={t.quickStart}
+            label={t('app.quickStart')}
           />
 
           {/* Core Workflow - 4 Phases (requires project) */}
-          <NavSection label={t.sectionCoreWorkflow} />
+          <NavSection label={t('app.sectionCoreWorkflow')} />
 
           {/* Phase 1: Discover */}
           <NavItem
             active={activeTab === 'scouting'}
             onClick={() => setActiveTab('scouting')}
             icon={<MessageSquare size={16} />}
-            label={t.phase1}
-            sublabel={t.phase1Desc}
+            label={t('app.phase1')}
+            sublabel={t('app.phase1Desc')}
             disabled={!activeProjectId}
           />
 
@@ -757,8 +685,8 @@ const AppContent: React.FC = () => {
             active={activeTab === 'workbench' || activeTab === 'ontology' || activeTab === 'actionDesigner'}
             onClick={() => setActiveTab('workbench')}
             icon={<Database size={16} />}
-            label={t.phase2}
-            sublabel={t.phase2Desc}
+            label={t('app.phase2')}
+            sublabel={t('app.phase2Desc')}
             disabled={!activeProjectId}
           />
 
@@ -767,8 +695,8 @@ const AppContent: React.FC = () => {
             active={activeTab === 'systemMap' || activeTab === 'overview'}
             onClick={() => setActiveTab('systemMap')}
             icon={<Network size={16} />}
-            label={t.phase3}
-            sublabel={t.phase3Desc}
+            label={t('app.phase3')}
+            sublabel={t('app.phase3Desc')}
             disabled={!activeProjectId || project.objects.length === 0}
           />
 
@@ -777,8 +705,8 @@ const AppContent: React.FC = () => {
             active={activeTab === 'aiEnhancement' || activeTab === 'aip'}
             onClick={() => setActiveTab('aiEnhancement')}
             icon={<BrainCircuit size={16} />}
-            label={t.phase4}
-            sublabel={t.phase4Desc}
+            label={t('app.phase4')}
+            sublabel={t('app.phase4Desc')}
             disabled={!activeProjectId || project.objects.length === 0}
           />
 
@@ -787,24 +715,24 @@ const AppContent: React.FC = () => {
             active={activeTab === 'deliver'}
             onClick={() => setActiveTab('deliver')}
             icon={<Package size={16} />}
-            label={t.phase5}
-            sublabel={t.phase5Desc}
+            label={t('app.phase5')}
+            sublabel={t('app.phase5Desc')}
             disabled={!activeProjectId || project.objects.length === 0}
           />
 
           {/* Resources Section - Reference for all users */}
-          <NavSection label={t.sectionResources} />
+          <NavSection label={t('app.sectionResources')} />
           <NavItem
             active={activeTab === 'academy'}
             onClick={() => setActiveTab('academy')}
             icon={<GraduationCap size={16} />}
-            label={t.academy}
+            label={t('app.academy')}
           />
           <NavItem
             active={activeTab === 'archetypes' || activeTab === 'archetypeViewer'}
             onClick={() => { setActiveTab('archetypes'); setSelectedArchetypeId(null); }}
             icon={<Package size={16} />}
-            label={t.archetypes}
+            label={t('app.archetypes')}
           />
         </nav>
 
@@ -825,10 +753,10 @@ const AppContent: React.FC = () => {
             >
               <div className="flex items-center gap-2.5">
                 <LogIn size={15} />
-                <span>{lang === 'cn' ? '登录 / 注册' : 'Sign In'}</span>
+                <span>{t('app.signIn')}</span>
               </div>
               <span className="text-xs" style={{ color: 'var(--color-accent)' }}>
-                {lang === 'cn' ? '云同步' : 'Sync'}
+                {t('app.cloudSync')}
               </span>
             </button>
           )}
@@ -841,7 +769,7 @@ const AppContent: React.FC = () => {
           >
             <div className="flex items-center gap-2">
               <SettingsIcon size={14} />
-              <span>{lang === 'cn' ? '设置' : 'Settings'}</span>
+              <span>{t('app.settings')}</span>
             </div>
             <div className="flex items-center gap-2">
                 <span className="text-xs truncate max-w-[80px]" style={{ color: 'var(--color-accent)' }}>
@@ -867,8 +795,8 @@ const AppContent: React.FC = () => {
                 borderTopColor: 'var(--color-accent)'
               }}
             />
-            <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{t.synthesizing}</h2>
-            <p className="text-muted mt-2 text-sm">{t.mapping}</p>
+            <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('app.synthesizing')}</h2>
+            <p className="text-muted mt-2 text-sm">{t('app.mapping')}</p>
           </div>
         )}
 
@@ -876,8 +804,7 @@ const AppContent: React.FC = () => {
           <ErrorBoundary onReset={() => setActiveTab('projects')}>
             {activeTab === 'projects' && (
               <ProjectsPage
-                lang={lang}
-                onOpenProject={() => setActiveTab('scouting')}
+onOpenProject={() => setActiveTab('scouting')}
               />
             )}
             {activeTab === 'quickStart' && (
@@ -891,8 +818,7 @@ const AppContent: React.FC = () => {
             {activeTab === 'archetypes' && (
               <React.Suspense fallback={<PageLoadingFallback />}>
                 <ArchetypesPage
-                  lang={lang}
-                  aiSettings={aiSettings}
+    aiSettings={aiSettings}
                   onSelectArchetype={handleSelectArchetype}
                   onApplyArchetype={handleApplyArchetype}
                 />
@@ -900,16 +826,14 @@ const AppContent: React.FC = () => {
             )}
             {activeTab === 'archetypeViewer' && selectedArchetypeId && (
               <ArchetypeViewer
-                lang={lang}
-                archetypeId={selectedArchetypeId}
+archetypeId={selectedArchetypeId}
                 onBack={() => { setActiveTab('archetypes'); setSelectedArchetypeId(null); }}
                 onApply={() => handleApplyArchetype(selectedArchetypeId)}
               />
             )}
             {activeTab === 'scouting' && (
               <ScoutingPage
-                lang={lang}
-                messages={chatMessages}
+messages={chatMessages}
                 project={project}
                 isLoading={isChatLoading}
                 hasApiKey={!!activeProviderApiKey}
@@ -920,8 +844,7 @@ const AppContent: React.FC = () => {
             {/* Phase 2: Ontology Modeling */}
             {(activeTab === 'workbench' || activeTab === 'ontology' || activeTab === 'actionDesigner') && (
               <ModelingPage
-                lang={lang}
-                project={project}
+project={project}
                 setProject={setProject}
                 chatMessages={chatHistoryRef}
                 onNavigateToScouting={() => setActiveTab('scouting')}
@@ -936,8 +859,7 @@ const AppContent: React.FC = () => {
             {(activeTab === 'aiEnhancement' || activeTab === 'aip') && (
               <React.Suspense fallback={<PageLoadingFallback />}>
                 <AIEnhancementPage
-                  lang={lang}
-                  project={project}
+    project={project}
                   setProject={setProject}
                   aiSettings={aiSettings}
                   analysisResult={aiAnalysisResult}
@@ -953,8 +875,7 @@ const AppContent: React.FC = () => {
             {activeTab === 'deliver' && (
               <React.Suspense fallback={<PageLoadingFallback />}>
                 <DeliveryPage
-                  lang={lang}
-                  project={project}
+    project={project}
                   onOpenQualityPanel={() => setShowQualityPanel(true)}
                 />
               </React.Suspense>
@@ -972,8 +893,8 @@ const AppContent: React.FC = () => {
             backgroundColor: 'var(--color-accent)',
             boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
           }}
-          title={lang === 'cn' ? '质量检查' : 'Quality Check'}
-          aria-label={lang === 'cn' ? '质量检查' : 'Quality Check'}
+          title={t('app.qualityCheck')}
+          aria-label={t('app.qualityCheck')}
         >
           <ShieldCheck size={20} style={{ color: 'var(--color-bg-base)' }} />
         </button>
@@ -999,7 +920,6 @@ const AppContent: React.FC = () => {
       {/* Unified Settings Modal */}
       {showSettings && (
         <UnifiedSettings
-          lang={lang}
           aiSettings={aiSettings}
           currentTheme={currentTheme}
           onAISettingsChange={handleSettingsChange}

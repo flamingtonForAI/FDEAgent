@@ -7,55 +7,12 @@ import { Mail, Lock, UserPlus, Eye, EyeOff, Check, X } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 interface RegisterFormProps {
   onSwitchToLogin: () => void;
   onSuccess?: () => void;
-  lang?: 'en' | 'cn';
 }
-
-const translations = {
-  en: {
-    title: 'Create Account',
-    subtitle: 'Register to save and sync your ontology projects',
-    email: 'Email',
-    emailPlaceholder: 'Enter your email',
-    password: 'Password',
-    passwordPlaceholder: 'Create a password',
-    confirmPassword: 'Confirm Password',
-    confirmPlaceholder: 'Confirm your password',
-    register: 'Create Account',
-    hasAccount: 'Already have an account?',
-    login: 'Sign in',
-    requirements: {
-      minLength: 'At least 8 characters',
-      uppercase: 'One uppercase letter',
-      lowercase: 'One lowercase letter',
-      number: 'One number',
-    },
-    passwordMismatch: 'Passwords do not match',
-  },
-  cn: {
-    title: '创建账号',
-    subtitle: '注册以保存和同步您的本体论项目',
-    email: '邮箱',
-    emailPlaceholder: '请输入邮箱',
-    password: '密码',
-    passwordPlaceholder: '创建密码',
-    confirmPassword: '确认密码',
-    confirmPlaceholder: '再次输入密码',
-    register: '注册',
-    hasAccount: '已有账号？',
-    login: '立即登录',
-    requirements: {
-      minLength: '至少 8 个字符',
-      uppercase: '包含大写字母',
-      lowercase: '包含小写字母',
-      number: '包含数字',
-    },
-    passwordMismatch: '两次密码不一致',
-  },
-};
 
 interface PasswordStrength {
   minLength: boolean;
@@ -67,7 +24,6 @@ interface PasswordStrength {
 export const RegisterForm: React.FC<RegisterFormProps> = ({
   onSwitchToLogin,
   onSuccess,
-  lang = 'cn',
 }) => {
   const { register, isLoading, error, clearError } = useAuth();
   const [email, setEmail] = useState('');
@@ -77,7 +33,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const t = translations[lang];
+  const { t } = useAppTranslation('common');
 
   // Check password strength
   const passwordStrength: PasswordStrength = {
@@ -96,19 +52,17 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 
     // Validation
     if (!email.trim()) {
-      setValidationError(lang === 'cn' ? '请输入邮箱' : 'Email is required');
+      setValidationError(t('auth.validation.emailRequired'));
       return;
     }
 
     if (!isPasswordStrong) {
-      setValidationError(
-        lang === 'cn' ? '密码不符合要求' : 'Password does not meet requirements'
-      );
+      setValidationError(t('auth.validation.passwordWeak'));
       return;
     }
 
     if (password !== confirmPassword) {
-      setValidationError(t.passwordMismatch);
+      setValidationError(t('auth.register.passwordMismatch'));
       return;
     }
 
@@ -139,17 +93,17 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-white mb-2">{t.title}</h2>
-        <p className="text-sm text-muted">{t.subtitle}</p>
+        <h2 className="text-2xl font-bold text-white mb-2">{t('auth.register.title')}</h2>
+        <p className="text-sm text-muted">{t('auth.register.subtitle')}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <Input
-          label={t.email}
+          label={t('auth.register.email')}
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder={t.emailPlaceholder}
+          placeholder={t('auth.register.emailPlaceholder')}
           leftIcon={<Mail size={16} />}
           autoComplete="email"
           disabled={isLoading}
@@ -157,11 +111,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 
         <div>
           <Input
-            label={t.password}
+            label={t('auth.register.password')}
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder={t.passwordPlaceholder}
+            placeholder={t('auth.register.passwordPlaceholder')}
             leftIcon={<Lock size={16} />}
             rightIcon={
               <button
@@ -179,30 +133,30 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             <div className="mt-2 grid grid-cols-2 gap-1">
               <RequirementIndicator
                 met={passwordStrength.minLength}
-                text={t.requirements.minLength}
+                text={t('auth.register.minLength')}
               />
               <RequirementIndicator
                 met={passwordStrength.uppercase}
-                text={t.requirements.uppercase}
+                text={t('auth.register.uppercase')}
               />
               <RequirementIndicator
                 met={passwordStrength.lowercase}
-                text={t.requirements.lowercase}
+                text={t('auth.register.lowercase')}
               />
               <RequirementIndicator
                 met={passwordStrength.number}
-                text={t.requirements.number}
+                text={t('auth.register.number')}
               />
             </div>
           )}
         </div>
 
         <Input
-          label={t.confirmPassword}
+          label={t('auth.register.confirmPassword')}
           type={showConfirmPassword ? 'text' : 'password'}
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          placeholder={t.confirmPlaceholder}
+          placeholder={t('auth.register.confirmPlaceholder')}
           leftIcon={<Lock size={16} />}
           rightIcon={
             <button
@@ -217,7 +171,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           disabled={isLoading}
           error={
             confirmPassword && password !== confirmPassword
-              ? t.passwordMismatch
+              ? t('auth.register.passwordMismatch')
               : undefined
           }
         />
@@ -236,19 +190,19 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           size="lg"
           disabled={!isPasswordStrong || password !== confirmPassword}
         >
-          {t.register}
+          {t('auth.register.register')}
         </Button>
       </form>
 
       <div className="mt-6 text-center">
         <p className="text-sm text-muted">
-          {t.hasAccount}{' '}
+          {t('auth.register.hasAccount')}{' '}
           <button
             type="button"
             onClick={onSwitchToLogin}
             className="text-amber-400 hover:text-amber-300 transition-colors"
           >
-            {t.login}
+            {t('auth.register.login')}
           </button>
         </p>
       </div>

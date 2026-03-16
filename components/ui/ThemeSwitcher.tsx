@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Moon, Sun, Monitor, ChevronDown, Check } from 'lucide-react';
 import { ThemeMode, themeOptions, applyThemeMode, getSavedThemeMode, setupSystemThemeListener } from '../../lib/themes';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 interface ThemeSwitcherProps {
-  lang?: 'cn' | 'en';
 }
 
-export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({ lang = 'cn' }) => {
+export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = () => {
+  const { lang } = useAppTranslation('settings');
   const [isOpen, setIsOpen] = useState(false);
   const [currentMode, setCurrentMode] = useState<ThemeMode>(() => getSavedThemeMode());
   const dropdownRef = useRef<HTMLDivElement>(null);

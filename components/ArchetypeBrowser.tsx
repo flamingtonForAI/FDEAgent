@@ -7,8 +7,9 @@
  */
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { Language, AISettings } from '../types';
+import { AISettings } from '../types';
 import { Archetype, ArchetypeIndex, ArchetypeOriginType, ArchetypeOrigin } from '../types/archetype';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import {
   getMergedArchetypeIndexList,
   getMergedArchetypeById,
@@ -26,98 +27,10 @@ import { SourceIndicator } from './SourceBadge';
 import IndustryDiscovery from './IndustryDiscovery';
 
 interface Props {
-  lang: Language;
   aiSettings?: AISettings;
   onSelectArchetype: (archetypeId: string) => void;
   onApplyArchetype: (archetypeId: string, skipConfirm?: boolean) => void;
 }
-
-const translations = {
-  en: {
-    title: 'Template Library',
-    subtitle: 'Production-ready industry solutions from FDE experience',
-    search: 'Search templates...',
-    filter: 'Filter',
-    allIndustries: 'All Industries',
-    allSources: 'All Sources',
-    sourceBuiltin: 'Built-in',
-    sourceAI: 'AI Generated',
-    sourceRef: 'Reference',
-    objects: 'Objects',
-    actions: 'Actions',
-    connectors: 'Connectors',
-    workflows: 'Workflows',
-    dashboards: 'Dashboards',
-    deployTime: 'Deploy Time',
-    deployments: 'Deployments',
-    viewDetails: 'View Details',
-    useArchetype: 'Use This Template',
-    noResults: 'No templates match your search',
-    features: 'Features',
-    aiEnabled: 'AI-Enabled',
-    erpIntegration: 'ERP Integration',
-    iotEnabled: 'IoT Enabled',
-    aiGenerated: 'AI Generated',
-    fromReference: 'From Reference',
-    exploreNew: 'Explore New Industry',
-    delete: 'Delete',
-    deleteConfirm: 'Are you sure you want to delete this template?',
-    loading: 'Loading templates...',
-    importSuccess: 'Template imported! You are now in the Model phase to customize.',
-    exportJson: 'Export JSON',
-    importJson: 'Import JSON',
-    exportSuccess: 'Template exported successfully!',
-    importError: 'Failed to import template',
-    invalidJson: 'Invalid JSON file format',
-    validationMissingId: 'Missing template ID',
-    validationMissingName: 'Missing template name',
-    validationMissingOntology: 'Missing ontology definition',
-    validationEmptyObjects: 'Ontology must contain at least one object',
-    validationInvalidObjects: 'Invalid object structure in ontology',
-  },
-  cn: {
-    title: '模板库',
-    subtitle: '来自FDE实战经验的可部署行业方案',
-    search: '搜索模板...',
-    filter: '筛选',
-    allIndustries: '所有行业',
-    allSources: '所有来源',
-    sourceBuiltin: '内置',
-    sourceAI: 'AI 生成',
-    sourceRef: '参考资料',
-    objects: '对象',
-    actions: '动作',
-    connectors: '连接器',
-    workflows: '工作流',
-    dashboards: '仪表盘',
-    deployTime: '部署周期',
-    deployments: '部署案例',
-    viewDetails: '查看详情',
-    useArchetype: '使用此模板',
-    noResults: '没有匹配的模板',
-    features: '特性',
-    aiEnabled: 'AI赋能',
-    erpIntegration: 'ERP集成',
-    iotEnabled: 'IoT支持',
-    aiGenerated: 'AI 生成',
-    fromReference: '参考资料',
-    exploreNew: '探索新行业',
-    delete: '删除',
-    deleteConfirm: '确定要删除这个模板吗？',
-    loading: '加载模板中...',
-    importSuccess: '模板已导入！现在进入建模阶段进行定制。',
-    exportJson: '导出 JSON',
-    importJson: '导入 JSON',
-    exportSuccess: '模板导出成功！',
-    importError: '导入失败',
-    invalidJson: 'JSON 文件格式无效',
-    validationMissingId: '缺少模板 ID',
-    validationMissingName: '缺少模板名称',
-    validationMissingOntology: '缺少本体定义',
-    validationEmptyObjects: '本体必须至少包含一个对象',
-    validationInvalidObjects: '本体中对象结构无效',
-  }
-};
 
 const industryConfig: Record<string, { icon: React.ReactNode; color: string; label: { en: string; cn: string } }> = {
   manufacturing: {
@@ -178,8 +91,8 @@ const industryConfig: Record<string, { icon: React.ReactNode; color: string; lab
   }
 };
 
-const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype, onApplyArchetype }) => {
-  const t = translations[lang];
+const ArchetypeBrowser: React.FC<Props> = ({ aiSettings, onSelectArchetype, onApplyArchetype }) => {
+  const { t, lang } = useAppTranslation('archetypes');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
   const [selectedSource, setSelectedSource] = useState<ArchetypeOriginType | 'all'>('all');
@@ -247,7 +160,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
   // 删除导入的原型
   const handleDelete = async (archetypeId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm(t.deleteConfirm)) return;
+    if (!confirm(t('browser.deleteConfirm'))) return;
 
     const success = await deleteImportedArchetype(archetypeId);
     if (success) {
@@ -281,7 +194,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      setImportSuccessMessage(t.exportSuccess);
+      setImportSuccessMessage(t('browser.exportSuccess'));
       setTimeout(() => setImportSuccessMessage(null), 3000);
     } catch (error) {
       console.error('Failed to export archetype:', error);
@@ -300,7 +213,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
       try {
         data = JSON.parse(text);
       } catch {
-        throw new Error(t.invalidJson);
+        throw new Error(t('browser.invalidJson'));
       }
 
       // 支持两种格式：直接的 Archetype 或包装的 { archetype: ... }
@@ -311,26 +224,26 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
 
       // Check metadata
       if (!archetype.metadata?.id) {
-        validationErrors.push(t.validationMissingId);
+        validationErrors.push(t('browser.validationMissingId'));
       }
       if (!archetype.metadata?.name) {
-        validationErrors.push(t.validationMissingName);
+        validationErrors.push(t('browser.validationMissingName'));
       }
 
       // Check ontology
       if (!archetype.ontology) {
-        validationErrors.push(t.validationMissingOntology);
+        validationErrors.push(t('browser.validationMissingOntology'));
       } else {
         // Check that ontology.objects exists and is non-empty
         if (!Array.isArray(archetype.ontology.objects) || archetype.ontology.objects.length === 0) {
-          validationErrors.push(t.validationEmptyObjects);
+          validationErrors.push(t('browser.validationEmptyObjects'));
         } else {
           // Validate object structure (each object must have id and name)
           const invalidObjects = archetype.ontology.objects.filter(
             (obj: unknown) => !obj || typeof obj !== 'object' || !('id' in obj) || !('name' in obj)
           );
           if (invalidObjects.length > 0) {
-            validationErrors.push(t.validationInvalidObjects);
+            validationErrors.push(t('browser.validationInvalidObjects'));
           }
         }
       }
@@ -355,7 +268,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
       await loadArchetypes();
 
       // 显示成功提示
-      setImportSuccessMessage(t.importSuccess);
+      setImportSuccessMessage(t('browser.importSuccess'));
       setTimeout(() => setImportSuccessMessage(null), 5000);
 
       // 自动应用导入的原型
@@ -363,8 +276,8 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
     } catch (error) {
       console.error('Failed to import JSON:', error);
       // Show specific error message
-      const errorMessage = error instanceof Error ? error.message : t.importError;
-      alert(`${t.importError}: ${errorMessage}`);
+      const errorMessage = error instanceof Error ? error.message : t('browser.importError');
+      alert(`${t('browser.importError')}: ${errorMessage}`);
     }
 
     // 清空 input 以便重复导入同一文件
@@ -377,7 +290,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
     loadArchetypes();
 
     // 显示成功提示（包含方法论引导）
-    setImportSuccessMessage(t.importSuccess);
+    setImportSuccessMessage(t('browser.importSuccess'));
     setTimeout(() => setImportSuccessMessage(null), 5000);
 
     // 自动应用原型，进入建模阶段（跳过确认，因为用户已在导入流程中确认）
@@ -402,7 +315,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
       >
         {/* Source Indicator (corner badge) - hover shows full origin details */}
         <div className="absolute top-3 right-3">
-          <SourceIndicator origin={archetype.origin} size={14} lang={lang} />
+          <SourceIndicator origin={archetype.origin} size={14} />
         </div>
 
         {/* Header */}
@@ -431,11 +344,11 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
 
         {/* Stats */}
         <div className="grid grid-cols-5 gap-2 mb-4">
-          <StatBadge icon={<Database size={12} />} value={archetype.stats.objectCount} label={t.objects} />
-          <StatBadge icon={<Zap size={12} />} value={archetype.stats.actionCount} label={t.actions} />
-          <StatBadge icon={<GitBranch size={12} />} value={archetype.stats.connectorCount} label={t.connectors} />
-          <StatBadge icon={<Layers size={12} />} value={archetype.stats.workflowCount} label={t.workflows} />
-          <StatBadge icon={<LayoutDashboard size={12} />} value={archetype.stats.dashboardCount} label={t.dashboards} />
+          <StatBadge icon={<Database size={12} />} value={archetype.stats.objectCount} label={t('browser.objects')} />
+          <StatBadge icon={<Zap size={12} />} value={archetype.stats.actionCount} label={t('browser.actions')} />
+          <StatBadge icon={<GitBranch size={12} />} value={archetype.stats.connectorCount} label={t('browser.connectors')} />
+          <StatBadge icon={<Layers size={12} />} value={archetype.stats.workflowCount} label={t('browser.workflows')} />
+          <StatBadge icon={<LayoutDashboard size={12} />} value={archetype.stats.dashboardCount} label={t('browser.dashboards')} />
         </div>
 
         {/* Tags */}
@@ -454,11 +367,11 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
                        'var(--color-text-muted)'
               }}
             >
-              {tag === 'ai-enabled' ? t.aiEnabled :
-               tag === 'erp-integration' ? t.erpIntegration :
-               tag === 'iot-enabled' ? t.iotEnabled :
-               tag === 'ai-generated' ? t.aiGenerated :
-               tag === 'from-reference' ? t.fromReference :
+              {tag === 'ai-enabled' ? t('browser.aiEnabled') :
+               tag === 'erp-integration' ? t('browser.erpIntegration') :
+               tag === 'iot-enabled' ? t('browser.iotEnabled') :
+               tag === 'ai-generated' ? t('browser.aiGenerated') :
+               tag === 'from-reference' ? t('browser.fromReference') :
                tag}
             </span>
           ))}
@@ -471,7 +384,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
             <button
               onClick={(e) => handleExportJson(archetype.id, e)}
               className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-lg glass-surface text-sm text-muted hover:text-primary transition-colors"
-              title={t.exportJson}
+              title={t('browser.exportJson')}
             >
               <Download size={14} />
             </button>
@@ -480,7 +393,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
               <button
                 onClick={(e) => handleDelete(archetype.id, e)}
                 className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-lg glass-surface text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
-                title={t.delete}
+                title={t('browser.delete')}
               >
                 <Trash2 size={14} />
               </button>
@@ -492,7 +405,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
               }}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg glass-surface text-sm text-secondary hover:text-primary transition-colors"
             >
-              {t.viewDetails}
+              {t('browser.viewDetails')}
               <ChevronRight size={14} />
             </button>
             <button
@@ -502,7 +415,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
               }}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg btn-gradient text-sm font-medium"
             >
-              {t.useArchetype}
+              {t('browser.useArchetype')}
               <ArrowRight size={14} />
             </button>
           </div>
@@ -542,8 +455,8 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
               <Package size={20} style={{ color: 'var(--color-accent)' }} />
             </div>
             <div>
-              <h1 className="text-xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h1>
-              <p className="text-sm text-muted">{t.subtitle}</p>
+              <h1 className="text-xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('browser.title')}</h1>
+              <p className="text-sm text-muted">{t('browser.subtitle')}</p>
             </div>
           </div>
 
@@ -551,7 +464,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
             {/* Import JSON Button */}
             <label className="flex items-center gap-2 px-4 py-2.5 rounded-lg glass-surface text-sm font-medium cursor-pointer hover:bg-white/[0.05] transition-colors">
               <Upload size={16} />
-              {t.importJson}
+              {t('browser.importJson')}
               <input
                 type="file"
                 accept=".json"
@@ -567,7 +480,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
                 className="flex items-center gap-2 px-4 py-2.5 rounded-lg btn-gradient text-sm font-medium"
               >
                 <Plus size={16} />
-                {t.exploreNew}
+                {t('browser.exploreNew')}
               </button>
             )}
           </div>
@@ -583,7 +496,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t.search}
+            placeholder={t('browser.search')}
             className="w-full glass-surface rounded-lg pl-10 pr-4 py-2.5 text-sm placeholder-gray-500 focus:outline-none focus:ring-1"
             style={{ color: 'var(--color-text-primary)' }}
           />
@@ -598,7 +511,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
             className="glass-surface rounded-lg px-3 py-2.5 text-sm focus:outline-none"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            <option value="">{t.allIndustries}</option>
+            <option value="">{t('browser.allIndustries')}</option>
             {industries.map(ind => (
               <option key={ind} value={ind}>
                 {industryConfig[ind]?.label[lang] || ind}
@@ -615,10 +528,10 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
             className="glass-surface rounded-lg px-3 py-2.5 text-sm focus:outline-none"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            <option value="all">{t.allSources}</option>
-            <option value="static">{t.sourceBuiltin}</option>
-            <option value="ai-generated">{t.sourceAI}</option>
-            <option value="reference">{t.sourceRef}</option>
+            <option value="all">{t('browser.allSources')}</option>
+            <option value="static">{t('browser.sourceBuiltin')}</option>
+            <option value="ai-generated">{t('browser.sourceAI')}</option>
+            <option value="reference">{t('browser.sourceRef')}</option>
           </select>
         </div>
       </div>
@@ -628,12 +541,12 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-full text-muted">
             <Loader2 size={48} className="mb-4 animate-spin opacity-30" />
-            <p>{t.loading}</p>
+            <p>{t('browser.loading')}</p>
           </div>
         ) : filteredArchetypes.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-muted">
             <Package size={48} className="mb-4 opacity-30" />
-            <p>{t.noResults}</p>
+            <p>{t('browser.noResults')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -645,7 +558,6 @@ const ArchetypeBrowser: React.FC<Props> = ({ lang, aiSettings, onSelectArchetype
       {/* Industry Discovery Dialog */}
       {showDiscovery && aiSettings && (
         <IndustryDiscovery
-          lang={lang}
           aiSettings={aiSettings}
           onClose={() => setShowDiscovery(false)}
           onImported={handleImported}

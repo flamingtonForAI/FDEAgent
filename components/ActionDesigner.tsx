@@ -1,129 +1,22 @@
 import React, { useState } from 'react';
-import { OntologyObject, AIPAction, ActionParameter, Language } from '../types';
+import { OntologyObject, AIPAction, ActionParameter } from '../types';
 import {
   Zap, ChevronRight, Briefcase, GitBranch, Code, Shield,
   Plus, Trash2, Save, Edit3, CheckCircle, FileJson, Bot
 } from 'lucide-react';
 import APISpecViewer from './APISpecViewer';
 import ToolSpecViewer from './ToolSpecViewer';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 type LayerTab = 'business' | 'logic' | 'implementation' | 'governance' | 'api' | 'tool';
 
 interface Props {
-  lang: Language;
   objects: OntologyObject[];
   onUpdateAction: (objectId: string, actionIndex: number, updatedAction: AIPAction) => void;
 }
 
-const translations = {
-  en: {
-    title: "Action Designer",
-    subtitle: "Define three-layer specifications for each business action",
-    selectObject: "Select Object",
-    selectAction: "Select Action",
-    noObjects: "No objects yet. Please generate ontology first.",
-    noActions: "No actions defined for this object.",
-    // Layers
-    businessLayer: "Business Layer",
-    logicLayer: "Logic Layer",
-    implementationLayer: "Implementation Layer",
-    governance: "Governance",
-    // Business Layer fields
-    description: "Description",
-    targetObject: "Target Object",
-    executorRole: "Executor Role",
-    triggerCondition: "Trigger Condition",
-    // Logic Layer fields
-    preconditions: "Preconditions",
-    parameters: "Parameters",
-    postconditions: "Postconditions",
-    sideEffects: "Side Effects",
-    addItem: "Add",
-    paramName: "Name",
-    paramType: "Type",
-    paramRequired: "Required",
-    paramDescription: "Description",
-    // Implementation Layer fields
-    apiEndpoint: "API Endpoint",
-    apiMethod: "HTTP Method",
-    agentToolName: "Agent Tool Name",
-    agentToolDesc: "Tool Description",
-    // Governance fields
-    permissionTier: "Permission Tier",
-    requiresApproval: "Requires Human Approval",
-    auditLog: "Audit Log",
-    riskLevel: "Risk Level",
-    // Actions
-    save: "Save",
-    cancel: "Cancel",
-    edit: "Edit",
-    saved: "Saved!",
-    yes: "Yes",
-    no: "No",
-    low: "Low",
-    medium: "Medium",
-    high: "High",
-    // API Tab
-    apiSpec: "API Spec",
-    // Tool Tab
-    toolSpec: "Agent Tool",
-  },
-  cn: {
-    title: "Action 设计器",
-    subtitle: "为每个业务动作定义三层规范",
-    selectObject: "选择对象",
-    selectAction: "选择动作",
-    noObjects: "暂无对象，请先生成 Ontology。",
-    noActions: "该对象暂无定义动作。",
-    // Layers
-    businessLayer: "业务层",
-    logicLayer: "逻辑层",
-    implementationLayer: "实现层",
-    governance: "治理",
-    // Business Layer fields
-    description: "业务描述",
-    targetObject: "目标对象",
-    executorRole: "执行角色",
-    triggerCondition: "触发条件",
-    // Logic Layer fields
-    preconditions: "前置条件",
-    parameters: "输入参数",
-    postconditions: "后置状态",
-    sideEffects: "副作用",
-    addItem: "添加",
-    paramName: "参数名",
-    paramType: "类型",
-    paramRequired: "必填",
-    paramDescription: "说明",
-    // Implementation Layer fields
-    apiEndpoint: "API 端点",
-    apiMethod: "HTTP 方法",
-    agentToolName: "Agent 工具名",
-    agentToolDesc: "工具描述",
-    // Governance fields
-    permissionTier: "权限等级",
-    requiresApproval: "需要人工审批",
-    auditLog: "审计日志",
-    riskLevel: "风险等级",
-    // Actions
-    save: "保存",
-    cancel: "取消",
-    edit: "编辑",
-    saved: "已保存!",
-    yes: "是",
-    no: "否",
-    low: "低",
-    medium: "中",
-    high: "高",
-    // API Tab
-    apiSpec: "API 规范",
-    // Tool Tab
-    toolSpec: "Agent Tool",
-  }
-};
-
-const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
-  const t = translations[lang];
+const ActionDesigner: React.FC<Props> = ({ objects, onUpdateAction }) => {
+  const { t, lang } = useAppTranslation('modeling');
   const [selectedObjectId, setSelectedObjectId] = useState<string | null>(
     objects.length > 0 ? objects[0].id : null
   );
@@ -222,12 +115,12 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
   };
 
   const tabs: { id: LayerTab; label: string; icon: React.ReactNode; color: string }[] = [
-    { id: 'business', label: t.businessLayer, icon: <Briefcase size={14} />, color: 'blue' },
-    { id: 'logic', label: t.logicLayer, icon: <GitBranch size={14} />, color: 'emerald' },
-    { id: 'implementation', label: t.implementationLayer, icon: <Code size={14} />, color: 'purple' },
-    { id: 'governance', label: t.governance, icon: <Shield size={14} />, color: 'orange' },
-    { id: 'api', label: t.apiSpec, icon: <FileJson size={14} />, color: 'purple' },
-    { id: 'tool', label: t.toolSpec, icon: <Bot size={14} />, color: 'amber' },
+    { id: 'business', label: t('actionDesigner.businessLayer'), icon: <Briefcase size={14} />, color: 'blue' },
+    { id: 'logic', label: t('actionDesigner.logicLayer'), icon: <GitBranch size={14} />, color: 'emerald' },
+    { id: 'implementation', label: t('actionDesigner.implementationLayer'), icon: <Code size={14} />, color: 'purple' },
+    { id: 'governance', label: t('actionDesigner.governance'), icon: <Shield size={14} />, color: 'orange' },
+    { id: 'api', label: t('actionDesigner.apiSpec'), icon: <FileJson size={14} />, color: 'purple' },
+    { id: 'tool', label: t('actionDesigner.toolSpec'), icon: <Bot size={14} />, color: 'amber' },
   ];
 
   if (objects.length === 0) {
@@ -235,7 +128,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
       <div className="p-8 h-full bg-[var(--color-bg-elevated)] flex items-center justify-center">
         <div className="text-center text-muted">
           <Zap size={40} className="mx-auto mb-4 opacity-30" />
-          <p className="text-sm">{t.noObjects}</p>
+          <p className="text-sm">{t('actionDesigner.noObjects')}</p>
         </div>
       </div>
     );
@@ -247,7 +140,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
       <div className="w-64 border-r border-white/[0.06] flex flex-col">
         {/* Object Selector */}
         <div className="p-4 border-b border-white/[0.06]">
-          <label htmlFor="object-selector" className="text-micro text-muted block mb-2">{t.selectObject}</label>
+          <label htmlFor="object-selector" className="text-micro text-muted block mb-2">{t('actionDesigner.selectObject')}</label>
           <select
             id="object-selector"
             value={selectedObjectId || ''}
@@ -268,7 +161,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
 
         {/* Action List */}
         <div className="flex-1 overflow-y-auto p-4">
-          <label className="text-micro text-muted block mb-2">{t.selectAction}</label>
+          <label className="text-micro text-muted block mb-2">{t('actionDesigner.selectAction')}</label>
           {selectedObject && selectedObject.actions.length > 0 ? (
             <div className="space-y-1.5">
               {selectedObject.actions.map((action, idx) => (
@@ -296,7 +189,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
               ))}
             </div>
           ) : (
-            <p className="text-muted text-sm">{t.noActions}</p>
+            <p className="text-muted text-sm">{t('actionDesigner.noActions')}</p>
           )}
         </div>
       </div>
@@ -313,14 +206,14 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                 </div>
                 <div>
                   <h2 className="text-base font-medium text-white">{editingAction.name}</h2>
-                  <p className="text-xs text-muted">{t.subtitle}</p>
+                  <p className="text-xs text-muted">{t('actionDesigner.subtitle')}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 {showSaved && (
                   <span className="flex items-center gap-1 text-emerald-400 text-xs animate-fadeIn">
                     <CheckCircle size={14} />
-                    {t.saved}
+                    {t('actionDesigner.saved')}
                   </span>
                 )}
                 <button
@@ -328,7 +221,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                   className="flex items-center gap-2 btn-gradient px-4 py-2 rounded-lg text-sm font-medium transition-all"
                 >
                   <Save size={14} />
-                  {t.save}
+                  {t('actionDesigner.save')}
                 </button>
               </div>
             </div>
@@ -355,7 +248,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
               {activeTab === 'business' && (
                 <div className="space-y-4 animate-fadeIn">
                   <div>
-                    <label className="text-xs text-muted block mb-2">{t.description}</label>
+                    <label className="text-xs text-muted block mb-2">{t('actionDesigner.description')}</label>
                     <textarea
                       value={editingAction.businessLayer?.description || ''}
                       onChange={(e) => updateEditingAction({
@@ -368,7 +261,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-muted block mb-2">{t.targetObject}</label>
+                      <label className="text-xs text-muted block mb-2">{t('actionDesigner.targetObject')}</label>
                       <input
                         type="text"
                         value={editingAction.businessLayer?.targetObject || ''}
@@ -380,7 +273,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-muted block mb-2">{t.executorRole}</label>
+                      <label className="text-xs text-muted block mb-2">{t('actionDesigner.executorRole')}</label>
                       <input
                         type="text"
                         value={editingAction.businessLayer?.executorRole || ''}
@@ -393,7 +286,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs text-muted block mb-2">{t.triggerCondition}</label>
+                    <label className="text-xs text-muted block mb-2">{t('actionDesigner.triggerCondition')}</label>
                     <input
                       type="text"
                       value={editingAction.businessLayer?.triggerCondition || ''}
@@ -413,9 +306,9 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                   {/* Preconditions */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <label className="text-xs text-muted">{t.preconditions}</label>
+                      <label className="text-xs text-muted">{t('actionDesigner.preconditions')}</label>
                       <button onClick={() => addToArray('preconditions')} className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
-                        <Plus size={12} /> {t.addItem}
+                        <Plus size={12} /> {t('actionDesigner.addItem')}
                       </button>
                     </div>
                     <div className="space-y-2">
@@ -442,9 +335,9 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                   {/* Parameters */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <label className="text-xs text-muted">{t.parameters}</label>
+                      <label className="text-xs text-muted">{t('actionDesigner.parameters')}</label>
                       <button onClick={addParameter} className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
-                        <Plus size={12} /> {t.addItem}
+                        <Plus size={12} /> {t('actionDesigner.addItem')}
                       </button>
                     </div>
                     <div className="space-y-2">
@@ -454,7 +347,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                             type="text"
                             value={param.name}
                             onChange={(e) => updateParameter(idx, { name: e.target.value })}
-                            placeholder={t.paramName}
+                            placeholder={t('actionDesigner.paramName')}
                             className="w-32 bg-[var(--color-bg-base)]/30 border border-white/[0.06] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none"
                           />
                           <select
@@ -476,13 +369,13 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                               onChange={(e) => updateParameter(idx, { required: e.target.checked })}
                               className="rounded border-white/20"
                             />
-                            {t.paramRequired}
+                            {t('actionDesigner.paramRequired')}
                           </label>
                           <input
                             type="text"
                             value={param.description}
                             onChange={(e) => updateParameter(idx, { description: e.target.value })}
-                            placeholder={t.paramDescription}
+                            placeholder={t('actionDesigner.paramDescription')}
                             className="flex-1 bg-[var(--color-bg-base)]/30 border border-white/[0.06] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none"
                           />
                           <button onClick={() => removeParameter(idx)} className="text-muted hover:text-red-400 transition-colors">
@@ -496,9 +389,9 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                   {/* Postconditions */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <label className="text-xs text-muted">{t.postconditions}</label>
+                      <label className="text-xs text-muted">{t('actionDesigner.postconditions')}</label>
                       <button onClick={() => addToArray('postconditions')} className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
-                        <Plus size={12} /> {t.addItem}
+                        <Plus size={12} /> {t('actionDesigner.addItem')}
                       </button>
                     </div>
                     <div className="space-y-2">
@@ -521,9 +414,9 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                   {/* Side Effects */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <label className="text-xs text-muted">{t.sideEffects}</label>
+                      <label className="text-xs text-muted">{t('actionDesigner.sideEffects')}</label>
                       <button onClick={() => addToArray('sideEffects')} className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
-                        <Plus size={12} /> {t.addItem}
+                        <Plus size={12} /> {t('actionDesigner.addItem')}
                       </button>
                     </div>
                     <div className="space-y-2">
@@ -550,7 +443,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                 <div className="space-y-4 animate-fadeIn">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-muted block mb-2">{t.apiEndpoint}</label>
+                      <label className="text-xs text-muted block mb-2">{t('actionDesigner.apiEndpoint')}</label>
                       <input
                         type="text"
                         value={editingAction.implementationLayer?.apiEndpoint || ''}
@@ -562,7 +455,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-muted block mb-2">{t.apiMethod}</label>
+                      <label className="text-xs text-muted block mb-2">{t('actionDesigner.apiMethod')}</label>
                       <select
                         value={editingAction.implementationLayer?.apiMethod || 'POST'}
                         onChange={(e) => updateEditingAction({
@@ -580,7 +473,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-muted block mb-2">{t.agentToolName}</label>
+                      <label className="text-xs text-muted block mb-2">{t('actionDesigner.agentToolName')}</label>
                       <input
                         type="text"
                         value={editingAction.implementationLayer?.agentToolSpec?.name || ''}
@@ -599,7 +492,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-muted block mb-2">{t.agentToolDesc}</label>
+                      <label className="text-xs text-muted block mb-2">{t('actionDesigner.agentToolDesc')}</label>
                       <input
                         type="text"
                         value={editingAction.implementationLayer?.agentToolSpec?.description || ''}
@@ -625,7 +518,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                 <div className="space-y-4 animate-fadeIn">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-muted block mb-2">{t.permissionTier}</label>
+                      <label className="text-xs text-muted block mb-2">{t('actionDesigner.permissionTier')}</label>
                       <select
                         value={editingAction.governance?.permissionTier || 1}
                         onChange={(e) => updateEditingAction({
@@ -645,7 +538,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                       </select>
                     </div>
                     <div>
-                      <label className="text-xs text-muted block mb-2">{t.riskLevel}</label>
+                      <label className="text-xs text-muted block mb-2">{t('actionDesigner.riskLevel')}</label>
                       <select
                         value={editingAction.governance?.riskLevel || 'low'}
                         onChange={(e) => updateEditingAction({
@@ -659,9 +552,9 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                         })}
                         className="w-full glass-surface rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500/30"
                       >
-                        <option value="low">{t.low}</option>
-                        <option value="medium">{t.medium}</option>
-                        <option value="high">{t.high}</option>
+                        <option value="low">{t('actionDesigner.low')}</option>
+                        <option value="medium">{t('actionDesigner.medium')}</option>
+                        <option value="high">{t('actionDesigner.high')}</option>
                       </select>
                     </div>
                   </div>
@@ -680,7 +573,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                         })}
                         className="rounded border-white/20"
                       />
-                      {t.requiresApproval}
+                      {t('actionDesigner.requiresApproval')}
                     </label>
                     <label className="flex items-center gap-2 text-sm text-muted cursor-pointer">
                       <input
@@ -696,7 +589,7 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
                         })}
                         className="rounded border-white/20"
                       />
-                      {t.auditLog}
+                      {t('actionDesigner.auditLog')}
                     </label>
                   </div>
                 </div>
@@ -706,7 +599,6 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
               {activeTab === 'api' && (
                 <div className="animate-fadeIn -m-6 h-[calc(100%+3rem)]">
                   <APISpecViewer
-                    lang={lang}
                     objects={objects}
                     selectedObjectId={selectedObjectId || undefined}
                     selectedAction={editingAction || undefined}
@@ -718,7 +610,6 @@ const ActionDesigner: React.FC<Props> = ({ lang, objects, onUpdateAction }) => {
               {activeTab === 'tool' && (
                 <div className="animate-fadeIn -m-6 h-[calc(100%+3rem)]">
                   <ToolSpecViewer
-                    lang={lang}
                     objects={objects}
                     selectedObjectId={selectedObjectId || undefined}
                     selectedAction={editingAction || undefined}

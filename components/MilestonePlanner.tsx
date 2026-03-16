@@ -18,9 +18,9 @@ import {
   FileText,
   Lightbulb
 } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface MilestonePlannerProps {
-  lang: Language;
   project: ProjectState;
 }
 
@@ -35,46 +35,6 @@ interface Milestone {
   progress: number; // 0-100
 }
 
-const translations = {
-  cn: {
-    title: '交付里程碑',
-    subtitle: '从发现到交付的完整路径',
-    discovery: '发现阶段',
-    design: '设计阶段',
-    validation: '验证阶段',
-    delivery: '交付阶段',
-    completed: '已完成',
-    inProgress: '进行中',
-    pending: '待开始',
-    blocked: '受阻',
-    deliverables: '交付物',
-    blockers: '阻塞项',
-    exportPlan: '导出计划',
-    tip: '根据当前进度自动评估各阶段状态',
-    nextSteps: '建议下一步',
-    currentPhase: '当前阶段',
-    overallProgress: '整体进度'
-  },
-  en: {
-    title: 'Delivery Milestones',
-    subtitle: 'Complete path from discovery to delivery',
-    discovery: 'Discovery',
-    design: 'Design',
-    validation: 'Validation',
-    delivery: 'Delivery',
-    completed: 'Completed',
-    inProgress: 'In Progress',
-    pending: 'Pending',
-    blocked: 'Blocked',
-    deliverables: 'Deliverables',
-    blockers: 'Blockers',
-    exportPlan: 'Export Plan',
-    tip: 'Auto-evaluates phase status based on current progress',
-    nextSteps: 'Next Steps',
-    currentPhase: 'Current Phase',
-    overallProgress: 'Overall Progress'
-  }
-};
 
 const categoryConfig = {
   discovery: { icon: Lightbulb, color: 'var(--color-accent)' },
@@ -257,10 +217,9 @@ function getNextSteps(milestones: Milestone[], lang: Language): { cn: string; en
 }
 
 const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
-  lang,
   project
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('discovery');
   const [expandedMilestone, setExpandedMilestone] = useState<string | null>('discovery');
 
   const milestones = useMemo(() => evaluateMilestones(project, lang), [project, lang]);
@@ -287,28 +246,28 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
 
   const getStatusLabel = (status: Milestone['status']) => {
     switch (status) {
-      case 'completed': return t.completed;
-      case 'in_progress': return t.inProgress;
-      case 'blocked': return t.blocked;
-      default: return t.pending;
+      case 'completed': return t('milestonePlanner.completed');
+      case 'in_progress': return t('milestonePlanner.inProgress');
+      case 'blocked': return t('milestonePlanner.blocked');
+      default: return t('milestonePlanner.pending');
     }
   };
 
   const exportPlan = () => {
-    let md = `# ${t.title}\n\n`;
-    md += `> ${t.overallProgress}: ${overallProgress}%\n`;
-    md += `> ${t.currentPhase}: ${currentPhase.title[lang]}\n\n`;
+    let md = `# ${t('milestonePlanner.title')}\n\n`;
+    md += `> ${t('milestonePlanner.overallProgress')}: ${overallProgress}%\n`;
+    md += `> ${t('milestonePlanner.currentPhase')}: ${currentPhase.title[lang]}\n\n`;
 
     milestones.forEach(milestone => {
       const status = getStatusLabel(milestone.status);
       md += `## ${milestone.title[lang]} (${status} - ${milestone.progress}%)\n`;
       md += `${milestone.description[lang]}\n\n`;
-      md += `### ${t.deliverables}\n`;
+      md += `### ${t('milestonePlanner.deliverables')}\n`;
       milestone.deliverables.forEach(d => {
         md += `- ${d[lang]}\n`;
       });
       if (milestone.blockers?.length) {
-        md += `\n### ${t.blockers}\n`;
+        md += `\n### ${t('milestonePlanner.blockers')}\n`;
         milestone.blockers.forEach(b => {
           md += `- ${b[lang]}\n`;
         });
@@ -317,7 +276,7 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
     });
 
     if (nextSteps.length > 0) {
-      md += `## ${t.nextSteps}\n`;
+      md += `## ${t('milestonePlanner.nextSteps')}\n`;
       nextSteps.forEach((step, i) => {
         md += `${i + 1}. ${step[lang]}\n`;
       });
@@ -349,10 +308,10 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
             </div>
             <div>
               <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {t.title}
+                {t('milestonePlanner.title')}
               </h3>
               <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                {t.subtitle}
+                {t('milestonePlanner.subtitle')}
               </p>
             </div>
           </div>
@@ -362,7 +321,7 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
             style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-secondary)' }}
           >
             <Download className="w-3.5 h-3.5" />
-            {t.exportPlan}
+            {t('milestonePlanner.exportPlan')}
           </button>
         </div>
 
@@ -370,7 +329,7 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
         <div className="grid grid-cols-2 gap-3 mt-4">
           <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
             <div className="text-xs mb-1" style={{ color: 'var(--color-text-muted)' }}>
-              {t.overallProgress}
+              {t('milestonePlanner.overallProgress')}
             </div>
             <div className="flex items-center gap-3">
               <div className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
@@ -389,7 +348,7 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
           </div>
           <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
             <div className="text-xs mb-1" style={{ color: 'var(--color-text-muted)' }}>
-              {t.currentPhase}
+              {t('milestonePlanner.currentPhase')}
             </div>
             <div className="flex items-center gap-2">
               {React.createElement(categoryConfig[currentPhase.category].icon, {
@@ -431,7 +390,7 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
               </div>
               <div className="text-center">
                 <div className="text-xs font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                  {t[milestone.category]}
+                  {t(`milestonePlanner.${milestone.category}`)}
                 </div>
                 <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
                   {milestone.progress}%
@@ -517,7 +476,7 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
                   {/* Deliverables */}
                   <div className="mb-3">
                     <div className="text-xs font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>
-                      {t.deliverables}
+                      {t('milestonePlanner.deliverables')}
                     </div>
                     <div className="space-y-1.5">
                       {milestone.deliverables.map((deliverable, idx) => (
@@ -542,7 +501,7 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
                     >
                       <div className="flex items-center gap-2 text-xs font-medium mb-2" style={{ color: 'var(--color-error)' }}>
                         <AlertCircle className="w-3.5 h-3.5" />
-                        {t.blockers}
+                        {t('milestonePlanner.blockers')}
                       </div>
                       {milestone.blockers.map((blocker, idx) => (
                         <div key={idx} className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
@@ -565,7 +524,7 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
           >
             <div className="flex items-center gap-2 text-sm font-medium mb-3" style={{ color: 'var(--color-accent)' }}>
               <Lightbulb className="w-4 h-4" />
-              {t.nextSteps}
+              {t('milestonePlanner.nextSteps')}
             </div>
             <div className="space-y-2">
               {nextSteps.map((step, idx) => (
@@ -592,7 +551,7 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
         style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}
       >
         <Lightbulb className="inline w-3 h-3 mr-1" />
-        {t.tip}
+        {t('milestonePlanner.tip')}
       </div>
     </div>
   );

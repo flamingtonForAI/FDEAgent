@@ -17,9 +17,9 @@ import {
   ChevronDown,
   ChevronRight
 } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface LinkRecommenderProps {
-  lang: Language;
   project: ProjectState;
   onApplyLink: (link: Omit<OntologyLink, 'id'>) => void;
   onDismissRecommendation: (sourceId: string, targetId: string) => void;
@@ -36,46 +36,6 @@ interface RecommendedLink {
   reason: string;
 }
 
-const translations = {
-  en: {
-    title: 'Suggested Relationships',
-    subtitle: 'Based on your objects',
-    noSuggestions: 'No relationship suggestions available. Add more objects to get recommendations.',
-    apply: 'Apply',
-    dismiss: 'Dismiss',
-    applied: 'Applied!',
-    confidence: 'Confidence',
-    reason: 'Why',
-    relationTypes: {
-      belongs_to: 'belongs to',
-      has_many: 'has many',
-      has_one: 'has one',
-      references: 'references',
-      depends_on: 'depends on'
-    },
-    showAll: 'Show all',
-    showLess: 'Show less'
-  },
-  cn: {
-    title: '建议的关系',
-    subtitle: '基于您的对象分析',
-    noSuggestions: '暂无关系建议。添加更多对象以获取推荐。',
-    apply: '应用',
-    dismiss: '忽略',
-    applied: '已应用！',
-    confidence: '置信度',
-    reason: '原因',
-    relationTypes: {
-      belongs_to: '属于',
-      has_many: '拥有多个',
-      has_one: '拥有一个',
-      references: '引用',
-      depends_on: '依赖'
-    },
-    showAll: '显示全部',
-    showLess: '收起'
-  }
-};
 
 // Common relationship patterns in enterprise systems
 const RELATIONSHIP_PATTERNS: Array<{
@@ -320,12 +280,11 @@ const generateRecommendations = (
 };
 
 const LinkRecommender: React.FC<LinkRecommenderProps> = ({
-  lang,
   project,
   onApplyLink,
   onDismissRecommendation
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('discovery');
   const [appliedLinks, setAppliedLinks] = useState<Set<string>>(new Set());
   const [dismissedLinks, setDismissedLinks] = useState<Set<string>>(new Set());
   const [expanded, setExpanded] = useState(true);
@@ -391,11 +350,11 @@ const LinkRecommender: React.FC<LinkRecommenderProps> = ({
             <Link2 size={16} />
           </div>
           <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-            {t.title}
+            {t('linkRecommender.title')}
           </div>
         </div>
         <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-          {t.noSuggestions}
+          {t('linkRecommender.noSuggestions')}
         </p>
       </div>
     );
@@ -424,10 +383,10 @@ const LinkRecommender: React.FC<LinkRecommenderProps> = ({
           </div>
           <div>
             <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              {t.title}
+              {t('linkRecommender.title')}
             </div>
             <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-              {t.subtitle}
+              {t('linkRecommender.subtitle')}
             </div>
           </div>
         </div>
@@ -483,7 +442,7 @@ const LinkRecommender: React.FC<LinkRecommenderProps> = ({
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
-                      {t.confidence}:
+                      {t('linkRecommender.confidence')}:
                     </span>
                     <span
                       className="text-[10px] font-medium"
@@ -496,13 +455,13 @@ const LinkRecommender: React.FC<LinkRecommenderProps> = ({
                     className="text-[10px] px-2 py-0.5 rounded"
                     style={{ backgroundColor: 'var(--color-bg-elevated)', color: 'var(--color-text-muted)' }}
                   >
-                    {t.relationTypes[rec.relationshipType]}
+                    {t(`linkRecommender.${rec.relationshipType === 'belongs_to' ? 'belongsTo' : rec.relationshipType === 'has_many' ? 'hasMany' : rec.relationshipType === 'has_one' ? 'hasOne' : rec.relationshipType === 'depends_on' ? 'dependsOn' : 'references'}`)}
                   </span>
                 </div>
 
                 {/* Reason */}
                 <div className="text-xs mb-3" style={{ color: 'var(--color-text-muted)' }}>
-                  <span className="font-medium">{t.reason}:</span> {rec.reason}
+                  <span className="font-medium">{t('linkRecommender.reason')}:</span> {rec.reason}
                 </div>
 
                 {/* Actions */}
@@ -520,12 +479,12 @@ const LinkRecommender: React.FC<LinkRecommenderProps> = ({
                     {isApplied ? (
                       <>
                         <CheckCircle2 size={12} />
-                        {t.applied}
+                        {t('linkRecommender.applied')}
                       </>
                     ) : (
                       <>
                         <Plus size={12} />
-                        {t.apply}
+                        {t('linkRecommender.apply')}
                       </>
                     )}
                   </button>
@@ -535,7 +494,7 @@ const LinkRecommender: React.FC<LinkRecommenderProps> = ({
                       className="px-3 py-1.5 text-xs rounded-lg transition-colors hover:bg-white/10"
                       style={{ color: 'var(--color-text-muted)' }}
                     >
-                      {t.dismiss}
+                      {t('linkRecommender.dismiss')}
                     </button>
                   )}
                 </div>
@@ -550,7 +509,7 @@ const LinkRecommender: React.FC<LinkRecommenderProps> = ({
               className="w-full text-xs text-center py-2 rounded-lg transition-colors hover:bg-white/5"
               style={{ color: 'var(--color-text-muted)' }}
             >
-              {showAll ? t.showLess : `${t.showAll} (${visibleRecommendations.length - 3} more)`}
+              {showAll ? t('linkRecommender.showLess') : `${t('linkRecommender.showAll')} (${visibleRecommendations.length - 3} more)`}
             </button>
           )}
         </div>

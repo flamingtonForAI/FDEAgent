@@ -19,11 +19,11 @@ import {
 import { Language, ProjectState, ChatMessage, AISettings } from '../types';
 import { AIService } from '../services/aiService';
 import MarkdownRenderer from './MarkdownRenderer';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 type PhaseType = 'discover' | 'model' | 'integrate' | 'enhance';
 
 interface GlobalChatSidebarProps {
-  lang: Language;
   isOpen: boolean;
   onToggle: () => void;
   project: ProjectState;
@@ -74,34 +74,6 @@ const phaseConfig: Record<PhaseType, {
   }
 };
 
-const translations = {
-  en: {
-    title: 'AI Assistant',
-    placeholder: 'Ask me anything...',
-    phaseHint: 'Current phase capabilities:',
-    close: 'Close',
-    open: 'Open Assistant',
-    thinking: 'Thinking...',
-    error: 'Failed to get response',
-    discover: 'Discover',
-    model: 'Model',
-    integrate: 'Integrate',
-    enhance: 'Enhance'
-  },
-  cn: {
-    title: 'AI 助手',
-    placeholder: '有什么可以帮您...',
-    phaseHint: '当前阶段可用能力：',
-    close: '关闭',
-    open: '打开助手',
-    thinking: '思考中...',
-    error: '获取回复失败',
-    discover: '发现',
-    model: '建模',
-    integrate: '集成',
-    enhance: '智能化'
-  }
-};
 
 // 根据阶段生成上下文提示
 function getPhaseContextPrompt(
@@ -155,7 +127,6 @@ function getPhaseContextPrompt(
 }
 
 const GlobalChatSidebar: React.FC<GlobalChatSidebarProps> = ({
-  lang,
   isOpen,
   onToggle,
   project,
@@ -166,7 +137,7 @@ const GlobalChatSidebar: React.FC<GlobalChatSidebarProps> = ({
   chatMessages,
   setChatMessages
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('discovery');
   const config = phaseConfig[currentPhase];
 
   const [input, setInput] = useState('');
@@ -232,12 +203,12 @@ const GlobalChatSidebar: React.FC<GlobalChatSidebarProps> = ({
       }
 
     } catch (err) {
-      setError(t.error);
+      setError(t('globalChatSidebar.error'));
       console.error('Chat error:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, chatMessages, currentPhase, project, lang, aiService, setChatMessages, setProject, t.error]);
+  }, [input, isLoading, chatMessages, currentPhase, project, lang, aiService, setChatMessages, setProject, t]);
 
   // 处理键盘事件
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -254,7 +225,7 @@ const GlobalChatSidebar: React.FC<GlobalChatSidebarProps> = ({
         onClick={onToggle}
         className="fixed right-4 bottom-24 w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-50 transition-all hover:scale-105"
         style={{ backgroundColor: config.color }}
-        title={t.open}
+        title={t('globalChatSidebar.open')}
       >
         <MessageSquare size={20} className="text-white" />
       </button>
@@ -280,11 +251,11 @@ const GlobalChatSidebar: React.FC<GlobalChatSidebarProps> = ({
           </div>
           <div>
             <h3 className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-              {t.title}
+              {t('globalChatSidebar.title')}
             </h3>
             <div className="flex items-center gap-1 text-xs" style={{ color: config.color }}>
               {config.icon}
-              <span>{t[currentPhase]}</span>
+              <span>{t(`globalChatSidebar.${currentPhase}`)}</span>
             </div>
           </div>
         </div>
@@ -302,7 +273,7 @@ const GlobalChatSidebar: React.FC<GlobalChatSidebarProps> = ({
         className="px-4 py-2 text-xs"
         style={{ backgroundColor: `${config.color}08`, borderBottom: '1px solid var(--color-border)' }}
       >
-        <div style={{ color: 'var(--color-text-muted)' }}>{t.phaseHint}</div>
+        <div style={{ color: 'var(--color-text-muted)' }}>{t('globalChatSidebar.phaseHint')}</div>
         <div className="flex flex-wrap gap-1 mt-1">
           {config.capabilities[lang].map((cap, i) => (
             <span
@@ -356,7 +327,7 @@ const GlobalChatSidebar: React.FC<GlobalChatSidebarProps> = ({
               style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-muted)' }}
             >
               <Loader2 size={14} className="animate-spin" />
-              {t.thinking}
+              {t('globalChatSidebar.thinking')}
             </div>
           </div>
         )}
@@ -387,7 +358,7 @@ const GlobalChatSidebar: React.FC<GlobalChatSidebarProps> = ({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={t.placeholder}
+            placeholder={t('globalChatSidebar.placeholder')}
             rows={1}
             className="flex-1 resize-none bg-transparent text-sm outline-none"
             style={{

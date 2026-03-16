@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ProjectState } from '../types';
 import { useProject } from '../contexts/ProjectContext';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import {
   GraduationCap, Package, MessageSquare, ArrowRight, Database, Zap, Link2,
   ClipboardList, CheckCircle2, FolderPlus, Rocket, Sparkles, Play,
@@ -12,162 +13,13 @@ import NewProjectDialog from './NewProjectDialog';
 type NavigableTab = 'projects' | 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aiEnhancement' | 'overview';
 
 interface QuickStartProps {
-  lang: 'en' | 'cn';
   project: ProjectState;
   onNavigate: (tab: NavigableTab) => void;
 }
 
-const translations = {
-  en: {
-    // Hero
-    heroTitle: "Build Intelligent Operating Systems",
-    heroSubtitle: "Transform your business logic into AI-powered operational systems using the Ontology-First methodology",
 
-    // What is Ontology
-    whatIsOntology: "What is Ontology?",
-    ontologyDesc: "An Ontology is a structured representation of your business domain - the core entities (Objects), their relationships (Links), and the operations (Actions) that drive your business. It's the foundation for building intelligent systems that truly understand your business.",
-
-    // Core Concepts
-    coreConceptsTitle: "Core Concepts",
-    conceptObject: "Objects",
-    conceptObjectDesc: "Business entities like Customer, Order, Product",
-    conceptAction: "Actions",
-    conceptActionDesc: "Operations like Create Order, Approve Request",
-    conceptLink: "Links",
-    conceptLinkDesc: "Relationships like Customer places Order",
-    conceptAI: "AI Enhancement",
-    conceptAIDesc: "Smart automation and predictions",
-
-    // 4 Phases
-    fourPhasesTitle: "4-Phase Design Workflow",
-    phase1Title: "Discover",
-    phase1Desc: "Chat with AI to explore your business requirements and extract key entities",
-    phase2Title: "Model",
-    phase2Desc: "Structure your Objects, define Properties and design Actions",
-    phase3Title: "Integrate",
-    phase3Desc: "Connect data sources and plan system integrations",
-    phase4Title: "AI Design",
-    phase4Desc: "Identify AI opportunities and design intelligent automations",
-
-    // Quick Start Steps
-    quickStartTitle: "Get Started in 3 Steps",
-    step1Title: "Create a Project",
-    step1Desc: "Start fresh or use an industry template",
-    step2Title: "Describe Your Business",
-    step2Desc: "Chat with AI to extract your business logic",
-    step3Title: "Refine & Export",
-    step3Desc: "Model, integrate, and generate code",
-
-    // Learning Paths
-    pathsTitle: "Choose Your Learning Path",
-    pathBeginner: "New to Ontology?",
-    pathBeginnerDesc: "Start with our interactive tutorial",
-    pathBeginnerAction: "Start Tutorial",
-    pathTemplate: "Learn by Example",
-    pathTemplateDesc: "Explore industry templates",
-    pathTemplateAction: "Browse Templates",
-    pathDive: "Ready to Build",
-    pathDiveDesc: "Jump straight into creation",
-    pathDiveAction: "Create Project",
-
-    // Examples
-    examplesTitle: "Industry Examples",
-    exampleRetail: "Retail Operations",
-    exampleRetailDesc: "Customer, Order, Product, Inventory management",
-    exampleManufacturing: "Manufacturing",
-    exampleManufacturingDesc: "Equipment, WorkOrder, QualityControl",
-    exampleHealthcare: "Healthcare",
-    exampleHealthcareDesc: "Patient, Appointment, MedicalRecord",
-
-    // CTA
-    ctaTitle: "Ready to Build Your Intelligent System?",
-    ctaCreate: "Create New Project",
-    ctaExplore: "Explore Templates",
-    ctaLearn: "Learn More",
-
-    // Tips
-    tipsTitle: "Pro Tips",
-    tip1: "Start with 3-5 core Objects that represent your main business entities",
-    tip2: "Focus on decision-making: What decisions do users need to make?",
-    tip3: "Use industry templates as inspiration, then customize for your needs",
-  },
-  cn: {
-    // Hero
-    heroTitle: "构建智能操作系统",
-    heroSubtitle: "使用 Ontology-First 方法论，将您的业务逻辑转化为 AI 驱动的智能运营系统",
-
-    // What is Ontology
-    whatIsOntology: "什么是 Ontology（本体）?",
-    ontologyDesc: "Ontology 是对您业务领域的结构化表示 —— 包括核心实体（对象）、它们之间的关系（关联）、以及驱动业务的操作（动作）。它是构建真正理解您业务的智能系统的基础。",
-
-    // Core Concepts
-    coreConceptsTitle: "核心概念",
-    conceptObject: "对象 Objects",
-    conceptObjectDesc: "业务实体，如客户、订单、产品",
-    conceptAction: "动作 Actions",
-    conceptActionDesc: "业务操作，如创建订单、审批请求",
-    conceptLink: "关联 Links",
-    conceptLinkDesc: "关系，如客户下单、订单包含商品",
-    conceptAI: "AI 增强",
-    conceptAIDesc: "智能自动化和预测能力",
-
-    // 4 Phases
-    fourPhasesTitle: "4 阶段设计流程",
-    phase1Title: "发现",
-    phase1Desc: "与 AI 对话，探索业务需求，提取关键实体",
-    phase2Title: "建模",
-    phase2Desc: "结构化对象，定义属性，设计动作",
-    phase3Title: "集成",
-    phase3Desc: "连接数据源，规划系统集成",
-    phase4Title: "智能化",
-    phase4Desc: "识别 AI 机会，设计智能自动化",
-
-    // Quick Start Steps
-    quickStartTitle: "3 步快速开始",
-    step1Title: "创建项目",
-    step1Desc: "从零开始或使用行业模板",
-    step2Title: "描述业务",
-    step2Desc: "与 AI 对话，提取业务逻辑",
-    step3Title: "完善导出",
-    step3Desc: "建模、集成、生成代码",
-
-    // Learning Paths
-    pathsTitle: "选择您的学习路径",
-    pathBeginner: "初次接触 Ontology?",
-    pathBeginnerDesc: "从交互式教程开始",
-    pathBeginnerAction: "开始教程",
-    pathTemplate: "通过案例学习",
-    pathTemplateDesc: "探索行业模板",
-    pathTemplateAction: "浏览模板",
-    pathDive: "准备好开始",
-    pathDiveDesc: "直接开始创建",
-    pathDiveAction: "创建项目",
-
-    // Examples
-    examplesTitle: "行业示例",
-    exampleRetail: "零售运营",
-    exampleRetailDesc: "客户、订单、产品、库存管理",
-    exampleManufacturing: "智能制造",
-    exampleManufacturingDesc: "设备、工单、质量控制",
-    exampleHealthcare: "医疗健康",
-    exampleHealthcareDesc: "患者、预约、病历记录",
-
-    // CTA
-    ctaTitle: "准备好构建您的智能系统了吗？",
-    ctaCreate: "创建新项目",
-    ctaExplore: "探索模板",
-    ctaLearn: "深入学习",
-
-    // Tips
-    tipsTitle: "专业建议",
-    tip1: "从 3-5 个代表主要业务实体的核心对象开始",
-    tip2: "聚焦决策：用户需要做出什么决策？",
-    tip3: "以行业模板为灵感，然后根据需求定制",
-  }
-};
-
-const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) => {
-  const t = translations[lang];
+const QuickStart: React.FC<QuickStartProps> = ({ project, onNavigate }) => {
+  const { t, lang } = useAppTranslation('nav');
   const { projects, activeProject, isInitialized } = useProject();
   const [showNewProject, setShowNewProject] = useState(false);
   const [expandedConcept, setExpandedConcept] = useState<string | null>(null);
@@ -182,23 +34,23 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
   }
 
   const concepts = [
-    { id: 'object', icon: <Database size={24} />, title: t.conceptObject, desc: t.conceptObjectDesc, color: '#3b82f6' },
-    { id: 'action', icon: <Zap size={24} />, title: t.conceptAction, desc: t.conceptActionDesc, color: '#10b981' },
-    { id: 'link', icon: <Link2 size={24} />, title: t.conceptLink, desc: t.conceptLinkDesc, color: '#f59e0b' },
-    { id: 'ai', icon: <Sparkles size={24} />, title: t.conceptAI, desc: t.conceptAIDesc, color: '#8b5cf6' },
+    { id: 'object', icon: <Database size={24} />, title: t('quickStart.conceptObject'), desc: t('quickStart.conceptObjectDesc'), color: '#3b82f6' },
+    { id: 'action', icon: <Zap size={24} />, title: t('quickStart.conceptAction'), desc: t('quickStart.conceptActionDesc'), color: '#10b981' },
+    { id: 'link', icon: <Link2 size={24} />, title: t('quickStart.conceptLink'), desc: t('quickStart.conceptLinkDesc'), color: '#f59e0b' },
+    { id: 'ai', icon: <Sparkles size={24} />, title: t('quickStart.conceptAI'), desc: t('quickStart.conceptAIDesc'), color: '#8b5cf6' },
   ];
 
   const phases = [
-    { num: 1, title: t.phase1Title, desc: t.phase1Desc, icon: <MessageSquare size={20} />, color: '#3b82f6' },
-    { num: 2, title: t.phase2Title, desc: t.phase2Desc, icon: <ClipboardList size={20} />, color: '#8b5cf6' },
-    { num: 3, title: t.phase3Title, desc: t.phase3Desc, icon: <Layers size={20} />, color: '#10b981' },
-    { num: 4, title: t.phase4Title, desc: t.phase4Desc, icon: <Cpu size={20} />, color: '#f59e0b' },
+    { num: 1, title: t('quickStart.phase1Title'), desc: t('quickStart.phase1Desc'), icon: <MessageSquare size={20} />, color: '#3b82f6' },
+    { num: 2, title: t('quickStart.phase2Title'), desc: t('quickStart.phase2Desc'), icon: <ClipboardList size={20} />, color: '#8b5cf6' },
+    { num: 3, title: t('quickStart.phase3Title'), desc: t('quickStart.phase3Desc'), icon: <Layers size={20} />, color: '#10b981' },
+    { num: 4, title: t('quickStart.phase4Title'), desc: t('quickStart.phase4Desc'), icon: <Cpu size={20} />, color: '#f59e0b' },
   ];
 
   const examples = [
-    { id: 'retail', icon: <ShoppingCart size={20} />, title: t.exampleRetail, desc: t.exampleRetailDesc },
-    { id: 'manufacturing', icon: <Building2 size={20} />, title: t.exampleManufacturing, desc: t.exampleManufacturingDesc },
-    { id: 'healthcare', icon: <Users size={20} />, title: t.exampleHealthcare, desc: t.exampleHealthcareDesc },
+    { id: 'retail', icon: <ShoppingCart size={20} />, title: t('quickStart.exampleRetail'), desc: t('quickStart.exampleRetailDesc') },
+    { id: 'manufacturing', icon: <Building2 size={20} />, title: t('quickStart.exampleManufacturing'), desc: t('quickStart.exampleManufacturingDesc') },
+    { id: 'healthcare', icon: <Users size={20} />, title: t('quickStart.exampleHealthcare'), desc: t('quickStart.exampleHealthcareDesc') },
   ];
 
   return (
@@ -222,13 +74,13 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
             className="text-3xl font-bold mb-4"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            {t.heroTitle}
+            {t('quickStart.heroTitle')}
           </h1>
           <p
             className="text-lg max-w-2xl mx-auto"
             style={{ color: 'var(--color-text-secondary)' }}
           >
-            {t.heroSubtitle}
+            {t('quickStart.heroSubtitle')}
           </p>
         </div>
       </div>
@@ -248,14 +100,14 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
               className="text-xl font-semibold"
               style={{ color: 'var(--color-text-primary)' }}
             >
-              {t.whatIsOntology}
+              {t('quickStart.whatIsOntology')}
             </h2>
           </div>
           <p
             className="text-base leading-relaxed pl-13"
             style={{ color: 'var(--color-text-secondary)', paddingLeft: '52px' }}
           >
-            {t.ontologyDesc}
+            {t('quickStart.ontologyDesc')}
           </p>
         </section>
 
@@ -265,7 +117,7 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
             className="text-xl font-semibold mb-6"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            {t.coreConceptsTitle}
+            {t('quickStart.coreConceptsTitle')}
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {concepts.map(concept => (
@@ -302,7 +154,7 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
             className="text-xl font-semibold mb-6"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            {t.fourPhasesTitle}
+            {t('quickStart.fourPhasesTitle')}
           </h2>
           <div className="relative">
             {/* Connection line */}
@@ -355,13 +207,13 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
             className="text-xl font-semibold mb-6 text-center"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            {t.quickStartTitle}
+            {t('quickStart.quickStartTitle')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { num: 1, title: t.step1Title, desc: t.step1Desc, icon: <FolderPlus size={24} /> },
-              { num: 2, title: t.step2Title, desc: t.step2Desc, icon: <MessageSquare size={24} /> },
-              { num: 3, title: t.step3Title, desc: t.step3Desc, icon: <FileText size={24} /> },
+              { num: 1, title: t('quickStart.step1Title'), desc: t('quickStart.step1Desc'), icon: <FolderPlus size={24} /> },
+              { num: 2, title: t('quickStart.step2Title'), desc: t('quickStart.step2Desc'), icon: <MessageSquare size={24} /> },
+              { num: 3, title: t('quickStart.step3Title'), desc: t('quickStart.step3Desc'), icon: <FileText size={24} /> },
             ].map((step, index) => (
               <div key={step.num} className="flex items-start gap-4">
                 <div
@@ -390,7 +242,7 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
             className="text-xl font-semibold mb-6"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            {t.pathsTitle}
+            {t('quickStart.pathsTitle')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Beginner Path */}
@@ -412,14 +264,14 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
                 className="font-medium mb-1"
                 style={{ color: 'var(--color-text-primary)' }}
               >
-                {t.pathBeginner}
+                {t('quickStart.pathBeginner')}
               </h3>
-              <p className="text-sm text-muted mb-4">{t.pathBeginnerDesc}</p>
+              <p className="text-sm text-muted mb-4">{t('quickStart.pathBeginnerDesc')}</p>
               <div
                 className="flex items-center gap-1 text-sm font-medium group-hover:translate-x-1 transition-transform"
                 style={{ color: 'var(--color-info)' }}
               >
-                {t.pathBeginnerAction}
+                {t('quickStart.pathBeginnerAction')}
                 <ChevronRight size={16} />
               </div>
             </button>
@@ -443,14 +295,14 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
                 className="font-medium mb-1"
                 style={{ color: 'var(--color-text-primary)' }}
               >
-                {t.pathTemplate}
+                {t('quickStart.pathTemplate')}
               </h3>
-              <p className="text-sm text-muted mb-4">{t.pathTemplateDesc}</p>
+              <p className="text-sm text-muted mb-4">{t('quickStart.pathTemplateDesc')}</p>
               <div
                 className="flex items-center gap-1 text-sm font-medium group-hover:translate-x-1 transition-transform"
                 style={{ color: 'var(--color-success)' }}
               >
-                {t.pathTemplateAction}
+                {t('quickStart.pathTemplateAction')}
                 <ChevronRight size={16} />
               </div>
             </button>
@@ -474,14 +326,14 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
                 className="font-medium mb-1"
                 style={{ color: 'var(--color-text-primary)' }}
               >
-                {t.pathDive}
+                {t('quickStart.pathDive')}
               </h3>
-              <p className="text-sm text-muted mb-4">{t.pathDiveDesc}</p>
+              <p className="text-sm text-muted mb-4">{t('quickStart.pathDiveDesc')}</p>
               <div
                 className="flex items-center gap-1 text-sm font-medium group-hover:translate-x-1 transition-transform"
                 style={{ color: 'var(--color-accent)' }}
               >
-                {t.pathDiveAction}
+                {t('quickStart.pathDiveAction')}
                 <ChevronRight size={16} />
               </div>
             </button>
@@ -494,7 +346,7 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
             className="text-xl font-semibold mb-6"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            {t.examplesTitle}
+            {t('quickStart.examplesTitle')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {examples.map(example => (
@@ -536,21 +388,21 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
               className="font-medium"
               style={{ color: 'var(--color-text-primary)' }}
             >
-              {t.tipsTitle}
+              {t('quickStart.tipsTitle')}
             </h3>
           </div>
           <ul className="space-y-2">
             <li className="flex items-start gap-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               <CheckCircle2 size={16} className="flex-shrink-0 mt-0.5" style={{ color: 'var(--color-warning)' }} />
-              {t.tip1}
+              {t('quickStart.tip1')}
             </li>
             <li className="flex items-start gap-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               <CheckCircle2 size={16} className="flex-shrink-0 mt-0.5" style={{ color: 'var(--color-warning)' }} />
-              {t.tip2}
+              {t('quickStart.tip2')}
             </li>
             <li className="flex items-start gap-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               <CheckCircle2 size={16} className="flex-shrink-0 mt-0.5" style={{ color: 'var(--color-warning)' }} />
-              {t.tip3}
+              {t('quickStart.tip3')}
             </li>
           </ul>
         </section>
@@ -567,7 +419,7 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
             className="text-2xl font-semibold mb-6"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            {t.ctaTitle}
+            {t('quickStart.ctaTitle')}
           </h2>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button
@@ -575,7 +427,7 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
               className="px-6 py-3 rounded-xl font-medium transition-all hover:opacity-90"
               style={{ backgroundColor: 'var(--color-accent)', color: '#fff' }}
             >
-              {t.ctaCreate}
+              {t('quickStart.ctaCreate')}
             </button>
             <button
               onClick={() => onNavigate('archetypes')}
@@ -586,7 +438,7 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
                 color: 'var(--color-text-primary)'
               }}
             >
-              {t.ctaExplore}
+              {t('quickStart.ctaExplore')}
             </button>
             <button
               onClick={() => onNavigate('academy')}
@@ -596,7 +448,7 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
                 color: 'var(--color-accent)'
               }}
             >
-              {t.ctaLearn} →
+              {t('quickStart.ctaLearn')} →
             </button>
           </div>
         </section>
@@ -608,7 +460,6 @@ const QuickStart: React.FC<QuickStartProps> = ({ lang, project, onNavigate }) =>
       {/* New Project Dialog */}
       {showNewProject && (
         <NewProjectDialog
-          lang={lang}
           onClose={() => setShowNewProject(false)}
           onCreated={() => {
             setShowNewProject(false);

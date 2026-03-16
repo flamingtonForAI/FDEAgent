@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { Language, OntologyObject, AIPAction } from '../types';
+import { OntologyObject, AIPAction } from '../types';
 import {
   generateObjectAPISpec,
   generateFullAPISpec,
@@ -10,65 +10,25 @@ import {
   OpenAPISpec
 } from '../utils/apiGenerator';
 import { Code, Copy, Download, Check, FileJson, FileText, ChevronDown, ChevronRight, X } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface APISpecViewerProps {
-  lang: Language;
   objects: OntologyObject[];
   selectedObjectId?: string;
   selectedAction?: AIPAction;
   onClose?: () => void;
 }
 
-const translations = {
-  en: {
-    title: 'OpenAPI Specification',
-    subtitle: 'Auto-generated REST API spec',
-    format: 'Format',
-    json: 'JSON',
-    yaml: 'YAML',
-    copy: 'Copy',
-    copied: 'Copied!',
-    download: 'Download',
-    noActions: 'No actions defined yet',
-    selectAction: 'Select an action to generate API spec',
-    fullSpec: 'Full API Spec',
-    singleAction: 'Single Action',
-    singleObject: 'Single Object',
-    paths: 'Paths',
-    schemas: 'Schemas',
-    preview: 'Preview'
-  },
-  cn: {
-    title: 'OpenAPI 规范',
-    subtitle: '自动生成的 REST API 规范',
-    format: '格式',
-    json: 'JSON',
-    yaml: 'YAML',
-    copy: '复制',
-    copied: '已复制!',
-    download: '下载',
-    noActions: '尚未定义动作',
-    selectAction: '选择一个动作以生成 API 规范',
-    fullSpec: '完整 API 规范',
-    singleAction: '单个动作',
-    singleObject: '单个对象',
-    paths: '路径',
-    schemas: '数据模型',
-    preview: '预览'
-  }
-};
-
 type ViewMode = 'full' | 'object' | 'action';
 type Format = 'json' | 'yaml';
 
 const APISpecViewer: React.FC<APISpecViewerProps> = ({
-  lang,
   objects,
   selectedObjectId,
   selectedAction,
   onClose
 }) => {
-  const t = translations[lang];
+  const { t } = useAppTranslation('ai');
   const [format, setFormat] = useState<Format>('json');
   const [viewMode, setViewMode] = useState<ViewMode>('full');
   const [copied, setCopied] = useState(false);
@@ -171,8 +131,8 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
             <Code size={20} className="text-purple-400" />
           </div>
           <div>
-            <h3 className="text-white font-medium">{t.title}</h3>
-            <p className="text-xs text-muted">{t.subtitle}</p>
+            <h3 className="text-white font-medium">{t('apiSpecViewer.title')}</h3>
+            <p className="text-xs text-muted">{t('apiSpecViewer.subtitle')}</p>
           </div>
         </div>
         {onClose && (
@@ -197,7 +157,7 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
                 : 'text-muted hover:text-primary'
             }`}
           >
-            {t.fullSpec}
+            {t('apiSpecViewer.fullSpec')}
           </button>
           {selectedObject && (
             <button
@@ -208,7 +168,7 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
                   : 'text-muted hover:text-primary'
               }`}
             >
-              {t.singleObject}
+              {t('apiSpecViewer.singleObject')}
             </button>
           )}
           {selectedAction && selectedObject && (
@@ -220,7 +180,7 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
                   : 'text-muted hover:text-primary'
               }`}
             >
-              {t.singleAction}
+              {t('apiSpecViewer.singleAction')}
             </button>
           )}
         </div>
@@ -238,7 +198,7 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
               }`}
             >
               <FileJson size={12} />
-              {t.json}
+              {t('apiSpecViewer.json')}
             </button>
             <button
               onClick={() => setFormat('yaml')}
@@ -249,7 +209,7 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
               }`}
             >
               <FileText size={12} />
-              {t.yaml}
+              {t('apiSpecViewer.yaml')}
             </button>
           </div>
 
@@ -260,7 +220,7 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium glass-surface text-muted hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
-            {copied ? t.copied : t.copy}
+            {copied ? t('apiSpecViewer.copied') : t('apiSpecViewer.copy')}
           </button>
 
           {/* Download Button */}
@@ -270,7 +230,7 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium btn-gradient disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             <Download size={12} />
-            {t.download}
+            {t('apiSpecViewer.download')}
           </button>
         </div>
       </div>
@@ -279,11 +239,11 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
       <div className="flex-1 overflow-y-auto">
         {!hasActions ? (
           <div className="flex items-center justify-center h-full text-muted text-sm">
-            {t.noActions}
+            {t('apiSpecViewer.noActions')}
           </div>
         ) : !spec ? (
           <div className="flex items-center justify-center h-full text-muted text-sm">
-            {t.selectAction}
+            {t('apiSpecViewer.selectAction')}
           </div>
         ) : (
           <div className="p-4">
@@ -297,7 +257,7 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
                 >
                   <div className="flex items-center gap-2">
                     {expandedSections.has('paths') ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                    <span className="text-sm font-medium text-white">{t.paths}</span>
+                    <span className="text-sm font-medium text-white">{t('apiSpecViewer.paths')}</span>
                     <span className="text-xs text-muted">({Object.keys(spec.paths).length})</span>
                   </div>
                 </button>
@@ -344,7 +304,7 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
                   >
                     <div className="flex items-center gap-2">
                       {expandedSections.has('schemas') ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                      <span className="text-sm font-medium text-white">{t.schemas}</span>
+                      <span className="text-sm font-medium text-white">{t('apiSpecViewer.schemas')}</span>
                       <span className="text-xs text-muted">({Object.keys(spec.components.schemas).length})</span>
                     </div>
                   </button>
@@ -373,7 +333,7 @@ const APISpecViewer: React.FC<APISpecViewerProps> = ({
                 >
                   <div className="flex items-center gap-2">
                     {expandedSections.has('raw') ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                    <span className="text-sm font-medium text-white">{t.preview}</span>
+                    <span className="text-sm font-medium text-white">{t('apiSpecViewer.preview')}</span>
                   </div>
                 </button>
                 {expandedSections.has('raw') && (

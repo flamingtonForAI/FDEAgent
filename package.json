@@ -7,17 +7,20 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "npm run -s test:cardinality && npx tsc --noEmit && npm run -s build",
+    "check": "npm run -s test:cardinality && npx tsc --noEmit && npm run -s build && npm run -s check:i18n",
+    "check:i18n": "node scripts/check-translations.mjs",
     "test:cardinality": "rm -rf .tmp-tests && tsc --pretty false --noEmit false --module esnext --moduleResolution bundler --target es2022 --outDir .tmp-tests tests/cardinality.test.ts lib/cardinality.ts types.ts && node --experimental-specifier-resolution=node .tmp-tests/tests/cardinality.test.js && rm -rf .tmp-tests",
     "test:e2e": "npx playwright test"
   },
   "dependencies": {
     "@google/genai": "^1.35.0",
+    "i18next": "^25.8.18",
     "jszip": "^3.10.1",
     "lucide-react": "^0.562.0",
     "mammoth": "^1.11.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
+    "react-i18next": "^16.5.8",
     "xlsx": "^0.18.5",
     "yaml": "^2.8.2"
   },

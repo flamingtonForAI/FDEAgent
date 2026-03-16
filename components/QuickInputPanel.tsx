@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Language } from '../types';
 import { Box, Zap, Database, X, Plus, Trash2 } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface Props {
-  lang: Language;
   onSubmit: (structuredInput: string) => void;
   disabled?: boolean;
   hasApiKey?: boolean;
@@ -35,113 +34,8 @@ interface IntegrationForm {
   dataProvided: string[];
 }
 
-const translations = {
-  en: {
-    quickAdd: 'Quick Add',
-    addObject: 'Add Object',
-    addAction: 'Add Action',
-    addIntegration: 'Add Integration',
-    // Object form
-    objectTitle: 'Define Object',
-    objectDesc: 'Add a business entity to your ontology',
-    objectName: 'Object Name',
-    objectNamePlaceholder: 'e.g., Order, Customer, Product',
-    objectDescription: 'Description',
-    objectDescPlaceholder: 'What does this object represent?',
-    attributes: 'Key Attributes',
-    attributePlaceholder: 'e.g., status, createdDate',
-    addAttribute: 'Add Attribute',
-    relationships: 'Relationships',
-    relationshipsPlaceholder: 'e.g., belongs to Customer, contains Products',
-    // Action form
-    actionTitle: 'Define Action',
-    actionDesc: 'Add a business operation to your ontology',
-    actionName: 'Action Name',
-    actionNamePlaceholder: 'e.g., Approve Order, Ship Product',
-    targetObject: 'Target Object',
-    targetObjectPlaceholder: 'Which object does this action operate on?',
-    actionDescription: 'What does this action do?',
-    actionDescPlaceholder: 'Describe the business purpose',
-    executor: 'Who executes?',
-    executorPlaceholder: 'e.g., Manager, System, Customer',
-    preconditions: 'Preconditions',
-    preconditionPlaceholder: 'e.g., Order status is Pending',
-    addPrecondition: 'Add Precondition',
-    postcondition: 'Result/Postcondition',
-    postconditionPlaceholder: 'What happens after this action?',
-    // Integration form
-    integrationTitle: 'Define Integration',
-    integrationDesc: 'Add an external system or data source',
-    integrationName: 'System Name',
-    integrationNamePlaceholder: 'e.g., SAP ERP, Salesforce',
-    integrationType: 'System Type',
-    integrationTypePlaceholder: 'e.g., ERP, CRM, Database',
-    integrationDescription: 'Description',
-    integrationDescPlaceholder: 'What does this system do?',
-    dataProvided: 'Data Provided',
-    dataProvidedPlaceholder: 'e.g., Customer records, Order history',
-    addData: 'Add Data',
-    // Common
-    cancel: 'Cancel',
-    submit: 'Add to Conversation',
-    apiRequired: 'AI settings required to send',
-    configureApi: 'Configure AI Settings'
-  },
-  cn: {
-    quickAdd: '快捷添加',
-    addObject: '添加对象',
-    addAction: '添加动作',
-    addIntegration: '添加集成',
-    // Object form
-    objectTitle: '定义对象',
-    objectDesc: '添加业务实体到本体',
-    objectName: '对象名称',
-    objectNamePlaceholder: '例如：订单、客户、产品',
-    objectDescription: '描述',
-    objectDescPlaceholder: '这个对象代表什么？',
-    attributes: '关键属性',
-    attributePlaceholder: '例如：状态、创建日期',
-    addAttribute: '添加属性',
-    relationships: '关系',
-    relationshipsPlaceholder: '例如：属于客户、包含产品',
-    // Action form
-    actionTitle: '定义动作',
-    actionDesc: '添加业务操作到本体',
-    actionName: '动作名称',
-    actionNamePlaceholder: '例如：审批订单、发货',
-    targetObject: '目标对象',
-    targetObjectPlaceholder: '这个动作操作哪个对象？',
-    actionDescription: '动作描述',
-    actionDescPlaceholder: '描述业务目的',
-    executor: '执行者',
-    executorPlaceholder: '例如：经理、系统、客户',
-    preconditions: '前置条件',
-    preconditionPlaceholder: '例如：订单状态为待审批',
-    addPrecondition: '添加前置条件',
-    postcondition: '结果/后置状态',
-    postconditionPlaceholder: '执行后会发生什么？',
-    // Integration form
-    integrationTitle: '定义集成',
-    integrationDesc: '添加外部系统或数据源',
-    integrationName: '系统名称',
-    integrationNamePlaceholder: '例如：SAP ERP、Salesforce',
-    integrationType: '系统类型',
-    integrationTypePlaceholder: '例如：ERP、CRM、数据库',
-    integrationDescription: '描述',
-    integrationDescPlaceholder: '这个系统做什么？',
-    dataProvided: '提供的数据',
-    dataProvidedPlaceholder: '例如：客户记录、订单历史',
-    addData: '添加数据',
-    // Common
-    cancel: '取消',
-    submit: '添加到对话',
-    apiRequired: '需要配置 AI 设置才能发送',
-    configureApi: '配置 AI 设置'
-  }
-};
-
-const QuickInputPanel: React.FC<Props> = ({ lang, onSubmit, disabled, hasApiKey = true, onOpenSettings }) => {
-  const t = translations[lang];
+const QuickInputPanel: React.FC<Props> = ({ onSubmit, disabled, hasApiKey = true, onOpenSettings }) => {
+  const { t, lang } = useAppTranslation('modeling');
   const [activeModal, setActiveModal] = useState<ModalType>(null);
 
   // Object form state
@@ -268,7 +162,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
     <>
       {/* Quick Add Buttons - Always enabled to allow form filling */}
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-xs text-muted">{t.quickAdd}:</span>
+        <span className="text-xs text-muted">{t('quickInputPanel.quickAdd')}:</span>
         <button
           onClick={() => setActiveModal('object')}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all hover:opacity-80"
@@ -279,7 +173,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
           }}
         >
           <Box size={12} style={{ color: 'var(--color-accent)' }} />
-          {t.addObject}
+          {t('quickInputPanel.addObject')}
         </button>
         <button
           onClick={() => setActiveModal('action')}
@@ -291,7 +185,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
           }}
         >
           <Zap size={12} style={{ color: 'var(--color-success)' }} />
-          {t.addAction}
+          {t('quickInputPanel.addAction')}
         </button>
         <button
           onClick={() => setActiveModal('integration')}
@@ -303,7 +197,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
           }}
         >
           <Database size={12} style={{ color: 'var(--color-accent-secondary)' }} />
-          {t.addIntegration}
+          {t('quickInputPanel.addIntegration')}
         </button>
       </div>
 
@@ -321,14 +215,14 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                 </div>
                 <div>
                   <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                    {activeModal === 'object' && t.objectTitle}
-                    {activeModal === 'action' && t.actionTitle}
-                    {activeModal === 'integration' && t.integrationTitle}
+                    {activeModal === 'object' && t('quickInputPanel.objectTitle')}
+                    {activeModal === 'action' && t('quickInputPanel.actionTitle')}
+                    {activeModal === 'integration' && t('quickInputPanel.integrationTitle')}
                   </h3>
                   <p className="text-xs text-muted mt-0.5">
-                    {activeModal === 'object' && t.objectDesc}
-                    {activeModal === 'action' && t.actionDesc}
-                    {activeModal === 'integration' && t.integrationDesc}
+                    {activeModal === 'object' && t('quickInputPanel.objectDesc')}
+                    {activeModal === 'action' && t('quickInputPanel.actionDesc')}
+                    {activeModal === 'integration' && t('quickInputPanel.integrationDesc')}
                   </p>
                 </div>
               </div>
@@ -343,36 +237,36 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
               {activeModal === 'object' && (
                 <>
                   <div>
-                    <label className="text-xs text-muted mb-1.5 block">{t.objectName} *</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t('quickInputPanel.objectName')} *</label>
                     <input
                       type="text"
                       value={objectForm.name}
                       onChange={(e) => setObjectForm({ ...objectForm, name: e.target.value })}
-                      placeholder={t.objectNamePlaceholder}
+                      placeholder={t('quickInputPanel.objectNamePlaceholder')}
                       className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
                       style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-muted mb-1.5 block">{t.objectDescription} *</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t('quickInputPanel.objectDescription')} *</label>
                     <textarea
                       value={objectForm.description}
                       onChange={(e) => setObjectForm({ ...objectForm, description: e.target.value })}
-                      placeholder={t.objectDescPlaceholder}
+                      placeholder={t('quickInputPanel.objectDescPlaceholder')}
                       rows={2}
                       className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none resize-none"
                       style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-muted mb-1.5 block">{t.attributes}</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t('quickInputPanel.attributes')}</label>
                     {objectForm.attributes.map((attr, i) => (
                       <div key={i} className="flex gap-2 mb-2">
                         <input
                           type="text"
                           value={attr}
                           onChange={(e) => updateArrayItem(setObjectForm, 'attributes', i, e.target.value)}
-                          placeholder={t.attributePlaceholder}
+                          placeholder={t('quickInputPanel.attributePlaceholder')}
                           className="flex-1 px-4 py-2 rounded-lg border text-sm focus:outline-none"
                           style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                         />
@@ -393,16 +287,16 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       style={{ color: 'var(--color-accent)' }}
                     >
                       <Plus size={12} />
-                      {t.addAttribute}
+                      {t('quickInputPanel.addAttribute')}
                     </button>
                   </div>
                   <div>
-                    <label className="text-xs text-muted mb-1.5 block">{t.relationships}</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t('quickInputPanel.relationships')}</label>
                     <input
                       type="text"
                       value={objectForm.relationships}
                       onChange={(e) => setObjectForm({ ...objectForm, relationships: e.target.value })}
-                      placeholder={t.relationshipsPlaceholder}
+                      placeholder={t('quickInputPanel.relationshipsPlaceholder')}
                       className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
                       style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
@@ -414,58 +308,58 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
               {activeModal === 'action' && (
                 <>
                   <div>
-                    <label className="text-xs text-muted mb-1.5 block">{t.actionName} *</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t('quickInputPanel.actionName')} *</label>
                     <input
                       type="text"
                       value={actionForm.name}
                       onChange={(e) => setActionForm({ ...actionForm, name: e.target.value })}
-                      placeholder={t.actionNamePlaceholder}
+                      placeholder={t('quickInputPanel.actionNamePlaceholder')}
                       className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
                       style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-muted mb-1.5 block">{t.targetObject} *</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t('quickInputPanel.targetObject')} *</label>
                     <input
                       type="text"
                       value={actionForm.targetObject}
                       onChange={(e) => setActionForm({ ...actionForm, targetObject: e.target.value })}
-                      placeholder={t.targetObjectPlaceholder}
+                      placeholder={t('quickInputPanel.targetObjectPlaceholder')}
                       className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
                       style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-muted mb-1.5 block">{t.actionDescription}</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t('quickInputPanel.actionDescription')}</label>
                     <textarea
                       value={actionForm.description}
                       onChange={(e) => setActionForm({ ...actionForm, description: e.target.value })}
-                      placeholder={t.actionDescPlaceholder}
+                      placeholder={t('quickInputPanel.actionDescPlaceholder')}
                       rows={2}
                       className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none resize-none"
                       style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-muted mb-1.5 block">{t.executor}</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t('quickInputPanel.executor')}</label>
                     <input
                       type="text"
                       value={actionForm.executor}
                       onChange={(e) => setActionForm({ ...actionForm, executor: e.target.value })}
-                      placeholder={t.executorPlaceholder}
+                      placeholder={t('quickInputPanel.executorPlaceholder')}
                       className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
                       style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-muted mb-1.5 block">{t.preconditions}</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t('quickInputPanel.preconditions')}</label>
                     {actionForm.preconditions.map((pre, i) => (
                       <div key={i} className="flex gap-2 mb-2">
                         <input
                           type="text"
                           value={pre}
                           onChange={(e) => updateArrayItem(setActionForm, 'preconditions', i, e.target.value)}
-                          placeholder={t.preconditionPlaceholder}
+                          placeholder={t('quickInputPanel.preconditionPlaceholder')}
                           className="flex-1 px-4 py-2 rounded-lg border text-sm focus:outline-none"
                           style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                         />
@@ -486,16 +380,16 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       style={{ color: 'var(--color-success)' }}
                     >
                       <Plus size={12} />
-                      {t.addPrecondition}
+                      {t('quickInputPanel.addPrecondition')}
                     </button>
                   </div>
                   <div>
-                    <label className="text-xs text-muted mb-1.5 block">{t.postcondition}</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t('quickInputPanel.postcondition')}</label>
                     <input
                       type="text"
                       value={actionForm.postconditions}
                       onChange={(e) => setActionForm({ ...actionForm, postconditions: e.target.value })}
-                      placeholder={t.postconditionPlaceholder}
+                      placeholder={t('quickInputPanel.postconditionPlaceholder')}
                       className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
                       style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
@@ -507,47 +401,47 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
               {activeModal === 'integration' && (
                 <>
                   <div>
-                    <label className="text-xs text-muted mb-1.5 block">{t.integrationName} *</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t('quickInputPanel.integrationName')} *</label>
                     <input
                       type="text"
                       value={integrationForm.name}
                       onChange={(e) => setIntegrationForm({ ...integrationForm, name: e.target.value })}
-                      placeholder={t.integrationNamePlaceholder}
+                      placeholder={t('quickInputPanel.integrationNamePlaceholder')}
                       className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
                       style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-muted mb-1.5 block">{t.integrationType} *</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t('quickInputPanel.integrationType')} *</label>
                     <input
                       type="text"
                       value={integrationForm.type}
                       onChange={(e) => setIntegrationForm({ ...integrationForm, type: e.target.value })}
-                      placeholder={t.integrationTypePlaceholder}
+                      placeholder={t('quickInputPanel.integrationTypePlaceholder')}
                       className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none"
                       style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-muted mb-1.5 block">{t.integrationDescription}</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t('quickInputPanel.integrationDescription')}</label>
                     <textarea
                       value={integrationForm.description}
                       onChange={(e) => setIntegrationForm({ ...integrationForm, description: e.target.value })}
-                      placeholder={t.integrationDescPlaceholder}
+                      placeholder={t('quickInputPanel.integrationDescPlaceholder')}
                       rows={2}
                       className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none resize-none"
                       style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-muted mb-1.5 block">{t.dataProvided}</label>
+                    <label className="text-xs text-muted mb-1.5 block">{t('quickInputPanel.dataProvided')}</label>
                     {integrationForm.dataProvided.map((data, i) => (
                       <div key={i} className="flex gap-2 mb-2">
                         <input
                           type="text"
                           value={data}
                           onChange={(e) => updateArrayItem(setIntegrationForm, 'dataProvided', i, e.target.value)}
-                          placeholder={t.dataProvidedPlaceholder}
+                          placeholder={t('quickInputPanel.dataProvidedPlaceholder')}
                           className="flex-1 px-4 py-2 rounded-lg border text-sm focus:outline-none"
                           style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                         />
@@ -568,7 +462,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       style={{ color: 'var(--color-accent-secondary)' }}
                     >
                       <Plus size={12} />
-                      {t.addData}
+                      {t('quickInputPanel.addData')}
                     </button>
                   </div>
                 </>
@@ -584,7 +478,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                   style={{ backgroundColor: 'var(--color-warning)15', border: '1px solid var(--color-warning)30' }}
                 >
                   <span className="text-xs" style={{ color: 'var(--color-warning)' }}>
-                    {t.apiRequired}
+                    {t('quickInputPanel.apiRequired')}
                   </span>
                   {onOpenSettings && (
                     <button
@@ -592,7 +486,7 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                       className="text-xs font-medium px-2 py-1 rounded"
                       style={{ backgroundColor: 'var(--color-warning)', color: '#fff' }}
                     >
-                      {t.configureApi}
+                      {t('quickInputPanel.configureApi')}
                     </button>
                   )}
                 </div>
@@ -602,14 +496,14 @@ ${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**:
                   onClick={handleClose}
                   className="px-4 py-2 text-sm text-muted hover:text-primary transition-colors"
                 >
-                  {t.cancel}
+                  {t('quickInputPanel.cancel')}
                 </button>
                 <button
                   onClick={handleSubmit}
                   disabled={!isFormValid() || !hasApiKey || disabled}
                   className="btn-gradient px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
-                  {t.submit}
+                  {t('quickInputPanel.submit')}
                 </button>
               </div>
             </div>

@@ -6,8 +6,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Language, ProjectState } from '../types';
+import { ProjectState } from '../types';
 import { useProject } from '../contexts/ProjectContext';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import { getMergedArchetypeIndexList, getMergedArchetypeById } from '../content/archetypes';
 import { ArchetypeIndex } from '../types/archetype';
 import { normalizeLinks } from '../lib/cardinality';
@@ -17,65 +18,11 @@ import {
 } from 'lucide-react';
 
 interface Props {
-  lang: Language;
   onClose: () => void;
   onCreated: () => void;
 }
 
 type CreateMode = 'select' | 'blank' | 'template';
-
-const translations = {
-  en: {
-    title: 'Create New Project',
-    selectMode: 'How would you like to start?',
-    blankProject: 'Blank Project',
-    blankDesc: 'Start from scratch with an empty canvas',
-    blankRecommend: 'Recommended for beginners - the system will guide you',
-    fromTemplate: 'From Template',
-    templateDesc: 'Start with an industry template',
-    templateHint: 'Get a head start with pre-built objects and actions',
-    projectName: 'Project Name',
-    projectNamePlaceholder: 'Enter project name...',
-    industry: 'Industry',
-    industryPlaceholder: 'Select or enter industry...',
-    useCase: 'Use Case',
-    useCasePlaceholder: 'Describe the business scenario...',
-    description: 'Description (optional)',
-    descriptionPlaceholder: 'Brief project description...',
-    selectTemplate: 'Select a Template',
-    searchTemplates: 'Search templates...',
-    back: 'Back',
-    create: 'Create Project',
-    creating: 'Creating...',
-    required: 'Required',
-    noTemplates: 'No templates found',
-  },
-  cn: {
-    title: '创建新项目',
-    selectMode: '选择开始方式',
-    blankProject: '空白项目',
-    blankDesc: '从零开始设计本体架构',
-    blankRecommend: '新手推荐 - 系统会引导你完成设计',
-    fromTemplate: '从模板开始',
-    templateDesc: '使用行业模板快速启动',
-    templateHint: '预置对象和动作，快速开始设计',
-    projectName: '项目名称',
-    projectNamePlaceholder: '输入项目名称...',
-    industry: '行业',
-    industryPlaceholder: '选择或输入行业...',
-    useCase: '使用场景',
-    useCasePlaceholder: '描述业务场景...',
-    description: '描述（可选）',
-    descriptionPlaceholder: '简要项目描述...',
-    selectTemplate: '选择模板',
-    searchTemplates: '搜索模板...',
-    back: '返回',
-    create: '创建项目',
-    creating: '创建中...',
-    required: '必填',
-    noTemplates: '没有找到模板',
-  }
-};
 
 const industries = [
   { value: 'manufacturing', label: { en: 'Manufacturing', cn: '制造业' } },
@@ -88,8 +35,8 @@ const industries = [
   { value: 'other', label: { en: 'Other', cn: '其他' } },
 ];
 
-export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
-  const t = translations[lang];
+export default function NewProjectDialog({ onClose, onCreated }: Props) {
+  const { t, lang } = useAppTranslation('nav');
   const { createProject } = useProject();
 
   const [mode, setMode] = useState<CreateMode>('select');
@@ -119,12 +66,12 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
   }, [mode]);
 
   // Filter templates
-  const filteredTemplates = templates.filter(t => {
+  const filteredTemplates = templates.filter(tmpl => {
     if (!templateSearch.trim()) return true;
     const query = templateSearch.toLowerCase();
-    const name = lang === 'cn' ? (t.description?.cn || t.name) : t.name;
+    const name = lang === 'cn' ? (tmpl.description?.cn || tmpl.name) : tmpl.name;
     return name.toLowerCase().includes(query) ||
-           t.industry.toLowerCase().includes(query);
+           tmpl.industry.toLowerCase().includes(query);
   });
 
   const handleCreate = async () => {
@@ -232,7 +179,7 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold">{t.title}</h2>
+          <h2 className="text-lg font-semibold">{t('newProject.title')}</h2>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
@@ -246,7 +193,7 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
           {/* Mode Selection */}
           {mode === 'select' && (
             <div className="space-y-4">
-              <p className="text-sm text-gray-500 mb-4">{t.selectMode}</p>
+              <p className="text-sm text-gray-500 mb-4">{t('newProject.selectMode')}</p>
 
               {/* Blank Project Option */}
               <button
@@ -259,16 +206,16 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold flex items-center gap-2">
-                      {t.blankProject}
+                      {t('newProject.blankProject')}
                       <span className="text-xs px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center gap-1">
                         <Sparkles size={10} />
-                        {lang === 'cn' ? '推荐' : 'Recommended'}
+                        {t('newProject.recommended')}
                       </span>
                     </h3>
-                    <p className="text-sm text-gray-500 mt-1">{t.blankDesc}</p>
+                    <p className="text-sm text-gray-500 mt-1">{t('newProject.blankDesc')}</p>
                     <p className="text-xs text-blue-500 mt-2 flex items-center gap-1">
                       <Info size={12} />
-                      {t.blankRecommend}
+                      {t('newProject.blankRecommend')}
                     </p>
                   </div>
                   <ChevronRight className="text-gray-400 group-hover:text-blue-500 transition-colors" />
@@ -285,9 +232,9 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
                     <Package size={24} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold">{t.fromTemplate}</h3>
-                    <p className="text-sm text-gray-500 mt-1">{t.templateDesc}</p>
-                    <p className="text-xs text-purple-500 mt-2">{t.templateHint}</p>
+                    <h3 className="font-semibold">{t('newProject.fromTemplate')}</h3>
+                    <p className="text-sm text-gray-500 mt-1">{t('newProject.templateDesc')}</p>
+                    <p className="text-xs text-purple-500 mt-2">{t('newProject.templateHint')}</p>
                   </div>
                   <ChevronRight className="text-gray-400 group-hover:text-purple-500 transition-colors" />
                 </div>
@@ -300,26 +247,26 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  {t.projectName} <span className="text-red-500">*</span>
+                  {t('newProject.projectName')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value)}
-                  placeholder={t.projectNamePlaceholder}
+                  placeholder={t('newProject.projectNamePlaceholder')}
                   className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   autoFocus
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">{t.industry}</label>
+                <label className="block text-sm font-medium mb-1">{t('newProject.industry')}</label>
                 <select
                   value={industry}
                   onChange={(e) => setIndustry(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">{t.industryPlaceholder}</option>
+                  <option value="">{t('newProject.industryPlaceholder')}</option>
                   {industries.map((ind) => (
                     <option key={ind.value} value={ind.value}>
                       {ind.label[lang]}
@@ -329,22 +276,22 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">{t.useCase}</label>
+                <label className="block text-sm font-medium mb-1">{t('newProject.useCase')}</label>
                 <textarea
                   value={useCase}
                   onChange={(e) => setUseCase(e.target.value)}
-                  placeholder={t.useCasePlaceholder}
+                  placeholder={t('newProject.useCasePlaceholder')}
                   rows={2}
                   className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">{t.description}</label>
+                <label className="block text-sm font-medium mb-1">{t('newProject.description')}</label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder={t.descriptionPlaceholder}
+                  placeholder={t('newProject.descriptionPlaceholder')}
                   rows={2}
                   className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
@@ -358,13 +305,13 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
               {/* Project Name */}
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  {t.projectName} <span className="text-red-500">*</span>
+                  {t('newProject.projectName')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value)}
-                  placeholder={t.projectNamePlaceholder}
+                  placeholder={t('newProject.projectNamePlaceholder')}
                   className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   autoFocus
                 />
@@ -372,12 +319,12 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
 
               {/* Template Search */}
               <div>
-                <label className="block text-sm font-medium mb-1">{t.selectTemplate}</label>
+                <label className="block text-sm font-medium mb-1">{t('newProject.selectTemplate')}</label>
                 <input
                   type="text"
                   value={templateSearch}
                   onChange={(e) => setTemplateSearch(e.target.value)}
-                  placeholder={t.searchTemplates}
+                  placeholder={t('newProject.searchTemplates')}
                   className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
                 />
 
@@ -388,7 +335,7 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
                   </div>
                 ) : filteredTemplates.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
-                    {t.noTemplates}
+                    {t('newProject.noTemplates')}
                   </div>
                 ) : (
                   <div className="grid gap-2 max-h-64 overflow-y-auto">
@@ -430,11 +377,11 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
 
               {/* Use Case for template */}
               <div>
-                <label className="block text-sm font-medium mb-1">{t.useCase}</label>
+                <label className="block text-sm font-medium mb-1">{t('newProject.useCase')}</label>
                 <textarea
                   value={useCase}
                   onChange={(e) => setUseCase(e.target.value)}
-                  placeholder={t.useCasePlaceholder}
+                  placeholder={t('newProject.useCasePlaceholder')}
                   rows={2}
                   className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
@@ -454,7 +401,7 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
               className="flex items-center gap-1 px-3 py-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
             >
               <ChevronLeft size={18} />
-              {t.back}
+              {t('newProject.back')}
             </button>
           ) : (
             <div />
@@ -469,12 +416,12 @@ export default function NewProjectDialog({ lang, onClose, onCreated }: Props) {
               {isCreating ? (
                 <>
                   <Loader2 className="animate-spin" size={18} />
-                  {t.creating}
+                  {t('newProject.creating')}
                 </>
               ) : (
                 <>
                   <Check size={18} />
-                  {t.create}
+                  {t('newProject.create')}
                 </>
               )}
             </button>

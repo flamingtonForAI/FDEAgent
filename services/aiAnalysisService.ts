@@ -41,7 +41,7 @@ export interface AnalysisResult {
 }
 
 // 分析 Prompt
-const ANALYSIS_PROMPT = (ontologyJson: string, lang: 'en' | 'cn') => {
+const ANALYSIS_PROMPT = (ontologyJson: string, lang: string) => {
   const isEnglish = lang === 'en';
 
   return `${isEnglish ? 'You are an AI enhancement specialist analyzing an Ontology design.' : '你是一位 AI 增强专家，正在分析 Ontology 设计。'}
@@ -185,7 +185,7 @@ export class AIAnalysisService {
   async analyzeOntology(
     objects: OntologyObject[],
     links: OntologyLink[],
-    lang: 'en' | 'cn' = 'cn'
+    lang: string = 'cn'
   ): Promise<AnalysisResult> {
     // 构建 Ontology 摘要 JSON
     const ontologySummary = {

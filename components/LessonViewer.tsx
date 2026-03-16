@@ -1,26 +1,26 @@
 import React, { useState } from 'react';
-import { Language } from '../types';
 import { LessonContent } from '../content/lessons/level1';
 import {
   ArrowLeft, CheckCircle, ChevronRight, Lightbulb,
   BookOpen, Table2, GitCompare, HelpCircle, X
 } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface Props {
-  lang: Language;
   lesson: LessonContent;
   onBack: () => void;
   onComplete: (lessonId: string) => void;
   isCompleted: boolean;
 }
 
-const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCompleted }) => {
+const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted }) => {
+  const { lang } = useAppTranslation('academy');
   const [currentSection, setCurrentSection] = useState(0);
   const [showQuiz, setShowQuiz] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
 
-  const t = (obj: { en: string; cn: string }) => obj[lang];
+  const lt = (obj: { en: string; cn: string }) => obj[lang];
   const sections = lesson.sections;
   const quiz = lesson.quiz?.[0];
 
@@ -61,8 +61,8 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                 <Lightbulb size={16} style={{ color: 'var(--color-accent)' }} />
               </div>
               <div>
-                <h4 className="font-medium mb-2" style={{ color: 'var(--color-accent)' }}>{t(section.title)}</h4>
-                <p className="text-secondary leading-relaxed">{t(section.content)}</p>
+                <h4 className="font-medium mb-2" style={{ color: 'var(--color-accent)' }}>{lt(section.title)}</h4>
+                <p className="text-secondary leading-relaxed">{lt(section.content)}</p>
               </div>
             </div>
           </div>
@@ -74,7 +74,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
           <div className="rounded-xl overflow-hidden" style={{ borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
             <div className="flex items-center gap-2 px-4 py-3" style={{ backgroundColor: 'var(--color-bg-hover)', borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
               <Table2 size={16} style={{ color: 'var(--color-accent-secondary)' }} />
-              <h4 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{t(section.title)}</h4>
+              <h4 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{lt(section.title)}</h4>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -109,14 +109,14 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <GitCompare size={16} style={{ color: 'var(--color-success)' }} />
-              <h4 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{t(section.title)}</h4>
+              <h4 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{lt(section.title)}</h4>
             </div>
 
             {exData.input && (
               <div className="p-4 rounded-xl" style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
-                <div className="text-xs text-muted mb-2">{t(exData.input.title)}</div>
+                <div className="text-xs text-muted mb-2">{lt(exData.input.title)}</div>
                 <p className="text-secondary leading-relaxed" dangerouslySetInnerHTML={{
-                  __html: t(exData.input.text).replace(/\*\*(.*?)\*\*/g, '<span style="color: var(--color-accent); font-weight: 500;">$1</span>')
+                  __html: lt(exData.input.text).replace(/\*\*(.*?)\*\*/g, '<span style="color: var(--color-accent); font-weight: 500;">$1</span>')
                 }} />
               </div>
             )}
@@ -145,7 +145,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
             {exData.knowledgeGraph && exData.ontology && (
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl" style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
-                  <div className="text-xs text-muted mb-3">{t(exData.knowledgeGraph.title)}</div>
+                  <div className="text-xs text-muted mb-3">{lt(exData.knowledgeGraph.title)}</div>
                   <div className="space-y-2">
                     {exData.knowledgeGraph.items[lang].map((item: string, i: number) => (
                       <div key={i} className="text-sm text-muted font-mono">{item}</div>
@@ -153,7 +153,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                   </div>
                 </div>
                 <div className="p-4 rounded-xl" style={{ backgroundColor: 'rgba(var(--color-accent-rgb), 0.05)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(var(--color-accent-rgb), 0.2)' }}>
-                  <div className="text-xs mb-3" style={{ color: 'var(--color-accent)' }}>{t(exData.ontology.title)}</div>
+                  <div className="text-xs mb-3" style={{ color: 'var(--color-accent)' }}>{lt(exData.ontology.title)}</div>
                   <div className="space-y-2">
                     {exData.ontology.items[lang].map((item: string, i: number) => (
                       <div key={i} className="text-sm font-mono" style={{ color: 'var(--color-accent)' }}>{item}</div>
@@ -166,7 +166,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
             {exData.traditional && exData.decisionFirst && (
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl" style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
-                  <div className="text-xs text-muted mb-3">{t(exData.traditional.title)}</div>
+                  <div className="text-xs text-muted mb-3">{lt(exData.traditional.title)}</div>
                   <div className="space-y-2">
                     {exData.traditional.items[lang].map((item: string, i: number) => (
                       <div key={i} className="text-sm text-muted">{item}</div>
@@ -174,7 +174,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                   </div>
                 </div>
                 <div className="p-4 rounded-xl" style={{ backgroundColor: 'rgba(var(--color-accent-rgb), 0.05)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(var(--color-accent-rgb), 0.2)' }}>
-                  <div className="text-xs mb-3" style={{ color: 'var(--color-accent)' }}>{t(exData.decisionFirst.title)}</div>
+                  <div className="text-xs mb-3" style={{ color: 'var(--color-accent)' }}>{lt(exData.decisionFirst.title)}</div>
                   <div className="space-y-2">
                     {exData.decisionFirst.items[lang].map((item: string, i: number) => (
                       <div key={i} className="text-sm" style={{ color: 'var(--color-accent)' }}>{item}</div>
@@ -188,7 +188,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
             {exData.perspectives && (
               <div className="space-y-4">
                 {exData.title && (
-                  <h5 className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{t(exData.title)}</h5>
+                  <h5 className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{lt(exData.title)}</h5>
                 )}
                 {exData.perspectives.map((perspective: any, i: number) => {
                   const colorStyles = [
@@ -206,7 +206,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                         borderColor: colorStyle.border
                       }}
                     >
-                      <div className="text-xs mb-2" style={{ color: colorStyle.text }}>{t(perspective.name)}</div>
+                      <div className="text-xs mb-2" style={{ color: colorStyle.text }}>{lt(perspective.name)}</div>
                       <div className="space-y-1">
                         {perspective.items[lang].map((item: string, j: number) => (
                           <div key={j} className="text-sm text-secondary">• {item}</div>
@@ -222,7 +222,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
             {exData.mappings && (
               <div className="space-y-3">
                 {exData.title && (
-                  <h5 className="text-sm font-medium mb-4" style={{ color: 'var(--color-text-primary)' }}>{t(exData.title)}</h5>
+                  <h5 className="text-sm font-medium mb-4" style={{ color: 'var(--color-text-primary)' }}>{lt(exData.title)}</h5>
                 )}
                 {exData.mappings.map((mapping: any, i: number) => (
                   <div key={i} className="p-3 rounded-lg flex items-center gap-3" style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
@@ -248,7 +248,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
             {exData.code && (
               <div className="space-y-3">
                 {exData.title && (
-                  <h5 className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{t(exData.title)}</h5>
+                  <h5 className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{lt(exData.title)}</h5>
                 )}
                 <div className="rounded-xl overflow-hidden" style={{ backgroundColor: 'var(--color-bg-base)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
                   <div className="px-4 py-2 flex items-center gap-2" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
@@ -282,7 +282,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
             {/* Step-by-step flow */}
             {exData.flow && (
               <div className="space-y-3">
-                <h5 className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{t(exData.flow.title)}</h5>
+                <h5 className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{lt(exData.flow.title)}</h5>
                 <div className="space-y-2">
                   {(exData.flow.steps?.[lang] || []).map((step: string, i: number) => (
                     <div key={i} className="flex items-start gap-3 p-3 rounded-lg" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
@@ -352,7 +352,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                         className="px-3 py-1.5 rounded-lg text-sm font-medium"
                         style={{ backgroundColor: colors.bg, borderWidth: '1px', borderStyle: 'solid', borderColor: colors.border, color: colors.text }}
                       >
-                        {t(state.name)}
+                        {lt(state.name)}
                       </span>
                     );
                   })}
@@ -408,8 +408,8 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                         {phase.number}
                       </span>
                       <div>
-                        <h5 className="font-medium" style={{ color: colorStyle.text }}>{t(phase.name)}</h5>
-                        {phase.subtitle && <span className="text-xs text-muted">{t(phase.subtitle)}</span>}
+                        <h5 className="font-medium" style={{ color: colorStyle.text }}>{lt(phase.name)}</h5>
+                        {phase.subtitle && <span className="text-xs text-muted">{lt(phase.subtitle)}</span>}
                       </div>
                     </div>
                     <div className="grid md:grid-cols-2 gap-3 mt-3">
@@ -446,12 +446,12 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
         };
         if (!diagData.layers) {
           // ASCII art diagram — content contains the diagram as markdown code block
-          const contentText = t(section.content);
+          const contentText = lt(section.content);
           if (contentText) {
             const codeContent = contentText.replace(/^```\n?/, '').replace(/\n?```$/, '');
             return (
               <div className="space-y-3">
-                <h4 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{t(section.title)}</h4>
+                <h4 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{lt(section.title)}</h4>
                 <div className="rounded-xl overflow-x-auto" style={{ backgroundColor: 'var(--color-bg-base)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
                   <pre className="p-4 text-sm text-secondary font-mono whitespace-pre">{codeContent}</pre>
                 </div>
@@ -471,10 +471,10 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                   style={{ backgroundColor: colorStyle.bg, borderWidth: '1px', borderStyle: 'solid', borderColor: colorStyle.border }}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <h5 className="font-medium" style={{ color: colorStyle.text }}>{t(layer.name)}</h5>
+                    <h5 className="font-medium" style={{ color: colorStyle.text }}>{lt(layer.name)}</h5>
                     <span className="text-xs text-muted">Layer {diagData.layers.length - i}</span>
                   </div>
-                  <p className="text-sm text-muted mb-2">{t(layer.description)}</p>
+                  <p className="text-sm text-muted mb-2">{lt(layer.description)}</p>
                   <div className="flex flex-wrap gap-2">
                     {layer.examples[lang].map((ex: string, j: number) => (
                       <span key={j} className="px-2 py-0.5 text-muted rounded text-xs" style={{ backgroundColor: 'var(--color-bg-hover)' }}>{ex}</span>
@@ -489,9 +489,9 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
       default:
         return (
           <div className="prose prose-invert max-w-none">
-            <h4 className="font-medium mb-3" style={{ color: 'var(--color-text-primary)' }}>{t(section.title)}</h4>
+            <h4 className="font-medium mb-3" style={{ color: 'var(--color-text-primary)' }}>{lt(section.title)}</h4>
             <div className="text-secondary leading-relaxed whitespace-pre-line" dangerouslySetInnerHTML={{
-              __html: t(section.content)
+              __html: lt(section.content)
                 .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--color-text-primary);">$1</strong>')
                 .replace(/\n/g, '<br/>')
             }} />
@@ -515,7 +515,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h2 className="text-base font-medium" style={{ color: 'var(--color-text-primary)' }}>{t(lesson.title)}</h2>
+            <h2 className="text-base font-medium" style={{ color: 'var(--color-text-primary)' }}>{lt(lesson.title)}</h2>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="text-xs text-muted">
                 {showQuiz ? (lang === 'cn' ? '测验' : 'Quiz') : `${currentSection + 1} / ${sections.length}`}
@@ -566,7 +566,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
               </div>
 
               <div className="glass-card rounded-xl p-6 mb-6">
-                <p className="text-secondary mb-6">{t(quiz.question)}</p>
+                <p className="text-secondary mb-6">{lt(quiz.question)}</p>
                 <div className="space-y-3">
                   {quiz.options.map((option, i) => (
                     <button
@@ -627,7 +627,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                             ? 'var(--color-error)'
                             : 'var(--color-text-secondary)'
                         }}>
-                          {t(option)}
+                          {lt(option)}
                         </span>
                       </div>
                     </button>
@@ -670,7 +670,7 @@ const LessonViewer: React.FC<Props> = ({ lang, lesson, onBack, onComplete, isCom
                           ? (lang === 'cn' ? '正确!' : 'Correct!')
                           : (lang === 'cn' ? '解释' : 'Explanation')}
                       </h4>
-                      <p className="text-secondary text-sm">{t(quiz.explanation)}</p>
+                      <p className="text-secondary text-sm">{lt(quiz.explanation)}</p>
                     </div>
                   </div>
                 </div>

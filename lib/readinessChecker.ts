@@ -294,7 +294,7 @@ function analyzeIntegrations(project: ProjectState): ReadinessIssue[] {
 export function checkReadiness(
   project: ProjectState,
   chatMessages: ChatMessage[],
-  lang: 'cn' | 'en' = 'cn'
+  lang: string = 'cn'
 ): ReadinessReport {
   const allIssues: ReadinessIssue[] = [];
 
@@ -410,7 +410,7 @@ export function checkReadiness(
 }
 
 // 获取友好的级别显示
-export function getReadinessDisplay(level: ReadinessLevel, lang: 'cn' | 'en' = 'cn') {
+export function getReadinessDisplay(level: ReadinessLevel, lang: string = 'cn') {
   const displays = {
     blocked: {
       cn: { label: '无法继续', color: '#f85149', bgColor: 'rgba(248, 81, 73, 0.15)' },

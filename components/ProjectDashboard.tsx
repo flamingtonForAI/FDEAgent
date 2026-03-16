@@ -6,9 +6,11 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Language } from '../types';
+
+
 import { useProject } from '../contexts/ProjectContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import {
   FolderOpen, Plus, Search, Trash2, Clock, Package,
   GitBranch, Layers, Zap, MoreVertical, Star, Edit2,
@@ -17,70 +19,8 @@ import {
 import NewProjectDialog from './NewProjectDialog';
 
 interface Props {
-  lang: Language;
   onOpenProject?: () => void;
 }
-
-const translations = {
-  en: {
-    title: 'My Projects',
-    subtitle: 'Manage your ontology design projects',
-    newProject: 'New Project',
-    search: 'Search projects...',
-    noProjects: 'No projects yet',
-    noProjectsHint: 'Create your first project to get started',
-    createFirst: 'Create First Project',
-    open: 'Open',
-    delete: 'Delete',
-    rename: 'Rename',
-    deleteConfirm: 'Are you sure you want to delete this project?',
-    renamePrompt: 'Enter a new project name',
-    renameEmpty: 'Project name cannot be empty',
-    lastModified: 'Last modified',
-    objects: 'Objects',
-    links: 'Links',
-    actions: 'Actions',
-    completeness: 'Completeness',
-    basedOn: 'Based on',
-    draft: 'Draft',
-    active: 'Active',
-    archived: 'Archived',
-    completed: 'Completed',
-    current: 'Current',
-    emptySearch: 'No projects match your search',
-    loginRequired: 'Please sign in to create projects',
-    authHint: 'Demo: demo@example.com / Demo123!',
-  },
-  cn: {
-    title: '我的项目',
-    subtitle: '管理你的本体设计项目',
-    newProject: '新建项目',
-    search: '搜索项目...',
-    noProjects: '暂无项目',
-    noProjectsHint: '创建你的第一个项目开始设计',
-    createFirst: '创建第一个项目',
-    open: '打开',
-    delete: '删除',
-    rename: '重命名',
-    deleteConfirm: '确定要删除这个项目吗？',
-    renamePrompt: '请输入新的项目名称',
-    renameEmpty: '项目名称不能为空',
-    lastModified: '最后修改',
-    objects: '对象',
-    links: '链接',
-    actions: '动作',
-    completeness: '完成度',
-    basedOn: '基于模板',
-    draft: '草稿',
-    active: '活跃',
-    archived: '已归档',
-    completed: '已完成',
-    current: '当前',
-    emptySearch: '没有匹配的项目',
-    loginRequired: '请先登录后再创建项目',
-    authHint: '测试账号：demo@example.com / Demo123!',
-  }
-};
 
 const statusColors: Record<string, string> = {
   draft: 'var(--color-text-muted)',
@@ -89,8 +29,8 @@ const statusColors: Record<string, string> = {
   completed: 'var(--color-info)',
 };
 
-export default function ProjectDashboard({ lang, onOpenProject }: Props) {
-  const t = translations[lang];
+export default function ProjectDashboard({ onOpenProject }: Props) {
+  const { t, lang } = useAppTranslation('nav');
   const {
     projects,
     activeProjectId,
@@ -107,7 +47,7 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
 
   const handleOpenCreateDialog = () => {
     if (!isAuthenticated) {
-      alert(`${t.loginRequired}\n${t.authHint}`);
+      alert(`${t('projectDashboard.loginRequired')}\n${t('projectDashboard.authHint')}`);
       return;
     }
     setShowNewDialog(true);
@@ -151,11 +91,11 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
   };
 
   const handleRenameProject = (projectId: string, currentName: string) => {
-    const nextName = window.prompt(t.renamePrompt, currentName);
+    const nextName = window.prompt(t('projectDashboard.renamePrompt'), currentName);
     if (nextName === null) return;
     const trimmed = nextName.trim();
     if (!trimmed) {
-      alert(t.renameEmpty);
+      alert(t('projectDashboard.renameEmpty'));
       return;
     }
     updateProject(projectId, { name: trimmed });
@@ -179,10 +119,10 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
             style={{ color: 'var(--color-text-primary)' }}
           >
             <FolderOpen style={{ color: 'var(--color-accent)' }} />
-            {t.title}
+            {t('projectDashboard.title')}
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--color-text-muted)' }}>
-            {t.subtitle}
+            {t('projectDashboard.subtitle')}
           </p>
         </div>
         <button
@@ -194,7 +134,7 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
           }}
         >
           <Plus size={18} />
-          {t.newProject}
+          {t('projectDashboard.newProject')}
         </button>
       </div>
 
@@ -208,7 +148,7 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
           />
           <input
             type="text"
-            placeholder={t.search}
+            placeholder={t('projectDashboard.search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2"
@@ -239,10 +179,10 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
             className="text-lg font-medium mb-2"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            {t.noProjects}
+            {t('projectDashboard.noProjects')}
           </h3>
           <p className="text-sm mb-6" style={{ color: 'var(--color-text-muted)' }}>
-            {t.noProjectsHint}
+            {t('projectDashboard.noProjectsHint')}
           </p>
           <button
             onClick={handleOpenCreateDialog}
@@ -253,7 +193,7 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
             }}
           >
             <Plus size={18} />
-            {t.createFirst}
+            {t('projectDashboard.createFirst')}
           </button>
         </div>
       )}
@@ -266,7 +206,7 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
             size={32}
             style={{ color: 'var(--color-text-muted)' }}
           />
-          <p style={{ color: 'var(--color-text-muted)' }}>{t.emptySearch}</p>
+          <p style={{ color: 'var(--color-text-muted)' }}>{t('projectDashboard.emptySearch')}</p>
         </div>
       )}
 
@@ -298,7 +238,7 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
                   }}
                 >
                   <Star size={10} fill="currentColor" />
-                  {t.current}
+                  {t('projectDashboard.current')}
                 </div>
               )}
 
@@ -329,7 +269,7 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
                     className="text-xs"
                     style={{ color: 'var(--color-text-muted)' }}
                   >
-                    {t[project.status as keyof typeof t]}
+                    {t(`projectDashboard.${project.status}`)}
                   </span>
                 </div>
               </div>
@@ -368,7 +308,7 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
                   className="flex justify-between text-xs mb-1"
                   style={{ color: 'var(--color-text-muted)' }}
                 >
-                  <span>{t.completeness}</span>
+                  <span>{t('projectDashboard.completeness')}</span>
                   <span>{project.progress.completeness}%</span>
                 </div>
                 <div
@@ -392,15 +332,15 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
               >
                 <span className="flex items-center gap-1">
                   <Layers size={12} />
-                  {project.progress.objectCount} {t.objects}
+                  {project.progress.objectCount} {t('projectDashboard.objects')}
                 </span>
                 <span className="flex items-center gap-1">
                   <GitBranch size={12} />
-                  {project.progress.linkCount} {t.links}
+                  {project.progress.linkCount} {t('projectDashboard.links')}
                 </span>
                 <span className="flex items-center gap-1">
                   <Zap size={12} />
-                  {project.progress.actionCount} {t.actions}
+                  {project.progress.actionCount} {t('projectDashboard.actions')}
                 </span>
               </div>
 
@@ -424,7 +364,7 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
                     }}
                     className="p-1.5 rounded transition-colors"
                     style={{ color: 'var(--color-text-muted)' }}
-                    title={t.rename}
+                    title={t('projectDashboard.rename')}
                   >
                     <Edit2 size={14} />
                   </button>
@@ -435,7 +375,7 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
                     }}
                     className="p-1.5 rounded transition-colors"
                     style={{ color: 'var(--color-text-muted)' }}
-                    title={t.delete}
+                    title={t('projectDashboard.delete')}
                   >
                     <Trash2 size={14} />
                   </button>
@@ -450,7 +390,7 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
                       color: 'var(--color-bg-base)'
                     }}
                   >
-                    {t.open}
+                    {t('projectDashboard.open')}
                     <ArrowRight size={14} />
                   </button>
                 </div>
@@ -475,7 +415,7 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
                     className="text-sm text-center mb-4"
                     style={{ color: 'var(--color-text-primary)' }}
                   >
-                    {t.deleteConfirm}
+                    {t('projectDashboard.deleteConfirm')}
                   </p>
                   <div className="flex gap-2">
                     <button
@@ -487,7 +427,7 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
                         color: 'var(--color-text-primary)'
                       }}
                     >
-                      {lang === 'cn' ? '取消' : 'Cancel'}
+                      {t('projectDashboard.cancel')}
                     </button>
                     <button
                       onClick={() => handleDeleteProject(project.id)}
@@ -497,7 +437,7 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
                         color: '#fff'
                       }}
                     >
-                      {t.delete}
+                      {t('projectDashboard.delete')}
                     </button>
                   </div>
                 </div>
@@ -510,7 +450,6 @@ export default function ProjectDashboard({ lang, onOpenProject }: Props) {
       {/* New Project Dialog */}
       {showNewDialog && (
         <NewProjectDialog
-          lang={lang}
           onClose={() => setShowNewDialog(false)}
           onCreated={() => {
             setShowNewDialog(false);

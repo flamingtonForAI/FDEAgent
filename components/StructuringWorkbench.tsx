@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Language, ProjectState, OntologyObject, OntologyLink, AIPAction } from '../types';
+import { ProjectState, OntologyObject, OntologyLink, AIPAction } from '../types';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import {
   Box,
   Zap,
@@ -28,7 +29,6 @@ import LinkEditor from './LinkEditor';
 import ActionDesigner from './ActionDesigner';
 
 interface StructuringWorkbenchProps {
-  lang: Language;
   project: ProjectState;
   setProject?: React.Dispatch<React.SetStateAction<ProjectState>>;
   chatMessages?: Array<{ role: string; content: string }>;
@@ -43,98 +43,6 @@ interface StructuringWorkbenchProps {
 type ViewMode = 'cards' | 'business' | 'technical';
 type FilterType = 'objects' | 'actions' | 'links' | null;
 
-const translations = {
-  cn: {
-    title: '结构化工作台',
-    subtitle: '对话信息转化为可交付设计',
-    viewCards: '概览',
-    viewBusiness: '业务',
-    viewTechnical: '技术',
-    viewCardsDesc: '全部要素',
-    viewBusinessDesc: '业务语义',
-    viewTechnicalDesc: 'API实现',
-    clickToFilter: '点击筛选',
-    showAll: '显示全部',
-    objects: '业务对象',
-    actions: '业务操作',
-    links: '对象关联',
-    integrations: '数据集成',
-    noObjects: '暂无业务对象',
-    noActions: '暂无业务操作',
-    noLinks: '暂无对象关联',
-    noIntegrations: '暂无数据集成',
-    addObject: '添加对象',
-    addAction: '添加操作',
-    properties: '属性',
-    description: '描述',
-    complete: '完整',
-    incomplete: '待完善',
-    missing: '缺失',
-    businessLayer: '业务层',
-    logicLayer: '逻辑层',
-    implLayer: '实现层',
-    exportJson: '导出 JSON',
-    exportMarkdown: '导出文档',
-    copied: '已复制',
-    completeness: '完整度',
-    tip: '点击卡片查看详情，点击 + 添加新元素',
-    executor: '执行者',
-    trigger: '触发条件',
-    apiEndpoint: 'API端点',
-    parameters: '参数',
-    emptyStateTitle: '暂无数据可整理',
-    emptyStateDesc: '结构化工作台需要从对话或模板中获取数据。请先完成以下步骤之一：',
-    goToScouting: '开始需求勘察',
-    goToScoutingDesc: '通过对话探索业务需求，AI 将帮助您提取业务对象',
-    goToArchetypes: '使用行业模板',
-    goToArchetypesDesc: '从预置的行业模板快速开始，获得完整的对象结构'
-  },
-  en: {
-    title: 'Structuring Workbench',
-    subtitle: 'Transform conversations into deliverable designs',
-    viewCards: 'Overview',
-    viewBusiness: 'Business',
-    viewTechnical: 'Technical',
-    viewCardsDesc: 'All elements',
-    viewBusinessDesc: 'Semantics',
-    viewTechnicalDesc: 'API impl',
-    clickToFilter: 'Click to filter',
-    showAll: 'Show all',
-    objects: 'Objects',
-    actions: 'Actions',
-    links: 'Links',
-    integrations: 'Integrations',
-    noObjects: 'No objects defined',
-    noActions: 'No actions defined',
-    noLinks: 'No links defined',
-    noIntegrations: 'No integrations defined',
-    addObject: 'Add Object',
-    addAction: 'Add Action',
-    properties: 'Properties',
-    description: 'Description',
-    complete: 'Complete',
-    incomplete: 'Incomplete',
-    missing: 'Missing',
-    businessLayer: 'Business',
-    logicLayer: 'Logic',
-    implLayer: 'Implementation',
-    exportJson: 'Export JSON',
-    exportMarkdown: 'Export Docs',
-    copied: 'Copied',
-    completeness: 'Completeness',
-    tip: 'Click cards for details, + to add new elements',
-    executor: 'Executor',
-    trigger: 'Trigger',
-    apiEndpoint: 'API Endpoint',
-    parameters: 'Parameters',
-    emptyStateTitle: 'No data to structure',
-    emptyStateDesc: 'The Structuring Workbench needs data from conversations or templates. Please complete one of the following steps first:',
-    goToScouting: 'Start Requirement Scouting',
-    goToScoutingDesc: 'Explore business requirements through conversation, AI will help extract objects',
-    goToArchetypes: 'Use Industry Templates',
-    goToArchetypesDesc: 'Quick start from pre-built industry templates with complete object structures'
-  }
-};
 
 // 计算对象完整度
 function calculateObjectCompleteness(obj: OntologyObject): {
@@ -199,7 +107,6 @@ function calculateActionCompleteness(action: any): {
 }
 
 const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
-  lang,
   project,
   setProject,
   chatMessages,
@@ -210,7 +117,7 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
   onAddObject,
   onAddAction
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('modeling');
   const [viewMode, setViewMode] = useState<ViewMode>('cards');
   const [activeFilter, setActiveFilter] = useState<FilterType>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
@@ -461,10 +368,10 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
         <div className="flex items-center justify-between mb-3">
           <div>
             <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              {t.title}
+              {t('structuringWorkbench.title')}
             </h2>
             <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
-              {t.subtitle}
+              {t('structuringWorkbench.subtitle')}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -490,9 +397,9 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
         {/* Stats bar - clickable to filter */}
         <div className="grid grid-cols-3 gap-2">
           {[
-            { icon: Box, label: t.objects, value: stats.objectCount, color: 'var(--color-accent)', filter: 'objects' as FilterType },
-            { icon: Zap, label: t.actions, value: stats.actionCount, color: 'var(--color-success)', filter: 'actions' as FilterType },
-            { icon: Link2, label: t.links, value: stats.linkCount, color: 'var(--color-warning)', filter: 'links' as FilterType },
+            { icon: Box, label: t('structuringWorkbench.objects'), value: stats.objectCount, color: 'var(--color-accent)', filter: 'objects' as FilterType },
+            { icon: Zap, label: t('structuringWorkbench.actions'), value: stats.actionCount, color: 'var(--color-success)', filter: 'actions' as FilterType },
+            { icon: Link2, label: t('structuringWorkbench.links'), value: stats.linkCount, color: 'var(--color-warning)', filter: 'links' as FilterType },
           ].map((stat, i) => (
             <button
               key={i}
@@ -521,16 +428,16 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
             className="mt-2 text-xs px-2 py-1 rounded"
             style={{ color: 'var(--color-accent)', backgroundColor: 'var(--color-bg-surface)' }}
           >
-            ← {t.showAll}
+            ← {t('structuringWorkbench.showAll')}
           </button>
         )}
 
         {/* View mode tabs */}
         <div className="flex gap-1 mt-3 p-1 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
           {[
-            { mode: 'cards' as ViewMode, label: t.viewCards, desc: t.viewCardsDesc, icon: Eye },
-            { mode: 'business' as ViewMode, label: t.viewBusiness, desc: t.viewBusinessDesc, icon: Briefcase },
-            { mode: 'technical' as ViewMode, label: t.viewTechnical, desc: t.viewTechnicalDesc, icon: Code }
+            { mode: 'cards' as ViewMode, label: t('structuringWorkbench.viewCards'), desc: t('structuringWorkbench.viewCardsDesc'), icon: Eye },
+            { mode: 'business' as ViewMode, label: t('structuringWorkbench.viewBusiness'), desc: t('structuringWorkbench.viewBusinessDesc'), icon: Briefcase },
+            { mode: 'technical' as ViewMode, label: t('structuringWorkbench.viewTechnical'), desc: t('structuringWorkbench.viewTechnicalDesc'), icon: Code }
           ].map(tab => (
             <button
               key={tab.mode}
@@ -571,13 +478,13 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
               className="text-lg font-medium mb-2"
               style={{ color: 'var(--color-text-primary)' }}
             >
-              {t.emptyStateTitle}
+              {t('structuringWorkbench.emptyStateTitle')}
             </h3>
             <p
               className="text-sm mb-6 max-w-md mx-auto"
               style={{ color: 'var(--color-text-muted)' }}
             >
-              {t.emptyStateDesc}
+              {t('structuringWorkbench.emptyStateDesc')}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto">
               {onNavigateToScouting && (
@@ -599,9 +506,9 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
                     className="font-medium text-sm mb-1"
                     style={{ color: 'var(--color-text-primary)' }}
                   >
-                    {t.goToScouting}
+                    {t('structuringWorkbench.goToScouting')}
                   </div>
-                  <div className="text-xs text-muted mb-2">{t.goToScoutingDesc}</div>
+                  <div className="text-xs text-muted mb-2">{t('structuringWorkbench.goToScoutingDesc')}</div>
                   <div
                     className="flex items-center gap-1 text-xs font-medium transition-transform group-hover:translate-x-1"
                     style={{ color: 'var(--color-accent)' }}
@@ -629,9 +536,9 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
                     className="font-medium text-sm mb-1"
                     style={{ color: 'var(--color-text-primary)' }}
                   >
-                    {t.goToArchetypes}
+                    {t('structuringWorkbench.goToArchetypes')}
                   </div>
-                  <div className="text-xs text-muted mb-2">{t.goToArchetypesDesc}</div>
+                  <div className="text-xs text-muted mb-2">{t('structuringWorkbench.goToArchetypesDesc')}</div>
                   <div
                     className="flex items-center gap-1 text-xs font-medium transition-transform group-hover:translate-x-1"
                     style={{ color: 'var(--color-success)' }}
@@ -647,17 +554,16 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
         {/* Objects Section */}
         {(!activeFilter || activeFilter === 'objects') && (
         <Section
-          title={t.objects}
+          title={t('structuringWorkbench.objects')}
           icon={Box}
           count={stats.objectCount}
           isExpanded={expandedSections.has('objects') || activeFilter === 'objects'}
           onToggle={() => toggleSection('objects')}
           onAdd={setProject ? handleAddObject : undefined}
           color="var(--color-accent)"
-          lang={lang}
         >
           {(project.objects?.length || 0) === 0 ? (
-            <EmptyState message={t.noObjects} onAdd={onAddObject} addLabel={t.addObject} />
+            <EmptyState message={t('structuringWorkbench.noObjects')} onAdd={onAddObject} addLabel={t('structuringWorkbench.addObject')} />
           ) : (
             <div className={viewMode === 'cards' ? 'grid grid-cols-2 sm:grid-cols-3 gap-2' : 'space-y-2'}>
               {project.objects?.map(obj => {
@@ -668,7 +574,6 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
                     object={obj}
                     completeness={completeness}
                     viewMode={viewMode}
-                    lang={lang}
                     onEdit={() => handleEditObject(obj.id)}
                     onClick={() => handleEditObject(obj.id)}
                     onCopy={() => copyToClipboard(JSON.stringify(obj, null, 2), obj.id)}
@@ -685,16 +590,15 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
         {/* Actions Section */}
         {(!activeFilter || activeFilter === 'actions') && (
         <Section
-          title={t.actions}
+          title={t('structuringWorkbench.actions')}
           icon={Zap}
           count={stats.actionCount}
           isExpanded={expandedSections.has('actions') || activeFilter === 'actions'}
           onToggle={() => toggleSection('actions')}
           color="var(--color-success)"
-          lang={lang}
         >
           {stats.actionCount === 0 ? (
-            <EmptyState message={t.noActions} />
+            <EmptyState message={t('structuringWorkbench.noActions')} />
           ) : (
             <div className={viewMode === 'cards' ? 'grid grid-cols-2 sm:grid-cols-3 gap-2' : 'space-y-2'}>
               {project.objects?.flatMap(obj =>
@@ -709,7 +613,6 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
                       actionIndex={idx}
                       completeness={completeness}
                       viewMode={viewMode}
-                      lang={lang}
                       onClick={() => handleEditAction(obj.id, idx)}
                       t={t}
                     />
@@ -724,17 +627,16 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
         {/* Links Section */}
         {(!activeFilter || activeFilter === 'links') && viewMode !== 'business' && (
           <Section
-            title={t.links}
+            title={t('structuringWorkbench.links')}
             icon={Link2}
             count={stats.linkCount}
             isExpanded={expandedSections.has('links') || activeFilter === 'links'}
             onToggle={() => toggleSection('links')}
             onAdd={setProject ? handleAddLink : undefined}
             color="var(--color-warning)"
-            lang={lang}
           >
             {stats.linkCount === 0 ? (
-              <EmptyState message={t.noLinks} onAdd={setProject ? handleAddLink : undefined} addLabel={lang === 'cn' ? '添加关联' : 'Add Link'} />
+              <EmptyState message={t('structuringWorkbench.noLinks')} onAdd={setProject ? handleAddLink : undefined} addLabel={lang === 'cn' ? '添加关联' : 'Add Link'} />
             ) : (
               <div className="space-y-1">
                 {project.links?.map((link, i) => {
@@ -779,7 +681,6 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
       {/* Object Editor Modal */}
       {editingObject && (
         <ObjectEditor
-          lang={lang}
           object={editingObject}
           onSave={handleSaveObject}
           onClose={() => setEditingObject(null)}
@@ -789,7 +690,6 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
       {/* Link Editor Modal */}
       {editingLink && (
         <LinkEditor
-          lang={lang}
           link={editingLink}
           objects={project.objects || []}
           onSave={handleSaveLink}
@@ -819,7 +719,6 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
             </div>
             <div className="flex-1 overflow-hidden">
               <ActionDesigner
-                lang={lang}
                 objects={project.objects || []}
                 onUpdateAction={handleUpdateAction}
               />
@@ -840,7 +739,6 @@ const Section: React.FC<{
   onToggle: () => void;
   onAdd?: () => void;
   color: string;
-  lang: Language;
   children: React.ReactNode;
 }> = ({ title, icon: Icon, count, isExpanded, onToggle, onAdd, color, children }) => (
   <div
@@ -910,12 +808,11 @@ const ObjectCard: React.FC<{
   object: OntologyObject;
   completeness: { score: number; missing: string[] };
   viewMode: ViewMode;
-  lang: Language;
   onEdit?: () => void;
   onClick?: () => void;
   onCopy: () => void;
   isCopied: boolean;
-  t: typeof translations.cn;
+  t: (key: string) => string;
 }> = ({ object, completeness, viewMode, onEdit, onClick, onCopy, isCopied, t }) => {
   // Cards view: compact summary
   if (viewMode === 'cards') {
@@ -930,7 +827,7 @@ const ObjectCard: React.FC<{
           {object.name}
         </div>
         <div className="text-[10px] mt-1" style={{ color: 'var(--color-text-muted)' }}>
-          {object.properties?.length || 0} {t.properties} · {object.actions?.length || 0} {t.actions}
+          {object.properties?.length || 0} {t('structuringWorkbench.properties')} · {object.actions?.length || 0} {t('structuringWorkbench.actions')}
         </div>
         <div
           className={`text-[10px] px-2 py-0.5 rounded mt-2 inline-block ${
@@ -998,7 +895,7 @@ const ObjectCard: React.FC<{
       {viewMode === 'technical' && object.properties && object.properties.length > 0 && (
         <div className="mt-2 p-2 rounded" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
           <div className="text-[10px] font-medium mb-1.5" style={{ color: 'var(--color-text-muted)' }}>
-            {t.properties}
+            {t('structuringWorkbench.properties')}
           </div>
           <div className="space-y-1">
             {object.properties.slice(0, 6).map((p, i) => (
@@ -1043,7 +940,7 @@ const ObjectCard: React.FC<{
       {completeness.missing.length > 0 && viewMode !== 'cards' && (
         <div className="flex items-center gap-1 mt-2 text-[10px]" style={{ color: 'var(--color-warning)' }}>
           <AlertCircle className="w-3 h-3" />
-          <span>{t.missing}: {completeness.missing.join(', ')}</span>
+          <span>{t('structuringWorkbench.missing')}: {completeness.missing.join(', ')}</span>
         </div>
       )}
     </div>
@@ -1058,9 +955,8 @@ const ActionCard: React.FC<{
   actionIndex?: number;
   completeness: { business: boolean; logic: boolean; impl: boolean; score: number };
   viewMode: ViewMode;
-  lang: Language;
   onClick?: () => void;
-  t: typeof translations.cn;
+  t: (key: string) => string;
 }> = ({ action, parentObject, objectId, actionIndex, completeness, viewMode, onClick, t }) => {
   // Cards view: compact summary
   if (viewMode === 'cards') {
@@ -1119,14 +1015,14 @@ const ActionCard: React.FC<{
             {bl?.executor && (
               <div className="flex items-center gap-2 text-[10px]">
                 <Users className="w-3 h-3" style={{ color: 'var(--color-accent)' }} />
-                <span style={{ color: 'var(--color-text-muted)' }}>{t.executor}:</span>
+                <span style={{ color: 'var(--color-text-muted)' }}>{t('structuringWorkbench.executor')}:</span>
                 <span style={{ color: 'var(--color-text-primary)' }}>{bl.executor}</span>
               </div>
             )}
             {bl?.trigger && (
               <div className="flex items-center gap-2 text-[10px]">
                 <Zap className="w-3 h-3" style={{ color: 'var(--color-warning)' }} />
-                <span style={{ color: 'var(--color-text-muted)' }}>{t.trigger}:</span>
+                <span style={{ color: 'var(--color-text-muted)' }}>{t('structuringWorkbench.trigger')}:</span>
                 <span style={{ color: 'var(--color-text-primary)' }}>{bl.trigger}</span>
               </div>
             )}
@@ -1184,7 +1080,7 @@ const ActionCard: React.FC<{
         {ll?.parameters && ll.parameters.length > 0 && (
           <div className="mt-2 p-2 rounded" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
             <div className="text-[10px] font-medium mb-1.5" style={{ color: 'var(--color-text-muted)' }}>
-              {t.parameters}
+              {t('structuringWorkbench.parameters')}
             </div>
             <div className="space-y-1">
               {ll.parameters.slice(0, 4).map((p: any, i: number) => (
@@ -1209,9 +1105,9 @@ const ActionCard: React.FC<{
 
         {/* Layer completion */}
         <div className="flex gap-2 mt-2">
-          <LayerBadge label={t.businessLayer} active={completeness.business} />
-          <LayerBadge label={t.logicLayer} active={completeness.logic} />
-          <LayerBadge label={t.implLayer} active={completeness.impl} />
+          <LayerBadge label={t('structuringWorkbench.businessLayer')} active={completeness.business} />
+          <LayerBadge label={t('structuringWorkbench.logicLayer')} active={completeness.logic} />
+          <LayerBadge label={t('structuringWorkbench.implLayer')} active={completeness.impl} />
         </div>
       </div>
     );
@@ -1253,9 +1149,9 @@ const ActionCard: React.FC<{
       )}
 
       <div className="flex gap-2 mt-2">
-        <LayerBadge label={t.businessLayer} active={completeness.business} />
-        <LayerBadge label={t.logicLayer} active={completeness.logic} />
-        <LayerBadge label={t.implLayer} active={completeness.impl} />
+        <LayerBadge label={t('structuringWorkbench.businessLayer')} active={completeness.business} />
+        <LayerBadge label={t('structuringWorkbench.logicLayer')} active={completeness.logic} />
+        <LayerBadge label={t('structuringWorkbench.implLayer')} active={completeness.impl} />
       </div>
     </div>
   );

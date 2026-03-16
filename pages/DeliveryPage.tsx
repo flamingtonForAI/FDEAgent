@@ -1,54 +1,24 @@
 import React, { useMemo } from 'react';
 import DeliverableGenerator from '../components/DeliverableGenerator';
 import { runQualityCheck, checkActionThreeLayers, qualityRules } from '../utils/qualityChecker';
-import type { ProjectState, Language } from '../types';
+import type { ProjectState } from '../types';
 import { Package, Boxes, Zap, Link2, Network, CheckCircle2, AlertTriangle, Minus, ArrowRight } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface DeliveryPageProps {
-  lang: Language;
   project: ProjectState;
   onOpenQualityPanel?: () => void;
 }
-
-const translations = {
-  en: {
-    deliveryCenter: 'Delivery Center',
-    designCompleteness: 'Design Completeness',
-    qualitySummary: 'Quality Summary',
-    rulesPassed: 'rules passed',
-    actionsComplete: 'actions with complete 3-layer',
-    actionsNotStarted: 'No actions defined yet',
-    viewDetails: 'View Details',
-    objects: 'Objects',
-    actions: 'Actions',
-    links: 'Links',
-    integrations: 'Integrations',
-  },
-  cn: {
-    deliveryCenter: '交付中心',
-    designCompleteness: '设计完成度',
-    qualitySummary: '质量摘要',
-    rulesPassed: '条规则通过',
-    actionsComplete: '个动作三层完整',
-    actionsNotStarted: '尚未定义动作',
-    viewDetails: '查看详情',
-    objects: '对象',
-    actions: '动作',
-    links: '关联',
-    integrations: '集成',
-  }
-};
 
 /**
  * 交付中心页面 (Phase 5: Deliver)
  * 设计完成度概览 + 质量摘要 + 嵌入式 DeliverableGenerator
  */
 export const DeliveryPage: React.FC<DeliveryPageProps> = ({
-  lang,
   project,
   onOpenQualityPanel,
 }) => {
-  const t = translations[lang];
+  const { t } = useAppTranslation('delivery');
 
   // Compute stats
   const stats = useMemo(() => {
@@ -68,10 +38,10 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({
   const threeLayerReport = useMemo(() => checkActionThreeLayers(project), [project]);
 
   const statCards: { label: string; value: number; icon: React.ReactNode; color: string }[] = [
-    { label: t.objects, value: stats.objects, icon: <Boxes size={18} />, color: 'var(--color-accent)' },
-    { label: t.actions, value: stats.actions, icon: <Zap size={18} />, color: 'var(--color-warning)' },
-    { label: t.links, value: stats.links, icon: <Link2 size={18} />, color: 'var(--color-success)' },
-    { label: t.integrations, value: stats.integrations, icon: <Network size={18} />, color: 'var(--color-error)' },
+    { label: t('deliveryPage.objects'), value: stats.objects, icon: <Boxes size={18} />, color: 'var(--color-accent)' },
+    { label: t('deliveryPage.actions'), value: stats.actions, icon: <Zap size={18} />, color: 'var(--color-warning)' },
+    { label: t('deliveryPage.links'), value: stats.links, icon: <Link2 size={18} />, color: 'var(--color-success)' },
+    { label: t('deliveryPage.integrations'), value: stats.integrations, icon: <Network size={18} />, color: 'var(--color-error)' },
   ];
 
   return (
@@ -87,7 +57,7 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({
           </div>
           <div>
             <h1 className="text-lg font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-              {t.deliveryCenter}
+              {t('deliveryPage.deliveryCenter')}
             </h1>
             {(project.projectName || project.industry) && (
               <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
@@ -101,7 +71,7 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({
       {/* Design Completeness Cards */}
       <div className="px-6 pb-4">
         <p className="text-xs font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>
-          {t.designCompleteness}
+          {t('deliveryPage.designCompleteness')}
         </p>
         <div className="grid grid-cols-4 gap-3">
           {statCards.map((card) => (
@@ -144,7 +114,7 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({
             <span style={{ color: 'var(--color-text-primary)' }}>
               {qualityReport.passed}/{qualityRules.length}
             </span>
-            <span style={{ color: 'var(--color-text-muted)' }}>{t.rulesPassed}</span>
+            <span style={{ color: 'var(--color-text-muted)' }}>{t('deliveryPage.rulesPassed')}</span>
           </div>
 
           <div className="w-px h-4" style={{ backgroundColor: 'var(--color-border)' }} />
@@ -153,7 +123,7 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({
             {threeLayerReport.totalActions === 0 ? (
               <>
                 <Minus size={14} style={{ color: 'var(--color-text-muted)' }} />
-                <span style={{ color: 'var(--color-text-muted)' }}>{t.actionsNotStarted}</span>
+                <span style={{ color: 'var(--color-text-muted)' }}>{t('deliveryPage.actionsNotStarted')}</span>
               </>
             ) : threeLayerReport.completeActions === threeLayerReport.totalActions ? (
               <>
@@ -161,7 +131,7 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({
                 <span style={{ color: 'var(--color-text-primary)' }}>
                   {threeLayerReport.completeActions}/{threeLayerReport.totalActions}
                 </span>
-                <span style={{ color: 'var(--color-text-muted)' }}>{t.actionsComplete}</span>
+                <span style={{ color: 'var(--color-text-muted)' }}>{t('deliveryPage.actionsComplete')}</span>
               </>
             ) : (
               <>
@@ -169,7 +139,7 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({
                 <span style={{ color: 'var(--color-text-primary)' }}>
                   {threeLayerReport.completeActions}/{threeLayerReport.totalActions}
                 </span>
-                <span style={{ color: 'var(--color-text-muted)' }}>{t.actionsComplete}</span>
+                <span style={{ color: 'var(--color-text-muted)' }}>{t('deliveryPage.actionsComplete')}</span>
               </>
             )}
           </div>
@@ -182,7 +152,7 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({
                 className="flex items-center gap-1 text-xs hover:underline"
                 style={{ color: 'var(--color-accent)' }}
               >
-                {t.viewDetails}
+                {t('deliveryPage.viewDetails')}
                 <ArrowRight size={12} />
               </button>
             </>
@@ -200,7 +170,6 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({
           }}
         >
           <DeliverableGenerator
-            lang={lang}
             project={project}
             embedded
           />

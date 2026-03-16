@@ -26,6 +26,27 @@ export interface EnrichedModelInfo {
   completionPrice?: number;
 }
 
+/** Options for AI service methods that accept a language preference. */
+export interface AICallOptions {
+  /** User's preferred language code (e.g., 'cn', 'en', 'fr'). Appended to system prompt. */
+  lang?: string;
+}
+
+const LANGUAGE_NAMES: Record<string, string> = {
+  cn: 'Chinese (中文)',
+  en: 'English',
+  fr: 'French (Français)',
+  es: 'Spanish (Español)',
+  ar: 'Arabic (العربية)',
+};
+
+/** Build a language preference hint to append to the system prompt. */
+function buildLanguageHint(lang?: string): string {
+  if (!lang) return '';
+  const name = LANGUAGE_NAMES[lang] || lang;
+  return `\n\nThe user's preferred language is ${name}. Please respond in that language.`;
+}
+
 // System Prompt - 方法论核心
 const SYSTEM_INSTRUCTION = `
 你是一位资深的Ontology架构师，专注于"Ontology-First"的企业智能系统设计。
@@ -433,10 +454,11 @@ export class AIService {
     return data.choices[0]?.message?.content || '';
   }
 
-  async chat(history: ChatMessage[], nextMessage: string): Promise<string> {
+  async chat(history: ChatMessage[], nextMessage: string, options?: AICallOptions): Promise<string> {
+    const langHint = buildLanguageHint(options?.lang);
     const messages = [
       ...history.map(m => ({ role: m.role, content: m.content })),
-      { role: 'user', content: nextMessage },
+      { role: 'user', content: nextMessage + langHint },
     ];
 
     try {
@@ -462,7 +484,8 @@ export class AIService {
   async chatWithFiles(
     history: ChatMessage[],
     nextMessage: string,
-    files: FileAttachment[]
+    files: FileAttachment[],
+    options?: AICallOptions
   ): Promise<string> {
     // If no binary files, use regular chat with text files appended
     const hasMultimodalFiles = files.some(f => f.isBase64);
@@ -473,7 +496,7 @@ export class AIService {
       for (const file of files) {
         enhancedMessage += `\n\n--- 附件: ${file.name} ---\n${file.content}\n--- 附件结束 ---`;
       }
-      return this.chat(history, enhancedMessage);
+      return this.chat(history, enhancedMessage, options);
     }
 
     // Handle multimodal content
@@ -784,9 +807,9 @@ export class AIService {
     return data.choices[0]?.message?.content || '';
   }
 
-  async designOntology(chatHistory: ChatMessage[]): Promise<string> {
+  async designOntology(chatHistory: ChatMessage[], options?: AICallOptions): Promise<string> {
     const historyText = chatHistory.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n');
-    const prompt = DESIGN_PROMPT_TEMPLATE(historyText);
+    const prompt = DESIGN_PROMPT_TEMPLATE(historyText) + buildLanguageHint(options?.lang);
 
     try {
       switch (this.settings.provider) {

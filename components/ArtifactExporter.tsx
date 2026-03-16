@@ -10,7 +10,8 @@
  */
 
 import React, { useState } from 'react';
-import { Language, ProjectState } from '../types';
+import { ProjectState } from '../types';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import {
   Download,
   FileText,
@@ -31,68 +32,15 @@ import { loadAuditLog, getChangeSummary, formatChangeForDisplay } from '../lib/c
 type ExportFormat = 'markdown' | 'json' | 'html' | 'mermaid' | 'integration-draft';
 
 interface ArtifactExporterProps {
-  lang: Language;
   project: ProjectState;
   onClose?: () => void;
 }
 
-const translations = {
-  en: {
-    title: 'Export Artifacts',
-    subtitle: 'Download your ontology design in various formats',
-    formats: 'Export Formats',
-    markdown: 'Markdown',
-    markdownDesc: 'Documentation format, good for wikis',
-    json: 'JSON',
-    jsonDesc: 'Machine-readable data format',
-    html: 'HTML Report',
-    htmlDesc: 'Standalone viewable report',
-    mermaid: 'Mermaid Diagram',
-    mermaidDesc: 'Flowchart diagram code',
-    integrationDraft: 'Integration Draft',
-    integrationDraftDesc: 'Comprehensive implementation document',
-    preview: 'Preview',
-    download: 'Download',
-    copy: 'Copy to Clipboard',
-    copied: 'Copied!',
-    generating: 'Generating...',
-    includeChangelog: 'Include Change History',
-    recentChanges: 'Recent Changes',
-    noChanges: 'No changes recorded',
-    close: 'Close'
-  },
-  cn: {
-    title: '导出 Artifacts',
-    subtitle: '以多种格式下载您的 Ontology 设计',
-    formats: '导出格式',
-    markdown: 'Markdown',
-    markdownDesc: '文档格式，适合 Wiki',
-    json: 'JSON',
-    jsonDesc: '机器可读数据格式',
-    html: 'HTML 报告',
-    htmlDesc: '独立可查看的报告',
-    mermaid: 'Mermaid 图表',
-    mermaidDesc: '流程图代码',
-    integrationDraft: '集成草案',
-    integrationDraftDesc: '完整的实施文档',
-    preview: '预览',
-    download: '下载',
-    copy: '复制到剪贴板',
-    copied: '已复制！',
-    generating: '生成中...',
-    includeChangelog: '包含变更历史',
-    recentChanges: '最近变更',
-    noChanges: '暂无变更记录',
-    close: '关闭'
-  }
-};
-
 const ArtifactExporter: React.FC<ArtifactExporterProps> = ({
-  lang,
   project,
   onClose
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('delivery');
   const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('markdown');
   const [previewContent, setPreviewContent] = useState<string>('');
   const [showPreview, setShowPreview] = useState(false);
@@ -109,11 +57,11 @@ const ArtifactExporter: React.FC<ArtifactExporterProps> = ({
     extension: string;
     mimeType: string;
   }> = [
-    { id: 'markdown', icon: FileText, label: t.markdown, desc: t.markdownDesc, extension: 'md', mimeType: 'text/markdown' },
-    { id: 'json', icon: FileJson, label: t.json, desc: t.jsonDesc, extension: 'json', mimeType: 'application/json' },
-    { id: 'html', icon: FileCode, label: t.html, desc: t.htmlDesc, extension: 'html', mimeType: 'text/html' },
-    { id: 'mermaid', icon: Image, label: t.mermaid, desc: t.mermaidDesc, extension: 'mmd', mimeType: 'text/plain' },
-    { id: 'integration-draft', icon: BookOpen, label: t.integrationDraft, desc: t.integrationDraftDesc, extension: 'md', mimeType: 'text/markdown' }
+    { id: 'markdown', icon: FileText, label: t('artifactExporter.markdown'), desc: t('artifactExporter.markdownDesc'), extension: 'md', mimeType: 'text/markdown' },
+    { id: 'json', icon: FileJson, label: t('artifactExporter.json'), desc: t('artifactExporter.jsonDesc'), extension: 'json', mimeType: 'application/json' },
+    { id: 'html', icon: FileCode, label: t('artifactExporter.html'), desc: t('artifactExporter.htmlDesc'), extension: 'html', mimeType: 'text/html' },
+    { id: 'mermaid', icon: Image, label: t('artifactExporter.mermaid'), desc: t('artifactExporter.mermaidDesc'), extension: 'mmd', mimeType: 'text/plain' },
+    { id: 'integration-draft', icon: BookOpen, label: t('artifactExporter.integrationDraft'), desc: t('artifactExporter.integrationDraftDesc'), extension: 'md', mimeType: 'text/markdown' }
   ];
 
   // Generate content based on format
@@ -495,10 +443,10 @@ const ArtifactExporter: React.FC<ArtifactExporterProps> = ({
       >
         <div>
           <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>
-            {t.title}
+            {t('artifactExporter.title')}
           </h2>
           <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
-            {t.subtitle}
+            {t('artifactExporter.subtitle')}
           </p>
         </div>
         {onClose && (
@@ -507,7 +455,7 @@ const ArtifactExporter: React.FC<ArtifactExporterProps> = ({
             className="px-3 py-1.5 text-xs rounded-lg transition-colors hover:bg-white/10"
             style={{ color: 'var(--color-text-muted)' }}
           >
-            {t.close}
+            {t('artifactExporter.close')}
           </button>
         )}
       </div>
@@ -516,7 +464,7 @@ const ArtifactExporter: React.FC<ArtifactExporterProps> = ({
         {/* Format Selection */}
         <div className="mb-6">
           <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--color-text-primary)' }}>
-            {t.formats}
+            {t('artifactExporter.formats')}
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
             {formats.map(format => (
@@ -565,7 +513,7 @@ const ArtifactExporter: React.FC<ArtifactExporterProps> = ({
               className="accent-[var(--color-accent)]"
             />
             <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-              {t.includeChangelog}
+              {t('artifactExporter.includeChangelog')}
             </span>
           </label>
         </div>
@@ -585,12 +533,12 @@ const ArtifactExporter: React.FC<ArtifactExporterProps> = ({
             {isGenerating ? (
               <>
                 <Loader2 size={16} className="animate-spin" />
-                {t.generating}
+                {t('artifactExporter.generating')}
               </>
             ) : (
               <>
                 <FileCheck size={16} />
-                {t.preview}
+                {t('artifactExporter.preview')}
               </>
             )}
           </button>
@@ -603,7 +551,7 @@ const ArtifactExporter: React.FC<ArtifactExporterProps> = ({
             }}
           >
             <Download size={16} />
-            {t.download}
+            {t('artifactExporter.download')}
           </button>
         </div>
 
@@ -612,7 +560,7 @@ const ArtifactExporter: React.FC<ArtifactExporterProps> = ({
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {t.preview}
+                {t('artifactExporter.preview')}
               </h3>
               <button
                 onClick={handleCopy}
@@ -622,12 +570,12 @@ const ArtifactExporter: React.FC<ArtifactExporterProps> = ({
                 {copied ? (
                   <>
                     <CheckCircle2 size={12} />
-                    {t.copied}
+                    {t('artifactExporter.copied')}
                   </>
                 ) : (
                   <>
                     <Copy size={12} />
-                    {t.copy}
+                    {t('artifactExporter.copy')}
                   </>
                 )}
               </button>

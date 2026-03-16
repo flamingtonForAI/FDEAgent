@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { Language, OntologyObject, AIPAction } from '../types';
+import { OntologyObject, AIPAction } from '../types';
 import {
   generateToolSpec,
   generateAllToolSpecs,
@@ -13,63 +13,14 @@ import {
   LangChainTool
 } from '../utils/toolGenerator';
 import { Bot, Copy, Download, Check, ChevronDown, ChevronRight, X, Code, Shield } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface ToolSpecViewerProps {
-  lang: Language;
   objects: OntologyObject[];
   selectedObjectId?: string;
   selectedAction?: AIPAction;
   onClose?: () => void;
 }
-
-const translations = {
-  en: {
-    title: 'Agent Tool Spec',
-    subtitle: 'Design specifications for development teams',
-    notice: 'These specifications are generated from your Action definitions (not AI-generated). Developers need to implement the actual business logic.',
-    format: 'Format',
-    copy: 'Copy',
-    copied: 'Copied!',
-    download: 'Download',
-    noActions: 'No actions defined yet',
-    fullSpec: 'All Tools',
-    singleAction: 'Single Tool',
-    singleObject: 'Object Tools',
-    tools: 'Tools',
-    governance: 'Governance',
-    preview: 'Preview',
-    codeGen: 'Code Generation',
-    pythonCode: 'Python (LangChain)',
-    tsCode: 'TypeScript (OpenAI)',
-    jsonSpec: 'JSON Spec',
-    tier: 'Tier',
-    approval: 'Approval',
-    risk: 'Risk'
-  },
-  cn: {
-    title: 'Agent Tool 规范',
-    subtitle: '交付给开发团队的设计规范',
-    notice: '以下规范基于您定义的 Action 自动转换生成（非 AI 生成）。开发团队需要根据此规范实现实际的业务逻辑。',
-    format: '格式',
-    copy: '复制',
-    copied: '已复制!',
-    download: '下载',
-    noActions: '尚未定义动作',
-    fullSpec: '所有工具',
-    singleAction: '单个工具',
-    singleObject: '对象工具',
-    tools: '工具',
-    governance: '治理',
-    preview: '预览',
-    codeGen: '代码生成',
-    pythonCode: 'Python (LangChain)',
-    tsCode: 'TypeScript (OpenAI)',
-    jsonSpec: 'JSON 规范',
-    tier: '等级',
-    approval: '审批',
-    risk: '风险'
-  }
-};
 
 type ViewMode = 'full' | 'object' | 'action';
 type OutputMode = 'json' | 'python' | 'typescript';
@@ -83,13 +34,12 @@ const formatLabels: Record<ToolFormat, string> = {
 };
 
 const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
-  lang,
   objects,
   selectedObjectId,
   selectedAction,
   onClose
 }) => {
-  const t = translations[lang];
+  const { t } = useAppTranslation('ai');
   const [format, setFormat] = useState<ToolFormat>('openai');
   const [outputMode, setOutputMode] = useState<OutputMode>('json');
   const [viewMode, setViewMode] = useState<ViewMode>('full');
@@ -229,8 +179,8 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
             <Bot size={20} className="text-amber-400" />
           </div>
           <div>
-            <h3 className="text-white font-medium">{t.title}</h3>
-            <p className="text-xs text-muted">{t.subtitle}</p>
+            <h3 className="text-white font-medium">{t('toolSpecViewer.title')}</h3>
+            <p className="text-xs text-muted">{t('toolSpecViewer.subtitle')}</p>
           </div>
         </div>
         {onClose && (
@@ -246,7 +196,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
       {/* Notice */}
       <div className="px-5 py-2 border-b border-white/[0.06]" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
         <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-          💡 {t.notice}
+          💡 {t('toolSpecViewer.notice')}
         </p>
       </div>
 
@@ -262,7 +212,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                 : 'text-muted hover:text-primary'
             }`}
           >
-            {t.fullSpec}
+            {t('toolSpecViewer.fullSpec')}
           </button>
           {selectedObject && (
             <button
@@ -273,7 +223,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                   : 'text-muted hover:text-primary'
               }`}
             >
-              {t.singleObject}
+              {t('toolSpecViewer.singleObject')}
             </button>
           )}
           {selectedAction && selectedObject && (
@@ -285,7 +235,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                   : 'text-muted hover:text-primary'
               }`}
             >
-              {t.singleAction}
+              {t('toolSpecViewer.singleAction')}
             </button>
           )}
         </div>
@@ -313,7 +263,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                   : 'text-muted hover:text-primary'
               }`}
             >
-              {t.jsonSpec}
+              {t('toolSpecViewer.jsonSpec')}
             </button>
             <button
               onClick={() => setOutputMode('python')}
@@ -346,7 +296,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium glass-surface text-muted hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
-            {copied ? t.copied : t.copy}
+            {copied ? t('toolSpecViewer.copied') : t('toolSpecViewer.copy')}
           </button>
 
           {/* Download Button */}
@@ -356,7 +306,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium btn-gradient disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             <Download size={12} />
-            {t.download}
+            {t('toolSpecViewer.download')}
           </button>
         </div>
       </div>
@@ -365,11 +315,11 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
       <div className="flex-1 overflow-y-auto">
         {!hasActions ? (
           <div className="flex items-center justify-center h-full text-muted text-sm">
-            {t.noActions}
+            {t('toolSpecViewer.noActions')}
           </div>
         ) : tools.length === 0 ? (
           <div className="flex items-center justify-center h-full text-muted text-sm">
-            {t.noActions}
+            {t('toolSpecViewer.noActions')}
           </div>
         ) : (
           <div className="p-4">
@@ -383,7 +333,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                 >
                   <div className="flex items-center gap-2">
                     {expandedSections.has('tools') ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                    <span className="text-sm font-medium text-white">{t.tools}</span>
+                    <span className="text-sm font-medium text-white">{t('toolSpecViewer.tools')}</span>
                     <span className="text-xs text-muted">({tools.length})</span>
                   </div>
                 </button>
@@ -424,7 +374,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                     <div className="flex items-center gap-2">
                       {expandedSections.has('governance') ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                       <Shield size={14} className="text-orange-400" />
-                      <span className="text-sm font-medium text-white">{t.governance}</span>
+                      <span className="text-sm font-medium text-white">{t('toolSpecViewer.governance')}</span>
                     </div>
                   </button>
                   {expandedSections.has('governance') && (
@@ -438,13 +388,13 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                             <div className="space-y-1 text-muted">
                               {tool.metadata?.permission_tier && (
                                 <div className="flex justify-between">
-                                  <span>{t.tier}:</span>
+                                  <span>{t('toolSpecViewer.tier')}:</span>
                                   <span className="text-white">{tool.metadata.permission_tier}</span>
                                 </div>
                               )}
                               {tool.metadata?.requires_human_approval !== undefined && (
                                 <div className="flex justify-between">
-                                  <span>{t.approval}:</span>
+                                  <span>{t('toolSpecViewer.approval')}:</span>
                                   <span className={tool.metadata.requires_human_approval ? 'text-amber-400' : 'text-emerald-400'}>
                                     {tool.metadata.requires_human_approval ? 'Yes' : 'No'}
                                   </span>
@@ -452,7 +402,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                               )}
                               {tool.metadata?.risk_level && (
                                 <div className="flex justify-between">
-                                  <span>{t.risk}:</span>
+                                  <span>{t('toolSpecViewer.risk')}:</span>
                                   <span className={
                                     tool.metadata.risk_level === 'high' ? 'text-red-400' :
                                     tool.metadata.risk_level === 'medium' ? 'text-amber-400' :
@@ -481,7 +431,7 @@ const ToolSpecViewer: React.FC<ToolSpecViewerProps> = ({
                     {expandedSections.has('code') ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                     <Code size={14} className="text-purple-400" />
                     <span className="text-sm font-medium text-white">
-                      {outputMode === 'json' ? t.preview : t.codeGen}
+                      {outputMode === 'json' ? t('toolSpecViewer.preview') : t('toolSpecViewer.codeGen')}
                     </span>
                   </div>
                 </button>

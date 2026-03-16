@@ -3,12 +3,12 @@
  * 用于 Phase 1 (发现) 的主内容区域，显示聊天消息
  */
 import React, { useRef, useEffect } from 'react';
-import { Language, ChatMessage, ProjectState } from '../types';
+import { ChatMessage, ProjectState } from '../types';
 import { Sparkles, Lightbulb, Wand2, Settings } from 'lucide-react';
 import MarkdownRenderer from './MarkdownRenderer';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface ChatMessagesPanelProps {
-  lang: Language;
   messages: ChatMessage[];
   project: ProjectState;
   isLoading?: boolean;
@@ -17,43 +17,8 @@ interface ChatMessagesPanelProps {
   onOpenSettings?: () => void;
 }
 
-const translations = {
-  en: {
-    title: "Requirement Discovery",
-    subtitle: "Describe your business challenges and needs",
-    welcome: "Welcome. I'm your Systems Architect. To design your Intelligent OS, I'll need to understand your core business entities, current data systems (ERPs, CRMs), and where your biggest manual bottlenecks lie. Shall we start with the main process you want to optimize?",
-    thinking: "Thinking...",
-    generateOntology: "Generate Ontology",
-    generateOntologyDesc: "Create from chat",
-    configureApi: "Configure API",
-    configureApiDesc: "Required",
-    needMoreChat: "Chat more to generate",
-    tips: [
-      "Describe your business process",
-      "Mention existing systems (ERP, CRM, etc.)",
-      "Share pain points and bottlenecks"
-    ]
-  },
-  cn: {
-    title: "需求发现",
-    subtitle: "描述您的业务挑战与需求",
-    welcome: "您好，我是您的系统架构师。为了设计您的智能操作系统，我需要了解您的核心业务实体、现有的数据系统（如 ERP、CRM）以及目前最大的业务瓶颈。我们先从您最想优化的核心流程开始，好吗？",
-    thinking: "思考中...",
-    generateOntology: "生成 Ontology",
-    generateOntologyDesc: "从对话生成",
-    configureApi: "配置 API",
-    configureApiDesc: "必需",
-    needMoreChat: "请先进行更多对话",
-    tips: [
-      "描述您的业务流程",
-      "提及现有系统（ERP、CRM等）",
-      "分享痛点和瓶颈"
-    ]
-  }
-};
 
 const ChatMessagesPanel: React.FC<ChatMessagesPanelProps> = ({
-  lang,
   messages,
   project,
   isLoading,
@@ -61,7 +26,7 @@ const ChatMessagesPanel: React.FC<ChatMessagesPanelProps> = ({
   onDesignTrigger,
   onOpenSettings
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('discovery');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // 滚动到底部
@@ -78,9 +43,9 @@ const ChatMessagesPanel: React.FC<ChatMessagesPanelProps> = ({
       >
         <div>
           <h1 className="text-lg font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-            {t.title}
+            {t('chatMessages.title')}
           </h1>
-          <p className="text-xs text-muted">{t.subtitle}</p>
+          <p className="text-xs text-muted">{t('chatMessages.subtitle')}</p>
         </div>
 
         {/* Action buttons - 与 Phase 2-4 tab 按钮风格一致 */}
@@ -93,8 +58,8 @@ const ChatMessagesPanel: React.FC<ChatMessagesPanelProps> = ({
             >
               <Settings size={16} />
               <div className="flex flex-col items-start">
-                <span>{t.configureApi}</span>
-                <span className="text-[10px] opacity-70">{t.configureApiDesc}</span>
+                <span>{t('chatMessages.configureApi')}</span>
+                <span className="text-[10px] opacity-70">{t('chatMessages.configureApiDesc')}</span>
               </div>
             </button>
           ) : messages.length >= 2 && onDesignTrigger ? (
@@ -109,8 +74,8 @@ const ChatMessagesPanel: React.FC<ChatMessagesPanelProps> = ({
             >
               <Wand2 size={16} />
               <div className="flex flex-col items-start">
-                <span>{t.generateOntology}</span>
-                <span className="text-[10px] opacity-70">{t.generateOntologyDesc}</span>
+                <span>{t('chatMessages.generateOntology')}</span>
+                <span className="text-[10px] opacity-70">{t('chatMessages.generateOntologyDesc')}</span>
               </div>
             </button>
           ) : messages.length > 0 ? (
@@ -120,8 +85,8 @@ const ChatMessagesPanel: React.FC<ChatMessagesPanelProps> = ({
             >
               <Wand2 size={16} className="opacity-50" />
               <div className="flex flex-col items-start">
-                <span className="opacity-70">{t.generateOntology}</span>
-                <span className="text-[10px] opacity-50">{t.needMoreChat}</span>
+                <span className="opacity-70">{t('chatMessages.generateOntology')}</span>
+                <span className="text-[10px] opacity-50">{t('chatMessages.needMoreChat')}</span>
               </div>
             </div>
           ) : null}
@@ -147,7 +112,7 @@ const ChatMessagesPanel: React.FC<ChatMessagesPanelProps> = ({
                 </div>
                 <div>
                   <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
-                    {t.welcome}
+                    {t('chatMessages.welcome')}
                   </p>
                 </div>
               </div>
@@ -161,7 +126,7 @@ const ChatMessagesPanel: React.FC<ChatMessagesPanelProps> = ({
               </span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {t.tips.map((tip, i) => (
+              {[t('chatMessages.tip1'), t('chatMessages.tip2'), t('chatMessages.tip3')].map((tip, i) => (
                 <span
                   key={i}
                   className="px-3 py-1.5 rounded-full text-xs"
@@ -234,7 +199,7 @@ const ChatMessagesPanel: React.FC<ChatMessagesPanelProps> = ({
                     <span className="w-2 h-2 rounded-full bg-current opacity-60 animate-bounce" style={{ animationDelay: '150ms' }} />
                     <span className="w-2 h-2 rounded-full bg-current opacity-60 animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
-                  <span style={{ color: 'var(--color-text-muted)' }}>{t.thinking}</span>
+                  <span style={{ color: 'var(--color-text-muted)' }}>{t('chatMessages.thinking')}</span>
                 </div>
               </div>
             </div>

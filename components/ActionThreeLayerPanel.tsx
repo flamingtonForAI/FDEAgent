@@ -1,84 +1,18 @@
 import React, { useMemo, useState } from 'react';
-import { Language, ProjectState } from '../types';
+import { ProjectState } from '../types';
 import { checkActionThreeLayers, ActionLayerStatus, ThreeLayerReport } from '../utils/qualityChecker';
 import {
   Layers, Briefcase, Cpu, Code,
   CheckCircle2, AlertCircle, XCircle,
   ChevronDown, ChevronRight, Info, Zap
 } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface ActionThreeLayerPanelProps {
-  lang: Language;
   project: ProjectState;
   compact?: boolean;
 }
 
-const translations = {
-  en: {
-    title: 'Action Three-Layer Check',
-    subtitle: 'Business → Logic → Implementation completeness',
-    noActions: 'No actions defined yet',
-    businessLayer: 'Business Layer',
-    logicLayer: 'Logic Layer',
-    implLayer: 'Implementation',
-    complete: 'Complete',
-    partial: 'Partial',
-    minimal: 'Minimal',
-    avgScore: 'Avg Score',
-    totalActions: 'Total Actions',
-    // Business layer items
-    description: 'Description',
-    targetObject: 'Target Object',
-    executorRole: 'Executor Role',
-    triggerCondition: 'Trigger',
-    // Logic layer items
-    preconditions: 'Preconditions',
-    parameters: 'Parameters',
-    postconditions: 'Postconditions',
-    sideEffects: 'Side Effects',
-    // Implementation layer items
-    apiEndpoint: 'API Endpoint',
-    apiMethod: 'HTTP Method',
-    agentToolSpec: 'Agent Tool Spec',
-    // Tips
-    tip: 'Tip',
-    businessTip: 'Define WHO can execute, WHAT it does, and WHEN it triggers',
-    logicTip: 'Define input parameters, preconditions, and state changes',
-    implTip: 'Define the API endpoint for system integration'
-  },
-  cn: {
-    title: 'Action 三层完整性检查',
-    subtitle: '业务层 → 逻辑层 → 实现层 完整度',
-    noActions: '尚未定义 Action',
-    businessLayer: '业务层',
-    logicLayer: '逻辑层',
-    implLayer: '实现层',
-    complete: '完整',
-    partial: '部分',
-    minimal: '待补充',
-    avgScore: '平均分',
-    totalActions: '总数',
-    // Business layer items
-    description: '业务描述',
-    targetObject: '目标对象',
-    executorRole: '执行角色',
-    triggerCondition: '触发条件',
-    // Logic layer items
-    preconditions: '前置条件',
-    parameters: '输入参数',
-    postconditions: '后置状态',
-    sideEffects: '副作用',
-    // Implementation layer items
-    apiEndpoint: 'API 端点',
-    apiMethod: 'HTTP 方法',
-    agentToolSpec: 'Agent Tool',
-    // Tips
-    tip: '提示',
-    businessTip: '定义谁可以执行、做什么、什么时候触发',
-    logicTip: '定义输入参数、前置条件和状态变更',
-    implTip: '定义 API 端点以便系统集成'
-  }
-};
 
 const StatusIcon: React.FC<{ status: 'complete' | 'partial' | 'minimal' }> = ({ status }) => {
   switch (status) {
@@ -119,11 +53,10 @@ const LayerBadge: React.FC<{ complete: boolean; score: number }> = ({ complete, 
 );
 
 const ActionThreeLayerPanel: React.FC<ActionThreeLayerPanelProps> = ({
-  lang,
   project,
   compact = false
 }) => {
-  const t = translations[lang];
+  const { t } = useAppTranslation('modeling');
   const [expandedActions, setExpandedActions] = useState<Set<string>>(new Set());
 
   const report = useMemo(() => {
@@ -149,7 +82,7 @@ const ActionThreeLayerPanel: React.FC<ActionThreeLayerPanelProps> = ({
         style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}
       >
         <Layers className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--color-text-muted)' }} />
-        <p style={{ color: 'var(--color-text-secondary)' }}>{t.noActions}</p>
+        <p style={{ color: 'var(--color-text-secondary)' }}>{t('actionThreeLayerPanel.noActions')}</p>
       </div>
     );
   }
@@ -165,7 +98,7 @@ const ActionThreeLayerPanel: React.FC<ActionThreeLayerPanelProps> = ({
           <div className="flex items-center gap-2">
             <Layers className="w-5 h-5" style={{ color: 'var(--color-accent)' }} />
             <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              {t.title}
+              {t('actionThreeLayerPanel.title')}
             </span>
           </div>
           <div
@@ -192,7 +125,7 @@ const ActionThreeLayerPanel: React.FC<ActionThreeLayerPanelProps> = ({
           <div className="p-2 rounded" style={{ backgroundColor: 'var(--color-bg-elevated)' }}>
             <div className="flex items-center gap-1 mb-1" style={{ color: 'var(--color-text-secondary)' }}>
               <Briefcase className="w-3 h-3" />
-              {t.businessLayer}
+              {t('actionThreeLayerPanel.businessLayer')}
             </div>
             <div className="flex items-center gap-2">
               <span className="font-medium" style={{ color: 'var(--color-success)' }}>
@@ -207,7 +140,7 @@ const ActionThreeLayerPanel: React.FC<ActionThreeLayerPanelProps> = ({
           <div className="p-2 rounded" style={{ backgroundColor: 'var(--color-bg-elevated)' }}>
             <div className="flex items-center gap-1 mb-1" style={{ color: 'var(--color-text-secondary)' }}>
               <Cpu className="w-3 h-3" />
-              {t.logicLayer}
+              {t('actionThreeLayerPanel.logicLayer')}
             </div>
             <div className="flex items-center gap-2">
               <span className="font-medium" style={{ color: 'var(--color-success)' }}>
@@ -222,7 +155,7 @@ const ActionThreeLayerPanel: React.FC<ActionThreeLayerPanelProps> = ({
           <div className="p-2 rounded" style={{ backgroundColor: 'var(--color-bg-elevated)' }}>
             <div className="flex items-center gap-1 mb-1" style={{ color: 'var(--color-text-secondary)' }}>
               <Code className="w-3 h-3" />
-              {t.implLayer}
+              {t('actionThreeLayerPanel.implLayer')}
             </div>
             <div className="flex items-center gap-2">
               <span className="font-medium" style={{ color: 'var(--color-success)' }}>
@@ -255,10 +188,10 @@ const ActionThreeLayerPanel: React.FC<ActionThreeLayerPanelProps> = ({
             </div>
             <div>
               <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {t.title}
+                {t('actionThreeLayerPanel.title')}
               </h3>
               <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                {t.subtitle}
+                {t('actionThreeLayerPanel.subtitle')}
               </p>
             </div>
           </div>
@@ -269,19 +202,19 @@ const ActionThreeLayerPanel: React.FC<ActionThreeLayerPanelProps> = ({
               <div className="text-lg font-bold" style={{ color: 'var(--color-success)' }}>
                 {report.completeActions}
               </div>
-              <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>{t.complete}</div>
+              <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>{t('actionThreeLayerPanel.complete')}</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-bold" style={{ color: 'var(--color-warning)' }}>
                 {report.partialActions}
               </div>
-              <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>{t.partial}</div>
+              <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>{t('actionThreeLayerPanel.partial')}</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-bold" style={{ color: 'var(--color-error)' }}>
                 {report.minimalActions}
               </div>
-              <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>{t.minimal}</div>
+              <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>{t('actionThreeLayerPanel.minimal')}</div>
             </div>
             <div
               className="px-3 py-2 rounded-lg text-center"
@@ -290,7 +223,7 @@ const ActionThreeLayerPanel: React.FC<ActionThreeLayerPanelProps> = ({
               <div className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
                 {report.averageScore}
               </div>
-              <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>{t.avgScore}</div>
+              <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>{t('actionThreeLayerPanel.avgScore')}</div>
             </div>
           </div>
         </div>
@@ -305,7 +238,7 @@ const ActionThreeLayerPanel: React.FC<ActionThreeLayerPanelProps> = ({
           <div className="flex items-center gap-2 mb-2">
             <Briefcase className="w-4 h-4" style={{ color: 'var(--color-accent)' }} />
             <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              {t.businessLayer}
+              {t('actionThreeLayerPanel.businessLayer')}
             </span>
           </div>
           <div className="flex items-center gap-2 text-xs">
@@ -318,7 +251,7 @@ const ActionThreeLayerPanel: React.FC<ActionThreeLayerPanelProps> = ({
           <div className="flex items-center gap-2 mb-2">
             <Cpu className="w-4 h-4" style={{ color: 'var(--color-accent)' }} />
             <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              {t.logicLayer}
+              {t('actionThreeLayerPanel.logicLayer')}
             </span>
           </div>
           <div className="flex items-center gap-2 text-xs">
@@ -331,7 +264,7 @@ const ActionThreeLayerPanel: React.FC<ActionThreeLayerPanelProps> = ({
           <div className="flex items-center gap-2 mb-2">
             <Code className="w-4 h-4" style={{ color: 'var(--color-accent)' }} />
             <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              {t.implLayer}
+              {t('actionThreeLayerPanel.implLayer')}
             </span>
           </div>
           <div className="flex items-center gap-2 text-xs">
@@ -405,21 +338,21 @@ const ActionThreeLayerPanel: React.FC<ActionThreeLayerPanelProps> = ({
                       <div className="flex items-center gap-2 mb-2">
                         <Briefcase className="w-4 h-4" style={{ color: 'var(--color-accent)' }} />
                         <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                          {t.businessLayer}
+                          {t('actionThreeLayerPanel.businessLayer')}
                         </span>
                       </div>
                       <div className="space-y-1.5">
-                        <CheckItem checked={action.businessLayer.hasDescription} label={t.description} />
-                        <CheckItem checked={action.businessLayer.hasTargetObject} label={t.targetObject} />
-                        <CheckItem checked={action.businessLayer.hasExecutorRole} label={t.executorRole} />
-                        <CheckItem checked={action.businessLayer.hasTriggerCondition} label={t.triggerCondition} />
+                        <CheckItem checked={action.businessLayer.hasDescription} label={t('actionThreeLayerPanel.description')} />
+                        <CheckItem checked={action.businessLayer.hasTargetObject} label={t('actionThreeLayerPanel.targetObject')} />
+                        <CheckItem checked={action.businessLayer.hasExecutorRole} label={t('actionThreeLayerPanel.executorRole')} />
+                        <CheckItem checked={action.businessLayer.hasTriggerCondition} label={t('actionThreeLayerPanel.triggerCondition')} />
                       </div>
                       <div
                         className="mt-2 pt-2 border-t text-xs"
                         style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}
                       >
                         <Info className="inline w-3 h-3 mr-1" />
-                        {t.businessTip}
+                        {t('actionThreeLayerPanel.businessTip')}
                       </div>
                     </div>
 
@@ -431,21 +364,21 @@ const ActionThreeLayerPanel: React.FC<ActionThreeLayerPanelProps> = ({
                       <div className="flex items-center gap-2 mb-2">
                         <Cpu className="w-4 h-4" style={{ color: 'var(--color-accent)' }} />
                         <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                          {t.logicLayer}
+                          {t('actionThreeLayerPanel.logicLayer')}
                         </span>
                       </div>
                       <div className="space-y-1.5">
-                        <CheckItem checked={action.logicLayer.hasPreconditions} label={t.preconditions} />
-                        <CheckItem checked={action.logicLayer.hasParameters} label={t.parameters} />
-                        <CheckItem checked={action.logicLayer.hasPostconditions} label={t.postconditions} />
-                        <CheckItem checked={action.logicLayer.hasSideEffects} label={t.sideEffects} optional />
+                        <CheckItem checked={action.logicLayer.hasPreconditions} label={t('actionThreeLayerPanel.preconditions')} />
+                        <CheckItem checked={action.logicLayer.hasParameters} label={t('actionThreeLayerPanel.parameters')} />
+                        <CheckItem checked={action.logicLayer.hasPostconditions} label={t('actionThreeLayerPanel.postconditions')} />
+                        <CheckItem checked={action.logicLayer.hasSideEffects} label={t('actionThreeLayerPanel.sideEffects')} optional />
                       </div>
                       <div
                         className="mt-2 pt-2 border-t text-xs"
                         style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}
                       >
                         <Info className="inline w-3 h-3 mr-1" />
-                        {t.logicTip}
+                        {t('actionThreeLayerPanel.logicTip')}
                       </div>
                     </div>
 
@@ -457,20 +390,20 @@ const ActionThreeLayerPanel: React.FC<ActionThreeLayerPanelProps> = ({
                       <div className="flex items-center gap-2 mb-2">
                         <Code className="w-4 h-4" style={{ color: 'var(--color-accent)' }} />
                         <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                          {t.implLayer}
+                          {t('actionThreeLayerPanel.implLayer')}
                         </span>
                       </div>
                       <div className="space-y-1.5">
-                        <CheckItem checked={action.implementationLayer.hasApiEndpoint} label={t.apiEndpoint} />
-                        <CheckItem checked={action.implementationLayer.hasApiMethod} label={t.apiMethod} />
-                        <CheckItem checked={action.implementationLayer.hasAgentToolSpec} label={t.agentToolSpec} optional />
+                        <CheckItem checked={action.implementationLayer.hasApiEndpoint} label={t('actionThreeLayerPanel.apiEndpoint')} />
+                        <CheckItem checked={action.implementationLayer.hasApiMethod} label={t('actionThreeLayerPanel.apiMethod')} />
+                        <CheckItem checked={action.implementationLayer.hasAgentToolSpec} label={t('actionThreeLayerPanel.agentToolSpec')} optional />
                       </div>
                       <div
                         className="mt-2 pt-2 border-t text-xs"
                         style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}
                       >
                         <Info className="inline w-3 h-3 mr-1" />
-                        {t.implTip}
+                        {t('actionThreeLayerPanel.implTip')}
                       </div>
                     </div>
                   </div>

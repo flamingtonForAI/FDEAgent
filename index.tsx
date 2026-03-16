@@ -1,6 +1,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './lib/i18n'; // Initialize i18next before app renders
 import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
 

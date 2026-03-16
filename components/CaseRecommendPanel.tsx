@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Language } from '../types';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import { OntologyCase, industryConfig, difficultyConfig } from '../types/case';
 import { getCaseById } from '../content/cases';
 import {
@@ -10,37 +10,12 @@ import {
 } from 'lucide-react';
 
 interface CaseRecommendPanelProps {
-  lang: Language;
   recommendedCaseIds: string[];
   keywords: string[];
   onClose: () => void;
   onViewCase?: (caseData: OntologyCase) => void;
 }
 
-const translations = {
-  en: {
-    title: 'Recommended Cases',
-    subtitle: 'Similar Ontology designs for reference',
-    keywords: 'Detected Keywords',
-    noRecommendations: 'No recommendations yet',
-    keepTalking: 'Keep describing your business scenario',
-    viewDetails: 'View Details',
-    objects: 'Objects',
-    actions: 'Actions',
-    highlights: 'Key Highlights'
-  },
-  cn: {
-    title: '推荐案例',
-    subtitle: '可参考的相似 Ontology 设计',
-    keywords: '识别到的关键词',
-    noRecommendations: '暂无推荐',
-    keepTalking: '继续描述你的业务场景',
-    viewDetails: '查看详情',
-    objects: '对象',
-    actions: '动作',
-    highlights: '设计亮点'
-  }
-};
 
 // Industry icons
 const industryIcons: Record<string, React.ReactNode> = {
@@ -64,13 +39,12 @@ const industryColors: Record<string, string> = {
 };
 
 const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
-  lang,
   recommendedCaseIds,
   keywords,
   onClose,
   onViewCase
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('discovery');
   const [expandedCase, setExpandedCase] = useState<string | null>(null);
 
   // Get full case data for recommended cases
@@ -87,8 +61,8 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
             <Lightbulb size={16} className="text-amber-400" />
           </div>
           <div>
-            <h3 className="text-sm font-medium text-white">{t.title}</h3>
-            <p className="text-micro text-muted">{t.subtitle}</p>
+            <h3 className="text-sm font-medium text-white">{t('caseRecommend.title')}</h3>
+            <p className="text-micro text-muted">{t('caseRecommend.subtitle')}</p>
           </div>
         </div>
         <button
@@ -102,7 +76,7 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
       {/* Keywords */}
       {keywords.length > 0 && (
         <div className="px-4 py-3 border-b border-white/[0.06]">
-          <div className="text-micro text-muted mb-2">{t.keywords}</div>
+          <div className="text-micro text-muted mb-2">{t('caseRecommend.keywords')}</div>
           <div className="flex flex-wrap gap-1">
             {keywords.slice(0, 6).map((kw, i) => (
               <span
@@ -121,8 +95,8 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
         {recommendedCases.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-muted px-4">
             <Lightbulb size={32} className="mb-3 opacity-30" />
-            <p className="text-sm text-center">{t.noRecommendations}</p>
-            <p className="text-xs text-center mt-1 text-muted">{t.keepTalking}</p>
+            <p className="text-sm text-center">{t('caseRecommend.noRecommendations')}</p>
+            <p className="text-xs text-center mt-1 text-muted">{t('caseRecommend.keepTalking')}</p>
           </div>
         ) : (
           recommendedCases.map(caseData => {
@@ -150,10 +124,10 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
                       {industryConfig[industry]?.label[lang] || industry}
                     </p>
                     <div className="flex items-center gap-2 mt-1.5 text-micro text-muted">
-                      <span>{caseData.ontology.objects.length} {t.objects}</span>
+                      <span>{caseData.ontology.objects.length} {t('caseRecommend.objects')}</span>
                       <span>•</span>
                       <span>
-                        {caseData.ontology.objects.reduce((sum, o) => sum + (o.actions?.length || 0), 0)} {t.actions}
+                        {caseData.ontology.objects.reduce((sum, o) => sum + (o.actions?.length || 0), 0)} {t('caseRecommend.actions')}
                       </span>
                     </div>
                   </div>
@@ -176,7 +150,7 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
                     <div>
                       <div className="text-micro text-muted mb-1.5 flex items-center gap-1">
                         <BookOpen size={10} />
-                        {t.highlights}
+                        {t('caseRecommend.highlights')}
                       </div>
                       <div className="space-y-1">
                         {caseData.highlights.slice(0, 2).map((h, i) => (
@@ -197,7 +171,7 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
                         onClick={() => onViewCase(caseData)}
                         className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 transition-colors"
                       >
-                        {t.viewDetails}
+                        {t('caseRecommend.viewDetails')}
                         <ExternalLink size={12} />
                       </button>
                     )}

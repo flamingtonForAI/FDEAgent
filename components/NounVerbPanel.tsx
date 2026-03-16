@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { Language } from '../types';
 import { Box, Zap, Plus, X, Loader2, ChevronRight, ChevronDown } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface ExtractedNoun {
   name: string;
@@ -17,7 +17,6 @@ interface ExtractedVerb {
 }
 
 interface NounVerbPanelProps {
-  lang: Language;
   nouns: ExtractedNoun[];
   verbs: ExtractedVerb[];
   isExtracting: boolean;
@@ -28,33 +27,7 @@ interface NounVerbPanelProps {
   onClose: () => void;
 }
 
-const translations = {
-  en: {
-    title: 'Extracted Elements',
-    objects: 'Objects (Nouns)',
-    actions: 'Actions (Verbs)',
-    noItems: 'No items extracted yet',
-    extracting: 'Analyzing...',
-    addToOntology: 'Add to Ontology',
-    confidence: 'Confidence',
-    target: 'Target',
-    tip: 'Click + to add to your Ontology design'
-  },
-  cn: {
-    title: '提取的元素',
-    objects: '对象（名词）',
-    actions: '动作（动词）',
-    noItems: '暂未提取到元素',
-    extracting: '正在分析...',
-    addToOntology: '添加到 Ontology',
-    confidence: '置信度',
-    target: '目标',
-    tip: '点击 + 添加到您的 Ontology 设计'
-  }
-};
-
 const NounVerbPanel: React.FC<NounVerbPanelProps> = ({
-  lang,
   nouns,
   verbs,
   isExtracting,
@@ -64,7 +37,7 @@ const NounVerbPanel: React.FC<NounVerbPanelProps> = ({
   onDismissVerb,
   onClose
 }) => {
-  const t = translations[lang];
+  const { t } = useAppTranslation('modeling');
   const [expandedNouns, setExpandedNouns] = React.useState(true);
   const [expandedVerbs, setExpandedVerbs] = React.useState(true);
 
@@ -84,7 +57,7 @@ const NounVerbPanel: React.FC<NounVerbPanelProps> = ({
     <div className="glass-card rounded-2xl overflow-hidden h-full flex flex-col">
       {/* Header */}
       <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between">
-        <h3 className="text-sm font-medium text-white">{t.title}</h3>
+        <h3 className="text-sm font-medium text-white">{t('nounVerbPanel.title')}</h3>
         <button
           onClick={onClose}
           className="text-muted hover:text-primary transition-colors"
@@ -98,11 +71,11 @@ const NounVerbPanel: React.FC<NounVerbPanelProps> = ({
         {isExtracting ? (
           <div className="flex flex-col items-center justify-center py-8 text-muted">
             <Loader2 size={24} className="animate-spin mb-2" />
-            <span className="text-sm">{t.extracting}</span>
+            <span className="text-sm">{t('nounVerbPanel.extracting')}</span>
           </div>
         ) : nouns.length === 0 && verbs.length === 0 ? (
           <div className="text-center py-8 text-muted text-sm">
-            {t.noItems}
+            {t('nounVerbPanel.noItems')}
           </div>
         ) : (
           <>
@@ -115,7 +88,7 @@ const NounVerbPanel: React.FC<NounVerbPanelProps> = ({
                 {expandedNouns ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                 <Box size={14} className="text-amber-400" />
                 <span className="text-xs font-medium text-muted">
-                  {t.objects} ({nouns.length})
+                  {t('nounVerbPanel.objects')} ({nouns.length})
                 </span>
               </button>
 
@@ -144,7 +117,7 @@ const NounVerbPanel: React.FC<NounVerbPanelProps> = ({
                           <button
                             onClick={() => onAddNoun(noun)}
                             className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 transition-colors"
-                            title={t.addToOntology}
+                            title={t('nounVerbPanel.addToOntology')}
                           >
                             <Plus size={12} />
                           </button>
@@ -171,7 +144,7 @@ const NounVerbPanel: React.FC<NounVerbPanelProps> = ({
                 {expandedVerbs ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                 <Zap size={14} className="text-emerald-400" />
                 <span className="text-xs font-medium text-muted">
-                  {t.actions} ({verbs.length})
+                  {t('nounVerbPanel.actions')} ({verbs.length})
                 </span>
               </button>
 
@@ -205,7 +178,7 @@ const NounVerbPanel: React.FC<NounVerbPanelProps> = ({
                           <button
                             onClick={() => onAddVerb(verb)}
                             className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-colors"
-                            title={t.addToOntology}
+                            title={t('nounVerbPanel.addToOntology')}
                           >
                             <Plus size={12} />
                           </button>
@@ -229,7 +202,7 @@ const NounVerbPanel: React.FC<NounVerbPanelProps> = ({
       {/* Footer tip */}
       {(nouns.length > 0 || verbs.length > 0) && (
         <div className="px-4 py-2 border-t border-white/[0.06] bg-white/[0.02]">
-          <p className="text-micro text-muted text-center">{t.tip}</p>
+          <p className="text-micro text-muted text-center">{t('nounVerbPanel.tip')}</p>
         </div>
       )}
     </div>

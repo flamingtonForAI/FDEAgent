@@ -1,9 +1,8 @@
 import React from 'react';
 import ChatMessagesPanel from '../components/ChatMessagesPanel';
-import type { ProjectState, ChatMessage, Language } from '../types';
+import type { ProjectState, ChatMessage } from '../types';
 
 interface ScoutingPageProps {
-  lang: Language;
   messages: ChatMessage[];
   project: ProjectState;
   isLoading: boolean;
@@ -17,7 +16,6 @@ interface ScoutingPageProps {
  * 对话式需求收集，AI 引导识别 Objects & Actions
  */
 export const ScoutingPage: React.FC<ScoutingPageProps> = ({
-  lang,
   messages,
   project,
   isLoading,
@@ -26,7 +24,6 @@ export const ScoutingPage: React.FC<ScoutingPageProps> = ({
   onOpenSettings,
 }) => (
   <ChatMessagesPanel
-    lang={lang}
     messages={messages}
     project={project}
     isLoading={isLoading}

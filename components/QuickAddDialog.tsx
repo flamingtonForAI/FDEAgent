@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Package, Link2, Zap } from 'lucide-react';
-import { Language, OntologyObject, OntologyLink, AIPAction } from '../types';
+import { OntologyObject, OntologyLink, AIPAction } from '../types';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 type AddType = 'object' | 'link' | 'action';
 
 interface QuickAddDialogProps {
   type: AddType;
-  lang: Language;
   objects: OntologyObject[];  // 用于 link/action 的对象选择
   onClose: () => void;
   onAddObject: (obj: Partial<OntologyObject>) => void;
@@ -14,65 +14,15 @@ interface QuickAddDialogProps {
   onAddAction: (objectId: string, action: Partial<AIPAction>) => void;
 }
 
-const translations = {
-  en: {
-    addObject: 'Add Object',
-    addLink: 'Add Link',
-    addAction: 'Add Action',
-    name: 'Name',
-    description: 'Description',
-    sourceObject: 'Source Object',
-    targetObject: 'Target Object',
-    relationLabel: 'Relation Label',
-    targetObjectAction: 'Target Object',
-    actionType: 'Action Type',
-    traditional: 'Traditional',
-    generative: 'AI Generative',
-    cancel: 'Cancel',
-    add: 'Add',
-    namePlaceholder: 'e.g., Order, Customer, Product',
-    descPlaceholder: 'Brief description of this element',
-    relationPlaceholder: 'e.g., contains, references, generates',
-    actionNamePlaceholder: 'e.g., Approve, Submit, Cancel',
-    selectObject: 'Select an object',
-    noObjects: 'Please add objects first',
-    needTwoObjects: 'Need at least 2 objects to create a link',
-  },
-  cn: {
-    addObject: '添加对象',
-    addLink: '添加关系',
-    addAction: '添加动作',
-    name: '名称',
-    description: '描述',
-    sourceObject: '源对象',
-    targetObject: '目标对象',
-    relationLabel: '关系标签',
-    targetObjectAction: '所属对象',
-    actionType: '动作类型',
-    traditional: '传统动作',
-    generative: 'AI 生成',
-    cancel: '取消',
-    add: '添加',
-    namePlaceholder: '例如：订单、客户、产品',
-    descPlaceholder: '简要描述这个元素',
-    relationPlaceholder: '例如：包含、关联、生成',
-    actionNamePlaceholder: '例如：审批、提交、取消',
-    selectObject: '请选择对象',
-    noObjects: '请先添加对象',
-    needTwoObjects: '需要至少2个对象才能创建关系',
-  }
-};
-
 const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
   type,
-  lang,
   objects,
   onClose,
   onAddObject,
   onAddLink,
   onAddAction
 }) => {
-  const t = translations[lang];
+  const { t } = useAppTranslation('modeling');
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Object form state
@@ -150,9 +100,9 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
 
   const getTitle = () => {
     switch (type) {
-      case 'object': return t.addObject;
-      case 'link': return t.addLink;
-      case 'action': return t.addAction;
+      case 'object': return t('quickAddDialog.addObject');
+      case 'link': return t('quickAddDialog.addLink');
+      case 'action': return t('quickAddDialog.addAction');
     }
   };
 
@@ -202,14 +152,14 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
             <>
               <div>
                 <label className="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">
-                  {t.name} *
+                  {t('quickAddDialog.name')} *
                 </label>
                 <input
                   ref={inputRef}
                   type="text"
                   value={objectName}
                   onChange={e => setObjectName(e.target.value)}
-                  placeholder={t.namePlaceholder}
+                  placeholder={t('quickAddDialog.namePlaceholder')}
                   className="w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none focus:ring-2"
                   style={{
                     backgroundColor: 'var(--color-bg-surface)',
@@ -220,12 +170,12 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
               </div>
               <div>
                 <label className="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">
-                  {t.description}
+                  {t('quickAddDialog.description')}
                 </label>
                 <textarea
                   value={objectDesc}
                   onChange={e => setObjectDesc(e.target.value)}
-                  placeholder={t.descPlaceholder}
+                  placeholder={t('quickAddDialog.descPlaceholder')}
                   rows={2}
                   className="w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none focus:ring-2 resize-none"
                   style={{
@@ -246,13 +196,13 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
                   style={{ backgroundColor: 'var(--color-bg-surface)' }}
                 >
                   <Link2 size={32} className="mx-auto mb-2 text-muted" />
-                  <p className="text-sm text-muted">{t.needTwoObjects}</p>
+                  <p className="text-sm text-muted">{t('quickAddDialog.needTwoObjects')}</p>
                 </div>
               ) : (
                 <>
                   <div>
                     <label className="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">
-                      {t.sourceObject} *
+                      {t('quickAddDialog.sourceObject')} *
                     </label>
                     <select
                       ref={inputRef as any}
@@ -265,7 +215,7 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
                         color: 'var(--color-text-primary)'
                       }}
                     >
-                      <option value="">{t.selectObject}</option>
+                      <option value="">{t('quickAddDialog.selectObject')}</option>
                       {objects.map(obj => (
                         <option key={obj.id} value={obj.name}>{obj.name}</option>
                       ))}
@@ -273,13 +223,13 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">
-                      {t.relationLabel} *
+                      {t('quickAddDialog.relationLabel')} *
                     </label>
                     <input
                       type="text"
                       value={linkLabel}
                       onChange={e => setLinkLabel(e.target.value)}
-                      placeholder={t.relationPlaceholder}
+                      placeholder={t('quickAddDialog.relationPlaceholder')}
                       className="w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none focus:ring-2"
                       style={{
                         backgroundColor: 'var(--color-bg-surface)',
@@ -290,7 +240,7 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">
-                      {t.targetObject} *
+                      {t('quickAddDialog.targetObject')} *
                     </label>
                     <select
                       value={linkTarget}
@@ -302,7 +252,7 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
                         color: 'var(--color-text-primary)'
                       }}
                     >
-                      <option value="">{t.selectObject}</option>
+                      <option value="">{t('quickAddDialog.selectObject')}</option>
                       {objects.map(obj => (
                         <option key={obj.id} value={obj.name}>{obj.name}</option>
                       ))}
@@ -321,13 +271,13 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
                   style={{ backgroundColor: 'var(--color-bg-surface)' }}
                 >
                   <Zap size={32} className="mx-auto mb-2 text-muted" />
-                  <p className="text-sm text-muted">{t.noObjects}</p>
+                  <p className="text-sm text-muted">{t('quickAddDialog.noObjects')}</p>
                 </div>
               ) : (
                 <>
                   <div>
                     <label className="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">
-                      {t.targetObjectAction} *
+                      {t('quickAddDialog.targetObjectAction')} *
                     </label>
                     <select
                       ref={inputRef as any}
@@ -340,7 +290,7 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
                         color: 'var(--color-text-primary)'
                       }}
                     >
-                      <option value="">{t.selectObject}</option>
+                      <option value="">{t('quickAddDialog.selectObject')}</option>
                       {objects.map(obj => (
                         <option key={obj.id} value={obj.id}>{obj.name}</option>
                       ))}
@@ -348,13 +298,13 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">
-                      {t.name} *
+                      {t('quickAddDialog.name')} *
                     </label>
                     <input
                       type="text"
                       value={actionName}
                       onChange={e => setActionName(e.target.value)}
-                      placeholder={t.actionNamePlaceholder}
+                      placeholder={t('quickAddDialog.actionNamePlaceholder')}
                       className="w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none focus:ring-2"
                       style={{
                         backgroundColor: 'var(--color-bg-surface)',
@@ -365,12 +315,12 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">
-                      {t.description}
+                      {t('quickAddDialog.description')}
                     </label>
                     <textarea
                       value={actionDesc}
                       onChange={e => setActionDesc(e.target.value)}
-                      placeholder={t.descPlaceholder}
+                      placeholder={t('quickAddDialog.descPlaceholder')}
                       rows={2}
                       className="w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none focus:ring-2 resize-none"
                       style={{
@@ -382,7 +332,7 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-muted mb-1.5 uppercase tracking-wider">
-                      {t.actionType}
+                      {t('quickAddDialog.actionType')}
                     </label>
                     <div className="flex gap-3">
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -394,7 +344,7 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
                           className="accent-[var(--color-accent)]"
                         />
                         <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                          {t.traditional}
+                          {t('quickAddDialog.traditional')}
                         </span>
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -406,7 +356,7 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
                           className="accent-[var(--color-accent)]"
                         />
                         <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                          {t.generative}
+                          {t('quickAddDialog.generative')}
                         </span>
                       </label>
                     </div>
@@ -427,7 +377,7 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
             className="px-4 py-2 text-sm rounded-lg transition-colors hover:bg-[var(--color-bg-hover)]"
             style={{ color: 'var(--color-text-muted)' }}
           >
-            {t.cancel}
+            {t('quickAddDialog.cancel')}
           </button>
           <button
             onClick={handleSubmit}
@@ -438,7 +388,7 @@ const QuickAddDialog: React.FC<QuickAddDialogProps> = ({
               color: canSubmit() ? '#fff' : 'var(--color-text-muted)'
             }}
           >
-            {t.add}
+            {t('quickAddDialog.add')}
           </button>
         </div>
       </div>

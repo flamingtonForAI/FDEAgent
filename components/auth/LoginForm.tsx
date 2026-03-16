@@ -7,43 +7,12 @@ import { Mail, Lock, LogIn, Eye, EyeOff } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { useAuth } from '../../contexts/AuthContext';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
   onSuccess?: () => void;
-  lang?: 'en' | 'cn';
 }
-
-const translations = {
-  en: {
-    title: 'Welcome Back',
-    subtitle: 'Sign in to sync your projects across devices',
-    email: 'Email',
-    emailPlaceholder: 'Enter your email',
-    password: 'Password',
-    passwordPlaceholder: 'Enter your password',
-    login: 'Sign In',
-    noAccount: "Don't have an account?",
-    register: 'Create one',
-    forgotPassword: 'Forgot password?',
-    demoAccount: 'Demo Account',
-    demoHint: 'Click to auto-fill credentials',
-  },
-  cn: {
-    title: '欢迎回来',
-    subtitle: '登录以在多设备间同步您的项目',
-    email: '邮箱',
-    emailPlaceholder: '请输入邮箱',
-    password: '密码',
-    passwordPlaceholder: '请输入密码',
-    login: '登录',
-    noAccount: '还没有账号？',
-    register: '立即注册',
-    forgotPassword: '忘记密码？',
-    demoAccount: '测试账号',
-    demoHint: '点击自动填充',
-  },
-};
 
 const DEMO_ACCOUNT = {
   email: 'demo@example.com',
@@ -53,7 +22,6 @@ const DEMO_ACCOUNT = {
 export const LoginForm: React.FC<LoginFormProps> = ({
   onSwitchToRegister,
   onSuccess,
-  lang = 'cn',
 }) => {
   const { login, isLoading, error, clearError } = useAuth();
   const [email, setEmail] = useState('');
@@ -61,7 +29,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const t = translations[lang];
+  const { t } = useAppTranslation('common');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,12 +38,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
     // Basic validation
     if (!email.trim()) {
-      setValidationError(lang === 'cn' ? '请输入邮箱' : 'Email is required');
+      setValidationError(t('auth.validation.emailRequired'));
       return;
     }
 
     if (!password) {
-      setValidationError(lang === 'cn' ? '请输入密码' : 'Password is required');
+      setValidationError(t('auth.validation.passwordRequired'));
       return;
     }
 
@@ -92,28 +60,28 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h2>
-        <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>{t.subtitle}</p>
+        <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>{t('auth.login.title')}</h2>
+        <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>{t('auth.login.subtitle')}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <Input
-          label={t.email}
+          label={t('auth.login.email')}
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder={t.emailPlaceholder}
+          placeholder={t('auth.login.emailPlaceholder')}
           leftIcon={<Mail size={16} />}
           autoComplete="email"
           disabled={isLoading}
         />
 
         <Input
-          label={t.password}
+          label={t('auth.login.password')}
           type={showPassword ? 'text' : 'password'}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder={t.passwordPlaceholder}
+          placeholder={t('auth.login.passwordPlaceholder')}
           leftIcon={<Lock size={16} />}
           rightIcon={
             <button
@@ -144,13 +112,13 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           icon={<LogIn size={16} />}
           size="lg"
         >
-          {t.login}
+          {t('auth.login.login')}
         </Button>
       </form>
 
       <div className="mt-6 text-center">
         <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-          {t.noAccount}{' '}
+          {t('auth.login.noAccount')}{' '}
           <button
             type="button"
             onClick={onSwitchToRegister}
@@ -159,14 +127,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
             onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
           >
-            {t.register}
+            {t('auth.login.register')}
           </button>
         </p>
       </div>
 
       {/* Demo Account Section */}
       <div className="mt-8 pt-6" style={{ borderTop: '1px solid var(--color-border)' }}>
-        <p className="text-xs text-center mb-3" style={{ color: 'var(--color-text-muted)' }}>{t.demoAccount}</p>
+        <p className="text-xs text-center mb-3" style={{ color: 'var(--color-text-muted)' }}>{t('auth.login.demoAccount')}</p>
         <button
           type="button"
           onClick={() => {
@@ -199,7 +167,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               </div>
             </div>
             <span className="text-xs" style={{ color: 'var(--color-accent)', opacity: 0.7 }}>
-              {t.demoHint}
+              {t('auth.login.demoHint')}
             </span>
           </div>
         </button>

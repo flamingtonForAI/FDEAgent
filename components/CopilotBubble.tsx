@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Language, ProjectState, ChatMessage } from '../types';
+import { ProjectState, ChatMessage } from '../types';
 import {
   checkMethodology,
   MethodologyCheckResult,
@@ -26,11 +26,11 @@ import {
   Circle,
   HelpCircle
 } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 type NavigableTab = 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aiEnhancement' | 'overview';
 
 interface CopilotBubbleProps {
-  lang: Language;
   project: ProjectState;
   messages: ChatMessage[];
   onNavigate: (tab: NavigableTab) => void;
@@ -38,46 +38,15 @@ interface CopilotBubbleProps {
   compact?: boolean;
 }
 
-const translations = {
-  en: {
-    copilot: 'Design Copilot',
-    currentStage: 'Current Stage',
-    progress: 'Progress',
-    suggestions: 'Suggestions',
-    warnings: 'Attention',
-    noSuggestions: 'Looking good! Continue with your design.',
-    stageTip: 'Stage',
-    askQuestion: 'Ask',
-    goTo: 'Go to',
-    dismiss: 'Dismiss',
-    showMore: 'Show more',
-    showLess: 'Show less'
-  },
-  cn: {
-    copilot: '设计助手',
-    currentStage: '当前阶段',
-    progress: '进度',
-    suggestions: '建议',
-    warnings: '注意',
-    noSuggestions: '进展顺利，请继续设计。',
-    stageTip: '阶段',
-    askQuestion: '提问',
-    goTo: '前往',
-    dismiss: '忽略',
-    showMore: '显示更多',
-    showLess: '收起'
-  }
-};
 
 const CopilotBubble: React.FC<CopilotBubbleProps> = ({
-  lang,
   project,
   messages,
   onNavigate,
   onInsertPrompt,
   compact = false
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('discovery');
   const [methodologyResult, setMethodologyResult] = useState<MethodologyCheckResult | null>(null);
   const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<string>>(new Set());
   const [expanded, setExpanded] = useState(!compact);
@@ -158,10 +127,10 @@ const CopilotBubble: React.FC<CopilotBubbleProps> = ({
           </div>
           <div>
             <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              {t.copilot}
+              {t('copilotBubble.copilot')}
             </div>
             <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-              {t.stageTip}: {stageInfo.name}
+              {t('copilotBubble.stageTip')}: {stageInfo.name}
             </div>
           </div>
         </div>
@@ -191,7 +160,7 @@ const CopilotBubble: React.FC<CopilotBubbleProps> = ({
           <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                {t.currentStage}
+                {t('copilotBubble.currentStage')}
               </span>
               <span className="text-xs font-medium" style={{ color: 'var(--color-accent)' }}>
                 {stageProgress}%
@@ -245,7 +214,7 @@ const CopilotBubble: React.FC<CopilotBubbleProps> = ({
             <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
               <div className="text-xs font-medium mb-2 flex items-center gap-2" style={{ color: 'var(--color-warning)' }}>
                 <AlertTriangle size={12} />
-                {t.warnings}
+                {t('copilotBubble.warnings')}
               </div>
               <div className="space-y-2">
                 {activeWarnings.map(warning => (
@@ -295,7 +264,7 @@ const CopilotBubble: React.FC<CopilotBubbleProps> = ({
                           className="mt-2 text-xs font-medium flex items-center gap-1 transition-colors hover:opacity-80"
                           style={{ color: getSuggestionColor(suggestion.type) }}
                         >
-                          {suggestion.action.prompt ? t.askQuestion : t.goTo}
+                          {suggestion.action.prompt ? t('copilotBubble.askQuestion') : t('copilotBubble.goTo')}
                           <ChevronRight size={12} />
                         </button>
                       )}
@@ -312,7 +281,7 @@ const CopilotBubble: React.FC<CopilotBubbleProps> = ({
               </div>
             ) : (
               <div className="text-xs text-center py-2" style={{ color: 'var(--color-text-muted)' }}>
-                {t.noSuggestions}
+                {t('copilotBubble.noSuggestions')}
               </div>
             )}
 
@@ -323,7 +292,7 @@ const CopilotBubble: React.FC<CopilotBubbleProps> = ({
                 className="w-full mt-2 text-xs text-center py-1 rounded transition-colors hover:bg-white/5"
                 style={{ color: 'var(--color-text-muted)' }}
               >
-                {expanded ? t.showLess : `${t.showMore} (${visibleSuggestions.length - 2})`}
+                {expanded ? t('copilotBubble.showLess') : `${t('copilotBubble.showMore')} (${visibleSuggestions.length - 2})`}
               </button>
             )}
           </div>

@@ -6,7 +6,6 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Language } from '../types';
 import {
   loadAuditLog,
   getChangeSummary,
@@ -35,84 +34,18 @@ import {
   AlertTriangle,
   RefreshCw
 } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface ChangeHistoryPanelProps {
-  lang: Language;
   onRefresh?: () => void;
 }
-
-const translations = {
-  en: {
-    title: 'Change History',
-    subtitle: 'Track all modifications to your design',
-    summary: 'Summary',
-    added: 'Added',
-    updated: 'Updated',
-    deleted: 'Deleted',
-    total: 'Total Changes',
-    filter: 'Filter',
-    all: 'All',
-    objects: 'Objects',
-    actions: 'Actions',
-    links: 'Links',
-    integrations: 'Integrations',
-    noChanges: 'No changes recorded yet',
-    noChangesDesc: 'Changes will appear here as you modify your ontology design.',
-    export: 'Export',
-    clear: 'Clear History',
-    clearConfirm: 'Are you sure you want to clear all history?',
-    today: 'Today',
-    yesterday: 'Yesterday',
-    earlier: 'Earlier',
-    source: 'Source',
-    user: 'User',
-    ai: 'AI',
-    import: 'Import',
-    system: 'System',
-    viewDetails: 'View Details',
-    before: 'Before',
-    after: 'After'
-  },
-  cn: {
-    title: '变更历史',
-    subtitle: '追踪设计的所有修改',
-    summary: '摘要',
-    added: '新增',
-    updated: '更新',
-    deleted: '删除',
-    total: '总变更数',
-    filter: '筛选',
-    all: '全部',
-    objects: '对象',
-    actions: '动作',
-    links: '关系',
-    integrations: '集成',
-    noChanges: '暂无变更记录',
-    noChangesDesc: '当您修改 Ontology 设计时，变更将显示在这里。',
-    export: '导出',
-    clear: '清除历史',
-    clearConfirm: '确定要清除所有历史记录吗？',
-    today: '今天',
-    yesterday: '昨天',
-    earlier: '更早',
-    source: '来源',
-    user: '用户',
-    ai: 'AI',
-    import: '导入',
-    system: '系统',
-    viewDetails: '查看详情',
-    before: '修改前',
-    after: '修改后'
-  }
-};
 
 type FilterType = 'all' | 'object' | 'action' | 'link' | 'integration';
 
 const ChangeHistoryPanel: React.FC<ChangeHistoryPanelProps> = ({
-  lang,
   onRefresh
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('common');
   const [filter, setFilter] = useState<FilterType>('all');
   const [expandedChanges, setExpandedChanges] = useState<Set<string>>(new Set());
   const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -135,9 +68,9 @@ const ChangeHistoryPanel: React.FC<ChangeHistoryPanelProps> = ({
     yesterday.setDate(yesterday.getDate() - 1);
 
     const groups: { label: string; changes: ChangeRecord[] }[] = [
-      { label: t.today, changes: [] },
-      { label: t.yesterday, changes: [] },
-      { label: t.earlier, changes: [] }
+      { label: t('changeHistory.today'), changes: [] },
+      { label: t('changeHistory.yesterday'), changes: [] },
+      { label: t('changeHistory.earlier'), changes: [] }
     ];
 
     // Sort by timestamp descending
@@ -206,16 +139,16 @@ const ChangeHistoryPanel: React.FC<ChangeHistoryPanelProps> = ({
   };
 
   const getSourceLabel = (source: ChangeRecord['source']): string => {
-    const labels = { user: t.user, ai: t.ai, import: t.import, system: t.system };
+    const labels = { user: t('changeHistory.user'), ai: t('changeHistory.ai'), import: t('changeHistory.import'), system: t('changeHistory.system') };
     return labels[source];
   };
 
   const filters: Array<{ id: FilterType; label: string; icon: React.FC<any> }> = [
-    { id: 'all', label: t.all, icon: History },
-    { id: 'object', label: t.objects, icon: Box },
-    { id: 'action', label: t.actions, icon: Zap },
-    { id: 'link', label: t.links, icon: Link2 },
-    { id: 'integration', label: t.integrations, icon: Database }
+    { id: 'all', label: t('changeHistory.all'), icon: History },
+    { id: 'object', label: t('changeHistory.objects'), icon: Box },
+    { id: 'action', label: t('changeHistory.actions'), icon: Zap },
+    { id: 'link', label: t('changeHistory.links'), icon: Link2 },
+    { id: 'integration', label: t('changeHistory.integrations'), icon: Database }
   ];
 
   return (
@@ -240,10 +173,10 @@ const ChangeHistoryPanel: React.FC<ChangeHistoryPanelProps> = ({
           </div>
           <div>
             <h3 className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              {t.title}
+              {t('changeHistory.title')}
             </h3>
             <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-              {t.subtitle}
+              {t('changeHistory.subtitle')}
             </p>
           </div>
         </div>
@@ -252,7 +185,7 @@ const ChangeHistoryPanel: React.FC<ChangeHistoryPanelProps> = ({
             onClick={handleExport}
             className="p-2 rounded-lg transition-colors hover:bg-white/10"
             style={{ color: 'var(--color-text-muted)' }}
-            title={t.export}
+            title={t('changeHistory.export')}
           >
             <Download size={14} />
           </button>
@@ -260,7 +193,7 @@ const ChangeHistoryPanel: React.FC<ChangeHistoryPanelProps> = ({
             onClick={() => setShowClearConfirm(true)}
             className="p-2 rounded-lg transition-colors hover:bg-white/10"
             style={{ color: 'var(--color-text-muted)' }}
-            title={t.clear}
+            title={t('changeHistory.clear')}
           >
             <Trash2 size={14} />
           </button>
@@ -278,7 +211,7 @@ const ChangeHistoryPanel: React.FC<ChangeHistoryPanelProps> = ({
               {summary.added}
             </div>
             <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
-              {t.added}
+              {t('changeHistory.added')}
             </div>
           </div>
           <div className="text-center">
@@ -286,7 +219,7 @@ const ChangeHistoryPanel: React.FC<ChangeHistoryPanelProps> = ({
               {summary.updated}
             </div>
             <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
-              {t.updated}
+              {t('changeHistory.updated')}
             </div>
           </div>
           <div className="text-center">
@@ -294,7 +227,7 @@ const ChangeHistoryPanel: React.FC<ChangeHistoryPanelProps> = ({
               {summary.deleted}
             </div>
             <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
-              {t.deleted}
+              {t('changeHistory.deleted')}
             </div>
           </div>
           <div className="text-center">
@@ -302,7 +235,7 @@ const ChangeHistoryPanel: React.FC<ChangeHistoryPanelProps> = ({
               {changes.length}
             </div>
             <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
-              {t.total}
+              {t('changeHistory.total')}
             </div>
           </div>
         </div>
@@ -334,10 +267,10 @@ const ChangeHistoryPanel: React.FC<ChangeHistoryPanelProps> = ({
           <div className="p-8 text-center">
             <History size={32} style={{ color: 'var(--color-text-muted)', margin: '0 auto 1rem' }} />
             <div className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
-              {t.noChanges}
+              {t('changeHistory.noChanges')}
             </div>
             <div className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
-              {t.noChangesDesc}
+              {t('changeHistory.noChangesDesc')}
             </div>
           </div>
         ) : (
@@ -428,7 +361,7 @@ const ChangeHistoryPanel: React.FC<ChangeHistoryPanelProps> = ({
                             {change.before && (
                               <div className="mt-2">
                                 <div className="font-medium mb-1" style={{ color: 'var(--color-error)' }}>
-                                  {t.before}:
+                                  {t('changeHistory.before')}:
                                 </div>
                                 <pre
                                   className="p-2 rounded overflow-auto"
@@ -441,7 +374,7 @@ const ChangeHistoryPanel: React.FC<ChangeHistoryPanelProps> = ({
                             {change.after && (
                               <div className="mt-2">
                                 <div className="font-medium mb-1" style={{ color: 'var(--color-success)' }}>
-                                  {t.after}:
+                                  {t('changeHistory.after')}:
                                 </div>
                                 <pre
                                   className="p-2 rounded overflow-auto"
@@ -477,11 +410,11 @@ const ChangeHistoryPanel: React.FC<ChangeHistoryPanelProps> = ({
             <div className="flex items-center gap-3 mb-3">
               <AlertTriangle size={20} style={{ color: 'var(--color-warning)' }} />
               <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {t.clear}
+                {t('changeHistory.clear')}
               </span>
             </div>
             <p className="text-sm mb-4" style={{ color: 'var(--color-text-muted)' }}>
-              {t.clearConfirm}
+              {t('changeHistory.clearConfirm')}
             </p>
             <div className="flex gap-2">
               <button
@@ -502,7 +435,7 @@ const ChangeHistoryPanel: React.FC<ChangeHistoryPanelProps> = ({
                   color: '#fff'
                 }}
               >
-                {t.clear}
+                {t('changeHistory.clear')}
               </button>
             </div>
           </div>

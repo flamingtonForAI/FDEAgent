@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Language } from '../types';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import {
   MessageSquare,
   Target,
@@ -18,7 +18,6 @@ import {
 } from 'lucide-react';
 
 interface InterviewGuideProps {
-  lang: Language;
   onInsertQuestion?: (question: string) => void;
   completedQuestions: Set<string>;
   onToggleQuestion: (questionId: string) => void;
@@ -407,11 +406,11 @@ const interviewScripts = {
 };
 
 const InterviewGuide: React.FC<InterviewGuideProps> = ({
-  lang,
   onInsertQuestion,
   completedQuestions,
   onToggleQuestion
 }) => {
+  const { t, lang } = useAppTranslation('discovery');
   const [expandedPhases, setExpandedPhases] = useState<Set<string>>(new Set(['business-context']));
   const scripts = interviewScripts[lang];
 
@@ -466,7 +465,7 @@ const InterviewGuide: React.FC<InterviewGuideProps> = ({
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>
             <MessageSquare className="inline-block mr-2 w-5 h-5" style={{ color: 'var(--color-accent)' }} />
-            {lang === 'cn' ? '访谈向导' : 'Interview Guide'}
+            {t('interviewGuide.title')}
           </h2>
           <div className={`px-3 py-1 rounded-full text-xs font-medium ${
             readinessLevel === 'ready'
@@ -476,17 +475,17 @@ const InterviewGuide: React.FC<InterviewGuideProps> = ({
                 : 'bg-red-500/20 text-red-400'
           }`}>
             {readinessLevel === 'ready'
-              ? (lang === 'cn' ? '信息充足' : 'Ready')
+              ? t('interviewGuide.readyStatus')
               : readinessLevel === 'partial'
-                ? (lang === 'cn' ? '信息部分完整' : 'Partial')
-                : (lang === 'cn' ? '信息不足' : 'Insufficient')}
+                ? t('interviewGuide.partialStatus')
+                : t('interviewGuide.insufficientStatus')}
           </div>
         </div>
 
         {/* Progress bar */}
         <div className="space-y-2">
           <div className="flex justify-between text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-            <span>{lang === 'cn' ? '整体进度' : 'Overall Progress'}</span>
+            <span>{t('interviewGuide.overallProgress')}</span>
             <span>{overall.completed}/{overall.total} ({overall.percentage}%)</span>
           </div>
           <div className="h-2 rounded-full" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
@@ -501,9 +500,7 @@ const InterviewGuide: React.FC<InterviewGuideProps> = ({
           <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--color-text-muted)' }}>
             <AlertTriangle className="w-3 h-3" style={{ color: 'var(--color-warning)' }} />
             <span>
-              {lang === 'cn'
-                ? `关键问题: ${overall.criticalCompleted}/${overall.criticalTotal}`
-                : `Critical: ${overall.criticalCompleted}/${overall.criticalTotal}`}
+              {`${t('interviewGuide.criticalLabel')}: ${overall.criticalCompleted}/${overall.criticalTotal}`}
             </span>
           </div>
         </div>
@@ -603,7 +600,7 @@ const InterviewGuide: React.FC<InterviewGuideProps> = ({
                               </p>
                               {q.priority === 'critical' && (
                                 <span className="flex-shrink-0 text-[10px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400">
-                                  {lang === 'cn' ? '必问' : 'Critical'}
+                                  {t('interviewGuide.criticalLabel')}
                                 </span>
                               )}
                             </div>
@@ -624,7 +621,7 @@ const InterviewGuide: React.FC<InterviewGuideProps> = ({
                                 style={{ color: 'var(--color-text-secondary)' }}
                               >
                                 <Copy className="w-3 h-3" />
-                                {lang === 'cn' ? '复制' : 'Copy'}
+                                {lang === 'cn' ? '\u590D\u5236' : 'Copy'}
                               </button>
                               {onInsertQuestion && (
                                 <button

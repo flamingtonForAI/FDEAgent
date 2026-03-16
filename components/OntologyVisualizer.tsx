@@ -1,101 +1,16 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { OntologyObject, OntologyLink, Language, AIPAction } from '../types';
+import { OntologyObject, OntologyLink, AIPAction } from '../types';
 import { Database, Link as LinkIcon, Zap, ChevronRight, ChevronDown, Binary, Briefcase, GitBranch, Code, Shield, HelpCircle, Sparkles } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface Props {
-  lang: Language;
   objects: OntologyObject[];
   links: OntologyLink[];
 }
 
-const translations = {
-  en: {
-    title: "Logical Ontology",
-    subtitle: "Objects, properties, and their linked semantic relationships.",
-    objCount: "Objects",
-    linkCount: "Links",
-    augmented: "AI Augmented",
-    attributes: "Attributes",
-    actions: "Actions",
-    details: "Details",
-    relationships: "Ontology Relationships",
-    legend: "Legend",
-    legendTip: "Click Action to expand details",
-    // Three-layer definition labels
-    businessLayer: "Business Layer",
-    logicLayer: "Logic Layer",
-    implementationLayer: "Implementation Layer",
-    governance: "Governance",
-    targetObject: "Target",
-    executor: "Executor",
-    trigger: "Trigger",
-    preconditions: "Preconditions",
-    parameters: "Parameters",
-    postconditions: "Postconditions",
-    sideEffects: "Side Effects",
-    apiEndpoint: "API Endpoint",
-    agentTool: "Agent Tool",
-    permissionTier: "Permission Tier",
-    humanApproval: "Human Approval",
-    riskLevel: "Risk Level",
-    required: "Required",
-    optional: "Optional",
-    yes: "Yes",
-    no: "No",
-    // Legend descriptions
-    businessDesc: "Who, What, When",
-    logicDesc: "Pre/Post conditions",
-    implDesc: "API & Tools",
-    govDesc: "Permissions & Risk",
-    aiProp: "AI Derived",
-    aiAction: "AI Generated"
-  },
-  cn: {
-    title: "逻辑本体模型",
-    subtitle: "定义核心对象、属性及其语义关联关系。",
-    objCount: "对象数量",
-    linkCount: "关联数量",
-    augmented: "AI 增强",
-    attributes: "实体属性",
-    actions: "业务操作",
-    details: "详情",
-    relationships: "本体关联关系图",
-    legend: "图例说明",
-    legendTip: "点击 Action 展开详情",
-    // 三层定义标签
-    businessLayer: "业务层",
-    logicLayer: "逻辑层",
-    implementationLayer: "实现层",
-    governance: "治理",
-    targetObject: "目标对象",
-    executor: "执行角色",
-    trigger: "触发条件",
-    preconditions: "前置条件",
-    parameters: "输入参数",
-    postconditions: "后置状态",
-    sideEffects: "副作用",
-    apiEndpoint: "API 端点",
-    agentTool: "Agent 工具",
-    permissionTier: "权限等级",
-    humanApproval: "人工审批",
-    riskLevel: "风险等级",
-    required: "必填",
-    optional: "可选",
-    yes: "是",
-    no: "否",
-    // 图例描述
-    businessDesc: "谁、做什么、何时",
-    logicDesc: "前置/后置条件",
-    implDesc: "API与工具",
-    govDesc: "权限与风险",
-    aiProp: "AI派生属性",
-    aiAction: "AI生成动作"
-  }
-};
-
-const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
-  const t = translations[lang];
+const OntologyVisualizer: React.FC<Props> = ({ objects, links }) => {
+  const { t } = useAppTranslation('modeling');
   const [expandedActions, setExpandedActions] = useState<Set<string>>(new Set());
   const [showLegend, setShowLegend] = useState(false);
 
@@ -120,7 +35,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
     if (!hasBusinessLayer && !hasLogicLayer && !hasImplementationLayer && !hasGovernance) {
       return (
         <div className="text-xs text-muted italic p-3 bg-[var(--color-bg-base)]/20 rounded-lg">
-          {lang === 'cn' ? '暂无详细定义' : 'No detailed definition yet'}
+          {t('ontologyVisualizer.noDetailedDefinition')}
         </div>
       );
     }
@@ -132,7 +47,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
           <div className="p-3 layer-business border rounded-lg">
             <div className="flex items-center gap-2 text-blue-400 text-micro font-medium mb-2">
               <Briefcase size={11} />
-              {t.businessLayer}
+              {t('ontologyVisualizer.businessLayer')}
             </div>
             <div className="space-y-1.5 text-xs">
               {action.businessLayer!.description && (
@@ -140,10 +55,10 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
               )}
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-muted">
                 {action.businessLayer!.targetObject && (
-                  <span><span className="text-muted">{t.targetObject}:</span> {action.businessLayer!.targetObject}</span>
+                  <span><span className="text-muted">{t('ontologyVisualizer.targetObject')}:</span> {action.businessLayer!.targetObject}</span>
                 )}
                 {action.businessLayer!.executorRole && (
-                  <span><span className="text-muted">{t.executor}:</span> {action.businessLayer!.executorRole}</span>
+                  <span><span className="text-muted">{t('ontologyVisualizer.executor')}:</span> {action.businessLayer!.executorRole}</span>
                 )}
               </div>
             </div>
@@ -155,12 +70,12 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
           <div className="p-3 layer-logic border rounded-lg">
             <div className="flex items-center gap-2 text-emerald-400 text-micro font-medium mb-2">
               <GitBranch size={11} />
-              {t.logicLayer}
+              {t('ontologyVisualizer.logicLayer')}
             </div>
             <div className="space-y-2 text-xs">
               {action.logicLayer!.preconditions?.length > 0 && (
                 <div>
-                  <span className="text-muted text-micro">{t.preconditions}:</span>
+                  <span className="text-muted text-micro">{t('ontologyVisualizer.preconditions')}:</span>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {action.logicLayer!.preconditions.map((pre, i) => (
                       <span key={i} className="px-2 py-0.5 bg-emerald-500/10 text-emerald-300 rounded text-micro">{pre}</span>
@@ -170,7 +85,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
               )}
               {action.logicLayer!.parameters?.length > 0 && (
                 <div>
-                  <span className="text-muted text-micro">{t.parameters}:</span>
+                  <span className="text-muted text-micro">{t('ontologyVisualizer.parameters')}:</span>
                   <div className="mt-1 space-y-1">
                     {action.logicLayer!.parameters.map((param, i) => (
                       <div key={i} className="flex items-center gap-2 text-micro">
@@ -183,7 +98,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
               )}
               {action.logicLayer!.postconditions?.length > 0 && (
                 <div>
-                  <span className="text-muted text-micro">{t.postconditions}:</span>
+                  <span className="text-muted text-micro">{t('ontologyVisualizer.postconditions')}:</span>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {action.logicLayer!.postconditions.map((post, i) => (
                       <span key={i} className="px-2 py-0.5 bg-amber-500/10 text-amber-300 rounded text-micro">{post}</span>
@@ -200,7 +115,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
           <div className="p-3 layer-impl border rounded-lg">
             <div className="flex items-center gap-2 text-micro font-medium mb-2" style={{ color: 'var(--color-accent-secondary)' }}>
               <Code size={11} />
-              {t.implementationLayer}
+              {t('ontologyVisualizer.implementationLayer')}
             </div>
             <div className="space-y-1 text-xs">
               {action.implementationLayer!.apiEndpoint && (
@@ -222,14 +137,14 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
           <div className="p-3 layer-gov border rounded-lg">
             <div className="flex items-center gap-2 text-orange-400 text-micro font-medium mb-2">
               <Shield size={11} />
-              {t.governance}
+              {t('ontologyVisualizer.governance')}
             </div>
             <div className="flex flex-wrap gap-3 text-micro text-muted">
               {action.governance!.permissionTier && (
                 <span>Tier {action.governance!.permissionTier}</span>
               )}
               {action.governance!.requiresHumanApproval && (
-                <span style={{ color: 'var(--color-accent)' }}>{t.humanApproval}</span>
+                <span style={{ color: 'var(--color-accent)' }}>{t('ontologyVisualizer.humanApproval')}</span>
               )}
               {action.governance!.riskLevel && (
                 <span style={{
@@ -244,7 +159,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
         )}
       </div>
     );
-  }, [lang, t]);
+  }, [t]);
 
   const objectCards = useMemo(() => (
     <div className="masonry-grid">
@@ -277,7 +192,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
 
           {/* Attributes */}
           <div className="mb-4">
-            <span className="text-micro text-muted block mb-2">{t.attributes}</span>
+            <span className="text-micro text-muted block mb-2">{t('ontologyVisualizer.attributes')}</span>
             <div className="flex flex-wrap gap-1.5">
               {(obj.properties || []).slice(0, 6).map((prop, idx) => (
                 <span
@@ -301,7 +216,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
 
           {/* Actions */}
           <div>
-            <span className="text-micro text-muted block mb-2">{t.actions}</span>
+            <span className="text-micro text-muted block mb-2">{t('ontologyVisualizer.actions')}</span>
             <div className="space-y-1.5">
               {(obj.actions || []).map((action, idx) => {
                 const actionKey = `${obj.id}-${idx}`;
@@ -352,7 +267,7 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
       <div className="mt-8 glass-card rounded-xl p-6">
         <h3 className="text-sm font-medium mb-4 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
           <LinkIcon size={16} style={{ color: 'var(--color-accent-secondary)' }} />
-          {t.relationships}
+          {t('ontologyVisualizer.relationships')}
         </h3>
         <div className="flex flex-wrap gap-3">
           {links.map((link) => (
@@ -380,13 +295,13 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-xl font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h2>
-          <p className="text-muted text-sm">{t.subtitle}</p>
+          <h2 className="text-xl font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>{t('ontologyVisualizer.title')}</h2>
+          <p className="text-muted text-sm">{t('ontologyVisualizer.subtitle')}</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex gap-3 text-xs text-muted">
-            <span>{t.objCount}: <span style={{ color: 'var(--color-accent)' }}>{objects.length}</span></span>
-            <span>{t.linkCount}: <span style={{ color: 'var(--color-accent-secondary)' }}>{links.length}</span></span>
+            <span>{t('ontologyVisualizer.objCount')}: <span style={{ color: 'var(--color-accent)' }}>{objects.length}</span></span>
+            <span>{t('ontologyVisualizer.linkCount')}: <span style={{ color: 'var(--color-accent-secondary)' }}>{links.length}</span></span>
           </div>
           {/* Legend Toggle */}
           <div className="relative">
@@ -395,38 +310,38 @@ const OntologyVisualizer: React.FC<Props> = ({ lang, objects, links }) => {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-muted hover:text-secondary transition-colors"
             >
               <HelpCircle size={14} />
-              {t.legend}
+              {t('ontologyVisualizer.legend')}
             </button>
             {showLegend && (
               <div className="absolute right-0 top-full mt-2 p-4 glass-card rounded-xl z-10 w-80 animate-fadeIn">
                 <div className="space-y-3">
-                  <div className="text-micro text-muted mb-2">{t.legendTip}</div>
+                  <div className="text-micro text-muted mb-2">{t('ontologyVisualizer.legendTip')}</div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded bg-blue-500/60"></span>
-                      <span className="text-micro text-muted">{t.businessLayer}</span>
+                      <span className="text-micro text-muted">{t('ontologyVisualizer.businessLayer')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded bg-emerald-500/60"></span>
-                      <span className="text-micro text-muted">{t.logicLayer}</span>
+                      <span className="text-micro text-muted">{t('ontologyVisualizer.logicLayer')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded bg-purple-500/60"></span>
-                      <span className="text-micro text-muted">{t.implementationLayer}</span>
+                      <span className="text-micro text-muted">{t('ontologyVisualizer.implementationLayer')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded bg-orange-500/60"></span>
-                      <span className="text-micro text-muted">{t.governance}</span>
+                      <span className="text-micro text-muted">{t('ontologyVisualizer.governance')}</span>
                     </div>
                   </div>
                   <div className="pt-2 flex items-center gap-3" style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--color-border)' }}>
                     <div className="flex items-center gap-1.5">
                       <Zap size={10} style={{ color: 'var(--color-accent)' }} />
-                      <span className="text-micro text-muted">{t.aiAction}</span>
+                      <span className="text-micro text-muted">{t('ontologyVisualizer.aiAction')}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Sparkles size={10} style={{ color: 'var(--color-accent)' }} />
-                      <span className="text-micro text-muted">{t.aiProp}</span>
+                      <span className="text-micro text-muted">{t('ontologyVisualizer.aiProp')}</span>
                     </div>
                   </div>
                 </div>

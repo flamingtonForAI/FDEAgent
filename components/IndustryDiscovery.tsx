@@ -11,7 +11,7 @@ import {
   Search, Loader2, CheckCircle, Circle, AlertCircle, X,
   Package, Database, Zap, Layers, Bot, RefreshCw
 } from 'lucide-react';
-import { Language, AISettings } from '../types';
+import { AISettings } from '../types';
 import { Archetype, ArchetypeOrigin } from '../types/archetype';
 import {
   ArchetypeGeneratorService,
@@ -21,108 +21,23 @@ import {
 } from '../services/archetypeGeneratorService';
 import { archetypeStorageService } from '../services/archetypeStorageService';
 import { SourceBadge } from './SourceBadge';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface Props {
-  lang: Language;
   aiSettings: AISettings;
   onClose: () => void;
   onImported: (archetypeId: string) => void;
 }
 
-const translations = {
-  en: {
-    title: 'Explore New Industry',
-    subtitle: 'Generate industry archetype with AI',
-    industryName: 'Industry Name',
-    industryNamePlaceholder: 'e.g., Smart Pig Farming',
-    description: 'Description (Optional)',
-    descriptionPlaceholder: 'Include breeding, feeding, slaughtering...',
-    generate: 'Generate Archetype',
-    generating: 'Generating...',
-    cancel: 'Cancel',
-    import: 'Import Archetype',
-    retry: 'Retry',
-    preview: 'Preview',
-    objects: 'Objects',
-    actions: 'Actions',
-    workflows: 'Workflows',
-    connectors: 'Connectors',
-    coreObjects: 'Core Objects',
-    source: 'Source',
-    model: 'Model',
-    progress: {
-      searching: 'Searching web references...',
-      fetching: 'Fetching content...',
-      generating: 'AI generating archetype...',
-      validating: 'Validating structure...',
-      completed: 'Generation completed!',
-      error: 'Generation failed',
-    },
-    errors: {
-      noIndustryName: 'Please enter an industry name',
-      generationFailed: 'Failed to generate archetype',
-      saveFailed: 'Failed to save archetype',
-    },
-    success: {
-      imported: 'Archetype imported successfully!',
-    },
-    methodology: {
-      hint: 'Importing an archetype accelerates discovery and takes you directly to the Model phase',
-      postImport: 'Archetype imported! You are now in the Model phase to customize.',
-    },
-  },
-  cn: {
-    title: '探索新行业',
-    subtitle: '使用 AI 生成行业原型',
-    industryName: '行业名称',
-    industryNamePlaceholder: '例如：智能养猪行业',
-    description: '描述说明（可选）',
-    descriptionPlaceholder: '包括育种、饲养、屠宰等环节...',
-    generate: '生成原型',
-    generating: '生成中...',
-    cancel: '取消',
-    import: '导入原型',
-    retry: '重试',
-    preview: '预览',
-    objects: '对象',
-    actions: '动作',
-    workflows: '工作流',
-    connectors: '连接器',
-    coreObjects: '核心对象',
-    source: '来源',
-    model: '模型',
-    progress: {
-      searching: '搜索网络参考资料...',
-      fetching: '获取内容...',
-      generating: 'AI 生成原型...',
-      validating: '验证结构...',
-      completed: '生成完成！',
-      error: '生成失败',
-    },
-    errors: {
-      noIndustryName: '请输入行业名称',
-      generationFailed: '原型生成失败',
-      saveFailed: '原型保存失败',
-    },
-    success: {
-      imported: '原型导入成功！',
-    },
-    methodology: {
-      hint: '导入原型是发现阶段的加速器，将直接进入建模阶段',
-      postImport: '原型已导入！现在进入建模阶段进行定制。',
-    },
-  }
-};
 
 const stepOrder: GenerationStep[] = ['searching', 'fetching', 'generating', 'validating', 'completed'];
 
 const IndustryDiscovery: React.FC<Props> = ({
-  lang,
   aiSettings,
   onClose,
   onImported
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('discovery');
 
   // 表单状态
   const [industryName, setIndustryName] = useState('');
@@ -159,7 +74,7 @@ const IndustryDiscovery: React.FC<Props> = ({
    */
   const handleGenerate = async () => {
     if (!industryName.trim()) {
-      setError(t.errors.noIndustryName);
+      setError(t('industryDiscovery.errorNoIndustryName'));
       return;
     }
 
@@ -186,11 +101,11 @@ const IndustryDiscovery: React.FC<Props> = ({
           setWarnings(result.warnings);
         }
       } else {
-        setError(result.error || t.errors.generationFailed);
+        setError(result.error || t('industryDiscovery.errorGenerationFailed'));
         setCurrentStep('error');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.errors.generationFailed);
+      setError(err instanceof Error ? err.message : t('industryDiscovery.errorGenerationFailed'));
       setCurrentStep('error');
     } finally {
       setIsGenerating(false);
@@ -211,7 +126,7 @@ const IndustryDiscovery: React.FC<Props> = ({
       const id = await archetypeStorageService.saveArchetype(generatedArchetype, generatedOrigin);
       onImported(id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.errors.saveFailed);
+      setError(err instanceof Error ? err.message : t('industryDiscovery.errorSaveFailed'));
     } finally {
       setIsImporting(false);
     }
@@ -246,12 +161,12 @@ const IndustryDiscovery: React.FC<Props> = ({
     }
 
     const stepLabels = {
-      searching: t.progress.searching,
-      fetching: t.progress.fetching,
-      generating: t.progress.generating,
-      validating: t.progress.validating,
-      completed: t.progress.completed,
-      error: t.progress.error,
+      searching: t('industryDiscovery.progressSearching'),
+      fetching: t('industryDiscovery.progressFetching'),
+      generating: t('industryDiscovery.progressGenerating'),
+      validating: t('industryDiscovery.progressValidating'),
+      completed: t('industryDiscovery.progressCompleted'),
+      error: t('industryDiscovery.progressError'),
     };
 
     return (
@@ -334,15 +249,15 @@ const IndustryDiscovery: React.FC<Props> = ({
 
         {/* 统计 */}
         <div className="grid grid-cols-4 gap-3 mb-3">
-          <StatItem icon={<Database size={14} />} value={stats.objects} label={t.objects} />
-          <StatItem icon={<Zap size={14} />} value={stats.actions} label={t.actions} />
-          <StatItem icon={<Layers size={14} />} value={stats.workflows} label={t.workflows} />
-          <StatItem icon={<Search size={14} />} value={stats.connectors} label={t.connectors} />
+          <StatItem icon={<Database size={14} />} value={stats.objects} label={t('industryDiscovery.objects')} />
+          <StatItem icon={<Zap size={14} />} value={stats.actions} label={t('industryDiscovery.actions')} />
+          <StatItem icon={<Layers size={14} />} value={stats.workflows} label={t('industryDiscovery.workflows')} />
+          <StatItem icon={<Search size={14} />} value={stats.connectors} label={t('industryDiscovery.connectors')} />
         </div>
 
         {/* 核心对象 */}
         <div className="text-xs">
-          <span className="text-muted">{t.coreObjects}: </span>
+          <span className="text-muted">{t('industryDiscovery.coreObjects')}: </span>
           <span style={{ color: 'var(--color-text-secondary)' }}>{coreObjects}...</span>
         </div>
 
@@ -383,9 +298,9 @@ const IndustryDiscovery: React.FC<Props> = ({
             </div>
             <div>
               <h2 className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                {t.title}
+                {t('industryDiscovery.title')}
               </h2>
-              <p className="text-xs text-muted">{t.subtitle}</p>
+              <p className="text-xs text-muted">{t('industryDiscovery.subtitle')}</p>
             </div>
           </div>
           <button
@@ -407,7 +322,7 @@ const IndustryDiscovery: React.FC<Props> = ({
             }}
           >
             <Layers size={14} />
-            <span>{t.methodology.hint}</span>
+            <span>{t('industryDiscovery.methodologyHint')}</span>
           </div>
 
           {/* 输入表单 */}
@@ -415,13 +330,13 @@ const IndustryDiscovery: React.FC<Props> = ({
             {/* 行业名称 */}
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-text-primary)' }}>
-                {t.industryName} *
+                {t('industryDiscovery.industryName')} *
               </label>
               <input
                 type="text"
                 value={industryName}
                 onChange={(e) => setIndustryName(e.target.value)}
-                placeholder={t.industryNamePlaceholder}
+                placeholder={t('industryDiscovery.industryNamePlaceholder')}
                 disabled={isGenerating}
                 className="w-full glass-surface rounded-lg px-4 py-2.5 text-sm placeholder-gray-500 focus:outline-none focus:ring-1 disabled:opacity-50"
                 style={{ color: 'var(--color-text-primary)' }}
@@ -431,12 +346,12 @@ const IndustryDiscovery: React.FC<Props> = ({
             {/* 描述 */}
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--color-text-primary)' }}>
-                {t.description}
+                {t('industryDiscovery.description')}
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder={t.descriptionPlaceholder}
+                placeholder={t('industryDiscovery.descriptionPlaceholder')}
                 disabled={isGenerating}
                 rows={3}
                 className="w-full glass-surface rounded-lg px-4 py-2.5 text-sm placeholder-gray-500 focus:outline-none focus:ring-1 disabled:opacity-50 resize-none"
@@ -502,7 +417,7 @@ const IndustryDiscovery: React.FC<Props> = ({
             onClick={onClose}
             className="px-4 py-2 rounded-lg glass-surface text-sm text-secondary hover:text-primary transition-colors"
           >
-            {t.cancel}
+            {t('industryDiscovery.cancel')}
           </button>
 
           {generatedArchetype ? (
@@ -512,7 +427,7 @@ const IndustryDiscovery: React.FC<Props> = ({
                 className="flex items-center gap-2 px-4 py-2 rounded-lg glass-surface text-sm text-secondary hover:text-primary transition-colors"
               >
                 <RefreshCw size={14} />
-                {t.retry}
+                {t('industryDiscovery.retry')}
               </button>
               <button
                 onClick={handleImport}
@@ -524,7 +439,7 @@ const IndustryDiscovery: React.FC<Props> = ({
                 ) : (
                   <Package size={14} />
                 )}
-                {t.import}
+                {t('industryDiscovery.import')}
               </button>
             </>
           ) : (
@@ -536,12 +451,12 @@ const IndustryDiscovery: React.FC<Props> = ({
               {isGenerating ? (
                 <>
                   <Loader2 size={14} className="animate-spin" />
-                  {t.generating}
+                  {t('industryDiscovery.generating')}
                 </>
               ) : (
                 <>
                   <Bot size={14} />
-                  {t.generate}
+                  {t('industryDiscovery.generate')}
                 </>
               )}
             </button>

@@ -4,6 +4,7 @@ import { Language, AIProvider } from '../types';
 import { getModelCapabilities } from '../lib/llmCapabilities';
 import { EnrichedModelInfo } from '../services/aiService';
 import { parseOfficeDocument, isOfficeMimeType } from '../lib/documentParser';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import {
   Paperclip, X, FileText, FileSpreadsheet,
   File, Upload, AlertCircle, Loader2, Image, FileImage, Presentation, AlertTriangle
@@ -22,7 +23,6 @@ export interface UploadedFile {
 }
 
 interface FileUploadProps {
-  lang: Language;
   onFilesChange: (files: UploadedFile[]) => void;
   files: UploadedFile[];
   disabled?: boolean;
@@ -141,45 +141,6 @@ export function getProviderCompatibility(
   return { supported: false, blockSend: false, warning: '未知文件类型' };
 }
 
-const translations = {
-  en: {
-    uploadFile: 'Upload File',
-    dragDrop: 'Drag & drop files here',
-    or: 'or',
-    browse: 'browse',
-    supportedFormats: 'TXT, MD, JSON, CSV, PDF, Excel, PPT, Images',
-    maxSize: 'Max size',
-    fileTooLarge: 'File too large',
-    unsupportedFormat: 'Unsupported format',
-    removeFile: 'Remove file',
-    parsing: 'Reading...',
-    chars: 'chars',
-    analyzing: 'Will be analyzed by AI',
-    textFile: 'Text file',
-    documentFile: 'Document (AI vision)',
-    imageFile: 'Image (AI vision)',
-    spreadsheet: 'Spreadsheet (AI vision)'
-  },
-  cn: {
-    uploadFile: '上传文件',
-    dragDrop: '拖拽文件到这里',
-    or: '或',
-    browse: '浏览',
-    supportedFormats: 'TXT, MD, JSON, CSV, PDF, Excel, PPT, 图片',
-    maxSize: '最大',
-    fileTooLarge: '文件过大',
-    unsupportedFormat: '不支持的格式',
-    removeFile: '移除文件',
-    parsing: '读取中...',
-    chars: '字符',
-    analyzing: '将由 AI 分析',
-    textFile: '文本文件',
-    documentFile: '文档 (AI 视觉)',
-    imageFile: '图片 (AI 视觉)',
-    spreadsheet: '表格 (AI 视觉)'
-  }
-};
-
 // File type configurations
 interface FileTypeConfig {
   icon: React.ReactNode;
@@ -273,7 +234,6 @@ const supportedExtensions = [
 ];
 
 const FileUpload: React.FC<FileUploadProps> = ({
-  lang,
   onFilesChange,
   files,
   disabled = false,
@@ -282,7 +242,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   aiProvider,
   aiModel
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('integration');
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -293,14 +253,14 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
     // Check extension
     if (!supportedExtensions.includes(extension)) {
-      setError(t.unsupportedFormat + ': ' + extension);
+      setError(t('fileUpload.unsupportedFormat') + ': ' + extension);
       return null;
     }
 
     // Check size
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
     if (file.size > maxSizeBytes) {
-      setError(`${t.fileTooLarge}: ${(file.size / 1024 / 1024).toFixed(1)}MB > ${maxSizeMB}MB`);
+      setError(`${t('fileUpload.fileTooLarge')}: ${(file.size / 1024 / 1024).toFixed(1)}MB > ${maxSizeMB}MB`);
       return null;
     }
 
@@ -464,17 +424,17 @@ const FileUpload: React.FC<FileUploadProps> = ({
             {isParsing ? (
               <>
                 <Loader2 size={24} className="animate-spin" style={{ color: 'var(--color-accent)' }} />
-                <span className="text-xs text-muted">{t.parsing}</span>
+                <span className="text-xs text-muted">{t('fileUpload.parsing')}</span>
               </>
             ) : (
               <>
                 <Upload size={24} style={{ color: isDragging ? 'var(--color-accent)' : 'var(--color-text-muted)' }} />
                 <div className="text-xs">
-                  <span className="text-muted">{t.dragDrop} </span>
-                  <span style={{ color: 'var(--color-accent)' }}>{t.or} {t.browse}</span>
+                  <span className="text-muted">{t('fileUpload.dragDrop')} </span>
+                  <span style={{ color: 'var(--color-accent)' }}>{t('fileUpload.or')} {t('fileUpload.browse')}</span>
                 </div>
                 <div className="text-micro text-muted">
-                  {t.supportedFormats} • {t.maxSize} {maxSizeMB}MB
+                  {t('fileUpload.supportedFormats')} • {t('fileUpload.maxSize')} {maxSizeMB}MB
                 </div>
               </>
             )}
@@ -528,7 +488,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                           {config.label[lang]}
                         </span>
                         {compat.supported ? (
-                          <span className="text-micro text-muted">{t.analyzing}</span>
+                          <span className="text-micro text-muted">{t('fileUpload.analyzing')}</span>
                         ) : null}
                       </div>
                       {/* Provider 兼容性警告 */}
@@ -543,7 +503,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                     <>
                       <p className="text-[11px] text-muted mt-1 line-clamp-2">{file.preview}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-micro" style={{ color: 'rgba(var(--color-accent-rgb), 0.7)' }}>{file.content.length.toLocaleString()} {t.chars}</span>
+                        <span className="text-micro" style={{ color: 'rgba(var(--color-accent-rgb), 0.7)' }}>{file.content.length.toLocaleString()} {t('fileUpload.chars')}</span>
                       </div>
                     </>
                   )}
@@ -556,7 +516,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                   style={{ backgroundColor: 'transparent' }}
                   onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--color-bg-surface)'}
                   onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                  title={t.removeFile}
+                  title={t('fileUpload.removeFile')}
                 >
                   <X size={14} />
                 </button>
@@ -571,15 +531,14 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
 // Compact button version for inline use
 export const FileUploadButton: React.FC<{
-  lang: Language;
   onFilesChange: (files: UploadedFile[]) => void;
   files: UploadedFile[];
   disabled?: boolean;
   maxSizeMB?: number;
   aiProvider?: AIProvider;  // 用于显示 provider 兼容性提示
   aiModel?: string;         // 当前选择的模型
-}> = ({ lang, onFilesChange, files, disabled, maxSizeMB = 10, aiProvider, aiModel }) => {
-  const t = translations[lang];
+}> = ({ onFilesChange, files, disabled, maxSizeMB = 10, aiProvider, aiModel }) => {
+  const { t, lang } = useAppTranslation('integration');
   const inputRef = useRef<HTMLInputElement>(null);
   const [isParsing, setIsParsing] = useState(false);
 
@@ -706,7 +665,7 @@ export const FileUploadButton: React.FC<{
             ? 'var(--color-accent)'
             : 'var(--color-text-muted)'
         }}
-        title={t.uploadFile}
+        title={t('fileUpload.uploadFile')}
       >
         {isParsing ? (
           <Loader2 size={18} className="animate-spin" />

@@ -3,15 +3,15 @@
  * 两个视图：建模工作台（编辑 Objects/Links/Actions）+ 关系图谱（可视化）
  */
 import React, { useState } from 'react';
-import { Language, ProjectState } from '../types';
+import { ProjectState } from '../types';
 import { ClipboardList, GitFork } from 'lucide-react';
 import StructuringWorkbench from './StructuringWorkbench';
 import OntologyVisualizer from './OntologyVisualizer';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 type ModelingView = 'workbench' | 'graph';
 
 interface OntologyModelerProps {
-  lang: Language;
   project: ProjectState;
   setProject: React.Dispatch<React.SetStateAction<ProjectState>>;
   chatMessages?: Array<{ role: string; content: string }>;
@@ -19,39 +19,19 @@ interface OntologyModelerProps {
   onNavigateToArchetypes?: () => void;
 }
 
-const translations = {
-  en: {
-    title: 'Ontology Modeling',
-    subtitle: 'Define Objects, Links, and Actions',
-    tabWorkbench: 'Workbench',
-    tabGraph: 'Graph',
-    tabWorkbenchDesc: 'Edit Elements',
-    tabGraphDesc: 'Relationships',
-  },
-  cn: {
-    title: '本体建模',
-    subtitle: '定义 Objects、Links 和 Actions',
-    tabWorkbench: '建模工作台',
-    tabGraph: '关系图谱',
-    tabWorkbenchDesc: '编辑元素',
-    tabGraphDesc: '可视化关系',
-  }
-};
-
 const OntologyModeler: React.FC<OntologyModelerProps> = ({
-  lang,
   project,
   setProject,
   chatMessages,
   onNavigateToScouting,
   onNavigateToArchetypes
 }) => {
-  const t = translations[lang];
+  const { t } = useAppTranslation('modeling');
   const [activeView, setActiveView] = useState<ModelingView>('workbench');
 
   const tabs: { id: ModelingView; label: string; desc: string; icon: React.ReactNode }[] = [
-    { id: 'workbench', label: t.tabWorkbench, desc: t.tabWorkbenchDesc, icon: <ClipboardList size={16} /> },
-    { id: 'graph', label: t.tabGraph, desc: t.tabGraphDesc, icon: <GitFork size={16} /> },
+    { id: 'workbench', label: t('ontologyModeler.tabWorkbench'), desc: t('ontologyModeler.tabWorkbenchDesc'), icon: <ClipboardList size={16} /> },
+    { id: 'graph', label: t('ontologyModeler.tabGraph'), desc: t('ontologyModeler.tabGraphDesc'), icon: <GitFork size={16} /> },
   ];
 
   return (
@@ -63,9 +43,9 @@ const OntologyModeler: React.FC<OntologyModelerProps> = ({
       >
         <div>
           <h1 className="text-lg font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-            {t.title}
+            {t('ontologyModeler.title')}
           </h1>
-          <p className="text-xs text-muted">{t.subtitle}</p>
+          <p className="text-xs text-muted">{t('ontologyModeler.subtitle')}</p>
         </div>
 
         {/* Tab buttons */}
@@ -101,7 +81,6 @@ const OntologyModeler: React.FC<OntologyModelerProps> = ({
       <div className="flex-1 overflow-hidden">
         {activeView === 'workbench' && (
           <StructuringWorkbench
-            lang={lang}
             project={project}
             setProject={setProject}
             chatMessages={chatMessages}
@@ -111,7 +90,6 @@ const OntologyModeler: React.FC<OntologyModelerProps> = ({
         )}
         {activeView === 'graph' && (
           <OntologyVisualizer
-            lang={lang}
             objects={project.objects}
             links={project.links}
           />

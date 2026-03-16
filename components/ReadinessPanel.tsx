@@ -11,9 +11,9 @@ import {
   XCircle,
   TrendingUp
 } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface ReadinessPanelProps {
-  lang: Language;
   project: ProjectState;
   chatMessages: ChatMessage[];
   onProceed?: () => void;
@@ -22,13 +22,13 @@ interface ReadinessPanelProps {
 }
 
 const ReadinessPanel: React.FC<ReadinessPanelProps> = ({
-  lang,
   project,
   chatMessages,
   onProceed,
   onCancel,
   compact = false
 }) => {
+  const { t, lang } = useAppTranslation('modeling');
   const report = useMemo(() => {
     return checkReadiness(project, chatMessages, lang);
   }, [project, chatMessages, lang]);
@@ -49,23 +49,7 @@ const ReadinessPanel: React.FC<ReadinessPanelProps> = ({
   };
 
   const getCategoryLabel = (category: ReadinessIssue['category']) => {
-    const labels = {
-      cn: {
-        content: '对话内容',
-        object: '业务对象',
-        action: '操作定义',
-        integration: '数据集成',
-        governance: '治理规则'
-      },
-      en: {
-        content: 'Conversation',
-        object: 'Objects',
-        action: 'Actions',
-        integration: 'Integration',
-        governance: 'Governance'
-      }
-    };
-    return labels[lang][category];
+    return t(`readinessPanel.${category}`);
   };
 
   // 紧凑模式 - 用于嵌入到其他组件

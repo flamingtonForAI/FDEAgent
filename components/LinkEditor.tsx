@@ -3,11 +3,11 @@
  * 编辑单个 Link 的源对象、目标对象、关系类型
  */
 import React, { useState, useEffect } from 'react';
-import { Language, OntologyObject, OntologyLink } from '../types';
+import { OntologyObject, OntologyLink } from '../types';
 import { X, Save, Link2, ArrowRight } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface LinkEditorProps {
-  lang: Language;
   link: OntologyLink;
   objects: OntologyObject[];
   onSave: (updated: OntologyLink) => void;
@@ -15,62 +15,14 @@ interface LinkEditorProps {
   onDelete?: () => void;
 }
 
-const translations = {
-  en: {
-    editLink: 'Edit Relationship',
-    createLink: 'Create Relationship',
-    source: 'Source Object',
-    target: 'Target Object',
-    label: 'Relationship Type',
-    labelPlaceholder: 'e.g., has_many, belongs_to, contains',
-    description: 'Description',
-    descriptionPlaceholder: 'Describe this relationship...',
-    isSemantic: 'Semantic Relationship',
-    semanticHelp: 'Semantic relationships represent meaningful business connections',
-    cardinality: 'Cardinality',
-    oneToOne: 'One to One (1:1)',
-    oneToMany: 'One to Many (1:N)',
-    manyToOne: 'Many to One (N:1)',
-    manyToMany: 'Many to Many (N:N)',
-    save: 'Save',
-    cancel: 'Cancel',
-    delete: 'Delete',
-    selectObject: 'Select an object',
-    preview: 'Preview',
-  },
-  cn: {
-    editLink: '编辑关联',
-    createLink: '创建关联',
-    source: '源对象',
-    target: '目标对象',
-    label: '关系类型',
-    labelPlaceholder: '例如：has_many, belongs_to, contains',
-    description: '描述',
-    descriptionPlaceholder: '描述这个关系...',
-    isSemantic: '语义关系',
-    semanticHelp: '语义关系代表有意义的业务关联',
-    cardinality: '基数',
-    oneToOne: '一对一 (1:1)',
-    oneToMany: '一对多 (1:N)',
-    manyToOne: '多对一 (N:1)',
-    manyToMany: '多对多 (N:N)',
-    save: '保存',
-    cancel: '取消',
-    delete: '删除',
-    selectObject: '选择对象',
-    preview: '预览',
-  }
-};
-
 const LinkEditor: React.FC<LinkEditorProps> = ({
-  lang,
   link,
   objects,
   onSave,
   onClose,
   onDelete
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('modeling');
   const [editingLink, setEditingLink] = useState<OntologyLink>({ ...link });
   const isNew = !link.id || link.id === '';
 
@@ -112,7 +64,7 @@ const LinkEditor: React.FC<LinkEditorProps> = ({
             </div>
             <div>
               <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {isNew ? t.createLink : t.editLink}
+                {isNew ? t('linkEditor.createLink') : t('linkEditor.editLink')}
               </h2>
             </div>
           </div>
@@ -139,7 +91,7 @@ const LinkEditor: React.FC<LinkEditorProps> = ({
                 color: sourceObject ? 'var(--color-accent)' : 'var(--color-text-muted)'
               }}
             >
-              {sourceObject?.name || t.selectObject}
+              {sourceObject?.name || t('linkEditor.selectObject')}
             </div>
             <div className="flex items-center gap-1" style={{ color: 'var(--color-warning)' }}>
               <div className="w-8 h-0.5" style={{ backgroundColor: 'var(--color-warning)' }} />
@@ -153,14 +105,14 @@ const LinkEditor: React.FC<LinkEditorProps> = ({
                 color: targetObject ? 'var(--color-success)' : 'var(--color-text-muted)'
               }}
             >
-              {targetObject?.name || t.selectObject}
+              {targetObject?.name || t('linkEditor.selectObject')}
             </div>
           </div>
 
           {/* Source & Target */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-muted mb-1.5">{t.source} *</label>
+              <label className="block text-xs text-muted mb-1.5">{t('linkEditor.source')} *</label>
               <select
                 value={editingLink.source || ''}
                 onChange={(e) => updateField('source', e.target.value)}
@@ -171,14 +123,14 @@ const LinkEditor: React.FC<LinkEditorProps> = ({
                   color: 'var(--color-text-primary)'
                 }}
               >
-                <option value="">{t.selectObject}</option>
+                <option value="">{t('linkEditor.selectObject')}</option>
                 {objects.map(obj => (
                   <option key={obj.id} value={obj.id}>{obj.name}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-xs text-muted mb-1.5">{t.target} *</label>
+              <label className="block text-xs text-muted mb-1.5">{t('linkEditor.target')} *</label>
               <select
                 value={editingLink.target || ''}
                 onChange={(e) => updateField('target', e.target.value)}
@@ -189,7 +141,7 @@ const LinkEditor: React.FC<LinkEditorProps> = ({
                   color: 'var(--color-text-primary)'
                 }}
               >
-                <option value="">{t.selectObject}</option>
+                <option value="">{t('linkEditor.selectObject')}</option>
                 {objects.map(obj => (
                   <option key={obj.id} value={obj.id}>{obj.name}</option>
                 ))}
@@ -199,7 +151,7 @@ const LinkEditor: React.FC<LinkEditorProps> = ({
 
           {/* Relationship Type */}
           <div>
-            <label className="block text-xs text-muted mb-1.5">{t.label} *</label>
+            <label className="block text-xs text-muted mb-1.5">{t('linkEditor.label')} *</label>
             <input
               type="text"
               value={editingLink.label || ''}
@@ -210,13 +162,13 @@ const LinkEditor: React.FC<LinkEditorProps> = ({
                 border: '1px solid var(--color-border)',
                 color: 'var(--color-text-primary)'
               }}
-              placeholder={t.labelPlaceholder}
+              placeholder={t('linkEditor.labelPlaceholder')}
             />
           </div>
 
           {/* Cardinality */}
           <div>
-            <label className="block text-xs text-muted mb-1.5">{t.cardinality}</label>
+            <label className="block text-xs text-muted mb-1.5">{t('linkEditor.cardinality')}</label>
             <select
               value={editingLink.cardinality || '1:N'}
               onChange={(e) => updateField('cardinality', e.target.value)}
@@ -227,10 +179,10 @@ const LinkEditor: React.FC<LinkEditorProps> = ({
                 color: 'var(--color-text-primary)'
               }}
             >
-              <option value="1:1">{t.oneToOne}</option>
-              <option value="1:N">{t.oneToMany}</option>
-              <option value="N:1">{t.manyToOne}</option>
-              <option value="N:N">{t.manyToMany}</option>
+              <option value="1:1">{t('linkEditor.oneToOne')}</option>
+              <option value="1:N">{t('linkEditor.oneToMany')}</option>
+              <option value="N:1">{t('linkEditor.manyToOne')}</option>
+              <option value="N:N">{t('linkEditor.manyToMany')}</option>
             </select>
           </div>
 
@@ -240,8 +192,8 @@ const LinkEditor: React.FC<LinkEditorProps> = ({
             style={{ backgroundColor: 'var(--color-bg-surface)' }}
           >
             <div>
-              <div className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{t.isSemantic}</div>
-              <div className="text-xs text-muted">{t.semanticHelp}</div>
+              <div className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{t('linkEditor.isSemantic')}</div>
+              <div className="text-xs text-muted">{t('linkEditor.semanticHelp')}</div>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -275,7 +227,7 @@ const LinkEditor: React.FC<LinkEditorProps> = ({
                 }}
                 className="px-3 py-2 rounded-lg text-sm transition-colors text-red-400 hover:bg-red-400/10"
               >
-                {t.delete}
+                {t('linkEditor.delete')}
               </button>
             )}
           </div>
@@ -285,7 +237,7 @@ const LinkEditor: React.FC<LinkEditorProps> = ({
               className="px-4 py-2 rounded-lg text-sm transition-colors"
               style={{ color: 'var(--color-text-muted)' }}
             >
-              {t.cancel}
+              {t('linkEditor.cancel')}
             </button>
             <button
               onClick={handleSave}
@@ -294,7 +246,7 @@ const LinkEditor: React.FC<LinkEditorProps> = ({
               style={{ backgroundColor: 'var(--color-accent)', color: '#fff' }}
             >
               <Save size={14} />
-              {t.save}
+              {t('linkEditor.save')}
             </button>
           </div>
         </div>

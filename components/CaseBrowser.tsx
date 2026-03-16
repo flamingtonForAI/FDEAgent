@@ -1,6 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Language } from '../types';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import {
   OntologyCase,
   CaseIndex,
@@ -24,66 +25,9 @@ import {
 } from 'lucide-react';
 
 interface CaseBrowserProps {
-  lang: Language;
   onClose?: () => void;
 }
 
-const translations = {
-  en: {
-    title: 'Case Library',
-    subtitle: 'Learn from real-world Ontology designs',
-    search: 'Search cases...',
-    filter: 'Filter',
-    all: 'All',
-    industry: 'Industry',
-    difficulty: 'Difficulty',
-    tags: 'Tags',
-    objects: 'Objects',
-    actions: 'Actions',
-    viewCase: 'View Case',
-    noCases: 'No cases found',
-    back: 'Back to list',
-    scenario: 'Business Scenario',
-    background: 'Background',
-    challenges: 'Challenges',
-    goals: 'Goals',
-    stakeholders: 'Stakeholders',
-    ontologyDesign: 'Ontology Design',
-    highlights: 'Design Highlights',
-    learningPoints: 'Learning Points',
-    relatedCases: 'Related Cases',
-    integrations: 'Integrations',
-    links: 'Links',
-    estimatedTime: 'Est. Time'
-  },
-  cn: {
-    title: '案例库',
-    subtitle: '从真实 Ontology 设计中学习',
-    search: '搜索案例...',
-    filter: '筛选',
-    all: '全部',
-    industry: '行业',
-    difficulty: '难度',
-    tags: '标签',
-    objects: '对象',
-    actions: '动作',
-    viewCase: '查看案例',
-    noCases: '未找到案例',
-    back: '返回列表',
-    scenario: '业务场景',
-    background: '背景',
-    challenges: '挑战',
-    goals: '目标',
-    stakeholders: '干系人',
-    ontologyDesign: 'Ontology 设计',
-    highlights: '设计亮点',
-    learningPoints: '学习要点',
-    relatedCases: '相关案例',
-    integrations: '集成',
-    links: '关系',
-    estimatedTime: '预计时间'
-  }
-};
 
 // Industry icon mapping
 const industryIcons: Record<Industry, React.ReactNode> = {
@@ -112,8 +56,8 @@ const difficultyColors: Record<CaseDifficulty, string> = {
   advanced: 'text-red-400 bg-red-500/20'
 };
 
-const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
-  const t = translations[lang];
+const CaseBrowser: React.FC<CaseBrowserProps> = ({ onClose }) => {
+  const { t, lang } = useAppTranslation('discovery');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndustry, setSelectedIndustry] = useState<Industry | 'all'>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<CaseDifficulty | 'all'>('all');
@@ -184,11 +128,11 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
       <div className="flex items-center gap-3 text-micro text-muted">
         <span className="flex items-center gap-1">
           <Box size={10} />
-          {caseItem.objectCount} {t.objects}
+          {caseItem.objectCount} {t('caseBrowser.objects')}
         </span>
         <span className="flex items-center gap-1">
           <Zap size={10} />
-          {caseItem.actionCount} {t.actions}
+          {caseItem.actionCount} {t('caseBrowser.actions')}
         </span>
       </div>
 
@@ -252,17 +196,17 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
           <section className="glass-surface rounded-xl p-5">
             <h3 className="text-white font-medium mb-4 flex items-center gap-2">
               <BookOpen size={16} className="text-amber-400" />
-              {t.scenario}
+              {t('caseBrowser.scenario')}
             </h3>
 
             <div className="space-y-4">
               <div>
-                <h4 className="text-xs text-muted mb-2">{t.background}</h4>
+                <h4 className="text-xs text-muted mb-2">{t('caseBrowser.background')}</h4>
                 <p className="text-sm text-secondary">{selectedCase.scenario.background[lang]}</p>
               </div>
 
               <div>
-                <h4 className="text-xs text-muted mb-2">{t.challenges}</h4>
+                <h4 className="text-xs text-muted mb-2">{t('caseBrowser.challenges')}</h4>
                 <ul className="space-y-1">
                   {selectedCase.scenario.challenges[lang].map((c, i) => (
                     <li key={i} className="text-sm text-secondary flex items-start gap-2">
@@ -274,7 +218,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
               </div>
 
               <div>
-                <h4 className="text-xs text-muted mb-2">{t.goals}</h4>
+                <h4 className="text-xs text-muted mb-2">{t('caseBrowser.goals')}</h4>
                 <ul className="space-y-1">
                   {selectedCase.scenario.goals[lang].map((g, i) => (
                     <li key={i} className="text-sm text-secondary flex items-start gap-2">
@@ -286,7 +230,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
               </div>
 
               <div>
-                <h4 className="text-xs text-muted mb-2">{t.stakeholders}</h4>
+                <h4 className="text-xs text-muted mb-2">{t('caseBrowser.stakeholders')}</h4>
                 <div className="flex flex-wrap gap-2">
                   {selectedCase.scenario.stakeholders.map((s, i) => (
                     <div key={i} className="glass-card rounded-lg p-2 flex items-center gap-2">
@@ -306,7 +250,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
           <section className="glass-surface rounded-xl p-5">
             <h3 className="text-white font-medium mb-4 flex items-center gap-2">
               <Layers size={16} className="text-emerald-400" />
-              {t.ontologyDesign}
+              {t('caseBrowser.ontologyDesign')}
             </h3>
 
             <div className="grid grid-cols-3 gap-4 mb-4">
@@ -314,19 +258,19 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
                 <div className="text-2xl font-bold text-amber-400">
                   {selectedCase.ontology.objects.length}
                 </div>
-                <div className="text-micro text-muted">{t.objects}</div>
+                <div className="text-micro text-muted">{t('caseBrowser.objects')}</div>
               </div>
               <div className="glass-card rounded-lg p-3 text-center">
                 <div className="text-2xl font-bold text-emerald-400">
                   {selectedCase.ontology.objects.reduce((sum, o) => sum + (o.actions?.length || 0), 0)}
                 </div>
-                <div className="text-micro text-muted">{t.actions}</div>
+                <div className="text-micro text-muted">{t('caseBrowser.actions')}</div>
               </div>
               <div className="glass-card rounded-lg p-3 text-center">
                 <div className="text-2xl font-bold text-purple-400">
                   {selectedCase.ontology.links.length}
                 </div>
-                <div className="text-micro text-muted">{t.links}</div>
+                <div className="text-micro text-muted">{t('caseBrowser.links')}</div>
               </div>
             </div>
 
@@ -342,7 +286,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
               <div className="mt-4">
                 <h4 className="text-xs text-muted mb-2 flex items-center gap-1">
                   <Database size={12} />
-                  {t.integrations}
+                  {t('caseBrowser.integrations')}
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {selectedCase.ontology.integrations.map(int => (
@@ -362,7 +306,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
           <section className="glass-surface rounded-xl p-5">
             <h3 className="text-white font-medium mb-4 flex items-center gap-2">
               <Lightbulb size={16} className="text-amber-400" />
-              {t.highlights}
+              {t('caseBrowser.highlights')}
             </h3>
 
             <div className="space-y-3">
@@ -379,7 +323,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
           <section className="glass-surface rounded-xl p-5">
             <h3 className="text-white font-medium mb-4 flex items-center gap-2">
               <BookOpen size={16} className="text-blue-400" />
-              {t.learningPoints}
+              {t('caseBrowser.learningPoints')}
             </h3>
 
             <div className="space-y-3">
@@ -397,7 +341,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
             <section>
               <h3 className="text-white font-medium mb-4 flex items-center gap-2">
                 <Link2 size={16} className="text-purple-400" />
-                {t.relatedCases}
+                {t('caseBrowser.relatedCases')}
               </h3>
 
               <div className="grid grid-cols-2 gap-3">
@@ -431,8 +375,8 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
       <div className="px-6 py-4 border-b border-white/[0.06]">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-white font-medium text-lg">{t.title}</h2>
-            <p className="text-xs text-muted">{t.subtitle}</p>
+            <h2 className="text-white font-medium text-lg">{t('caseBrowser.title')}</h2>
+            <p className="text-xs text-muted">{t('caseBrowser.subtitle')}</p>
           </div>
           {onClose && (
             <button
@@ -452,7 +396,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder={t.search}
+              placeholder={t('caseBrowser.search')}
               className="w-full pl-9 pr-4 py-2 rounded-lg glass-surface text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-500/50"
             />
           </div>
@@ -463,7 +407,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
             }`}
           >
             <Filter size={14} />
-            {t.filter}
+            {t('caseBrowser.filter')}
           </button>
         </div>
 
@@ -472,12 +416,12 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
           <div className="mt-4 p-4 glass-card rounded-xl space-y-4">
             {/* Industry filter */}
             <div>
-              <h4 className="text-xs text-muted mb-2">{t.industry}</h4>
+              <h4 className="text-xs text-muted mb-2">{t('caseBrowser.industry')}</h4>
               <div className="flex flex-wrap gap-2">
                 <FilterChip
                   active={selectedIndustry === 'all'}
                   onClick={() => setSelectedIndustry('all')}
-                  label={t.all}
+                  label={t('caseBrowser.all')}
                 />
                 {(Object.keys(industryConfig) as Industry[]).map(ind => (
                   <FilterChip
@@ -494,12 +438,12 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
 
             {/* Difficulty filter */}
             <div>
-              <h4 className="text-xs text-muted mb-2">{t.difficulty}</h4>
+              <h4 className="text-xs text-muted mb-2">{t('caseBrowser.difficulty')}</h4>
               <div className="flex flex-wrap gap-2">
                 <FilterChip
                   active={selectedDifficulty === 'all'}
                   onClick={() => setSelectedDifficulty('all')}
-                  label={t.all}
+                  label={t('caseBrowser.all')}
                 />
                 {(Object.keys(difficultyConfig) as CaseDifficulty[]).map(diff => (
                   <FilterChip
@@ -521,7 +465,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ lang, onClose }) => {
         {filteredCases.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-muted">
             <Search size={40} className="mb-4 opacity-30" />
-            <p className="text-sm">{t.noCases}</p>
+            <p className="text-sm">{t('caseBrowser.noCases')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

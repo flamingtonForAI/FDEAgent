@@ -1,35 +1,14 @@
 import React, { useState } from 'react';
 import { Package, Link2, Zap, Plus, ChevronRight } from 'lucide-react';
-import { ProjectState, Language, OntologyObject, AIPAction } from '../types';
+import { ProjectState, OntologyObject, AIPAction } from '../types';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface OntologyDashboardProps {
   project: ProjectState;
-  lang: Language;
   onAddObject: () => void;
   onAddLink: () => void;
   onAddAction: () => void;
 }
-
-const translations = {
-  en: {
-    objects: 'Objects',
-    links: 'Links',
-    actions: 'Actions',
-    readiness: 'Readiness',
-    addObj: 'Add Object',
-    addLink: 'Add Link',
-    addAction: 'Add Action',
-  },
-  cn: {
-    objects: '对象',
-    links: '关系',
-    actions: '动作',
-    readiness: '准备度',
-    addObj: '添加对象',
-    addLink: '添加关系',
-    addAction: '添加动作',
-  }
-};
 
 // 计算准备度分数
 function calculateReadiness(project: ProjectState): number {
@@ -66,12 +45,11 @@ function getAllActions(objects: OntologyObject[]): { action: AIPAction; objectNa
 
 const OntologyDashboard: React.FC<OntologyDashboardProps> = ({
   project,
-  lang,
   onAddObject,
   onAddLink,
   onAddAction,
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('modeling');
   const readiness = calculateReadiness(project);
   const allActions = getAllActions(project.objects);
   const [expandedSection, setExpandedSection] = useState<'objects' | 'links' | 'actions' | null>(null);
@@ -107,7 +85,7 @@ const OntologyDashboard: React.FC<OntologyDashboardProps> = ({
           }}
         >
           <Package size={13} style={{ color: 'var(--color-accent)' }} />
-          <span className="text-muted">{t.objects}</span>
+          <span className="text-muted">{t('ontologyDashboard.objects')}</span>
           <span
             className="px-1.5 py-0.5 rounded-full text-[10px] font-medium"
             style={{
@@ -153,7 +131,7 @@ const OntologyDashboard: React.FC<OntologyDashboardProps> = ({
               style={{ color: 'var(--color-accent)' }}
             >
               <Plus size={12} />
-              {t.addObj}
+              {t('ontologyDashboard.addObj')}
             </button>
           </div>
         )}
@@ -169,7 +147,7 @@ const OntologyDashboard: React.FC<OntologyDashboardProps> = ({
           }}
         >
           <Link2 size={13} style={{ color: 'var(--color-success)' }} />
-          <span className="text-muted">{t.links}</span>
+          <span className="text-muted">{t('ontologyDashboard.links')}</span>
           <span
             className="px-1.5 py-0.5 rounded-full text-[10px] font-medium"
             style={{
@@ -215,7 +193,7 @@ const OntologyDashboard: React.FC<OntologyDashboardProps> = ({
               style={{ color: 'var(--color-success)' }}
             >
               <Plus size={12} />
-              {t.addLink}
+              {t('ontologyDashboard.addLink')}
             </button>
           </div>
         )}
@@ -231,7 +209,7 @@ const OntologyDashboard: React.FC<OntologyDashboardProps> = ({
           }}
         >
           <Zap size={13} style={{ color: 'var(--color-warning, #d29922)' }} />
-          <span className="text-muted">{t.actions}</span>
+          <span className="text-muted">{t('ontologyDashboard.actions')}</span>
           <span
             className="px-1.5 py-0.5 rounded-full text-[10px] font-medium"
             style={{
@@ -278,7 +256,7 @@ const OntologyDashboard: React.FC<OntologyDashboardProps> = ({
               style={{ color: 'var(--color-warning, #d29922)' }}
             >
               <Plus size={12} />
-              {t.addAction}
+              {t('ontologyDashboard.addAction')}
             </button>
           </div>
         )}
@@ -289,7 +267,7 @@ const OntologyDashboard: React.FC<OntologyDashboardProps> = ({
 
       {/* 准备度 */}
       <div className="flex items-center gap-2">
-        <span className="text-muted">{t.readiness}</span>
+        <span className="text-muted">{t('ontologyDashboard.readiness')}</span>
         <div className="w-16 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
           <div
             className="h-full rounded-full transition-all duration-300"

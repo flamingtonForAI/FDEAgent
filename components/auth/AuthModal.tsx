@@ -13,14 +13,12 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialMode?: 'login' | 'register';
-  lang?: 'en' | 'cn';
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
   onClose,
   initialMode = 'login',
-  lang = 'cn',
 }) => {
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const { isAuthenticated } = useAuth();
@@ -79,13 +77,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <LoginForm
             onSwitchToRegister={() => setMode('register')}
             onSuccess={onClose}
-            lang={lang}
           />
         ) : (
           <RegisterForm
             onSwitchToLogin={() => setMode('login')}
             onSuccess={onClose}
-            lang={lang}
           />
         )}
       </div>

@@ -17,11 +17,11 @@ import { Language, ProjectState, ChatMessage, AISettings, AIProvider } from '../
 import { FileUploadButton, UploadedFile, getProviderCompatibility } from './FileUpload';
 import { AIService } from '../services/aiService';
 import MarkdownRenderer from './MarkdownRenderer';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 type PhaseType = 'discover' | 'model' | 'integrate' | 'enhance' | 'deliver';
 
 interface GlobalChatBarProps {
-  lang: Language;
   project: ProjectState;
   setProject: React.Dispatch<React.SetStateAction<ProjectState>>;
   aiSettings: AISettings;
@@ -187,7 +187,6 @@ ${linksSummary || '(暂无)'}
 }
 
 const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
-  lang,
   project,
   setProject,
   aiSettings,
@@ -203,6 +202,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
   activeProjectId,
   onNavigateToProjects
 }) => {
+  const { lang } = useAppTranslation('discovery');
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

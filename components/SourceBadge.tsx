@@ -11,35 +11,13 @@
 import React, { useState } from 'react';
 import { Bot, Link2, Package, ExternalLink } from 'lucide-react';
 import { ArchetypeOrigin, ArchetypeOriginType } from '../types/archetype';
-import { Language } from '../types';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface SourceBadgeProps {
   origin?: ArchetypeOrigin;
-  lang?: Language;
   showDetails?: boolean;
   size?: 'sm' | 'md' | 'lg';
 }
-
-const translations = {
-  en: {
-    aiGenerated: 'AI Generated',
-    reference: 'Reference',
-    builtin: 'Built-in',
-    model: 'Model',
-    source: 'Source',
-    date: 'Date',
-    confidence: 'Confidence',
-  },
-  cn: {
-    aiGenerated: 'AI 生成',
-    reference: '参考资料',
-    builtin: '内置',
-    model: '模型',
-    source: '来源',
-    date: '日期',
-    confidence: '置信度',
-  }
-};
 
 const badgeConfig: Record<ArchetypeOriginType, {
   icon: React.ReactNode;
@@ -87,20 +65,19 @@ const sizeConfig = {
 
 export const SourceBadge: React.FC<SourceBadgeProps> = ({
   origin,
-  lang = 'cn',
   showDetails = false,
   size = 'md',
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('integration');
   const sizeStyle = sizeConfig[size];
 
   // 默认为 static 类型
   const originType: ArchetypeOriginType = origin?.type || 'static';
   const config = badgeConfig[originType];
 
-  const label = originType === 'ai-generated' ? t.aiGenerated :
-                originType === 'reference' ? t.reference :
-                t.builtin;
+  const label = originType === 'ai-generated' ? t('sourceBadge.aiGenerated') :
+                originType === 'reference' ? t('sourceBadge.reference') :
+                t('sourceBadge.builtin');
 
   // 基础徽章
   const badge = (
@@ -139,13 +116,13 @@ export const SourceBadge: React.FC<SourceBadgeProps> = ({
           <>
             {origin.modelUsed && (
               <div className="flex justify-between">
-                <span className="text-muted">{t.model}:</span>
+                <span className="text-muted">{t('sourceBadge.model')}:</span>
                 <span style={{ color: 'var(--color-text-primary)' }}>{origin.modelUsed}</span>
               </div>
             )}
             {origin.generationDate && (
               <div className="flex justify-between">
-                <span className="text-muted">{t.date}:</span>
+                <span className="text-muted">{t('sourceBadge.date')}:</span>
                 <span style={{ color: 'var(--color-text-primary)' }}>
                   {new Date(origin.generationDate).toLocaleDateString(lang === 'cn' ? 'zh-CN' : 'en-US')}
                 </span>
@@ -153,7 +130,7 @@ export const SourceBadge: React.FC<SourceBadgeProps> = ({
             )}
             {origin.confidence !== undefined && (
               <div className="flex justify-between">
-                <span className="text-muted">{t.confidence}:</span>
+                <span className="text-muted">{t('sourceBadge.confidence')}:</span>
                 <span style={{ color: 'var(--color-text-primary)' }}>
                   {Math.round(origin.confidence * 100)}%
                 </span>
@@ -167,7 +144,7 @@ export const SourceBadge: React.FC<SourceBadgeProps> = ({
           <>
             {origin.sourceName && (
               <div className="flex justify-between items-center">
-                <span className="text-muted">{t.source}:</span>
+                <span className="text-muted">{t('sourceBadge.source')}:</span>
                 {origin.sourceUrl ? (
                   <a
                     href={origin.sourceUrl}
@@ -186,7 +163,7 @@ export const SourceBadge: React.FC<SourceBadgeProps> = ({
             )}
             {origin.fetchDate && (
               <div className="flex justify-between">
-                <span className="text-muted">{t.date}:</span>
+                <span className="text-muted">{t('sourceBadge.date')}:</span>
                 <span style={{ color: 'var(--color-text-primary)' }}>
                   {new Date(origin.fetchDate).toLocaleDateString(lang === 'cn' ? 'zh-CN' : 'en-US')}
                 </span>
@@ -199,7 +176,7 @@ export const SourceBadge: React.FC<SourceBadgeProps> = ({
         {origin.userInput && (
           <div className="pt-1.5 mt-1.5" style={{ borderTop: '1px solid var(--color-border)' }}>
             <div className="text-muted text-[10px] mb-1">
-              {lang === 'cn' ? '用户输入' : 'User Input'}:
+              {t('sourceBadge.userInput')}:
             </div>
             <div style={{ color: 'var(--color-text-secondary)' }}>
               {origin.userInput.industryName}
@@ -221,16 +198,15 @@ export const SourceBadge: React.FC<SourceBadgeProps> = ({
 export const SourceIndicator: React.FC<{
   origin?: ArchetypeOrigin;
   size?: number;
-  lang?: Language;
-}> = ({ origin, size = 16, lang = 'cn' }) => {
+}> = ({ origin, size = 16 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('integration');
   const originType: ArchetypeOriginType = origin?.type || 'static';
   const config = badgeConfig[originType];
 
-  const label = originType === 'ai-generated' ? t.aiGenerated :
-                originType === 'reference' ? t.reference :
-                t.builtin;
+  const label = originType === 'ai-generated' ? t('sourceBadge.aiGenerated') :
+                originType === 'reference' ? t('sourceBadge.reference') :
+                t('sourceBadge.builtin');
 
   // 格式化日期
   const formatDate = (dateStr?: string) => {
@@ -274,7 +250,7 @@ export const SourceIndicator: React.FC<{
             <div className="space-y-1.5">
               {origin.modelUsed && (
                 <div className="flex justify-between gap-4">
-                  <span className="text-muted">{t.model}:</span>
+                  <span className="text-muted">{t('sourceBadge.model')}:</span>
                   <span className="font-mono text-[11px]" style={{ color: 'var(--color-text-primary)' }}>
                     {origin.modelUsed}
                   </span>
@@ -282,7 +258,7 @@ export const SourceIndicator: React.FC<{
               )}
               {origin.generationDate && (
                 <div className="flex justify-between gap-4">
-                  <span className="text-muted">{t.date}:</span>
+                  <span className="text-muted">{t('sourceBadge.date')}:</span>
                   <span style={{ color: 'var(--color-text-primary)' }}>
                     {formatDate(origin.generationDate)}
                   </span>
@@ -290,7 +266,7 @@ export const SourceIndicator: React.FC<{
               )}
               {origin.confidence !== undefined && (
                 <div className="flex justify-between gap-4">
-                  <span className="text-muted">{t.confidence}:</span>
+                  <span className="text-muted">{t('sourceBadge.confidence')}:</span>
                   <span style={{ color: 'var(--color-text-primary)' }}>
                     {Math.round(origin.confidence * 100)}%
                   </span>
@@ -312,7 +288,7 @@ export const SourceIndicator: React.FC<{
             <div className="space-y-1.5">
               {origin.sourceName && (
                 <div className="flex justify-between gap-4 items-center">
-                  <span className="text-muted">{t.source}:</span>
+                  <span className="text-muted">{t('sourceBadge.source')}:</span>
                   {origin.sourceUrl ? (
                     <a
                       href={origin.sourceUrl}
@@ -333,7 +309,7 @@ export const SourceIndicator: React.FC<{
               )}
               {origin.fetchDate && (
                 <div className="flex justify-between gap-4">
-                  <span className="text-muted">{t.date}:</span>
+                  <span className="text-muted">{t('sourceBadge.date')}:</span>
                   <span style={{ color: 'var(--color-text-primary)' }}>
                     {formatDate(origin.fetchDate)}
                   </span>
@@ -345,7 +321,7 @@ export const SourceIndicator: React.FC<{
           {/* Static 无额外信息 */}
           {origin.type === 'static' && (
             <div className="text-muted text-[11px]">
-              {lang === 'cn' ? '内置行业原型，随版本发布' : 'Built-in archetype, shipped with release'}
+              {t('sourceBadge.builtinDesc')}
             </div>
           )}
 
@@ -353,7 +329,7 @@ export const SourceIndicator: React.FC<{
           {origin.userInput && (
             <div className="mt-2 pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
               <div className="text-muted text-[10px] mb-1">
-                {lang === 'cn' ? '用户输入' : 'User Input'}:
+                {t('sourceBadge.userInput')}:
               </div>
               <div className="text-[11px] truncate" style={{ color: 'var(--color-text-secondary)' }}>
                 {origin.userInput.industryName}

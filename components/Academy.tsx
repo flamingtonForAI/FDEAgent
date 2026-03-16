@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Language } from '../types';
 import {
   GraduationCap, BookOpen, Zap, Code, Brain,
   ChevronRight, Lock, CheckCircle, Play, Clock, Target, FlaskConical,
@@ -17,9 +16,9 @@ import { methodologyLessons } from '../content/lessons/methodology';
 import { aiLayerLessons } from '../content/lessons/aiLayer';
 import { quickReferenceCards, checklists, interviewTemplates, glossaryTerms, learningPaths, ReferenceCard, GlossaryTerm } from '../content/reference';
 import { useProgress } from '../hooks/useProgress';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface Props {
-  lang: Language;
 }
 
 interface Lesson {
@@ -76,199 +75,9 @@ const exercises: ExerciseInfo[] = [
 // Active view type
 type ViewType = 'main' | 'paths' | 'reference' | 'glossary';
 
-const translations = {
-  en: {
-    title: "Learning Center",
-    subtitle: "Master the Ontology methodology step by step",
-    progress: "Overall Progress",
-    startLearning: "Start Learning",
-    continueLearning: "Continue Learning",
-    completed: "Completed",
-    locked: "Complete previous level to unlock",
-    lessons: "lessons",
-    minutes: "min",
-    hours: "hours",
-    // Tabs
-    curriculum: "Curriculum",
-    learningPaths: "Learning Paths",
-    reference: "Reference",
-    // Practice Lab
-    practiceLab: "Practice Lab",
-    practiceDesc: "Apply what you've learned",
-    startExercise: "Start",
-    exerciseLocked: "Complete Level {level} to unlock",
-    // Achievements
-    achievements: "Achievements",
-    achievementsDesc: "Your learning milestones",
-    noAchievements: "Complete lessons to unlock achievements",
-    unlockedOn: "Unlocked",
-    // Streak
-    streak: "day streak",
-    // Case Library
-    caseLibrary: "Case Library",
-    caseLibraryDesc: "Learn from real-world Ontology designs",
-    viewAllCases: "View All Cases",
-    caseCount: "cases",
-    // Learning Paths
-    pathsTitle: "Learning Paths",
-    pathsSubtitle: "Role-based curriculum tailored to your needs",
-    selectPath: "Select Path",
-    estimatedTime: "Estimated time",
-    // Reference Materials
-    refTitle: "Reference Materials",
-    refSubtitle: "Quick references, checklists, and templates",
-    quickRef: "Quick Reference",
-    checklistsTitle: "Checklists",
-    templatesTitle: "Templates",
-    glossaryTitle: "Glossary",
-    viewGlossary: "View Full Glossary",
-    // Categories
-    core: "Core Concepts",
-    ai: "AI Layer",
-    methodology: "Methodology",
-    technical: "Technical",
-    // Levels
-    level1Title: "Fundamentals",
-    level1Desc: "Core concepts of Ontology and key differences from Knowledge Graph",
-    level2Title: "Action Mastery",
-    level2Desc: "Deep dive into Action's triple identity and state machine design",
-    methodologyTitle: "FDE Methodology",
-    methodologyDesc: "Five-phase implementation approach for enterprise Ontology",
-    aiLayerTitle: "AI Layer",
-    aiLayerDesc: "Agent tiers, tool design, governance, and human-in-the-loop patterns",
-    level3Title: "Implementation",
-    level3Desc: "Transform Actions into APIs and Agent Tools",
-    level4Title: "Best Practices",
-    level4Desc: "Real-world cases and design patterns",
-    // Level 1 lessons
-    l1_1: "What is Ontology (vs Knowledge Graph)",
-    l1_2: "3-Layer Architecture + AI Overlay",
-    l1_3: "Noun-Verb Framework",
-    l1_4: "Decision-First Principle",
-    // Level 2 lessons
-    l2_1: "Action's Triple Identity",
-    l2_2: "State Machine Design",
-    l2_3: "Action to API Mapping",
-    l2_4: "Action to Agent Tool Mapping",
-    // Methodology lessons
-    m1_1: "Five-Phase Implementation Overview",
-    m1_2: "Phase 1: Discovery Deep Dive",
-    m1_3: "Phase 2: Ontology Modeling",
-    m1_4: "Phases 3-5: Architecture to Deployment",
-    // AI Layer lessons
-    ai_1: "Agent Tier Model",
-    ai_2: "Ontology-to-Tool Mapping",
-    ai_3: "Human-in-the-Loop Patterns",
-    ai_4: "AI Governance Framework",
-    // Level 3 lessons
-    l3_1: "REST API Generation",
-    l3_2: "OpenAPI Specification",
-    l3_3: "Agent Tool Definition",
-    l3_4: "Governance & Permissions",
-    // Level 4 lessons
-    l4_1: "Manufacturing Case Study",
-    l4_2: "Retail Case Study",
-    l4_3: "Logistics Case Study",
-    l4_4: "Design Patterns & Anti-patterns",
-  },
-  cn: {
-    title: "学习中心",
-    subtitle: "循序渐进掌握本体方法论",
-    progress: "学习进度",
-    startLearning: "开始学习",
-    continueLearning: "继续学习",
-    completed: "已完成",
-    locked: "完成上一级别解锁",
-    lessons: "课时",
-    minutes: "分钟",
-    hours: "小时",
-    // Tabs
-    curriculum: "课程体系",
-    learningPaths: "学习路径",
-    reference: "参考资料",
-    // Practice Lab
-    practiceLab: "实战练习",
-    practiceDesc: "应用所学知识",
-    startExercise: "开始",
-    exerciseLocked: "完成第 {level} 级解锁",
-    // Achievements
-    achievements: "成就",
-    achievementsDesc: "你的学习里程碑",
-    noAchievements: "完成课程解锁成就",
-    unlockedOn: "解锁于",
-    // Streak
-    streak: "天连续学习",
-    // Case Library
-    caseLibrary: "案例库",
-    caseLibraryDesc: "从真实 Ontology 设计中学习",
-    viewAllCases: "查看所有案例",
-    caseCount: "个案例",
-    // Learning Paths
-    pathsTitle: "学习路径",
-    pathsSubtitle: "根据你的角色定制的课程体系",
-    selectPath: "选择路径",
-    estimatedTime: "预计时间",
-    // Reference Materials
-    refTitle: "参考资料",
-    refSubtitle: "快速参考、检查清单和模板",
-    quickRef: "快速参考",
-    checklistsTitle: "检查清单",
-    templatesTitle: "模板",
-    glossaryTitle: "术语表",
-    viewGlossary: "查看完整术语表",
-    // Categories
-    core: "核心概念",
-    ai: "AI 层",
-    methodology: "方法论",
-    technical: "技术",
-    // Levels
-    level1Title: "基础认知",
-    level1Desc: "本体核心概念，与知识图谱的关键区别",
-    level2Title: "Action 深度",
-    level2Desc: "深入理解 Action 的三重身份与状态机设计",
-    methodologyTitle: "FDE 方法论",
-    methodologyDesc: "企业 Ontology 的五阶段实施方法",
-    aiLayerTitle: "AI 层专项",
-    aiLayerDesc: "Agent 层级、工具设计、治理与 Human-in-the-Loop 模式",
-    level3Title: "落地实现",
-    level3Desc: "将 Action 转换为 API 和 Agent Tool",
-    level4Title: "最佳实践",
-    level4Desc: "真实案例与设计模式",
-    // Level 1 lessons
-    l1_1: "什么是 Ontology（vs 知识图谱）",
-    l1_2: "三层架构 + AI 能力叠加",
-    l1_3: "Noun-Verb 提取框架",
-    l1_4: "Decision-First 原则",
-    // Level 2 lessons
-    l2_1: "Action 的三重身份",
-    l2_2: "状态机设计",
-    l2_3: "Action 到 API 的映射",
-    l2_4: "Action 到 Agent Tool 的映射",
-    // Methodology lessons
-    m1_1: "五阶段实施法概览",
-    m1_2: "第一阶段：发现深入",
-    m1_3: "第二阶段：Ontology 建模",
-    m1_4: "第三至五阶段：从架构到部署",
-    // AI Layer lessons
-    ai_1: "Agent 四层能力模型",
-    ai_2: "Ontology 到 Tool 的映射",
-    ai_3: "Human-in-the-Loop 模式",
-    ai_4: "AI 治理框架",
-    // Level 3 lessons
-    l3_1: "REST API 生成",
-    l3_2: "OpenAPI 规范",
-    l3_3: "Agent Tool 定义",
-    l3_4: "治理与权限控制",
-    // Level 4 lessons
-    l4_1: "制造业案例分析",
-    l4_2: "零售业案例分析",
-    l4_3: "物流业案例分析",
-    l4_4: "设计模式与反模式",
-  }
-};
 
-const Academy: React.FC<Props> = ({ lang }) => {
-  const t = translations[lang];
+const Academy: React.FC<Props> = () => {
+  const { t, lang } = useAppTranslation('academy');
   const [expandedLevel, setExpandedLevel] = useState<string | null>('level1');
   const [currentLesson, setCurrentLesson] = useState<LessonContent | null>(null);
   const [currentExercise, setCurrentExercise] = useState<ExerciseInfo | null>(null);
@@ -323,7 +132,6 @@ const Academy: React.FC<Props> = ({ lang }) => {
   if (showCaseBrowser) {
     return (
       <CaseBrowser
-        lang={lang}
         onClose={() => setShowCaseBrowser(false)}
       />
     );
@@ -333,7 +141,6 @@ const Academy: React.FC<Props> = ({ lang }) => {
   if (currentExercise) {
     return (
       <Exercise
-        lang={lang}
         exerciseType={currentExercise.type}
         exerciseId={currentExercise.id}
         onBack={() => setCurrentExercise(null)}
@@ -346,7 +153,6 @@ const Academy: React.FC<Props> = ({ lang }) => {
   if (currentLesson) {
     return (
       <LessonViewer
-        lang={lang}
         lesson={currentLesson}
         onBack={() => setCurrentLesson(null)}
         onComplete={handleLessonComplete}
@@ -359,91 +165,91 @@ const Academy: React.FC<Props> = ({ lang }) => {
     {
       id: 1,
       key: 'level1',
-      title: t.level1Title,
-      description: t.level1Desc,
+      title: t('level1Title'),
+      description: t('level1Desc'),
       icon: <BookOpen size={20} />,
       color: 'amber',
       unlocked: true,
       lessons: [
-        { id: 'l1_1', title: t.l1_1, duration: '8', completed: completedLessons.has('l1_1') },
-        { id: 'l1_2', title: t.l1_2, duration: '12', completed: completedLessons.has('l1_2') },
-        { id: 'l1_3', title: t.l1_3, duration: '10', completed: completedLessons.has('l1_3') },
-        { id: 'l1_4', title: t.l1_4, duration: '8', completed: completedLessons.has('l1_4') },
+        { id: 'l1_1', title: t('l1_1'), duration: '8', completed: completedLessons.has('l1_1') },
+        { id: 'l1_2', title: t('l1_2'), duration: '12', completed: completedLessons.has('l1_2') },
+        { id: 'l1_3', title: t('l1_3'), duration: '10', completed: completedLessons.has('l1_3') },
+        { id: 'l1_4', title: t('l1_4'), duration: '8', completed: completedLessons.has('l1_4') },
       ]
     },
     {
       id: 2,
       key: 'level2',
-      title: t.level2Title,
-      description: t.level2Desc,
+      title: t('level2Title'),
+      description: t('level2Desc'),
       icon: <Zap size={20} />,
       color: 'emerald',
       unlocked: stats.level1Completed,
       lessons: [
-        { id: 'l2_1', title: t.l2_1, duration: '15', completed: completedLessons.has('l2_1') },
-        { id: 'l2_2', title: t.l2_2, duration: '12', completed: completedLessons.has('l2_2') },
-        { id: 'l2_3', title: t.l2_3, duration: '10', completed: completedLessons.has('l2_3') },
-        { id: 'l2_4', title: t.l2_4, duration: '10', completed: completedLessons.has('l2_4') },
+        { id: 'l2_1', title: t('l2_1'), duration: '15', completed: completedLessons.has('l2_1') },
+        { id: 'l2_2', title: t('l2_2'), duration: '12', completed: completedLessons.has('l2_2') },
+        { id: 'l2_3', title: t('l2_3'), duration: '10', completed: completedLessons.has('l2_3') },
+        { id: 'l2_4', title: t('l2_4'), duration: '10', completed: completedLessons.has('l2_4') },
       ]
     },
     {
       id: 5,
       key: 'methodology',
-      title: t.methodologyTitle,
-      description: t.methodologyDesc,
+      title: t('methodologyTitle'),
+      description: t('methodologyDesc'),
       icon: <Route size={20} />,
       color: 'blue',
       unlocked: true, // Always unlocked
       lessons: [
-        { id: 'm1_1', title: t.m1_1, duration: '15', completed: completedLessons.has('m1_1') },
-        { id: 'm1_2', title: t.m1_2, duration: '12', completed: completedLessons.has('m1_2') },
-        { id: 'm1_3', title: t.m1_3, duration: '12', completed: completedLessons.has('m1_3') },
-        { id: 'm1_4', title: t.m1_4, duration: '15', completed: completedLessons.has('m1_4') },
+        { id: 'm1_1', title: t('m1_1'), duration: '15', completed: completedLessons.has('m1_1') },
+        { id: 'm1_2', title: t('m1_2'), duration: '12', completed: completedLessons.has('m1_2') },
+        { id: 'm1_3', title: t('m1_3'), duration: '12', completed: completedLessons.has('m1_3') },
+        { id: 'm1_4', title: t('m1_4'), duration: '15', completed: completedLessons.has('m1_4') },
       ]
     },
     {
       id: 6,
       key: 'aiLayer',
-      title: t.aiLayerTitle,
-      description: t.aiLayerDesc,
+      title: t('aiLayerTitle'),
+      description: t('aiLayerDesc'),
       icon: <Cpu size={20} />,
       color: 'cyan',
       unlocked: true, // Always unlocked
       lessons: [
-        { id: 'ai_1', title: t.ai_1, duration: '12', completed: completedLessons.has('ai_1') },
-        { id: 'ai_2', title: t.ai_2, duration: '15', completed: completedLessons.has('ai_2') },
-        { id: 'ai_3', title: t.ai_3, duration: '12', completed: completedLessons.has('ai_3') },
-        { id: 'ai_4', title: t.ai_4, duration: '15', completed: completedLessons.has('ai_4') },
+        { id: 'ai_1', title: t('ai_1'), duration: '12', completed: completedLessons.has('ai_1') },
+        { id: 'ai_2', title: t('ai_2'), duration: '15', completed: completedLessons.has('ai_2') },
+        { id: 'ai_3', title: t('ai_3'), duration: '12', completed: completedLessons.has('ai_3') },
+        { id: 'ai_4', title: t('ai_4'), duration: '15', completed: completedLessons.has('ai_4') },
       ]
     },
     {
       id: 3,
       key: 'level3',
-      title: t.level3Title,
-      description: t.level3Desc,
+      title: t('level3Title'),
+      description: t('level3Desc'),
       icon: <Code size={20} />,
       color: 'purple',
       unlocked: false,
       lessons: [
-        { id: 'l3_1', title: t.l3_1, duration: '15', completed: completedLessons.has('l3_1') },
-        { id: 'l3_2', title: t.l3_2, duration: '12', completed: completedLessons.has('l3_2') },
-        { id: 'l3_3', title: t.l3_3, duration: '12', completed: completedLessons.has('l3_3') },
-        { id: 'l3_4', title: t.l3_4, duration: '10', completed: completedLessons.has('l3_4') },
+        { id: 'l3_1', title: t('l3_1'), duration: '15', completed: completedLessons.has('l3_1') },
+        { id: 'l3_2', title: t('l3_2'), duration: '12', completed: completedLessons.has('l3_2') },
+        { id: 'l3_3', title: t('l3_3'), duration: '12', completed: completedLessons.has('l3_3') },
+        { id: 'l3_4', title: t('l3_4'), duration: '10', completed: completedLessons.has('l3_4') },
       ]
     },
     {
       id: 4,
       key: 'level4',
-      title: t.level4Title,
-      description: t.level4Desc,
+      title: t('level4Title'),
+      description: t('level4Desc'),
       icon: <Brain size={20} />,
       color: 'orange',
       unlocked: false,
       lessons: [
-        { id: 'l4_1', title: t.l4_1, duration: '20', completed: completedLessons.has('l4_1') },
-        { id: 'l4_2', title: t.l4_2, duration: '20', completed: completedLessons.has('l4_2') },
-        { id: 'l4_3', title: t.l4_3, duration: '20', completed: completedLessons.has('l4_3') },
-        { id: 'l4_4', title: t.l4_4, duration: '15', completed: completedLessons.has('l4_4') },
+        { id: 'l4_1', title: t('l4_1'), duration: '20', completed: completedLessons.has('l4_1') },
+        { id: 'l4_2', title: t('l4_2'), duration: '20', completed: completedLessons.has('l4_2') },
+        { id: 'l4_3', title: t('l4_3'), duration: '20', completed: completedLessons.has('l4_3') },
+        { id: 'l4_4', title: t('l4_4'), duration: '15', completed: completedLessons.has('l4_4') },
       ]
     }
   ];
@@ -468,9 +274,9 @@ const Academy: React.FC<Props> = ({ lang }) => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>
-            {t.pathsTitle}
+            {t('pathsTitle')}
           </h2>
-          <p className="text-sm text-muted">{t.pathsSubtitle}</p>
+          <p className="text-sm text-muted">{t('pathsSubtitle')}</p>
         </div>
       </div>
 
@@ -498,7 +304,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                   backgroundColor: 'var(--color-bg-hover)',
                   color: 'var(--color-text-secondary)'
                 }}>
-                  {path.estimatedHours} {t.hours}
+                  {path.estimatedHours} {t('hours')}
                 </span>
               </div>
 
@@ -565,14 +371,13 @@ const Academy: React.FC<Props> = ({ lang }) => {
       <div>
         <h3 className="text-base font-medium mb-4 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
           <Sparkles size={18} style={{ color: 'var(--color-accent)' }} />
-          {t.quickRef}
+          {t('quickRef')}
         </h3>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
           {quickReferenceCards.map(card => (
             <ReferenceCardComponent
               key={card.id}
               card={card}
-              lang={lang}
               expanded={expandedRef === card.id}
               onToggle={() => setExpandedRef(expandedRef === card.id ? null : card.id)}
             />
@@ -584,14 +389,13 @@ const Academy: React.FC<Props> = ({ lang }) => {
       <div>
         <h3 className="text-base font-medium mb-4 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
           <ClipboardCheck size={18} style={{ color: 'var(--color-success)' }} />
-          {t.checklistsTitle}
+          {t('checklistsTitle')}
         </h3>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
           {checklists.map(card => (
             <ReferenceCardComponent
               key={card.id}
               card={card}
-              lang={lang}
               expanded={expandedRef === card.id}
               onToggle={() => setExpandedRef(expandedRef === card.id ? null : card.id)}
             />
@@ -603,14 +407,13 @@ const Academy: React.FC<Props> = ({ lang }) => {
       <div>
         <h3 className="text-base font-medium mb-4 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
           <FileText size={18} style={{ color: 'var(--color-accent-secondary)' }} />
-          {t.templatesTitle}
+          {t('templatesTitle')}
         </h3>
         <div className="grid md:grid-cols-2 gap-3">
           {interviewTemplates.map(card => (
             <ReferenceCardComponent
               key={card.id}
               card={card}
-              lang={lang}
               expanded={expandedRef === card.id}
               onToggle={() => setExpandedRef(expandedRef === card.id ? null : card.id)}
             />
@@ -623,14 +426,14 @@ const Academy: React.FC<Props> = ({ lang }) => {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-medium flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
             <BookMarked size={18} style={{ color: 'var(--color-warning)' }} />
-            {t.glossaryTitle}
+            {t('glossaryTitle')}
           </h3>
           <button
             onClick={() => setActiveView('glossary')}
             className="text-xs flex items-center gap-1 px-3 py-1.5 rounded-lg transition-colors"
             style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-accent)' }}
           >
-            {t.viewGlossary}
+            {t('viewGlossary')}
             <ChevronRight size={14} />
           </button>
         </div>
@@ -651,7 +454,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
   // Render Glossary View
   const renderGlossaryView = () => {
     const categories = ['core', 'ai', 'methodology', 'technical'] as const;
-    const categoryLabels = { core: t.core, ai: t.ai, methodology: t.methodology, technical: t.technical };
+    const categoryLabels = { core: t('core'), ai: t('ai'), methodology: t('methodology'), technical: t('technical') };
 
     return (
       <div className="space-y-6">
@@ -665,7 +468,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
           </button>
           <div>
             <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              {t.glossaryTitle}
+              {t('glossaryTitle')}
             </h2>
             <p className="text-sm text-muted">{glossaryTerms.length} terms</p>
           </div>
@@ -701,8 +504,8 @@ const Academy: React.FC<Props> = ({ lang }) => {
             <GraduationCap size={24} style={{ color: 'var(--color-accent)' }} />
           </div>
           <div>
-            <h1 className="text-xl font-medium" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h1>
-            <p className="text-sm text-muted">{t.subtitle}</p>
+            <h1 className="text-xl font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('title')}</h1>
+            <p className="text-sm text-muted">{t('subtitle')}</p>
           </div>
         </div>
 
@@ -713,7 +516,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
             <div className="glass-card rounded-xl px-4 py-3 flex items-center gap-2">
               <Flame size={18} style={{ color: 'var(--color-warning)' }} />
               <span className="font-medium" style={{ color: 'var(--color-warning)' }}>{stats.streak}</span>
-              <span className="text-xs text-muted">{t.streak}</span>
+              <span className="text-xs text-muted">{t('streak')}</span>
             </div>
           )}
 
@@ -721,7 +524,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
           <div className="glass-card rounded-xl px-5 py-3">
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <div className="text-xs text-muted">{t.progress}</div>
+                <div className="text-xs text-muted">{t('progress')}</div>
                 <div className="text-lg font-medium text-gradient">{stats.overallPercent}%</div>
               </div>
               <div className="w-24 h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
@@ -741,19 +544,19 @@ const Academy: React.FC<Props> = ({ lang }) => {
           active={activeView === 'main'}
           onClick={() => setActiveView('main')}
           icon={<Layers size={16} />}
-          label={t.curriculum}
+          label={t('curriculum')}
         />
         <TabButton
           active={activeView === 'paths'}
           onClick={() => setActiveView('paths')}
           icon={<Users size={16} />}
-          label={t.learningPaths}
+          label={t('learningPaths')}
         />
         <TabButton
           active={activeView === 'reference' || activeView === 'glossary'}
           onClick={() => setActiveView('reference')}
           icon={<BookMarked size={16} />}
-          label={t.reference}
+          label={t('reference')}
         />
       </div>
 
@@ -799,7 +602,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                         {completedInLevel === totalInLevel && level.unlocked && (
                           <span className="flex items-center gap-1 text-micro" style={{ color: 'var(--color-success)' }}>
                             <CheckCircle size={10} />
-                            {t.completed}
+                            {t('completed')}
                           </span>
                         )}
                         {(level.key === 'methodology' || level.key === 'aiLayer') && (
@@ -823,7 +626,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                         <>
                           <div className="text-right">
                             <div className="text-xs text-muted">
-                              {completedInLevel}/{totalInLevel} {t.lessons}
+                              {completedInLevel}/{totalInLevel} {t('lessons')}
                             </div>
                             <div className="w-20 h-1.5 rounded-full mt-1 overflow-hidden" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
                               <div
@@ -845,7 +648,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                           />
                         </>
                       ) : (
-                        <span className="text-xs text-muted">{t.locked}</span>
+                        <span className="text-xs text-muted">{t('locked')}</span>
                       )}
                     </div>
                   </button>
@@ -887,7 +690,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                             {/* Duration */}
                             <div className="flex items-center gap-1 text-xs text-muted">
                               <Clock size={12} />
-                              {lesson.duration} {t.minutes}
+                              {lesson.duration} {t('minutes')}
                             </div>
 
                             {/* Play Button */}
@@ -912,7 +715,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                             className="w-full btn-gradient py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2"
                           >
                             <Play size={16} />
-                            {completedInLevel > 0 ? t.continueLearning : t.startLearning}
+                            {completedInLevel > 0 ? t('continueLearning') : t('startLearning')}
                           </button>
                         </div>
                       )}
@@ -930,8 +733,8 @@ const Academy: React.FC<Props> = ({ lang }) => {
                 <FlaskConical size={20} style={{ color: 'var(--color-accent-secondary)' }} />
               </div>
               <div>
-                <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{t.practiceLab}</h2>
-                <p className="text-xs text-muted">{t.practiceDesc}</p>
+                <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('practiceLab')}</h2>
+                <p className="text-xs text-muted">{t('practiceDesc')}</p>
               </div>
             </div>
 
@@ -982,11 +785,11 @@ const Academy: React.FC<Props> = ({ lang }) => {
                         }}
                       >
                         <Play size={14} />
-                        {hasScore ? t.continueLearning : t.startExercise}
+                        {hasScore ? t('continueLearning') : t('startExercise')}
                       </button>
                     ) : (
                       <div className="text-xs text-muted text-center py-2">
-                        {t.exerciseLocked.replace('{level}', String(exercise.levelRequired))}
+                        {t('exerciseLocked', { level: String(exercise.levelRequired) })}
                       </div>
                     )}
                   </div>
@@ -1003,8 +806,8 @@ const Academy: React.FC<Props> = ({ lang }) => {
                   <FolderOpen size={20} style={{ color: 'var(--color-accent-secondary)' }} />
                 </div>
                 <div>
-                  <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{t.caseLibrary}</h2>
-                  <p className="text-xs text-muted">{t.caseLibraryDesc}</p>
+                  <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('caseLibrary')}</h2>
+                  <p className="text-xs text-muted">{t('caseLibraryDesc')}</p>
                 </div>
               </div>
               <button
@@ -1012,7 +815,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                 style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-accent-secondary)' }}
               >
-                {t.viewAllCases}
+                {t('viewAllCases')}
                 <ChevronRight size={16} />
               </button>
             </div>
@@ -1022,8 +825,8 @@ const Academy: React.FC<Props> = ({ lang }) => {
               <CasePreviewCard
                 icon={<Factory size={18} />}
                 color="blue"
-                title={lang === 'cn' ? '智能生产计划' : 'Smart Production'}
-                industry={lang === 'cn' ? '制造业' : 'Manufacturing'}
+                title={t('casePreviews.smartProduction')}
+                industry={t('casePreviews.manufacturing')}
                 objects={4}
                 actions={10}
                 onClick={() => setShowCaseBrowser(true)}
@@ -1031,8 +834,8 @@ const Academy: React.FC<Props> = ({ lang }) => {
               <CasePreviewCard
                 icon={<ShoppingCart size={18} />}
                 color="emerald"
-                title={lang === 'cn' ? '智能库存管理' : 'Smart Inventory'}
-                industry={lang === 'cn' ? '零售业' : 'Retail'}
+                title={t('casePreviews.smartInventory')}
+                industry={t('casePreviews.retail')}
                 objects={4}
                 actions={10}
                 onClick={() => setShowCaseBrowser(true)}
@@ -1040,8 +843,8 @@ const Academy: React.FC<Props> = ({ lang }) => {
               <CasePreviewCard
                 icon={<Truck size={18} />}
                 color="amber"
-                title={lang === 'cn' ? '智能配送调度' : 'Smart Delivery'}
-                industry={lang === 'cn' ? '物流业' : 'Logistics'}
+                title={t('casePreviews.smartDelivery')}
+                industry={t('casePreviews.logistics')}
                 objects={4}
                 actions={12}
                 onClick={() => setShowCaseBrowser(true)}
@@ -1056,8 +859,8 @@ const Academy: React.FC<Props> = ({ lang }) => {
                 <Award size={20} style={{ color: 'var(--color-warning)' }} />
               </div>
               <div>
-                <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{t.achievements}</h2>
-                <p className="text-xs text-muted">{t.achievementsDesc}</p>
+                <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('achievements')}</h2>
+                <p className="text-xs text-muted">{t('achievementsDesc')}</p>
               </div>
             </div>
 
@@ -1091,7 +894,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
                       <div className="text-2xl mb-2 grayscale">{achievement.icon}</div>
                       <h4 className="text-sm font-medium text-muted mb-1">???</h4>
                       <p className="text-micro text-muted">
-                        {lang === 'cn' ? '待解锁' : 'Locked'}
+                        {t('lockedLabel')}
                       </p>
                     </div>
                   ))}
@@ -1099,7 +902,7 @@ const Academy: React.FC<Props> = ({ lang }) => {
             ) : (
               <div className="glass-card rounded-xl p-8 text-center">
                 <div className="text-3xl mb-3 opacity-40">🏆</div>
-                <p className="text-sm text-muted">{t.noAchievements}</p>
+                <p className="text-sm text-muted">{t('noAchievements')}</p>
               </div>
             )}
           </div>
@@ -1113,7 +916,6 @@ const Academy: React.FC<Props> = ({ lang }) => {
       {/* Achievement Popup */}
       {newAchievement && (
         <AchievementPopup
-          lang={lang}
           achievement={newAchievement}
           onDismiss={dismissAchievement}
         />
@@ -1144,10 +946,11 @@ const TabButton: React.FC<{
 // Reference Card Component
 const ReferenceCardComponent: React.FC<{
   card: ReferenceCard;
-  lang: Language;
   expanded: boolean;
   onToggle: () => void;
-}> = ({ card, lang, expanded, onToggle }) => (
+}> = ({ card, expanded, onToggle }) => {
+  const { lang } = useAppTranslation('academy');
+  return (
   <div className="glass-card rounded-xl overflow-hidden transition-all">
     <button
       onClick={onToggle}
@@ -1172,7 +975,8 @@ const ReferenceCardComponent: React.FC<{
       </div>
     )}
   </div>
-);
+  );
+};
 
 // Case preview card for the Academy page
 const CasePreviewCard: React.FC<{

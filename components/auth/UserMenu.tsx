@@ -14,41 +14,18 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSync } from '../../contexts/SyncContext';
+import { useAppTranslation } from '../../hooks/useAppTranslation';
 
 interface UserMenuProps {
-  lang?: 'en' | 'cn';
 }
 
-const translations = {
-  en: {
-    signIn: 'Sign In',
-    signOut: 'Sign Out',
-    synced: 'Synced',
-    syncing: 'Syncing...',
-    offline: 'Offline',
-    syncError: 'Sync Error',
-    pendingChanges: 'Pending changes',
-    lastSynced: 'Last synced',
-  },
-  cn: {
-    signIn: '登录',
-    signOut: '退出登录',
-    synced: '已同步',
-    syncing: '同步中...',
-    offline: '离线',
-    syncError: '同步失败',
-    pendingChanges: '待同步',
-    lastSynced: '上次同步',
-  },
-};
-
-export const UserMenu: React.FC<UserMenuProps> = ({ lang = 'cn' }) => {
+export const UserMenu: React.FC<UserMenuProps> = () => {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
   const { status, lastSyncedAt, hasPendingChanges, forceSync } = useSync();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const t = translations[lang];
+  const { t } = useAppTranslation('common');
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -73,31 +50,31 @@ export const UserMenu: React.FC<UserMenuProps> = ({ lang = 'cn' }) => {
       case 'syncing':
         return {
           icon: <RefreshCw size={14} className="animate-spin" />,
-          text: t.syncing,
+          text: t('auth.userMenu.syncing'),
           color: 'text-amber-400',
         };
       case 'synced':
         return {
           icon: <Cloud size={14} />,
-          text: t.synced,
+          text: t('auth.userMenu.synced'),
           color: 'text-green-400',
         };
       case 'offline':
         return {
           icon: <CloudOff size={14} />,
-          text: t.offline,
+          text: t('auth.userMenu.offline'),
           color: 'text-gray-400',
         };
       case 'error':
         return {
           icon: <CloudOff size={14} />,
-          text: t.syncError,
+          text: t('auth.userMenu.syncError'),
           color: 'text-red-400',
         };
       default:
         return {
           icon: <Cloud size={14} />,
-          text: hasPendingChanges ? t.pendingChanges : t.synced,
+          text: hasPendingChanges ? t('auth.userMenu.pendingChanges') : t('auth.userMenu.synced'),
           color: hasPendingChanges ? 'text-amber-400' : 'text-muted',
         };
     }
@@ -141,7 +118,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ lang = 'cn' }) => {
             </div>
             {lastSyncedAt && status === 'synced' && (
               <p className="text-xs text-muted mt-1">
-                {t.lastSynced}: {lastSyncedAt.toLocaleTimeString()}
+                {t('auth.userMenu.lastSynced')}: {lastSyncedAt.toLocaleTimeString()}
               </p>
             )}
           </div>
@@ -157,7 +134,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ lang = 'cn' }) => {
                 className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg hover:bg-white/5 transition-colors text-amber-400"
               >
                 <RefreshCw size={16} />
-                <span>{lang === 'cn' ? '立即同步' : 'Sync Now'}</span>
+                <span>{t('auth.userMenu.syncNow')}</span>
               </button>
             )}
             <button
@@ -165,7 +142,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ lang = 'cn' }) => {
               className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg hover:bg-white/5 transition-colors text-red-400"
             >
               <LogOut size={16} />
-              <span>{t.signOut}</span>
+              <span>{t('auth.userMenu.signOut')}</span>
             </button>
           </div>
         </div>

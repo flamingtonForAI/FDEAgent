@@ -18,7 +18,8 @@ import {
   Target,
   Settings2
 } from 'lucide-react';
-import { Language, OntologyObject, OntologyLink, AISettings, ProjectState } from '../types';
+import { OntologyObject, OntologyLink, AISettings, ProjectState } from '../types';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import {
   AIAnalysisService,
   AnalysisResult,
@@ -29,7 +30,6 @@ import {
 } from '../services/aiAnalysisService';
 
 interface AIAnalyzerProps {
-  lang: Language;
   objects: OntologyObject[];
   links: OntologyLink[];
   aiSettings: AISettings;
@@ -44,97 +44,6 @@ interface AIAnalyzerProps {
   project: ProjectState;
   setProject: React.Dispatch<React.SetStateAction<ProjectState>>;
 }
-
-const translations = {
-  en: {
-    title: 'AI Enhancement Analysis',
-    subtitle: 'Identify automation and AI opportunities from your Ontology design',
-    analyze: 'Analyze Ontology',
-    analyzing: 'Analyzing...',
-    reanalyze: 'Re-analyze',
-    noData: 'No Ontology data to analyze. Please complete the design first.',
-    noApiKey: 'Please configure AI settings first.',
-    configureAI: 'Configure AI',
-    summary: 'Analysis Summary',
-    suggestions: 'Suggestions',
-    insights: 'Key Insights',
-    accept: 'Accept',
-    reject: 'Reject',
-    accepted: 'Accepted',
-    rejected: 'Rejected',
-    pending: 'Pending',
-    // Categories
-    smart_property: 'Smart Property',
-    ai_action: 'AI Action',
-    automation: 'Automation',
-    agent_capability: 'Agent Capability',
-    // Priority
-    high: 'High',
-    medium: 'Medium',
-    low: 'Low',
-    // Details
-    rationale: 'Rationale',
-    implementation: 'Implementation',
-    impact: 'Expected Impact',
-    targetObject: 'Target Object',
-    targetAction: 'Target Action',
-    total: 'Total Suggestions',
-    byCategory: 'By Category',
-    byPriority: 'By Priority',
-    // Confirmation dialog
-    confirmTitle: 'Re-analyze Ontology?',
-    confirmMessage: 'This will replace the current analysis results. Your accepted/rejected decisions will be lost.',
-    confirmYes: 'Yes, Re-analyze',
-    confirmNo: 'Cancel',
-    // Applied status
-    applied: 'Applied',
-    applySuccess: 'Suggestion applied to Ontology'
-  },
-  cn: {
-    title: 'AI 增强分析',
-    subtitle: '从您的 Ontology 设计中识别自动化和 AI 增强机会',
-    analyze: '分析 Ontology',
-    analyzing: '分析中...',
-    reanalyze: '重新分析',
-    noData: '没有可分析的 Ontology 数据。请先完成设计。',
-    noApiKey: '请先配置 AI 设置。',
-    configureAI: '配置 AI',
-    summary: '分析摘要',
-    suggestions: '增强建议',
-    insights: '核心洞察',
-    accept: '采纳',
-    reject: '拒绝',
-    accepted: '已采纳',
-    rejected: '已拒绝',
-    pending: '待处理',
-    // Categories
-    smart_property: '智能属性',
-    ai_action: 'AI 动作',
-    automation: '自动化',
-    agent_capability: 'Agent 能力',
-    // Priority
-    high: '高',
-    medium: '中',
-    low: '低',
-    // Details
-    rationale: '推理依据',
-    implementation: '实现建议',
-    impact: '预期效果',
-    targetObject: '目标对象',
-    targetAction: '目标动作',
-    total: '建议总数',
-    byCategory: '按类别',
-    byPriority: '按优先级',
-    // Confirmation dialog
-    confirmTitle: '重新分析 Ontology？',
-    confirmMessage: '这将替换当前的分析结果。您已采纳/拒绝的决定将会丢失。',
-    confirmYes: '确认重新分析',
-    confirmNo: '取消',
-    // Applied status
-    applied: '已应用',
-    applySuccess: '建议已应用到 Ontology'
-  }
-};
 
 const categoryIcons: Record<SuggestionCategory, React.ReactNode> = {
   smart_property: <Sparkles size={16} />,
@@ -157,7 +66,6 @@ const priorityColors: Record<SuggestionPriority, string> = {
 };
 
 const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
-  lang,
   objects,
   links,
   aiSettings,
@@ -170,7 +78,7 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
   project,
   setProject
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('ai');
   const [expandedSuggestions, setExpandedSuggestions] = useState<Set<string>>(new Set());
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
@@ -262,7 +170,7 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
             <AlertCircle size={32} style={{ color: 'var(--color-text-muted)' }} />
           </div>
           <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
-            {t.noData}
+            {t('aiAnalyzer.noData')}
           </h3>
         </div>
       </div>
@@ -281,7 +189,7 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
             <Settings2 size={32} style={{ color: 'var(--color-text-muted)' }} />
           </div>
           <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
-            {t.noApiKey}
+            {t('aiAnalyzer.noApiKey')}
           </h3>
         </div>
       </div>
@@ -296,10 +204,10 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
           <div>
             <h2 className="text-base font-semibold flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
               <Sparkles size={20} style={{ color: '#8b5cf6' }} />
-              {t.title}
+              {t('aiAnalyzer.title')}
             </h2>
             <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
-              {t.subtitle}
+              {t('aiAnalyzer.subtitle')}
             </p>
           </div>
 
@@ -316,12 +224,12 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
             {isAnalyzing ? (
               <>
                 <Loader2 size={16} className="animate-spin" />
-                {t.analyzing}
+                {t('aiAnalyzer.analyzing')}
               </>
             ) : (
               <>
                 <Target size={16} />
-                {result ? t.reanalyze : t.analyze}
+                {result ? t('aiAnalyzer.reanalyze') : t('aiAnalyzer.analyze')}
               </>
             )}
           </button>
@@ -344,10 +252,10 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
               </div>
               <div>
                 <h3 className="text-base font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>
-                  {t.confirmTitle}
+                  {t('aiAnalyzer.confirmTitle')}
                 </h3>
                 <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-                  {t.confirmMessage}
+                  {t('aiAnalyzer.confirmMessage')}
                 </p>
               </div>
             </div>
@@ -357,14 +265,14 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
                 className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                 style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-secondary)' }}
               >
-                {t.confirmNo}
+                {t('aiAnalyzer.confirmNo')}
               </button>
               <button
                 onClick={runAnalysis}
                 className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                 style={{ backgroundColor: '#8b5cf6', color: 'white' }}
               >
-                {t.confirmYes}
+                {t('aiAnalyzer.confirmYes')}
               </button>
             </div>
           </div>
@@ -391,7 +299,7 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
               style={{ backgroundColor: 'var(--color-bg-surface)' }}
             >
               <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--color-text-primary)' }}>
-                {t.summary}
+                {t('aiAnalyzer.summary')}
               </h3>
               <div className="grid grid-cols-3 gap-4">
                 {/* Total */}
@@ -400,14 +308,14 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
                     {result.summary.totalSuggestions}
                   </div>
                   <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                    {t.total}
+                    {t('aiAnalyzer.total')}
                   </div>
                 </div>
 
                 {/* By Category */}
                 <div>
                   <div className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>
-                    {t.byCategory}
+                    {t('aiAnalyzer.byCategory')}
                   </div>
                   <div className="space-y-1">
                     {(Object.entries(result.summary.byCategory) as [SuggestionCategory, number][])
@@ -415,7 +323,7 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
                       .map(([cat, count]) => (
                         <div key={cat} className="flex items-center gap-2 text-xs">
                           <span style={{ color: categoryColors[cat] }}>{categoryIcons[cat]}</span>
-                          <span style={{ color: 'var(--color-text-secondary)' }}>{t[cat]}: {count}</span>
+                          <span style={{ color: 'var(--color-text-secondary)' }}>{t(`aiAnalyzer.${cat}`)}: {count}</span>
                         </div>
                       ))}
                   </div>
@@ -424,7 +332,7 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
                 {/* By Priority */}
                 <div>
                   <div className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>
-                    {t.byPriority}
+                    {t('aiAnalyzer.byPriority')}
                   </div>
                   <div className="space-y-1">
                     {(Object.entries(result.summary.byPriority) as [SuggestionPriority, number][])
@@ -435,7 +343,7 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
                             className="w-2 h-2 rounded-full"
                             style={{ backgroundColor: priorityColors[pri] }}
                           />
-                          <span style={{ color: 'var(--color-text-secondary)' }}>{t[pri]}: {count}</span>
+                          <span style={{ color: 'var(--color-text-secondary)' }}>{t(`aiAnalyzer.${pri}`)}: {count}</span>
                         </div>
                       ))}
                   </div>
@@ -451,7 +359,7 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
               >
                 <h3 className="text-sm font-medium mb-2 flex items-center gap-2" style={{ color: '#8b5cf6' }}>
                   <Lightbulb size={16} />
-                  {t.insights}
+                  {t('aiAnalyzer.insights')}
                 </h3>
                 <ul className="space-y-2">
                   {result.insights.map((insight, i) => (
@@ -466,15 +374,13 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
             {/* Suggestions List */}
             <div>
               <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--color-text-primary)' }}>
-                {t.suggestions} ({result.suggestions.length})
+                {t('aiAnalyzer.suggestions')} ({result.suggestions.length})
               </h3>
               <div className="space-y-3">
                 {result.suggestions.map(suggestion => (
                   <SuggestionCard
                     key={suggestion.id}
                     suggestion={suggestion}
-                    lang={lang}
-                    t={t}
                     expanded={expandedSuggestions.has(suggestion.id)}
                     onToggleExpand={() => toggleExpand(suggestion.id)}
                     onAccept={() => updateSuggestionStatus(suggestion.id, 'accepted')}
@@ -498,12 +404,10 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
                 <Sparkles size={40} style={{ color: '#8b5cf6' }} />
               </div>
               <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                {lang === 'cn' ? '准备好分析您的 Ontology' : 'Ready to Analyze Your Ontology'}
+                {t('aiAnalyzer.readyTitle')}
               </h3>
               <p className="text-sm mb-6" style={{ color: 'var(--color-text-muted)' }}>
-                {lang === 'cn'
-                  ? `已检测到 ${objects.length} 个对象和 ${links.length} 个关系。点击上方按钮开始 AI 分析。`
-                  : `Detected ${objects.length} objects and ${links.length} links. Click the button above to start AI analysis.`}
+                {t('aiAnalyzer.readyDesc', { objectCount: objects.length, linkCount: links.length })}
               </p>
             </div>
           </div>
@@ -516,8 +420,6 @@ const AIAnalyzer: React.FC<AIAnalyzerProps> = ({
 // Suggestion Card Component
 interface SuggestionCardProps {
   suggestion: AISuggestion;
-  lang: Language;
-  t: typeof translations['en'];
   expanded: boolean;
   onToggleExpand: () => void;
   onAccept: () => void;
@@ -527,14 +429,13 @@ interface SuggestionCardProps {
 
 const SuggestionCard: React.FC<SuggestionCardProps> = ({
   suggestion,
-  lang,
-  t,
   expanded,
   onToggleExpand,
   onAccept,
   onReject,
   objects
 }) => {
+  const { t } = useAppTranslation('ai');
   const targetObject = suggestion.targetObjectId
     ? objects.find(o => o.id === suggestion.targetObjectId)
     : null;
@@ -578,7 +479,7 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
                 color: categoryColors[suggestion.category]
               }}
             >
-              {t[suggestion.category]}
+              {t(`aiAnalyzer.${suggestion.category}`)}
             </span>
             <span
               className="text-xs px-2 py-0.5 rounded-full"
@@ -587,7 +488,7 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
                 color: priorityColors[suggestion.priority]
               }}
             >
-              {t[suggestion.priority]}
+              {t(`aiAnalyzer.${suggestion.priority}`)}
             </span>
             {isProcessed && (
               <span
@@ -600,7 +501,7 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
                 }}
               >
                 {suggestion.status === 'accepted' ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
-                {suggestion.status === 'accepted' ? t.accepted : t.rejected}
+                {suggestion.status === 'accepted' ? t('aiAnalyzer.accepted') : t('aiAnalyzer.rejected')}
               </span>
             )}
           </div>
@@ -633,13 +534,13 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
             <div className="flex gap-4 text-xs">
               {targetObject && (
                 <div>
-                  <span style={{ color: 'var(--color-text-muted)' }}>{t.targetObject}: </span>
+                  <span style={{ color: 'var(--color-text-muted)' }}>{t('aiAnalyzer.targetObject')}: </span>
                   <span style={{ color: 'var(--color-text-secondary)' }}>{targetObject.name}</span>
                 </div>
               )}
               {suggestion.targetActionName && (
                 <div>
-                  <span style={{ color: 'var(--color-text-muted)' }}>{t.targetAction}: </span>
+                  <span style={{ color: 'var(--color-text-muted)' }}>{t('aiAnalyzer.targetAction')}: </span>
                   <span style={{ color: 'var(--color-text-secondary)' }}>{suggestion.targetActionName}</span>
                 </div>
               )}
@@ -650,7 +551,7 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
           {suggestion.rationale && (
             <div>
               <div className="text-xs font-medium mb-1" style={{ color: 'var(--color-text-muted)' }}>
-                {t.rationale}
+                {t('aiAnalyzer.rationale')}
               </div>
               <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                 {suggestion.rationale}
@@ -662,7 +563,7 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
           {suggestion.implementation && (
             <div>
               <div className="text-xs font-medium mb-1" style={{ color: 'var(--color-text-muted)' }}>
-                {t.implementation}
+                {t('aiAnalyzer.implementation')}
               </div>
               <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                 {suggestion.implementation}
@@ -674,7 +575,7 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
           {suggestion.estimatedImpact && (
             <div>
               <div className="text-xs font-medium mb-1" style={{ color: 'var(--color-text-muted)' }}>
-                {t.impact}
+                {t('aiAnalyzer.impact')}
               </div>
               <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                 {suggestion.estimatedImpact}
@@ -691,7 +592,7 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
                 style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}
               >
                 <CheckCircle2 size={14} />
-                {t.accept}
+                {t('aiAnalyzer.accept')}
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); onReject(); }}
@@ -699,7 +600,7 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
                 style={{ backgroundColor: 'rgba(107, 114, 128, 0.1)', color: '#6b7280' }}
               >
                 <XCircle size={14} />
-                {t.reject}
+                {t('aiAnalyzer.reject')}
               </button>
             </div>
           )}

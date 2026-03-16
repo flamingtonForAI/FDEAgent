@@ -7,7 +7,7 @@
  */
 
 import React, { useState } from 'react';
-import { Language } from '../types';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import {
   DetectedSystem,
   SystemDNA,
@@ -33,7 +33,6 @@ import {
 } from 'lucide-react';
 
 interface SystemDNACardProps {
-  lang: Language;
   detectedSystem: DetectedSystem;
   onApplyObjects: (objects: Array<{ name: string; description: string; properties: string[] }>) => void;
   onApplyActions: (actions: Array<{ name: string; targetObject: string; description: string }>) => void;
@@ -41,66 +40,14 @@ interface SystemDNACardProps {
   onDismiss: () => void;
 }
 
-const translations = {
-  en: {
-    detected: 'System Detected',
-    suggestedObjects: 'Suggested Objects',
-    suggestedActions: 'Suggested Actions',
-    integrationPatterns: 'Integration Patterns',
-    commonChallenges: 'Common Challenges',
-    applyAll: 'Apply All to Project',
-    applySelected: 'Apply Selected',
-    dismiss: 'Dismiss',
-    complexity: 'Complexity',
-    syncType: 'Sync Type',
-    realtime: 'Real-time',
-    batch: 'Batch',
-    cdc: 'CDC',
-    event: 'Event-driven',
-    low: 'Low',
-    medium: 'Medium',
-    high: 'High',
-    properties: 'Properties',
-    targetObject: 'Target',
-    recommended: 'Recommended',
-    applied: 'Applied!',
-    selectItems: 'Select items to apply'
-  },
-  cn: {
-    detected: '检测到系统',
-    suggestedObjects: '建议对象',
-    suggestedActions: '建议动作',
-    integrationPatterns: '集成模式',
-    commonChallenges: '常见挑战',
-    applyAll: '全部应用到项目',
-    applySelected: '应用选中项',
-    dismiss: '忽略',
-    complexity: '复杂度',
-    syncType: '同步方式',
-    realtime: '实时',
-    batch: '批量',
-    cdc: '变更捕获',
-    event: '事件驱动',
-    low: '低',
-    medium: '中',
-    high: '高',
-    properties: '属性',
-    targetObject: '目标',
-    recommended: '推荐',
-    applied: '已应用!',
-    selectItems: '选择要应用的项目'
-  }
-};
-
 const SystemDNACard: React.FC<SystemDNACardProps> = ({
-  lang,
   detectedSystem,
   onApplyObjects,
   onApplyActions,
   onApplyIntegration,
   onDismiss
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('integration');
   const { system } = detectedSystem;
 
   // Selection state
@@ -142,12 +89,12 @@ const SystemDNACard: React.FC<SystemDNACardProps> = ({
   };
 
   const getSyncTypeLabel = (syncType: IntegrationPattern['syncType']): string => {
-    const labels = { realtime: t.realtime, batch: t.batch, cdc: t.cdc, event: t.event };
+    const labels = { realtime: t('systemDNACard.realtime'), batch: t('systemDNACard.batch'), cdc: t('systemDNACard.cdc'), event: t('systemDNACard.event') };
     return labels[syncType];
   };
 
   const getComplexityLabel = (complexity: IntegrationPattern['complexity']): string => {
-    const labels = { low: t.low, medium: t.medium, high: t.high };
+    const labels = { low: t('systemDNACard.low'), medium: t('systemDNACard.medium'), high: t('systemDNACard.high') };
     return labels[complexity];
   };
 
@@ -212,7 +159,7 @@ const SystemDNACard: React.FC<SystemDNACardProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-medium" style={{ color: 'var(--color-accent)' }}>
-                {t.detected}
+                {t('systemDNACard.detected')}
               </span>
               <span
                 className="text-xs px-2 py-0.5 rounded"
@@ -254,7 +201,7 @@ const SystemDNACard: React.FC<SystemDNACardProps> = ({
               {expandedSections.has('objects') ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
               <Database size={14} style={{ color: 'var(--color-info)' }} />
               <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {t.suggestedObjects}
+                {t('systemDNACard.suggestedObjects')}
               </span>
               <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-muted)' }}>
                 {selectedObjects.size}/{system.objects.length}
@@ -315,7 +262,7 @@ const SystemDNACard: React.FC<SystemDNACardProps> = ({
               {expandedSections.has('actions') ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
               <Zap size={14} style={{ color: 'var(--color-success)' }} />
               <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {t.suggestedActions}
+                {t('systemDNACard.suggestedActions')}
               </span>
               <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-muted)' }}>
                 {selectedActions.size}/{system.actions.length}
@@ -369,7 +316,7 @@ const SystemDNACard: React.FC<SystemDNACardProps> = ({
               {expandedSections.has('patterns') ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
               <Link2 size={14} style={{ color: 'var(--color-warning)' }} />
               <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {t.integrationPatterns}
+                {t('systemDNACard.integrationPatterns')}
               </span>
             </div>
           </button>
@@ -398,7 +345,7 @@ const SystemDNACard: React.FC<SystemDNACardProps> = ({
                           className="text-[10px] px-1.5 py-0.5 rounded"
                           style={{ backgroundColor: 'var(--color-success)20', color: 'var(--color-success)' }}
                         >
-                          {t.recommended}
+                          {t('systemDNACard.recommended')}
                         </span>
                       )}
                     </div>
@@ -407,10 +354,10 @@ const SystemDNACard: React.FC<SystemDNACardProps> = ({
                     </div>
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
-                        {t.syncType}: <span style={{ color: 'var(--color-text-secondary)' }}>{getSyncTypeLabel(pattern.syncType)}</span>
+                        {t('systemDNACard.syncType')}: <span style={{ color: 'var(--color-text-secondary)' }}>{getSyncTypeLabel(pattern.syncType)}</span>
                       </span>
                       <span className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
-                        {t.complexity}: <span style={{ color: getComplexityColor(pattern.complexity) }}>{getComplexityLabel(pattern.complexity)}</span>
+                        {t('systemDNACard.complexity')}: <span style={{ color: getComplexityColor(pattern.complexity) }}>{getComplexityLabel(pattern.complexity)}</span>
                       </span>
                     </div>
                   </div>
@@ -430,7 +377,7 @@ const SystemDNACard: React.FC<SystemDNACardProps> = ({
               {expandedSections.has('challenges') ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
               <AlertTriangle size={14} style={{ color: 'var(--color-warning)' }} />
               <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {t.commonChallenges}
+                {t('systemDNACard.commonChallenges')}
               </span>
             </div>
           </button>
@@ -455,7 +402,7 @@ const SystemDNACard: React.FC<SystemDNACardProps> = ({
         style={{ borderTop: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-elevated)' }}
       >
         <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-          {t.selectItems}
+          {t('systemDNACard.selectItems')}
         </span>
         <div className="flex items-center gap-2">
           <button
@@ -463,7 +410,7 @@ const SystemDNACard: React.FC<SystemDNACardProps> = ({
             className="px-3 py-1.5 text-xs rounded-lg transition-colors hover:bg-white/10"
             style={{ color: 'var(--color-text-muted)' }}
           >
-            {t.dismiss}
+            {t('systemDNACard.dismiss')}
           </button>
           <button
             onClick={handleApplyAll}
@@ -477,12 +424,12 @@ const SystemDNACard: React.FC<SystemDNACardProps> = ({
             {applied ? (
               <>
                 <CheckCircle2 size={14} />
-                {t.applied}
+                {t('systemDNACard.applied')}
               </>
             ) : (
               <>
                 <Plus size={14} />
-                {t.applySelected}
+                {t('systemDNACard.applySelected')}
               </>
             )}
           </button>

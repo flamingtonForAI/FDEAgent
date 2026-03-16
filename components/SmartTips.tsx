@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Language, ChatMessage, ProjectState } from '../types';
+import { ChatMessage, ProjectState } from '../types';
 import {
   BookOpen, Lightbulb, AlertTriangle, X, ChevronRight,
   Sparkles, Target, Layers, Zap, CheckCircle2
 } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface SmartTipsProps {
-  lang: Language;
   messages: ChatMessage[];
   project: ProjectState;
   hasApiKey: boolean;
@@ -91,61 +91,14 @@ const methodologyTips: Omit<Tip, 'id' | 'priority'>[] = [
   }
 ];
 
-const translations = {
-  en: {
-    smartTips: 'Smart Tips',
-    methodology: 'Methodology',
-    caseHint: 'Case Reference',
-    checkReminder: 'Reminder',
-    dismiss: 'Dismiss',
-    learnMore: 'Learn More',
-    collapse: 'Collapse',
-    expand: 'Expand',
-    noTips: 'No tips at the moment',
-    keepDescribing: 'Continue describing your scenario',
-    // Check tips
-    noObjects: 'No objects defined yet',
-    noActions: 'Consider adding actions to your objects',
-    noIntegrations: 'Have you mentioned data sources?',
-    noAI: 'Think about AI enhancement opportunities',
-    describeMore: 'Describe your business challenges',
-    addDetails: 'Add more details about',
-    // Case tips
-    similarCase: 'Similar case available',
-    referenceDesign: 'Reference this design pattern'
-  },
-  cn: {
-    smartTips: '智能提示',
-    methodology: '方法论',
-    caseHint: '案例参考',
-    checkReminder: '提醒',
-    dismiss: '关闭',
-    learnMore: '了解更多',
-    collapse: '收起',
-    expand: '展开',
-    noTips: '暂无提示',
-    keepDescribing: '继续描述你的业务场景',
-    // Check tips
-    noObjects: '尚未定义任何对象',
-    noActions: '考虑为对象添加动作',
-    noIntegrations: '是否提到了数据源？',
-    noAI: '思考 AI 增强的机会',
-    describeMore: '描述你的业务挑战',
-    addDetails: '补充更多关于',
-    // Case tips
-    similarCase: '有相似案例可参考',
-    referenceDesign: '参考这个设计模式'
-  }
-};
 
 const SmartTips: React.FC<SmartTipsProps> = ({
-  lang,
   messages,
   project,
   hasApiKey,
   onDismiss
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('discovery');
   const [isExpanded, setIsExpanded] = useState(true);
   const [dismissedTips, setDismissedTips] = useState<Set<string>>(new Set());
 
@@ -253,7 +206,7 @@ const SmartTips: React.FC<SmartTipsProps> = ({
           id: 'check_integrations',
           type: 'check',
           title: { en: 'Data Sources', cn: '数据源' },
-          content: { en: t.noIntegrations, cn: t.noIntegrations },
+          content: { en: t('smartTips.noIntegrations'), cn: t('smartTips.noIntegrations') },
           icon: <AlertTriangle size={14} />,
           priority: 55
         });
@@ -328,9 +281,9 @@ const SmartTips: React.FC<SmartTipsProps> = ({
 
   const getTypeLabel = (type: Tip['type']) => {
     switch (type) {
-      case 'methodology': return t.methodology;
-      case 'case': return t.caseHint;
-      case 'check': return t.checkReminder;
+      case 'methodology': return t('smartTips.methodology');
+      case 'case': return t('smartTips.caseHint');
+      case 'check': return t('smartTips.checkReminder');
     }
   };
 
@@ -347,7 +300,7 @@ const SmartTips: React.FC<SmartTipsProps> = ({
         className="flex items-center gap-2 text-xs text-muted hover:text-muted transition-colors mb-2"
       >
         <Lightbulb size={12} style={{ color: 'var(--color-accent)' }} />
-        <span>{t.smartTips}</span>
+        <span>{t('smartTips.smartTips')}</span>
         <span className="text-micro text-muted">({activeTips.length})</span>
         <ChevronRight
           size={12}
@@ -399,7 +352,7 @@ const SmartTips: React.FC<SmartTipsProps> = ({
                 <button
                   onClick={() => handleDismiss(tip.id)}
                   className="flex-shrink-0 p-1 rounded-md opacity-0 group-hover:opacity-100 hover:bg-white/[0.05] text-muted hover:text-secondary transition-all"
-                  title={t.dismiss}
+                  title={t('smartTips.dismiss')}
                 >
                   <X size={12} />
                 </button>

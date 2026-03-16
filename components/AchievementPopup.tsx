@@ -1,15 +1,15 @@
 import React from 'react';
-import { Language } from '../types';
 import { Achievement } from '../hooks/useProgress';
 import { X } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface Props {
-  lang: Language;
   achievement: Achievement;
   onDismiss: () => void;
 }
 
-const AchievementPopup: React.FC<Props> = ({ lang, achievement, onDismiss }) => {
+const AchievementPopup: React.FC<Props> = ({ achievement, onDismiss }) => {
+  const { lang } = useAppTranslation('academy');
   return (
     <div className="fixed bottom-6 right-6 z-50 animate-slideUp">
       <div className="glass-card rounded-xl p-4 pr-10 border-2 shadow-xl max-w-xs" style={{ borderColor: 'var(--color-accent)', backgroundColor: 'var(--color-bg-hover)' }}>

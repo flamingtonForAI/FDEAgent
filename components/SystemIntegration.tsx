@@ -3,47 +3,27 @@
  * 规划数据源对接与集成方案
  */
 import React, { useState } from 'react';
-import { Language, ProjectState } from '../types';
+import { ProjectState } from '../types';
 import { Network, FileText } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import SystemMap from './SystemMap';
 import ProjectOverview from './ProjectOverview';
 
 type IntegrationView = 'architecture' | 'export';
 
 interface SystemIntegrationProps {
-  lang: Language;
   project: ProjectState;
 }
 
-const translations = {
-  en: {
-    title: 'System Integration',
-    subtitle: 'Data sources and integration planning',
-    tabArchitecture: 'Architecture',
-    tabExport: 'Export',
-    tabArchitectureDesc: 'Data Sources',
-    tabExportDesc: 'Deliverables',
-  },
-  cn: {
-    title: '系统集成',
-    subtitle: '数据源与集成方案规划',
-    tabArchitecture: '架构',
-    tabExport: '导出',
-    tabArchitectureDesc: '数据源配置',
-    tabExportDesc: '交付物',
-  }
-};
-
 const SystemIntegration: React.FC<SystemIntegrationProps> = ({
-  lang,
   project
 }) => {
-  const t = translations[lang];
+  const { t } = useAppTranslation('integration');
   const [activeView, setActiveView] = useState<IntegrationView>('architecture');
 
   const tabs: { id: IntegrationView; label: string; desc: string; icon: React.ReactNode }[] = [
-    { id: 'architecture', label: t.tabArchitecture, desc: t.tabArchitectureDesc, icon: <Network size={16} /> },
-    { id: 'export', label: t.tabExport, desc: t.tabExportDesc, icon: <FileText size={16} /> },
+    { id: 'architecture', label: t('systemIntegration.tabArchitecture'), desc: t('systemIntegration.tabArchitectureDesc'), icon: <Network size={16} /> },
+    { id: 'export', label: t('systemIntegration.tabExport'), desc: t('systemIntegration.tabExportDesc'), icon: <FileText size={16} /> },
   ];
 
   return (
@@ -55,9 +35,9 @@ const SystemIntegration: React.FC<SystemIntegrationProps> = ({
       >
         <div>
           <h1 className="text-lg font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-            {t.title}
+            {t('systemIntegration.title')}
           </h1>
-          <p className="text-xs text-muted">{t.subtitle}</p>
+          <p className="text-xs text-muted">{t('systemIntegration.subtitle')}</p>
         </div>
 
         {/* Tab buttons */}
@@ -92,10 +72,10 @@ const SystemIntegration: React.FC<SystemIntegrationProps> = ({
       {/* Content area */}
       <div className="flex-1 overflow-hidden">
         {activeView === 'architecture' && (
-          <SystemMap lang={lang} project={project} />
+          <SystemMap project={project} />
         )}
         {activeView === 'export' && (
-          <ProjectOverview lang={lang} project={project} />
+          <ProjectOverview project={project} />
         )}
       </div>
     </div>

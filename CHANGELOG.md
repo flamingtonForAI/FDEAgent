@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Multi-language (i18n) support** — react-i18next integration with 5 languages (cn/en available, fr/es beta, ar hidden pending RTL). 10 namespaces across 50 locale JSON files, lazy-loaded via Vite `import.meta.glob` as separate chunks
+- **Translation completeness check** — `scripts/check-translations.mjs` reports per-language key coverage; integrated into `npm run check` pipeline (`npm run check:i18n`)
+- **AI language preference** — `chat()`, `chatWithFiles()`, `designOntology()` accept optional `{ lang }` to append a language preference hint to AI prompts
+- **Language visibility controls** — `lib/i18n.ts` exports `availableLanguages` (visible in UI selector) and `allLanguages` (includes hidden languages); status-based gating (available/beta/hidden)
+- **`useAppTranslation` hook** — bridge hook wrapping `useTranslation()` with loose key typing and `lang` accessor for data-access patterns
+
+### Changed
+- **Language type expanded** — `Language` type in `types.ts` is now `'en' | 'cn' | 'fr' | 'ar' | 'es'`
+- **Inline translations removed** — all 48 component `translations` objects extracted to `locales/{lang}/{namespace}.json`; `t.xxx` property access replaced with `t('key')` function calls throughout
+- **`lang` prop drilling eliminated** — UI components no longer accept `lang` as a prop; language is derived internally via `useAppTranslation()` hook. Service boundaries (aiService, readinessChecker, document generators) retain explicit `lang` parameter
+- **Arabic font fallback** — `--font-sans` CSS variable updated with `'Noto Sans Arabic'` in the fallback stack
+- **Main bundle reduced** — 852 KB → 822 KB (inline translation objects removed, locale JSON lazy-loaded)
+
+### Added
 - **Production bundle code-splitting** — React.lazy + Suspense for 4 infrequently-visited pages (Academy, Archetypes, AI Enhancement, Delivery); main chunk reduced from ~1530 KB to ~799 KB (48% reduction)
 - **Lazy archetype loading** — 11 archetype data files (~600 KB) converted from static imports to dynamic `import()` with per-archetype chunks; index metadata derived at runtime from real data (single-source-of-truth, eliminates hand-maintained index drift)
 - **Vendor chunk splitting** — `manualChunks` in `vite.config.ts` separates `react`/`react-dom` and `lucide-react` into dedicated cacheable chunks

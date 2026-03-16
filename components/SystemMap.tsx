@@ -1,55 +1,34 @@
 
 import React from 'react';
-import { ProjectState, Language } from '../types';
+import { ProjectState } from '../types';
 import { Server, ArrowRight, Database, Cloud, FileCode, Zap, Activity } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface Props {
-  lang: Language;
   project: ProjectState;
 }
 
-const translations = {
-  en: {
-    title: "System Architecture Map",
-    subtitle: "Mapping external data sources to the Intelligent Ontology.",
-    source: "Source Systems",
-    logic: "Ingestion & Sync",
-    target: "Ontology Entities",
-    mechanism: "Mechanism",
-    datapoints: "Data Points"
-  },
-  cn: {
-    title: "系统架构拓扑图",
-    subtitle: "映射外部数据源到智能本体的流动路径。",
-    source: "外部源系统",
-    logic: "接入与同步逻辑",
-    target: "本体实体对象",
-    mechanism: "接入机制",
-    datapoints: "关键数据点"
-  }
-};
-
-const SystemMap: React.FC<Props> = ({ lang, project }) => {
-  const t = translations[lang];
+const SystemMap: React.FC<Props> = ({ project }) => {
+  const { t } = useAppTranslation('integration');
 
   return (
     <div className="p-8 pb-24 h-full bg-[var(--color-bg-elevated)] space-y-12 overflow-y-auto">
       <div>
-        <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h2>
-        <p className="text-muted text-sm">{t.subtitle}</p>
+        <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>{t('systemMap.title')}</h2>
+        <p className="text-muted text-sm">{t('systemMap.subtitle')}</p>
       </div>
 
       <div className="relative">
         {/* Header Labels */}
         <div className="grid grid-cols-3 gap-8 mb-8">
           <div className="text-center">
-            <span className="text-micro uppercase tracking-widest font-mono text-muted">{t.source}</span>
+            <span className="text-micro uppercase tracking-widest font-mono text-muted">{t('systemMap.source')}</span>
           </div>
           <div className="text-center">
-            <span className="text-micro uppercase tracking-widest font-mono text-muted">{t.logic}</span>
+            <span className="text-micro uppercase tracking-widest font-mono text-muted">{t('systemMap.logic')}</span>
           </div>
           <div className="text-center">
-            <span className="text-micro uppercase tracking-widest font-mono text-muted">{t.target}</span>
+            <span className="text-micro uppercase tracking-widest font-mono text-muted">{t('systemMap.target')}</span>
           </div>
         </div>
 

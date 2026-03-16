@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Language, ProjectState, OntologyObject, AIPAction } from '../types';
 import { runQualityCheck, checkActionThreeLayers } from '../utils/qualityChecker';
 import YAML from 'yaml';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import {
   FileText,
   Code,
@@ -22,7 +23,6 @@ import {
 } from 'lucide-react';
 
 interface DeliverableGeneratorProps {
-  lang: Language;
   project: ProjectState;
   onClose?: () => void;
   embedded?: boolean;
@@ -92,65 +92,6 @@ const deliverableConfigs: DeliverableConfig[] = [
     color: 'var(--color-error)'
   }
 ];
-
-const translations = {
-  cn: {
-    title: '交付物生成器',
-    subtitle: '一键生成各类技术文档',
-    generate: '生成',
-    download: '下载',
-    copy: '复制',
-    copied: '已复制',
-    preview: '预览',
-    close: '关闭',
-    noData: '暂无数据可生成',
-    selectType: '选择交付物类型',
-    generating: '生成中...',
-    generated: '已生成',
-    tip: '基于当前 Ontology 设计自动生成文档',
-    exportMode: '导出模式',
-    draftMode: '内部草稿',
-    clientMode: '客户交付',
-    deliveryBlockedTitle: '客户交付模式未通过质量门槛',
-    deliveryBlockedHint: '请先修复以下问题，再执行导出：',
-    clientName: '客户名称',
-    clientNamePlaceholder: '例如：某制造集团',
-    designerName: '方案设计人',
-    designerNamePlaceholder: '例如：FDE Team',
-    deliveryVersion: '交付版本',
-    releaseNotes: '版本变更摘要',
-    releaseNotesPlaceholder: '例如：新增订单审批动作与ERP集成映射',
-    downloadZip: '打包下载 ZIP'
-  },
-  en: {
-    title: 'Deliverable Generator',
-    subtitle: 'One-click generation of technical documents',
-    generate: 'Generate',
-    download: 'Download',
-    copy: 'Copy',
-    copied: 'Copied',
-    preview: 'Preview',
-    close: 'Close',
-    noData: 'No data available for generation',
-    selectType: 'Select deliverable type',
-    generating: 'Generating...',
-    generated: 'Generated',
-    tip: 'Auto-generate documents based on current Ontology design',
-    exportMode: 'Export Mode',
-    draftMode: 'Internal Draft',
-    clientMode: 'Client Delivery',
-    deliveryBlockedTitle: 'Client delivery gate check failed',
-    deliveryBlockedHint: 'Please resolve the following issues before export:',
-    clientName: 'Client Name',
-    clientNamePlaceholder: 'e.g. Acme Manufacturing',
-    designerName: 'Designer',
-    designerNamePlaceholder: 'e.g. FDE Team',
-    deliveryVersion: 'Delivery Version',
-    releaseNotes: 'Release Notes',
-    releaseNotesPlaceholder: 'e.g. Added approval actions and ERP mapping',
-    downloadZip: 'Download ZIP Package'
-  }
-};
 
 const textEncoder = new TextEncoder();
 
@@ -660,12 +601,11 @@ function mapPropertyType(type: string): string {
 }
 
 const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
-  lang,
   project,
   onClose,
   embedded
 }) => {
-  const t = translations[lang];
+  const { t, lang } = useAppTranslation('delivery');
   const [selectedType, setSelectedType] = useState<DeliverableType | null>(null);
   const [generatedContent, setGeneratedContent] = useState<string>('');
   const [copied, setCopied] = useState(false);
@@ -840,10 +780,10 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
             </div>
             <div>
               <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {t.title}
+                {t('deliverableGenerator.title')}
               </h3>
               <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                {t.subtitle}
+                {t('deliverableGenerator.subtitle')}
               </p>
             </div>
           </div>
@@ -863,7 +803,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center">
             <FileText className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--color-text-muted)' }} />
-            <p style={{ color: 'var(--color-text-secondary)' }}>{t.noData}</p>
+            <p style={{ color: 'var(--color-text-secondary)' }}>{t('deliverableGenerator.noData')}</p>
           </div>
         </div>
       ) : showPreview ? (
@@ -901,7 +841,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
                 }}
               >
                 {copied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                {copied ? t.copied : t.copy}
+                {copied ? t('deliverableGenerator.copied') : t('deliverableGenerator.copy')}
               </button>
               <button
                 onClick={handleDownload}
@@ -909,7 +849,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
                 style={{ backgroundColor: 'var(--color-accent)', color: '#fff' }}
               >
                 <Download className="w-3.5 h-3.5" />
-                {t.download}
+                {t('deliverableGenerator.download')}
               </button>
             </div>
           </div>
@@ -935,7 +875,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
           <div className="grid gap-3">
               <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}>
                 <div className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>
-                  {t.exportMode}
+                  {t('deliverableGenerator.exportMode')}
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <button
@@ -946,7 +886,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
                       color: exportMode === 'draft' ? '#fff' : 'var(--color-text-secondary)',
                     }}
                   >
-                    {t.draftMode}
+                    {t('deliverableGenerator.draftMode')}
                   </button>
                   <button
                     onClick={() => setExportMode('client')}
@@ -956,7 +896,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
                       color: exportMode === 'client' ? '#fff' : 'var(--color-text-secondary)',
                     }}
                   >
-                    {t.clientMode}
+                    {t('deliverableGenerator.clientMode')}
                   </button>
                 </div>
               </div>
@@ -968,31 +908,31 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
                   style={{ backgroundColor: 'var(--color-success)', color: '#fff' }}
                 >
                   <Download className="w-3.5 h-3.5" />
-                  {t.downloadZip}
+                  {t('deliverableGenerator.downloadZip')}
                 </button>
               )}
 
               {exportMode === 'client' && (
               <div className="p-3 rounded-lg grid gap-2" style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}>
-                <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t.clientName}</label>
+                <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('deliverableGenerator.clientName')}</label>
                 <input
                   type="text"
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
-                  placeholder={t.clientNamePlaceholder}
+                  placeholder={t('deliverableGenerator.clientNamePlaceholder')}
                   className="px-2 py-1.5 rounded text-xs"
                   style={{ backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
                 />
-                <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t.designerName}</label>
+                <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('deliverableGenerator.designerName')}</label>
                 <input
                   type="text"
                   value={designerName}
                   onChange={(e) => setDesignerName(e.target.value)}
-                  placeholder={t.designerNamePlaceholder}
+                  placeholder={t('deliverableGenerator.designerNamePlaceholder')}
                   className="px-2 py-1.5 rounded text-xs"
                   style={{ backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
                 />
-                <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t.deliveryVersion}</label>
+                <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('deliverableGenerator.deliveryVersion')}</label>
                 <input
                   type="text"
                   value={deliveryVersion}
@@ -1000,11 +940,11 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
                   className="px-2 py-1.5 rounded text-xs"
                   style={{ backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
                 />
-                <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t.releaseNotes}</label>
+                <label className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('deliverableGenerator.releaseNotes')}</label>
                 <textarea
                   value={releaseNotes}
                   onChange={(e) => setReleaseNotes(e.target.value)}
-                  placeholder={t.releaseNotesPlaceholder}
+                  placeholder={t('deliverableGenerator.releaseNotesPlaceholder')}
                   rows={2}
                   className="px-2 py-1.5 rounded text-xs resize-y"
                   style={{ backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
@@ -1015,7 +955,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
                   style={{ backgroundColor: 'var(--color-success)', color: '#fff' }}
                 >
                   <Download className="w-3.5 h-3.5" />
-                  {t.downloadZip}
+                  {t('deliverableGenerator.downloadZip')}
                 </button>
               </div>
               )}
@@ -1023,10 +963,10 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
               {showDeliveryBlockers && (
                 <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-error)' }}>
                   <div className="text-sm font-medium mb-2" style={{ color: 'var(--color-error)' }}>
-                    {t.deliveryBlockedTitle}
+                    {t('deliverableGenerator.deliveryBlockedTitle')}
                   </div>
                   <div className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>
-                    {t.deliveryBlockedHint}
+                    {t('deliverableGenerator.deliveryBlockedHint')}
                   </div>
                   <ul className="space-y-1 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                     {deliveryBlockers.map((blocker) => (
@@ -1068,7 +1008,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
                       </p>
                     </div>
                     <div className="flex items-center gap-2" style={{ color: config.color }}>
-                      <span className="text-xs font-medium">{t.generate}</span>
+                      <span className="text-xs font-medium">{t('deliverableGenerator.generate')}</span>
                       <ChevronRight className="w-4 h-4" />
                     </div>
                   </button>
@@ -1083,7 +1023,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
             style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}
           >
             <FileText className="inline w-3 h-3 mr-1" />
-            {t.tip}
+            {t('deliverableGenerator.tip')}
           </div>
         </>
       )}

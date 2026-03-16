@@ -3,76 +3,26 @@
  * 编辑单个 Object 的名称、描述、属性
  */
 import React, { useState, useEffect } from 'react';
-import { Language, OntologyObject, PropertyDefinition } from '../types';
+import { OntologyObject, PropertyDefinition } from '../types';
 import {
   X, Save, Plus, Trash2, GripVertical, Box, AlertCircle
 } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface ObjectEditorProps {
-  lang: Language;
   object: OntologyObject;
   onSave: (updated: OntologyObject) => void;
   onClose: () => void;
 }
 
-const translations = {
-  en: {
-    editObject: 'Edit Object',
-    name: 'Name',
-    nameCn: 'Chinese Name',
-    description: 'Description',
-    descriptionCn: 'Chinese Description',
-    primaryKey: 'Primary Key',
-    properties: 'Properties',
-    addProperty: 'Add Property',
-    propName: 'Property Name',
-    propType: 'Type',
-    propDesc: 'Description',
-    propRequired: 'Required',
-    save: 'Save',
-    cancel: 'Cancel',
-    noProperties: 'No properties defined',
-    typeString: 'String',
-    typeNumber: 'Number',
-    typeBoolean: 'Boolean',
-    typeDatetime: 'Datetime',
-    typeArray: 'Array',
-    typeObject: 'Object',
-  },
-  cn: {
-    editObject: '编辑对象',
-    name: '名称',
-    nameCn: '中文名称',
-    description: '描述',
-    descriptionCn: '中文描述',
-    primaryKey: '主键',
-    properties: '属性列表',
-    addProperty: '添加属性',
-    propName: '属性名',
-    propType: '类型',
-    propDesc: '说明',
-    propRequired: '必填',
-    save: '保存',
-    cancel: '取消',
-    noProperties: '暂无属性',
-    typeString: '字符串',
-    typeNumber: '数字',
-    typeBoolean: '布尔',
-    typeDatetime: '日期时间',
-    typeArray: '数组',
-    typeObject: '对象',
-  }
-};
-
 const propertyTypes = ['string', 'number', 'boolean', 'datetime', 'array', 'object'];
 
 const ObjectEditor: React.FC<ObjectEditorProps> = ({
-  lang,
   object,
   onSave,
   onClose
 }) => {
-  const t = translations[lang];
+  const { t } = useAppTranslation('modeling');
   const [editingObject, setEditingObject] = useState<OntologyObject>({ ...object });
 
   useEffect(() => {
@@ -133,7 +83,7 @@ const ObjectEditor: React.FC<ObjectEditorProps> = ({
             </div>
             <div>
               <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {t.editObject}
+                {t('objectEditor.editObject')}
               </h2>
               <p className="text-xs text-muted">{object.name || 'New Object'}</p>
             </div>
@@ -152,7 +102,7 @@ const ObjectEditor: React.FC<ObjectEditorProps> = ({
           {/* Basic Info */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-muted mb-1.5">{t.name} *</label>
+              <label className="block text-xs text-muted mb-1.5">{t('objectEditor.name')} *</label>
               <input
                 type="text"
                 value={editingObject.name || ''}
@@ -167,7 +117,7 @@ const ObjectEditor: React.FC<ObjectEditorProps> = ({
               />
             </div>
             <div>
-              <label className="block text-xs text-muted mb-1.5">{t.nameCn}</label>
+              <label className="block text-xs text-muted mb-1.5">{t('objectEditor.nameCn')}</label>
               <input
                 type="text"
                 value={editingObject.nameCn || ''}
@@ -184,7 +134,7 @@ const ObjectEditor: React.FC<ObjectEditorProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs text-muted mb-1.5">{t.description}</label>
+            <label className="block text-xs text-muted mb-1.5">{t('objectEditor.description')}</label>
             <textarea
               value={editingObject.description || ''}
               onChange={(e) => updateField('description', e.target.value)}
@@ -200,7 +150,7 @@ const ObjectEditor: React.FC<ObjectEditorProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs text-muted mb-1.5">{t.primaryKey}</label>
+            <label className="block text-xs text-muted mb-1.5">{t('objectEditor.primaryKey')}</label>
             <input
               type="text"
               value={editingObject.primaryKey || ''}
@@ -219,7 +169,7 @@ const ObjectEditor: React.FC<ObjectEditorProps> = ({
           <div>
             <div className="flex items-center justify-between mb-3">
               <label className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {t.properties} ({editingObject.properties?.length || 0})
+                {t('objectEditor.properties')} ({editingObject.properties?.length || 0})
               </label>
               <button
                 onClick={addProperty}
@@ -227,7 +177,7 @@ const ObjectEditor: React.FC<ObjectEditorProps> = ({
                 style={{ backgroundColor: 'var(--color-accent)15', color: 'var(--color-accent)' }}
               >
                 <Plus size={12} />
-                {t.addProperty}
+                {t('objectEditor.addProperty')}
               </button>
             </div>
 
@@ -236,16 +186,16 @@ const ObjectEditor: React.FC<ObjectEditorProps> = ({
                 className="p-4 rounded-lg text-center text-sm text-muted"
                 style={{ backgroundColor: 'var(--color-bg-surface)' }}
               >
-                {t.noProperties}
+                {t('objectEditor.noProperties')}
               </div>
             ) : (
               <div className="space-y-2">
                 {/* Header */}
                 <div className="grid grid-cols-12 gap-2 px-2 text-xs text-muted">
-                  <div className="col-span-3">{t.propName}</div>
-                  <div className="col-span-2">{t.propType}</div>
-                  <div className="col-span-5">{t.propDesc}</div>
-                  <div className="col-span-1 text-center">{t.propRequired}</div>
+                  <div className="col-span-3">{t('objectEditor.propName')}</div>
+                  <div className="col-span-2">{t('objectEditor.propType')}</div>
+                  <div className="col-span-5">{t('objectEditor.propDesc')}</div>
+                  <div className="col-span-1 text-center">{t('objectEditor.propRequired')}</div>
                   <div className="col-span-1"></div>
                 </div>
 
@@ -324,7 +274,7 @@ const ObjectEditor: React.FC<ObjectEditorProps> = ({
             className="px-4 py-2 rounded-lg text-sm transition-colors"
             style={{ color: 'var(--color-text-muted)' }}
           >
-            {t.cancel}
+            {t('objectEditor.cancel')}
           </button>
           <button
             onClick={handleSave}
@@ -332,7 +282,7 @@ const ObjectEditor: React.FC<ObjectEditorProps> = ({
             style={{ backgroundColor: 'var(--color-accent)', color: '#fff' }}
           >
             <Save size={14} />
-            {t.save}
+            {t('objectEditor.save')}
           </button>
         </div>
       </div>

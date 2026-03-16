@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Language } from '../types';
 import {
   ArrowLeft, CheckCircle, XCircle, Lightbulb, Target,
   Zap, RefreshCw, Award, ChevronRight
 } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface Props {
-  lang: Language;
   exerciseType: 'noun-verb' | 'action-design';
   exerciseId: string;
   onBack: () => void;
@@ -135,57 +134,9 @@ const actionDesignExercises: ActionDesignExercise[] = [
   }
 ];
 
-const translations = {
-  en: {
-    nounVerbTitle: 'Noun-Verb Extraction',
-    nounVerbDesc: 'Identify Objects (nouns) and Actions (verbs) from the business description',
-    actionDesignTitle: 'Action Design',
-    actionDesignDesc: 'Complete the Action definition based on the context',
-    scenario: 'Business Scenario',
-    selectNouns: 'Select all Objects (Nouns)',
-    selectVerbs: 'Select all Actions (Verbs)',
-    checkAnswer: 'Check Answer',
-    nextExercise: 'Next Exercise',
-    tryAgain: 'Try Again',
-    correct: 'Correct!',
-    incorrect: 'Not quite right',
-    score: 'Score',
-    hint: 'Hint',
-    showHint: 'Show Hint',
-    actionContext: 'Context',
-    fillBlanks: 'Fill in the blanks for',
-    yourAnswer: 'Your answer',
-    completed: 'Exercise Complete!',
-    accuracy: 'Accuracy',
-    backToAcademy: 'Back to Academy'
-  },
-  cn: {
-    nounVerbTitle: 'Noun-Verb 提取',
-    nounVerbDesc: '从业务描述中识别对象（名词）和动作（动词）',
-    actionDesignTitle: 'Action 设计',
-    actionDesignDesc: '根据上下文完成 Action 定义',
-    scenario: '业务场景',
-    selectNouns: '选择所有对象（名词）',
-    selectVerbs: '选择所有动作（动词）',
-    checkAnswer: '检查答案',
-    nextExercise: '下一题',
-    tryAgain: '再试一次',
-    correct: '正确！',
-    incorrect: '不太对',
-    score: '得分',
-    hint: '提示',
-    showHint: '显示提示',
-    actionContext: '上下文',
-    fillBlanks: '填写以下内容',
-    yourAnswer: '你的答案',
-    completed: '练习完成！',
-    accuracy: '正确率',
-    backToAcademy: '返回学习中心'
-  }
-};
 
-const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onComplete }) => {
-  const t = translations[lang];
+const Exercise: React.FC<Props> = ({ exerciseType, exerciseId, onBack, onComplete }) => {
+  const { t, lang } = useAppTranslation('academy');
 
   // Noun-Verb state
   const [selectedNouns, setSelectedNouns] = useState<Set<string>>(new Set());
@@ -248,13 +199,13 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
       <div className="space-y-6">
         {/* Scenario */}
         <div className="glass-card rounded-xl p-5">
-          <div className="text-xs text-muted mb-2">{t.scenario}</div>
+          <div className="text-xs text-muted mb-2">{t('exercise.scenario')}</div>
           <p className="text-secondary leading-relaxed">{exercise.scenario[lang]}</p>
         </div>
 
         {/* Nouns Selection */}
         <div>
-          <div className="text-sm mb-3" style={{ color: 'var(--color-accent)' }}>{t.selectNouns}</div>
+          <div className="text-sm mb-3" style={{ color: 'var(--color-accent)' }}>{t('exercise.selectNouns')}</div>
           <div className="flex flex-wrap gap-2">
             {allNouns.map(noun => {
               const isSelected = selectedNouns.has(noun);
@@ -302,7 +253,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
 
         {/* Verbs Selection */}
         <div>
-          <div className="text-sm mb-3" style={{ color: 'var(--color-success)' }}>{t.selectVerbs}</div>
+          <div className="text-sm mb-3" style={{ color: 'var(--color-success)' }}>{t('exercise.selectVerbs')}</div>
           <div className="flex flex-wrap gap-2">
             {allVerbs.map(verb => {
               const isSelected = selectedVerbs.has(verb);
@@ -357,14 +308,14 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
               className="btn-gradient px-5 py-2 rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-50"
             >
               <Target size={16} />
-              {t.checkAnswer}
+              {t('exercise.checkAnswer')}
             </button>
           ) : (
             <button
               onClick={handleNextExercise}
               className="btn-gradient px-5 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
             >
-              {currentIndex < exercises.length - 1 ? t.nextExercise : t.backToAcademy}
+              {currentIndex < exercises.length - 1 ? t('exercise.nextExercise') : t('exercise.backToAcademy')}
               <ChevronRight size={16} />
             </button>
           )}
@@ -408,13 +359,13 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
             <Zap size={16} style={{ color: 'var(--color-accent-secondary)' }} />
             <span className="font-medium" style={{ color: 'var(--color-accent-secondary)' }}>{exercise.actionName[lang]}</span>
           </div>
-          <div className="text-xs text-muted mb-2">{t.actionContext}</div>
+          <div className="text-xs text-muted mb-2">{t('exercise.actionContext')}</div>
           <p className="text-secondary leading-relaxed">{exercise.context[lang]}</p>
         </div>
 
         {/* Fill in blanks */}
         <div className="space-y-4">
-          <div className="text-sm text-muted">{t.fillBlanks}:</div>
+          <div className="text-sm text-muted">{t('exercise.fillBlanks')}:</div>
           {exercise.blanks.map(blank => {
             const showResult = submitted;
             const correct = isFieldCorrect(blank.field);
@@ -430,14 +381,14 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
                       className="text-xs text-muted flex items-center gap-1"
                     >
                       <Lightbulb size={12} />
-                      {t.showHint}
+                      {t('exercise.showHint')}
                     </button>
                   )}
                 </div>
 
                 {showHint && !submitted && (
                   <div className="text-xs px-3 py-1.5 rounded" style={{ color: 'var(--color-accent)', backgroundColor: 'var(--color-bg-hover)' }}>
-                    {t.hint}: {blank.hint[lang]}
+                    {t('exercise.hint')}: {blank.hint[lang]}
                   </div>
                 )}
 
@@ -446,7 +397,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
                   value={answers[blank.field] || ''}
                   onChange={e => setAnswers({ ...answers, [blank.field]: e.target.value })}
                   disabled={submitted}
-                  placeholder={t.yourAnswer}
+                  placeholder={t('exercise.yourAnswer')}
                   className="w-full px-4 py-2.5 rounded-lg border text-sm transition-all focus:outline-none"
                   style={{
                     backgroundColor: 'var(--color-bg-surface)',
@@ -461,7 +412,7 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
 
                 {showResult && !correct && (
                   <div className="text-xs text-muted">
-                    {lang === 'cn' ? '参考答案：' : 'Accepted: '}{blank.correctAnswers.slice(0, 2).join(' / ')}
+                    {t('acceptedAnswers')}{blank.correctAnswers.slice(0, 2).join(' / ')}
                   </div>
                 )}
               </div>
@@ -478,14 +429,14 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
               className="btn-gradient px-5 py-2 rounded-lg text-sm font-medium flex items-center gap-2 disabled:opacity-50"
             >
               <Target size={16} />
-              {t.checkAnswer}
+              {t('exercise.checkAnswer')}
             </button>
           ) : (
             <button
               onClick={handleNextExercise}
               className="btn-gradient px-5 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
             >
-              {currentIndex < exercises.length - 1 ? t.nextExercise : t.backToAcademy}
+              {currentIndex < exercises.length - 1 ? t('exercise.nextExercise') : t('exercise.backToAcademy')}
               <ChevronRight size={16} />
             </button>
           )}
@@ -507,10 +458,10 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
           </button>
           <div>
             <h2 className="text-base font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              {exerciseType === 'noun-verb' ? t.nounVerbTitle : t.actionDesignTitle}
+              {exerciseType === 'noun-verb' ? t('exercise.nounVerbTitle') : t('exercise.actionDesignTitle')}
             </h2>
             <p className="text-xs text-muted mt-0.5">
-              {exerciseType === 'noun-verb' ? t.nounVerbDesc : t.actionDesignDesc}
+              {exerciseType === 'noun-verb' ? t('exercise.nounVerbDesc') : t('exercise.actionDesignDesc')}
             </p>
           </div>
         </div>
@@ -552,16 +503,16 @@ const Exercise: React.FC<Props> = ({ lang, exerciseType, exerciseId, onBack, onC
             <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
               <Award size={32} style={{ color: 'var(--color-accent)' }} />
             </div>
-            <h3 className="text-xl font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>{t.completed}</h3>
+            <h3 className="text-xl font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>{t('exercise.completed')}</h3>
             <div className="text-3xl font-bold text-gradient mb-1">
               {Math.round((totalScore / exercises.length) * 100)}%
             </div>
-            <div className="text-sm text-muted mb-6">{t.accuracy}</div>
+            <div className="text-sm text-muted mb-6">{t('exercise.accuracy')}</div>
             <button
               onClick={() => onComplete(exerciseId, Math.round((totalScore / exercises.length) * 100))}
               className="btn-gradient px-6 py-2.5 rounded-lg text-sm font-medium"
             >
-              {t.backToAcademy}
+              {t('exercise.backToAcademy')}
             </button>
           </div>
         </div>

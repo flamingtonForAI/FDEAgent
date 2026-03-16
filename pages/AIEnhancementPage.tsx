@@ -1,10 +1,9 @@
 import React from 'react';
 import AIEnhancement from '../components/AIEnhancement';
-import type { ProjectState, Language, AISettings } from '../types';
+import type { ProjectState, AISettings } from '../types';
 import type { AnalysisResult } from '../services/aiAnalysisService';
 
 interface AIEnhancementPageProps {
-  lang: Language;
   project: ProjectState;
   setProject: React.Dispatch<React.SetStateAction<ProjectState>>;
   aiSettings: AISettings;
@@ -21,7 +20,6 @@ interface AIEnhancementPageProps {
  * AI 能力设计、Agent Tools 生成
  */
 export const AIEnhancementPage: React.FC<AIEnhancementPageProps> = ({
-  lang,
   project,
   setProject,
   aiSettings,
@@ -33,7 +31,6 @@ export const AIEnhancementPage: React.FC<AIEnhancementPageProps> = ({
   onAnalysisError,
 }) => (
   <AIEnhancement
-    lang={lang}
     project={project}
     setProject={setProject}
     aiSettings={aiSettings}

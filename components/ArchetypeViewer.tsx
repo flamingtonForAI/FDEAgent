@@ -6,8 +6,8 @@
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Language } from '../types';
 import { Archetype } from '../types/archetype';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import { getMergedArchetypeById } from '../content/archetypes';
 import {
   ArrowLeft, Package, Database, GitBranch, Zap, Bot, LayoutDashboard,
@@ -16,119 +16,15 @@ import {
 } from 'lucide-react';
 
 interface Props {
-  lang: Language;
   archetypeId: string;
   onBack: () => void;
   onApply: () => void;
 }
 
-const translations = {
-  en: {
-    back: 'Back to Library',
-    useArchetype: 'Use This Archetype',
-    overview: 'Overview',
-    semanticLayer: 'Semantic Layer',
-    kineticLayer: 'Kinetic Layer',
-    dynamicLayer: 'Dynamic Layer',
-    aiLayer: 'AI Layer',
-    uiLayer: 'UI Templates',
-    deployment: 'Deployment',
-    // Overview
-    version: 'Version',
-    industry: 'Industry',
-    domain: 'Domain',
-    deployTime: 'Avg Deploy Time',
-    deployments: 'Deployments',
-    origin: 'Origin',
-    contributors: 'Contributors',
-    // Semantic
-    objects: 'Objects',
-    links: 'Links',
-    properties: 'Properties',
-    actions: 'Actions',
-    aiFeatures: 'AI Features',
-    // Kinetic
-    connectors: 'Data Connectors',
-    sourceSystem: 'Source System',
-    syncFrequency: 'Sync',
-    mappedObjects: 'Mapped Objects',
-    // Dynamic
-    workflows: 'Workflows',
-    rules: 'Business Rules',
-    trigger: 'Trigger',
-    steps: 'Steps',
-    // AI
-    aiCapabilities: 'AI Capabilities',
-    modelType: 'Model Type',
-    enabledActions: 'Enabled Actions',
-    // UI
-    dashboards: 'Dashboards',
-    views: 'Views',
-    widgets: 'Widgets',
-    targetRole: 'For Role',
-    // Deployment
-    requirements: 'Requirements',
-    envVariables: 'Environment Variables',
-    documentation: 'Documentation',
-    quickStart: 'Quick Start Guide',
-    notFound: 'Archetype not found',
-  },
-  cn: {
-    back: '返回原型库',
-    useArchetype: '使用此原型',
-    overview: '概览',
-    semanticLayer: '语义层',
-    kineticLayer: '动力层',
-    dynamicLayer: '动态层',
-    aiLayer: 'AI 层',
-    uiLayer: '界面模板',
-    deployment: '部署配置',
-    // Overview
-    version: '版本',
-    industry: '行业',
-    domain: '领域',
-    deployTime: '平均部署周期',
-    deployments: '部署数量',
-    origin: '来源',
-    contributors: '贡献者',
-    // Semantic
-    objects: '对象',
-    links: '关系',
-    properties: '属性',
-    actions: '动作',
-    aiFeatures: 'AI特性',
-    // Kinetic
-    connectors: '数据连接器',
-    sourceSystem: '源系统',
-    syncFrequency: '同步频率',
-    mappedObjects: '映射对象',
-    // Dynamic
-    workflows: '工作流',
-    rules: '业务规则',
-    trigger: '触发条件',
-    steps: '步骤',
-    // AI
-    aiCapabilities: 'AI 能力',
-    modelType: '模型类型',
-    enabledActions: '启用的动作',
-    // UI
-    dashboards: '仪表盘',
-    views: '视图',
-    widgets: '组件',
-    targetRole: '目标角色',
-    // Deployment
-    requirements: '部署要求',
-    envVariables: '环境变量',
-    documentation: '文档',
-    quickStart: '快速启动指南',
-    notFound: '未找到原型',
-  }
-};
-
 type TabId = 'overview' | 'semantic' | 'kinetic' | 'dynamic' | 'ai' | 'ui' | 'deployment';
 
-const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }) => {
-  const t = translations[lang];
+const ArchetypeViewer: React.FC<Props> = ({ archetypeId, onBack, onApply }) => {
+  const { t, lang } = useAppTranslation('archetypes');
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['objects', 'connectors', 'workflows']));
 
@@ -192,9 +88,9 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
       <div className="h-full flex items-center justify-center bg-[var(--color-bg-elevated)]">
         <div className="text-center text-muted">
           <Package size={48} className="mx-auto mb-4 opacity-30" />
-          <p>{t.notFound}</p>
+          <p>{t('viewer.notFound')}</p>
           <button onClick={onBack} className="mt-4 text-amber-400 hover:underline">
-            {t.back}
+            {t('viewer.back')}
           </button>
         </div>
       </div>
@@ -202,13 +98,13 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
   }
 
   const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
-    { id: 'overview', label: t.overview, icon: <Package size={14} /> },
-    { id: 'semantic', label: t.semanticLayer, icon: <Database size={14} /> },
-    { id: 'kinetic', label: t.kineticLayer, icon: <GitBranch size={14} /> },
-    { id: 'dynamic', label: t.dynamicLayer, icon: <Workflow size={14} /> },
-    { id: 'ai', label: t.aiLayer, icon: <Bot size={14} /> },
-    { id: 'ui', label: t.uiLayer, icon: <LayoutDashboard size={14} /> },
-    { id: 'deployment', label: t.deployment, icon: <Server size={14} /> },
+    { id: 'overview', label: t('viewer.overview'), icon: <Package size={14} /> },
+    { id: 'semantic', label: t('viewer.semanticLayer'), icon: <Database size={14} /> },
+    { id: 'kinetic', label: t('viewer.kineticLayer'), icon: <GitBranch size={14} /> },
+    { id: 'dynamic', label: t('viewer.dynamicLayer'), icon: <Workflow size={14} /> },
+    { id: 'ai', label: t('viewer.aiLayer'), icon: <Bot size={14} /> },
+    { id: 'ui', label: t('viewer.uiLayer'), icon: <LayoutDashboard size={14} /> },
+    { id: 'deployment', label: t('viewer.deployment'), icon: <Server size={14} /> },
   ];
 
   return (
@@ -222,7 +118,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
               className="flex items-center gap-2 text-sm text-muted hover:text-primary transition-colors"
             >
               <ArrowLeft size={16} />
-              {t.back}
+              {t('viewer.back')}
             </button>
             <div className="h-6 w-px bg-white/[0.1]" />
             <div>
@@ -234,7 +130,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
             onClick={onApply}
             className="flex items-center gap-2 btn-gradient px-5 py-2.5 rounded-lg text-sm font-medium"
           >
-            {t.useArchetype}
+            {t('viewer.useArchetype')}
           </button>
         </div>
       </div>
@@ -262,10 +158,10 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
           <div className="space-y-6 animate-fadeIn">
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <StatCard label={t.version} value={archetype.metadata.version} icon={<FileJson size={16} />} />
-              <StatCard label={t.industry} value={archetype.metadata.industry} icon={<Package size={16} />} />
-              <StatCard label={t.deployTime} value={archetype.metadata.usage?.avgDeploymentTime || 'N/A'} icon={<Clock size={16} />} />
-              <StatCard label={t.deployments} value={String(archetype.metadata.usage?.deployments || 0)} icon={<CheckCircle size={16} />} />
+              <StatCard label={t('viewer.version')} value={archetype.metadata.version} icon={<FileJson size={16} />} />
+              <StatCard label={t('viewer.industry')} value={archetype.metadata.industry} icon={<Package size={16} />} />
+              <StatCard label={t('viewer.deployTime')} value={archetype.metadata.usage?.avgDeploymentTime || 'N/A'} icon={<Clock size={16} />} />
+              <StatCard label={t('viewer.deployments')} value={String(archetype.metadata.usage?.deployments || 0)} icon={<CheckCircle size={16} />} />
             </div>
 
             {/* Origin */}
@@ -273,14 +169,14 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
               <div className="glass-card rounded-xl p-5">
                 <h3 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
                   <Users size={14} className="text-amber-400" />
-                  {t.origin}
+                  {t('viewer.origin')}
                 </h3>
                 <div className="text-sm text-muted space-y-2">
                   {archetype.metadata.origin.sourceEngagement && (
                     <p><span className="text-muted">Source:</span> {archetype.metadata.origin.sourceEngagement}</p>
                   )}
                   {archetype.metadata.origin.fdeContributors && (
-                    <p><span className="text-muted">{t.contributors}:</span> {archetype.metadata.origin.fdeContributors.join(', ')}</p>
+                    <p><span className="text-muted">{t('viewer.contributors')}:</span> {archetype.metadata.origin.fdeContributors.join(', ')}</p>
                   )}
                 </div>
               </div>
@@ -288,11 +184,11 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
 
             {/* Quick Stats */}
             <div className="grid grid-cols-5 gap-4">
-              <MiniStatCard label={t.objects} value={archetype.ontology.objects.length} color="blue" />
-              <MiniStatCard label={t.connectors} value={archetype.connectors.length} color="emerald" />
-              <MiniStatCard label={t.workflows} value={archetype.workflows.length} color="purple" />
-              <MiniStatCard label={t.aiCapabilities} value={archetype.aiCapabilities.length} color="amber" />
-              <MiniStatCard label={t.dashboards} value={archetype.dashboards.length} color="amber" />
+              <MiniStatCard label={t('viewer.objects')} value={archetype.ontology.objects.length} color="blue" />
+              <MiniStatCard label={t('viewer.connectors')} value={archetype.connectors.length} color="emerald" />
+              <MiniStatCard label={t('viewer.workflows')} value={archetype.workflows.length} color="purple" />
+              <MiniStatCard label={t('viewer.aiCapabilities')} value={archetype.aiCapabilities.length} color="amber" />
+              <MiniStatCard label={t('viewer.dashboards')} value={archetype.dashboards.length} color="amber" />
             </div>
           </div>
         )}
@@ -307,12 +203,12 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                 subtitle={obj.nameCn || obj.description}
                 isExpanded={expandedSections.has(obj.id)}
                 onToggle={() => toggleSection(obj.id)}
-                badge={`${obj.properties?.length || 0} ${t.properties} · ${obj.actions?.length || 0} ${t.actions}`}
+                badge={`${obj.properties?.length || 0} ${t('viewer.properties')} · ${obj.actions?.length || 0} ${t('viewer.actions')}`}
               >
                 <div className="space-y-4">
                   {/* Properties */}
                   <div>
-                    <h4 className="text-xs text-muted uppercase mb-2">{t.properties}</h4>
+                    <h4 className="text-xs text-muted uppercase mb-2">{t('viewer.properties')}</h4>
                     <div className="grid grid-cols-2 gap-2">
                       {obj.properties?.slice(0, 8).map(prop => (
                         <div key={prop.name} className="glass-surface rounded-lg px-3 py-2 text-xs">
@@ -329,7 +225,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                   {/* Actions */}
                   {obj.actions && obj.actions.length > 0 && (
                     <div>
-                      <h4 className="text-xs text-muted uppercase mb-2">{t.actions}</h4>
+                      <h4 className="text-xs text-muted uppercase mb-2">{t('viewer.actions')}</h4>
                       <div className="space-y-2">
                         {obj.actions.map((action, idx) => (
                           <div key={idx} className="glass-surface rounded-lg px-3 py-2">
@@ -353,7 +249,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
             {/* Links */}
             {archetype.ontology.links.length > 0 && (
               <CollapsibleSection
-                title={t.links}
+                title={t('viewer.links')}
                 isExpanded={expandedSections.has('links')}
                 onToggle={() => toggleSection('links')}
                 badge={`${archetype.ontology.links.length} relationships`}
@@ -407,16 +303,16 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-4 text-xs">
                       <div>
-                        <span className="text-muted">{t.sourceSystem}:</span>
+                        <span className="text-muted">{t('viewer.sourceSystem')}:</span>
                         <span className="text-white ml-2">{sourceSystem}</span>
                       </div>
                       <div>
-                        <span className="text-muted">{t.syncFrequency}:</span>
+                        <span className="text-muted">{t('viewer.syncFrequency')}:</span>
                         <span className="text-white ml-2">{syncFrequency}</span>
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-xs text-muted mb-2">{t.mappedObjects}</h4>
+                      <h4 className="text-xs text-muted mb-2">{t('viewer.mappedObjects')}</h4>
                       <div className="space-y-1">
                         {/* Old structure: mappedObjects */}
                         {mappedObjects.length > 0 && mappedObjects.map((mapping: any, idx: number) => (
@@ -467,7 +363,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
             {/* Workflows */}
             <h3 className="text-sm font-medium text-white flex items-center gap-2">
               <Workflow size={14} className="text-purple-400" />
-              {t.workflows}
+              {t('viewer.workflows')}
             </h3>
             {archetype.workflows.map(workflow => {
               // Handle both old and new workflow structures
@@ -483,11 +379,11 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                   subtitle={description}
                   isExpanded={expandedSections.has(workflow.id)}
                   onToggle={() => toggleSection(workflow.id)}
-                  badge={`${workflow.steps.length} ${t.steps}`}
+                  badge={`${workflow.steps.length} ${t('viewer.steps')}`}
                 >
                   <div className="space-y-3">
                     <div className="text-xs">
-                      <span className="text-muted">{t.trigger}:</span>
+                      <span className="text-muted">{t('viewer.trigger')}:</span>
                       <span className="text-white ml-2">{triggerType}</span>
                       {triggerCondition && typeof triggerCondition === 'string' && (
                         <span className="text-muted ml-2">({triggerCondition})</span>
@@ -526,7 +422,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                 <>
                   <h3 className="text-sm font-medium text-white flex items-center gap-2 mt-6">
                     <Shield size={14} className="text-amber-400" />
-                    {t.rules}
+                    {t('viewer.rules')}
                   </h3>
                   {rules.map((rule: any) => {
                     const ruleDescription = rule.description?.cn || rule.description?.en || rule.action || '';
@@ -584,7 +480,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                   {modelConfig && (
                     <div className="text-xs space-y-1 mb-3">
                       <div>
-                        <span className="text-muted">{t.modelType}:</span>
+                        <span className="text-muted">{t('viewer.modelType')}:</span>
                         <span className="text-white ml-2">{modelConfig.modelType || modelConfig.algorithm || 'N/A'}</span>
                       </div>
                       {(modelConfig.trainingDataRequirements || modelConfig.trainingFrequency) && (
@@ -645,7 +541,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
           <div className="space-y-4 animate-fadeIn">
             <h3 className="text-sm font-medium text-white flex items-center gap-2">
               <LayoutDashboard size={14} className="text-amber-400" />
-              {t.dashboards}
+              {t('viewer.dashboards')}
             </h3>
             {archetype.dashboards.map(dashboard => {
               // Handle both old and new dashboard structures
@@ -660,11 +556,11 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                 <div key={dashboard.id} className="glass-card rounded-xl p-5">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-white font-medium">{dashboard.name}</h4>
-                    <span className="text-xs text-muted">{t.targetRole}: {targetRole}</span>
+                    <span className="text-xs text-muted">{t('viewer.targetRole')}: {targetRole}</span>
                   </div>
                   <p className="text-sm text-muted mb-4">{description}</p>
                   <div className="flex items-center gap-4 text-xs text-muted">
-                    <span>{dashboardAny.widgets?.length || 0} {t.widgets}</span>
+                    <span>{dashboardAny.widgets?.length || 0} {t('viewer.widgets')}</span>
                     <span>{layout}</span>
                     {dashboardAny.refreshInterval && (
                       <span>Refresh: {dashboardAny.refreshInterval}s</span>
@@ -684,7 +580,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                 <>
                   <h3 className="text-sm font-medium text-white flex items-center gap-2 mt-6">
                     <Layers size={14} className="text-emerald-400" />
-                    {t.views}
+                    {t('viewer.views')}
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
                     {views.map((view: any) => (
@@ -744,7 +640,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                     <div className="glass-card rounded-xl p-5">
                       <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
                         <Server size={14} className="text-amber-400" />
-                        {t.requirements}
+                        {t('viewer.requirements')}
                       </h3>
                       <div className="grid grid-cols-2 gap-4 text-xs">
                         <div>
@@ -812,7 +708,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                     <div className="glass-card rounded-xl p-5">
                       <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
                         <Settings size={14} className="text-amber-400" />
-                        {t.envVariables}
+                        {t('viewer.envVariables')}
                       </h3>
                       <div className="space-y-2">
                         {envVars.map((env: any) => (
@@ -877,7 +773,7 @@ const ArchetypeViewer: React.FC<Props> = ({ lang, archetypeId, onBack, onApply }
                     <div className="glass-card rounded-xl p-5">
                       <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
                         <FileJson size={14} className="text-emerald-400" />
-                        {t.quickStart}
+                        {t('viewer.quickStart')}
                       </h3>
                       <div className="prose prose-invert prose-sm max-w-none">
                         <pre className="bg-[var(--color-bg-base)]/30 rounded-lg p-4 text-xs text-secondary overflow-x-auto whitespace-pre-wrap">

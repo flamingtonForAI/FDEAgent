@@ -1,83 +1,18 @@
 
 import React, { useState } from 'react';
-import { ProjectState, Language } from '../types';
+import { ProjectState } from '../types';
 import { ShieldCheck, Layers, FileJson, Download, Terminal, FileText, History, BookOpen, ChevronDown, ChevronRight } from 'lucide-react';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 import ArtifactExporter from './ArtifactExporter';
 import ChangeHistoryPanel from './ChangeHistoryPanel';
 import { generateIntegrationDraft, exportDraftToMarkdown, IntegrationDraft } from '../lib/integrationDraftGenerator';
 
 interface Props {
-  lang: Language;
   project: ProjectState;
 }
 
-const translations = {
-  en: {
-    title: "Intelligent OS Blueprint",
-    validated: "Architecture Validated",
-    hybrid: "Hybrid Data-Model Layer",
-    export: "Export Blueprint",
-    orchestration: "Orchestration (Reasoning)",
-    orchestrationSub: "Context-Aware Logic Engine",
-    ontology: "Ontology (Core Graph)",
-    ontologySub: "Semantic Data Architecture",
-    operational: "Operational Layer (Actions)",
-    operationalSub: "Driving Real-World Outcomes",
-    definition: "System Definition (Raw JSON)",
-    quote: '"Software used to be about storing data. Now, it is about reasoning over it."',
-    role: "— Digital Twin & Systems Architect",
-    // Phase 3 translations
-    integrationDraft: "Integration Draft",
-    integrationDraftDesc: "Generate comprehensive implementation documentation",
-    generateDraft: "Generate Draft",
-    exportArtifacts: "Export Artifacts",
-    exportArtifactsDesc: "Download your design in various formats",
-    changeHistory: "Change History",
-    changeHistoryDesc: "Track all modifications to your design",
-    viewDraft: "View Integration Draft",
-    downloadDraft: "Download Draft",
-    complexity: "Complexity",
-    phases: "Implementation Phases",
-    risks: "Identified Risks",
-    low: "Low",
-    medium: "Medium",
-    high: "High"
-  },
-  cn: {
-    title: "智能操作系统蓝图",
-    validated: "架构已验证",
-    hybrid: "数据-模型混合层",
-    export: "导出蓝图方案",
-    orchestration: "业务编排 (推理层)",
-    orchestrationSub: "上下文感知的逻辑引擎",
-    ontology: "本体结构 (核心图谱)",
-    ontologySub: "语义化数据架构",
-    operational: "操作执行层 (Action)",
-    operationalSub: "驱动真实业务产出",
-    definition: "系统定义 (Raw JSON 数据)",
-    quote: '"软件过去是为了存储数据。现在，它是为了对数据进行推理。"',
-    role: "— 数字孪生与系统架构师",
-    // Phase 3 translations
-    integrationDraft: "集成草案",
-    integrationDraftDesc: "生成完整的实施文档",
-    generateDraft: "生成草案",
-    exportArtifacts: "导出 Artifacts",
-    exportArtifactsDesc: "以多种格式下载设计",
-    changeHistory: "变更历史",
-    changeHistoryDesc: "追踪设计的所有修改",
-    viewDraft: "查看集成草案",
-    downloadDraft: "下载草案",
-    complexity: "复杂度",
-    phases: "实施阶段",
-    risks: "识别的风险",
-    low: "低",
-    medium: "中",
-    high: "高"
-  }
-};
-
-const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
-  const t = translations[lang];
+const ProjectOverview: React.FC<Props> = ({ project }) => {
+  const { t, lang } = useAppTranslation('integration');
   const [showExporter, setShowExporter] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [integrationDraft, setIntegrationDraft] = useState<IntegrationDraft | null>(null);
@@ -112,7 +47,7 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
   };
 
   const getComplexityLabel = (complexity: 'low' | 'medium' | 'high') => {
-    const labels = { low: t.low, medium: t.medium, high: t.high };
+    const labels = { low: t('projectOverview.low'), medium: t('projectOverview.medium'), high: t('projectOverview.high') };
     return labels[complexity];
   };
 
@@ -125,13 +60,13 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
     <div className="p-8 pb-24 h-full bg-[var(--color-bg-elevated)] space-y-12 overflow-y-auto">
       <div className="flex justify-between items-start">
         <div>
-          <h2 className="text-3xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>{t.title}</h2>
+          <h2 className="text-3xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>{t('projectOverview.title')}</h2>
           <div className="flex gap-4">
              <div className="flex items-center gap-2 px-3 py-1.5 border rounded-full text-xs font-bold uppercase" style={{ backgroundColor: 'var(--color-bg-hover)', borderColor: 'var(--color-success)', color: 'var(--color-success)' }}>
-               <ShieldCheck size={14} /> {t.validated}
+               <ShieldCheck size={14} /> {t('projectOverview.validated')}
              </div>
              <div className="flex items-center gap-2 px-3 py-1.5 border rounded-full text-xs font-bold uppercase" style={{ backgroundColor: 'var(--color-bg-hover)', borderColor: 'var(--color-accent-secondary)', color: 'var(--color-accent-secondary)' }}>
-               <Layers size={14} /> {t.hybrid}
+               <Layers size={14} /> {t('projectOverview.hybrid')}
              </div>
           </div>
         </div>
@@ -141,30 +76,30 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
           style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
         >
           <Download size={18} />
-          {t.export}
+          {t('projectOverview.export')}
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="rounded-2xl p-6" style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
-          <h3 className="text-muted text-xs font-mono uppercase tracking-widest mb-4">{t.orchestration}</h3>
+          <h3 className="text-muted text-xs font-mono uppercase tracking-widest mb-4">{t('projectOverview.orchestration')}</h3>
           <div className="p-4 rounded-xl border font-medium text-sm" style={{ backgroundColor: 'var(--color-bg-hover)', borderColor: 'var(--color-accent-secondary)', color: 'var(--color-accent-secondary)' }}>
             Model-Agnostic Decision Layer
-            <p className="text-micro text-muted mt-1 uppercase font-mono">{t.orchestrationSub}</p>
+            <p className="text-micro text-muted mt-1 uppercase font-mono">{t('projectOverview.orchestrationSub')}</p>
           </div>
         </div>
         <div className="rounded-2xl p-6" style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
-          <h3 className="text-muted text-xs font-mono uppercase tracking-widest mb-4">{t.ontology}</h3>
+          <h3 className="text-muted text-xs font-mono uppercase tracking-widest mb-4">{t('projectOverview.ontology')}</h3>
           <div className="p-4 rounded-xl border font-medium text-sm" style={{ backgroundColor: 'var(--color-bg-hover)', borderColor: 'var(--color-accent-secondary)', color: 'var(--color-accent-secondary)' }}>
             {project.objects.length} Entities & {project.links.length} Relations
-            <p className="text-micro text-muted mt-1 uppercase font-mono">{t.ontologySub}</p>
+            <p className="text-micro text-muted mt-1 uppercase font-mono">{t('projectOverview.ontologySub')}</p>
           </div>
         </div>
         <div className="rounded-2xl p-6" style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
-          <h3 className="text-muted text-xs font-mono uppercase tracking-widest mb-4">{t.operational}</h3>
+          <h3 className="text-muted text-xs font-mono uppercase tracking-widest mb-4">{t('projectOverview.operational')}</h3>
           <div className="p-4 rounded-xl border font-medium text-sm" style={{ backgroundColor: 'var(--color-bg-hover)', borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }}>
             {project.objects.reduce((acc, obj) => acc + (obj.actions?.length || 0), 0)} Augmented Workflows
-            <p className="text-micro text-muted mt-1 uppercase font-mono">{t.operationalSub}</p>
+            <p className="text-micro text-muted mt-1 uppercase font-mono">{t('projectOverview.operationalSub')}</p>
           </div>
         </div>
       </div>
@@ -172,7 +107,7 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
       <div className="rounded-2xl p-8" style={{ backgroundColor: 'var(--color-bg-surface)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
         <div className="flex items-center gap-3 mb-6">
           <Terminal size={20} style={{ color: 'var(--color-accent-secondary)' }} />
-          <h3 className="text-xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t.definition}</h3>
+          <h3 className="text-xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('projectOverview.definition')}</h3>
         </div>
         <div className="p-6 rounded-xl font-mono text-xs overflow-x-auto max-h-96" style={{ backgroundColor: 'var(--color-bg-base)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)' }}>
           <pre style={{ color: 'var(--color-accent-secondary)' }}>
@@ -197,10 +132,10 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
             </div>
             <div>
               <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {t.integrationDraft}
+                {t('projectOverview.integrationDraft')}
               </h3>
               <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                {t.integrationDraftDesc}
+                {t('projectOverview.integrationDraftDesc')}
               </p>
             </div>
           </div>
@@ -209,7 +144,7 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
             className="w-full py-2.5 rounded-xl text-sm font-medium transition-colors"
             style={{ backgroundColor: 'var(--color-accent)', color: '#fff' }}
           >
-            {t.generateDraft}
+            {t('projectOverview.generateDraft')}
           </button>
         </div>
 
@@ -227,10 +162,10 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
             </div>
             <div>
               <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {t.exportArtifacts}
+                {t('projectOverview.exportArtifacts')}
               </h3>
               <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                {t.exportArtifactsDesc}
+                {t('projectOverview.exportArtifactsDesc')}
               </p>
             </div>
           </div>
@@ -239,7 +174,7 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
             className="w-full py-2.5 rounded-xl text-sm font-medium transition-colors"
             style={{ backgroundColor: 'var(--color-info)', color: '#fff' }}
           >
-            {t.exportArtifacts}
+            {t('projectOverview.exportArtifacts')}
           </button>
         </div>
 
@@ -257,10 +192,10 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
             </div>
             <div>
               <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {t.changeHistory}
+                {t('projectOverview.changeHistory')}
               </h3>
               <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                {t.changeHistoryDesc}
+                {t('projectOverview.changeHistoryDesc')}
               </p>
             </div>
           </div>
@@ -270,7 +205,7 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
             style={{ backgroundColor: 'var(--color-success)', color: '#fff' }}
           >
             {showHistory ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-            {t.changeHistory}
+            {t('projectOverview.changeHistory')}
           </button>
         </div>
       </div>
@@ -296,7 +231,7 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
                   color: getComplexityColor(integrationDraft.summary.estimatedComplexity)
                 }}
               >
-                {t.complexity}: {getComplexityLabel(integrationDraft.summary.estimatedComplexity)}
+                {t('projectOverview.complexity')}: {getComplexityLabel(integrationDraft.summary.estimatedComplexity)}
               </span>
               <button
                 onClick={handleDownloadDraft}
@@ -304,7 +239,7 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
                 style={{ backgroundColor: 'var(--color-accent)', color: '#fff' }}
               >
                 <Download size={14} />
-                {t.downloadDraft}
+                {t('projectOverview.downloadDraft')}
               </button>
               <button
                 onClick={() => setShowDraft(false)}
@@ -338,7 +273,7 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
           {/* Implementation Phases */}
           <div className="mb-6">
             <h4 className="text-sm font-medium mb-3" style={{ color: 'var(--color-text-primary)' }}>
-              {t.phases}
+              {t('projectOverview.phases')}
             </h4>
             <div className="space-y-2">
               {integrationDraft.implementationRoadmap.map(phase => (
@@ -381,7 +316,7 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
           {integrationDraft.risks.length > 0 && (
             <div>
               <h4 className="text-sm font-medium mb-3" style={{ color: 'var(--color-text-primary)' }}>
-                {t.risks}
+                {t('projectOverview.risks')}
               </h4>
               <div className="space-y-2">
                 {integrationDraft.risks.map(risk => (
@@ -439,8 +374,8 @@ const ProjectOverview: React.FC<Props> = ({ lang, project }) => {
       )}
 
       <div className="p-12 border-2 border-dashed rounded-3xl text-center" style={{ borderColor: 'var(--color-border)' }}>
-        <h3 className="text-xl font-light text-muted mb-6">{t.quote}</h3>
-        <p className="text-xs font-mono text-muted uppercase tracking-widest">{t.role}</p>
+        <h3 className="text-xl font-light text-muted mb-6">{t('projectOverview.quote')}</h3>
+        <p className="text-xs font-mono text-muted uppercase tracking-widest">{t('projectOverview.role')}</p>
       </div>
     </div>
   );
