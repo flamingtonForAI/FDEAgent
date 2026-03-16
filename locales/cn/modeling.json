@@ -302,5 +302,22 @@
     "flow": "流",
     "prompt": "提示词逻辑:",
     "guide": "模型引导逻辑:"
+  },
+  "quickInput": {
+    "addObject": "我想添加一个业务对象",
+    "objectName": "对象名称",
+    "description": "描述",
+    "keyAttributes": "关键属性",
+    "relationships": "关系",
+    "addAction": "我想添加一个业务动作",
+    "actionName": "动作名称",
+    "targetObject": "目标对象",
+    "executor": "执行者",
+    "preconditions": "前置条件",
+    "postcondition": "后置状态",
+    "addIntegration": "我想添加一个外部系统集成",
+    "systemName": "系统名称",
+    "type": "类型",
+    "dataProvided": "提供的数据"
   }
 }

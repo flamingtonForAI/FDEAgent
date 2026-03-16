@@ -45,7 +45,13 @@
     "ontologyGenerated": "Ontology generada: {{objects}} Objetos · {{actions}} Acciones · {{links}} Enlaces · {{integrations}} integraciones",
     "archetypeImportTitle": "📦 **Arquetipo Importado: {{name}}**",
     "archetypeImportDetails": "• Industria: {{industry}}\n• Dominio: {{domain}}\n• Contiene: {{count}} tipos de Objetos",
-    "archetypeImportNote": "_Las conversaciones a continuación se basarán en este arquetipo. El contexto anterior ha sido archivado._"
+    "archetypeImportNote": "_Las conversaciones a continuación se basarán en este arquetipo. El contexto anterior ha sido archivado._",
+    "summaryPromptIntro": "Se acaba de generar una Ontología a partir de la conversación.",
+    "summaryPromptObjects": "Objetos: {{objects}}",
+    "summaryPromptLinks": "Relaciones: {{links}}",
+    "summaryPromptIntegrations": "Integraciones: {{integrations}}",
+    "summaryPromptInstruction": "Resume el significado empresarial y la cobertura en 2-3 oraciones, luego da 1-2 sugerencias de mejora. Sé conciso, sin títulos.",
+    "none": "ninguno"
   },
   "projectDashboard": {
     "title": "Mis Proyectos",

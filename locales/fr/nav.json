@@ -45,7 +45,13 @@
     "ontologyGenerated": "Ontology générée : {{objects}} objets · {{actions}} actions · {{links}} liens · {{integrations}} intégrations",
     "archetypeImportTitle": "📦 **Archétype importé : {{name}}**",
     "archetypeImportDetails": "• Industrie : {{industry}}\n• Domaine : {{domain}}\n• Contient : {{count}} types d'objets",
-    "archetypeImportNote": "_Les conversations ci-dessous seront basées sur cet archétype. Le contexte précédent a été archivé._"
+    "archetypeImportNote": "_Les conversations ci-dessous seront basées sur cet archétype. Le contexte précédent a été archivé._",
+    "summaryPromptIntro": "Une Ontologie vient d'être générée à partir de la conversation.",
+    "summaryPromptObjects": "Objets : {{objects}}",
+    "summaryPromptLinks": "Relations : {{links}}",
+    "summaryPromptIntegrations": "Intégrations : {{integrations}}",
+    "summaryPromptInstruction": "Résumez la signification métier et la couverture en 2-3 phrases, puis donnez 1-2 suggestions d'amélioration. Restez concis, pas de titres.",
+    "none": "aucun"
   },
   "projectDashboard": {
     "title": "Mes projets",

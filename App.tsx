@@ -445,18 +445,11 @@ const AppContent: React.FC = () => {
       const linksSummary = links.map((l: any) => `${l.source} → ${l.target} (${l.label || l.type || ''})`).join('; ');
       const integSummary = integrations.map((i: any) => i.name || i.type || '').filter(Boolean).join(', ');
 
-      const isCn = i18nLang === 'cn';
-      const summaryPrompt = isCn
-        ? `刚刚根据对话生成了 Ontology。\n\n` +
-          `对象：${JSON.stringify(snapshot)}\n` +
-          `关联：${linksSummary || '无'}\n` +
-          `集成：${integSummary || '无'}\n\n` +
-          `请用 2-3 句话总结这个 Ontology 的业务含义和覆盖范围，然后给出 1-2 条改进建议。保持简洁，不要用标题格式。`
-        : `An Ontology was just generated from the conversation.\n\n` +
-          `Objects: ${JSON.stringify(snapshot)}\n` +
-          `Links: ${linksSummary || 'none'}\n` +
-          `Integrations: ${integSummary || 'none'}\n\n` +
-          `Summarize the business meaning and coverage in 2-3 sentences, then give 1-2 improvement suggestions. Keep it concise, no headings.`;
+      const summaryPrompt = `${t('app.summaryPromptIntro')}\n\n` +
+        `${t('app.summaryPromptObjects', { objects: JSON.stringify(snapshot) })}\n` +
+        `${t('app.summaryPromptLinks', { links: linksSummary || t('app.none') })}\n` +
+        `${t('app.summaryPromptIntegrations', { integrations: integSummary || t('app.none') })}\n\n` +
+        t('app.summaryPromptInstruction');
 
       const appendSummary = (msg: ChatMessage) => {
         // Guard: discard if project changed or a newer generation superseded this one

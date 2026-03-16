@@ -45,7 +45,13 @@
     "ontologyGenerated": "Ontology 已生成：{{objects}} 个对象 · {{actions}} 个动作 · {{links}} 个关联 · {{integrations}} 个集成",
     "archetypeImportTitle": "📦 **已导入行业原型：{{name}}**",
     "archetypeImportDetails": "• 行业：{{industry}}\n• 领域：{{domain}}\n• 包含：{{count}} 个对象类型",
-    "archetypeImportNote": "_以下对话将基于此原型展开，之前的对话上下文已归档。_"
+    "archetypeImportNote": "_以下对话将基于此原型展开，之前的对话上下文已归档。_",
+    "summaryPromptIntro": "刚刚根据对话生成了 Ontology。",
+    "summaryPromptObjects": "对象：{{objects}}",
+    "summaryPromptLinks": "关联：{{links}}",
+    "summaryPromptIntegrations": "集成：{{integrations}}",
+    "summaryPromptInstruction": "请用 2-3 句话总结这个 Ontology 的业务含义和覆盖范围，然后给出 1-2 条改进建议。保持简洁，不要用标题格式。",
+    "none": "无"
   },
   "projectDashboard": {
     "title": "我的项目",

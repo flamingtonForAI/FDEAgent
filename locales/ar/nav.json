@@ -45,7 +45,13 @@
     "ontologyGenerated": "Ontology generated: {{objects}} objects · {{actions}} actions · {{links}} links · {{integrations}} integrations",
     "archetypeImportTitle": "📦 **Imported Archetype: {{name}}**",
     "archetypeImportDetails": "• Industry: {{industry}}\n• Domain: {{domain}}\n• Contains: {{count}} object types",
-    "archetypeImportNote": "_Conversations below will be based on this archetype. Previous context has been archived._"
+    "archetypeImportNote": "_Conversations below will be based on this archetype. Previous context has been archived._",
+    "summaryPromptIntro": "An Ontology was just generated from the conversation.",
+    "summaryPromptObjects": "Objects: {{objects}}",
+    "summaryPromptLinks": "Links: {{links}}",
+    "summaryPromptIntegrations": "Integrations: {{integrations}}",
+    "summaryPromptInstruction": "Summarize the business meaning and coverage in 2-3 sentences, then give 1-2 improvement suggestions. Keep it concise, no headings.",
+    "none": "none"
   },
   "projectDashboard": {
     "title": "My Projects",

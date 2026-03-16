@@ -302,5 +302,22 @@
     "flow": "FLOW",
     "prompt": "PROMPT_LOGIC:",
     "guide": "MODEL_GUIDE:"
+  },
+  "quickInput": {
+    "addObject": "Me gustaría agregar un objeto de negocio",
+    "objectName": "Nombre del objeto",
+    "description": "Descripción",
+    "keyAttributes": "Atributos clave",
+    "relationships": "Relaciones",
+    "addAction": "Me gustaría agregar una acción de negocio",
+    "actionName": "Nombre de la acción",
+    "targetObject": "Objeto destino",
+    "executor": "Ejecutor",
+    "preconditions": "Precondiciones",
+    "postcondition": "Post-condición",
+    "addIntegration": "Me gustaría agregar una integración de sistema externo",
+    "systemName": "Nombre del sistema",
+    "type": "Tipo",
+    "dataProvided": "Datos proporcionados"
   }
 }

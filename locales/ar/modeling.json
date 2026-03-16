@@ -302,5 +302,22 @@
     "flow": "FLOW",
     "prompt": "PROMPT_LOGIC:",
     "guide": "MODEL_GUIDE:"
+  },
+  "quickInput": {
+    "addObject": "I'd like to add a business object",
+    "objectName": "Object Name",
+    "description": "Description",
+    "keyAttributes": "Key Attributes",
+    "relationships": "Relationships",
+    "addAction": "I'd like to add a business action",
+    "actionName": "Action Name",
+    "targetObject": "Target Object",
+    "executor": "Executor",
+    "preconditions": "Preconditions",
+    "postcondition": "Postcondition",
+    "addIntegration": "I'd like to add an external system integration",
+    "systemName": "System Name",
+    "type": "Type",
+    "dataProvided": "Data Provided"
   }
 }

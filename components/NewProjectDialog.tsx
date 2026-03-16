@@ -36,7 +36,7 @@ const industries = [
 ];
 
 export default function NewProjectDialog({ onClose, onCreated }: Props) {
-  const { t, lt, lang } = useAppTranslation('nav');
+  const { t, lt } = useAppTranslation('nav');
   const { createProject } = useProject();
 
   const [mode, setMode] = useState<CreateMode>('select');
@@ -69,7 +69,7 @@ export default function NewProjectDialog({ onClose, onCreated }: Props) {
   const filteredTemplates = templates.filter(tmpl => {
     if (!templateSearch.trim()) return true;
     const query = templateSearch.toLowerCase();
-    const name = lang === 'cn' ? (tmpl.description?.cn || tmpl.name) : tmpl.name;
+    const name = typeof tmpl.description === 'object' ? lt(tmpl.description) : tmpl.name;
     return name.toLowerCase().includes(query) ||
            tmpl.industry.toLowerCase().includes(query);
   });
@@ -142,13 +142,8 @@ export default function NewProjectDialog({ onClose, onCreated }: Props) {
             status: 'scouting',
           };
           baseArchetypeId = archetype.metadata.id;
-          const metadataDescription = archetype.metadata.description;
-          const archetypeDescriptionCn =
-            typeof metadataDescription === 'string'
-              ? metadataDescription
-              : metadataDescription?.cn;
-          baseArchetypeName = lang === 'cn'
-            ? archetypeDescriptionCn || archetype.metadata.name
+          baseArchetypeName = typeof archetype.metadata.description === 'object'
+            ? lt(archetype.metadata.description) || archetype.metadata.name
             : archetype.metadata.name;
         }
       }
@@ -340,9 +335,7 @@ export default function NewProjectDialog({ onClose, onCreated }: Props) {
                 ) : (
                   <div className="grid gap-2 max-h-64 overflow-y-auto">
                     {filteredTemplates.map((template) => {
-                      const name = lang === 'cn'
-                        ? (template.description?.cn || template.name)
-                        : template.name;
+                      const name = typeof template.description === 'object' ? lt(template.description) : template.name;
                       const isSelected = selectedTemplate?.id === template.id;
 
                       return (
