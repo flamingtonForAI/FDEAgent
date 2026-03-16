@@ -48,7 +48,7 @@ export default function UnifiedSettings({
   onReset,
   onClose,
 }: Props) {
-  const { t, lang } = useAppTranslation('settings');
+  const { t, lang, i18nLang } = useAppTranslation('settings');
   // Only fall back to legacy apiKey when apiKeys map doesn't exist (old data).
   // When apiKeys exists, strictly use the current provider's key to prevent cross-provider leakage.
   const currentProviderKey = aiSettings.apiKeys
@@ -533,7 +533,7 @@ export default function UnifiedSettings({
                       <button
                         key={option.code}
                         onClick={() => onLanguageChange(option.code as Language)}
-                        className={`flex-1 min-w-[120px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-all ${lang === option.code ? 'ring-2' : ''}`}
+                        className={`flex-1 min-w-[120px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-all ${i18nLang === option.code ? 'ring-2' : ''}`}
                         style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)', ringColor: 'var(--color-accent)' }}
                       >
                         <Globe size={14} />
@@ -543,7 +543,7 @@ export default function UnifiedSettings({
                             {t('betaLabel')}
                           </span>
                         )}
-                        {lang === option.code && <Check size={14} style={{ color: 'var(--color-accent)' }} />}
+                        {i18nLang === option.code && <Check size={14} style={{ color: 'var(--color-accent)' }} />}
                       </button>
                     ))}
                   </div>
