@@ -6,6 +6,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { AISettings, AI_PROVIDERS, AIProvider, Language } from '../types';
 import { Theme, ThemeMode, themeOptions, applyThemeMode, getSavedThemeMode, getThemeForMode } from '../lib/themes';
+import { availableLanguages } from '../lib/i18n';
 import { getProviderCompatibility } from './FileUpload';
 import { useModelRegistry } from '../hooks/useModelRegistry';
 import { AIService, EnrichedModelInfo } from '../services/aiService';
@@ -527,25 +528,24 @@ export default function UnifiedSettings({
                   <h3 className="text-sm font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>{t('language')}</h3>
                   <p className="text-xs text-muted mb-4">{t('languageDesc')}</p>
 
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => onLanguageChange('cn')}
-                      className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-all ${lang === 'cn' ? 'ring-2' : ''}`}
-                      style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)', ringColor: 'var(--color-accent)' }}
-                    >
-                      <Globe size={14} />
-                      {t('chinese')}
-                      {lang === 'cn' && <Check size={14} style={{ color: 'var(--color-accent)' }} />}
-                    </button>
-                    <button
-                      onClick={() => onLanguageChange('en')}
-                      className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-all ${lang === 'en' ? 'ring-2' : ''}`}
-                      style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)', ringColor: 'var(--color-accent)' }}
-                    >
-                      <Globe size={14} />
-                      {t('english')}
-                      {lang === 'en' && <Check size={14} style={{ color: 'var(--color-accent)' }} />}
-                    </button>
+                  <div className="flex flex-wrap gap-2">
+                    {availableLanguages.map(option => (
+                      <button
+                        key={option.code}
+                        onClick={() => onLanguageChange(option.code as Language)}
+                        className={`flex-1 min-w-[120px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-all ${lang === option.code ? 'ring-2' : ''}`}
+                        style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)', ringColor: 'var(--color-accent)' }}
+                      >
+                        <Globe size={14} />
+                        {option.nativeLabel}
+                        {option.status === 'beta' && (
+                          <span className="text-[10px] px-1 py-0.5 rounded" style={{ backgroundColor: 'var(--color-warning)', color: 'var(--color-bg-base)' }}>
+                            {t('betaLabel')}
+                          </span>
+                        )}
+                        {lang === option.code && <Check size={14} style={{ color: 'var(--color-accent)' }} />}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
