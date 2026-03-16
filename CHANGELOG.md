@@ -13,8 +13,11 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - **Language type expanded** — `Language` type in `types.ts` is now `'en' | 'cn' | 'fr' | 'ar' | 'es'`
-- **Inline translations removed** — all 48 component `translations` objects extracted to `locales/{lang}/{namespace}.json`; `t.xxx` property access replaced with `t('key')` function calls throughout
+- **Inline translations removed** — all 48 component `translations` objects extracted to `locales/{lang}/{namespace}.json`; `t.xxx` property access replaced with `t('key')` function calls throughout; 40+ components migrated from inline ternaries to `t()` calls
 - **`lang` prop drilling eliminated** — UI components no longer accept `lang` as a prop; language is derived internally via `useAppTranslation()` hook. Service boundaries (aiService, readinessChecker, document generators) retain explicit `lang` parameter
+- **Real French & Spanish translations** — all 10 namespaces (1,246 keys each) translated into proper French and Spanish; Arabic uses English fallback pending RTL (Phase 4)
+- **Multimodal chat language preference** — `chatWithFiles()` now passes language hint through all multimodal paths (Gemini, OpenAI, Zhipu) via `buildLanguageHint()`
+- **Multilingual archetype search** — `searchArchetypes()` accepts `lang` parameter and matches current-language resolved text via `lt()`
 - **Arabic font fallback** — `--font-sans` CSS variable updated with `'Noto Sans Arabic'` in the fallback stack
 - **Main bundle reduced** — 852 KB → 822 KB (inline translation objects removed, locale JSON lazy-loaded)
 

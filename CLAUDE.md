@@ -153,8 +153,12 @@ Supported `type: 'example'` data variants:
 
 ## Key Patterns
 
-### Bilingual Support
-All UI text requires both `cn` and `en` translations in component translation objects. The `lang` state in App.tsx drives language selection.
+### Multi-Language (i18n)
+UI text lives in `locales/{lang}/{namespace}.json` (10 namespaces × 5 languages). Components use `useAppTranslation(ns)` which wraps react-i18next's `useTranslation()`. Two language accessors:
+- **`i18nLang`** — real language code (en/cn/fr/es/ar), used for UI text via `t()` and AI language preference
+- **`lang`** — data-safe language (only en/cn), used for archetype data access via `lt()`
+
+Service boundaries (aiService, document generators) receive explicit `lang` parameter — never read global i18n state.
 
 ### Archetype System
 Industry archetypes in `content/archetypes/` follow the `Archetype` type from `types/archetype.ts`. Can be exported as JSON, imported via UI (stored in IndexedDB), and pre-exported in `public/archetypes/`.
