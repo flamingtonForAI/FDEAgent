@@ -170,7 +170,7 @@ const GlobalChatSidebar: React.FC<GlobalChatSidebarProps> = ({
       const contextPrompt = getPhaseContextPrompt(currentPhase, project, lang);
       const historyWithContext: ChatMessage[] = [
         { role: 'user', content: contextPrompt },
-        { role: 'assistant', content: lang === 'cn' ? '我理解了当前上下文，请问有什么可以帮您？' : 'I understand the current context. How can I help you?' },
+        { role: 'assistant', content: t('globalChatSidebar.contextAck') },
         ...chatMessages,
         newUserMsg
       ];
@@ -293,7 +293,7 @@ const GlobalChatSidebar: React.FC<GlobalChatSidebarProps> = ({
           <div className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>
             <Sparkles size={32} className="mx-auto mb-2 opacity-50" />
             <p className="text-sm">
-              {lang === 'cn' ? '有什么可以帮您的？' : 'How can I help you?'}
+              {t('globalChatSidebar.emptyState')}
             </p>
           </div>
         )}

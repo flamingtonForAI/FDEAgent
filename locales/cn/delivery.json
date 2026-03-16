@@ -39,7 +39,10 @@
     "releaseNotes": "版本变更摘要",
     "releaseNotesPlaceholder": "例如：新增订单审批动作与ERP集成映射",
     "downloadZip": "打包下载 ZIP",
-    "dataModelDoc": "数据模型文档"
+    "dataModelDoc": "数据模型文档",
+    "blockerMissingClientName": "客户名称为必填项",
+    "blockerMissingDesignerName": "方案设计人为必填项",
+    "blockerThreeLayerIncomplete": "Action \"{{object}}.{{action}}\" 三层完整度低于 partial"
   },
   "artifactExporter": {
     "title": "导出 Artifacts",

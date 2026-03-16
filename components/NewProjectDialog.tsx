@@ -36,7 +36,7 @@ const industries = [
 ];
 
 export default function NewProjectDialog({ onClose, onCreated }: Props) {
-  const { t, lang } = useAppTranslation('nav');
+  const { t, lt, lang } = useAppTranslation('nav');
   const { createProject } = useProject();
 
   const [mode, setMode] = useState<CreateMode>('select');
@@ -269,7 +269,7 @@ export default function NewProjectDialog({ onClose, onCreated }: Props) {
                   <option value="">{t('newProject.industryPlaceholder')}</option>
                   {industries.map((ind) => (
                     <option key={ind.value} value={ind.value}>
-                      {ind.label[lang]}
+                      {lt(ind.label)}
                     </option>
                   ))}
                 </select>

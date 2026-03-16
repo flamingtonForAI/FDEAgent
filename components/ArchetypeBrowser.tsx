@@ -92,7 +92,7 @@ const industryConfig: Record<string, { icon: React.ReactNode; color: string; lab
 };
 
 const ArchetypeBrowser: React.FC<Props> = ({ aiSettings, onSelectArchetype, onApplyArchetype }) => {
-  const { t, lang } = useAppTranslation('archetypes');
+  const { t, lt, i18nLang } = useAppTranslation('archetypes');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
   const [selectedSource, setSelectedSource] = useState<ArchetypeOriginType | 'all'>('all');
@@ -137,20 +137,22 @@ const ArchetypeBrowser: React.FC<Props> = ({ aiSettings, onSelectArchetype, onAp
         if (originType !== selectedSource) return false;
       }
 
-      // Search filter
+      // Search filter — match en, cn, and current language
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
+        const descResolved = lt(a.description).toLowerCase();
         return (
           a.name.toLowerCase().includes(query) ||
           a.description.en.toLowerCase().includes(query) ||
           a.description.cn.includes(searchQuery) ||
+          descResolved.includes(query) ||
           a.tags.some(tag => tag.toLowerCase().includes(query))
         );
       }
 
       return true;
     });
-  }, [archetypes, selectedIndustry, selectedSource, searchQuery]);
+  }, [archetypes, selectedIndustry, selectedSource, searchQuery, i18nLang, lt]);
 
   const industries = useMemo(() => {
     const set = new Set(archetypes.map(a => a.industry));
@@ -327,7 +329,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ aiSettings, onSelectArchetype, onAp
             <div>
               <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{archetype.name}</h3>
               <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-accent)' }}>
-                {industry?.label[lang] || archetype.industry}
+                {lt(industry?.label) || archetype.industry}
               </span>
             </div>
           </div>
@@ -339,7 +341,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ aiSettings, onSelectArchetype, onAp
 
         {/* Description */}
         <p className="text-sm text-muted mb-4 line-clamp-2">
-          {archetype.description[lang === 'cn' ? 'cn' : 'en']}
+          {lt(archetype.description)}
         </p>
 
         {/* Stats */}
@@ -514,7 +516,7 @@ const ArchetypeBrowser: React.FC<Props> = ({ aiSettings, onSelectArchetype, onAp
             <option value="">{t('browser.allIndustries')}</option>
             {industries.map(ind => (
               <option key={ind} value={ind}>
-                {industryConfig[ind]?.label[lang] || ind}
+                {lt(industryConfig[ind]?.label) || ind}
               </option>
             ))}
           </select>

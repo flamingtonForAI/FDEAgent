@@ -15,6 +15,7 @@
 
 import { Archetype, ArchetypeIndex, ArchetypeOrigin } from '../../types/archetype';
 import { archetypeStorageService, StoredArchetype } from '../../services/archetypeStorageService';
+import { lt } from '../../lib/localizedText';
 
 // ============= Dynamic loader map =============
 
@@ -282,16 +283,22 @@ export async function getArchetypesByDomain(domain: string): Promise<ArchetypeIn
   return (await getArchetypeIndexList()).filter(a => a.domain === domain);
 }
 
-// 搜索 Archetype
-export async function searchArchetypes(query: string): Promise<ArchetypeIndex[]> {
+// 搜索 Archetype（支持当前语言检索）
+export async function searchArchetypes(query: string, lang?: string): Promise<ArchetypeIndex[]> {
   const lowerQuery = query.toLowerCase();
   return (await getArchetypeIndexList()).filter(a => {
+    // Always search en + cn for backward compatibility
     const descriptionEn = typeof a.description === 'string' ? a.description : a.description.en;
     const descriptionCn = typeof a.description === 'string' ? a.description : a.description.cn;
+    // Also search the resolved current-language text (handles fr/es/ar when translations exist)
+    const nameResolved = typeof a.name === 'string' ? a.name : lt(a.name as any, lang || 'en');
+    const descResolved = lang ? lt(a.description as any, lang) : '';
     return (
       a.name.toLowerCase().includes(lowerQuery) ||
+      nameResolved.toLowerCase().includes(lowerQuery) ||
       descriptionEn.toLowerCase().includes(lowerQuery) ||
       descriptionCn.includes(query) ||
+      descResolved.toLowerCase().includes(lowerQuery) ||
       a.tags.some(t => t.toLowerCase().includes(lowerQuery))
     );
   });

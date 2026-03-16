@@ -24,7 +24,7 @@ interface Props {
 type TabId = 'overview' | 'semantic' | 'kinetic' | 'dynamic' | 'ai' | 'ui' | 'deployment';
 
 const ArchetypeViewer: React.FC<Props> = ({ archetypeId, onBack, onApply }) => {
-  const { t, lang } = useAppTranslation('archetypes');
+  const { t, lt } = useAppTranslation('archetypes');
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['objects', 'connectors', 'workflows']));
 
@@ -123,7 +123,7 @@ const ArchetypeViewer: React.FC<Props> = ({ archetypeId, onBack, onApply }) => {
             <div className="h-6 w-px bg-white/[0.1]" />
             <div>
               <h1 className="text-lg font-semibold text-white">{archetype.metadata.name}</h1>
-              <p className="text-xs text-muted">{archetype.metadata.description[lang === 'cn' ? 'cn' : 'en']}</p>
+              <p className="text-xs text-muted">{lt(archetype.metadata.description)}</p>
             </div>
           </div>
           <button
@@ -777,7 +777,7 @@ const ArchetypeViewer: React.FC<Props> = ({ archetypeId, onBack, onApply }) => {
                       </h3>
                       <div className="prose prose-invert prose-sm max-w-none">
                         <pre className="bg-[var(--color-bg-base)]/30 rounded-lg p-4 text-xs text-secondary overflow-x-auto whitespace-pre-wrap">
-                          {documentation.quickStart[lang === 'cn' ? 'cn' : 'en'] || documentation.quickStart}
+                          {lt(documentation.quickStart)}
                         </pre>
                       </div>
                     </div>

@@ -22,7 +22,10 @@
     "actions": "业务操作",
     "links": "对象关联",
     "integrations": "数据集成",
-    "noObjects": "暂无业务对象"
+    "noObjects": "暂无业务对象",
+    "noLinks": "暂无关联",
+    "addLink": "添加关联",
+    "actionDesignerTitle": "Action 三层设计"
   },
   "objectEditor": {
     "editObject": "编辑对象",
@@ -67,7 +70,8 @@
     "cancel": "取消",
     "delete": "删除",
     "selectObject": "选择对象",
-    "preview": "预览"
+    "preview": "预览",
+    "confirmDelete": "确定删除此关联？"
   },
   "actionDesigner": {
     "title": "Action 设计器",
@@ -111,7 +115,14 @@
     "medium": "中",
     "high": "高",
     "apiSpec": "API 规范",
-    "toolSpec": "Agent Tool"
+    "toolSpec": "Agent Tool",
+    "descriptionPlaceholder": "描述这个 Action 的业务目的...",
+    "targetObjectPlaceholder": "目标对象类型",
+    "executorRolePlaceholder": "执行角色",
+    "triggerConditionPlaceholder": "何时触发此 Action",
+    "preconditionPlaceholder": "输入前置条件...",
+    "noPreconditions": "暂无前置条件",
+    "selectToEdit": "选择一个 Action 开始编辑"
   },
   "ontologyVisualizer": {
     "title": "逻辑本体模型",
@@ -160,7 +171,10 @@
     "readiness": "准备度",
     "addObj": "添加对象",
     "addLink": "添加关系",
-    "addAction": "添加动作"
+    "addAction": "添加动作",
+    "noObjects": "暂无对象",
+    "noLinks": "暂无关系",
+    "noActions": "暂无动作"
   },
   "nounVerbPanel": {
     "title": "提取的元素",

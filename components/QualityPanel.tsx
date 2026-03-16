@@ -65,7 +65,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
   project,
   onClose
 }) => {
-  const { t, lang } = useAppTranslation('common');
+  const { t, lt } = useAppTranslation('common');
   const [activeTab, setActiveTab] = useState<TabType>('quality');
   const [report, setReport] = useState<QualityReport | null>(null);
   const [isChecking, setIsChecking] = useState(false);
@@ -348,7 +348,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
-                                {issue.message[lang]}
+                                {lt(issue.message)}
                               </p>
                               {issue.target && (
                                 <p className="text-xs text-muted mt-1">
@@ -358,7 +358,7 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
                               {issue.suggestion && (
                                 <div className="mt-2 p-2 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)', borderLeftWidth: '2px', borderLeftStyle: 'solid', borderLeftColor: 'var(--color-accent)' }}>
                                   <p className="text-xs text-muted">
-                                    <span style={{ color: 'var(--color-accent)' }}>{t('qualityPanel.suggestion')}:</span> {issue.suggestion[lang]}
+                                    <span style={{ color: 'var(--color-accent)' }}>{t('qualityPanel.suggestion')}:</span> {lt(issue.suggestion)}
                                   </p>
                                 </div>
                               )}

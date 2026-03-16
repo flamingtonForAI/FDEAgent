@@ -503,17 +503,17 @@ export class AIService {
     try {
       switch (this.settings.provider) {
         case 'gemini':
-          return await this.callGeminiMultimodal(history, nextMessage, files);
+          return await this.callGeminiMultimodal(history, nextMessage, files, options?.lang);
         case 'moonshot':
         case 'openrouter':
         case 'openai':
-          return await this.callOpenAIMultimodal(history, nextMessage, files);
+          return await this.callOpenAIMultimodal(history, nextMessage, files, options?.lang);
         case 'zhipu':
-          return await this.callZhipuMultimodal(history, nextMessage, files);
+          return await this.callZhipuMultimodal(history, nextMessage, files, options?.lang);
         case 'custom':
         default:
           // For custom providers, try OpenAI format first
-          return await this.callOpenAIMultimodal(history, nextMessage, files);
+          return await this.callOpenAIMultimodal(history, nextMessage, files, options?.lang);
       }
     } catch (error) {
       console.error('多模态AI调用失败:', error);
@@ -533,7 +533,8 @@ export class AIService {
   private async callGeminiMultimodal(
     history: ChatMessage[],
     nextMessage: string,
-    files: FileAttachment[]
+    files: FileAttachment[],
+    lang?: string
   ): Promise<string> {
     const { GoogleGenAI } = await import('@google/genai');
     const ai = new GoogleGenAI({ apiKey: requireProviderApiKey(this.settings) });
@@ -601,7 +602,7 @@ export class AIService {
     const response = await ai.models.generateContent({
       model: this.settings.model,
       contents: [
-        { role: 'user', parts: [{ text: SYSTEM_INSTRUCTION }] },
+        { role: 'user', parts: [{ text: SYSTEM_INSTRUCTION + buildLanguageHint(lang) }] },
         { role: 'model', parts: [{ text: '我理解了，我将作为 Ontology 架构师，遵循方法论原则来帮助你设计系统。' }] },
         ...history.map(m => ({
           role: m.role === 'assistant' ? 'model' : 'user',
@@ -617,7 +618,8 @@ export class AIService {
   private async callOpenAIMultimodal(
     history: ChatMessage[],
     nextMessage: string,
-    files: FileAttachment[]
+    files: FileAttachment[],
+    lang?: string
   ): Promise<string> {
     const baseUrl = this.getBaseUrl();
 
@@ -709,7 +711,7 @@ export class AIService {
 
     // Build messages array
     const messages: any[] = [
-      { role: 'system', content: SYSTEM_INSTRUCTION },
+      { role: 'system', content: SYSTEM_INSTRUCTION + buildLanguageHint(lang) },
       ...history.map(m => ({
         role: m.role === 'assistant' ? 'assistant' : 'user',
         content: m.content,
@@ -740,7 +742,8 @@ export class AIService {
   private async callZhipuMultimodal(
     history: ChatMessage[],
     nextMessage: string,
-    files: FileAttachment[]
+    files: FileAttachment[],
+    lang?: string
   ): Promise<string> {
     // Zhipu GLM-4V supports images
     const content: any[] = [];
@@ -786,7 +789,7 @@ export class AIService {
       body: JSON.stringify({
         model: this.settings.model,
         messages: [
-          { role: 'system', content: SYSTEM_INSTRUCTION },
+          { role: 'system', content: SYSTEM_INSTRUCTION + buildLanguageHint(lang) },
           ...history.map(m => ({
             role: m.role === 'assistant' ? 'assistant' : 'user',
             content: m.content,

@@ -98,7 +98,7 @@ const SmartTips: React.FC<SmartTipsProps> = ({
   hasApiKey,
   onDismiss
 }) => {
-  const { t, lang } = useAppTranslation('discovery');
+  const { t, lt } = useAppTranslation('discovery');
   const [isExpanded, setIsExpanded] = useState(true);
   const [dismissedTips, setDismissedTips] = useState<Set<string>>(new Set());
 
@@ -340,11 +340,11 @@ const SmartTips: React.FC<SmartTipsProps> = ({
                       {getTypeLabel(tip.type)}
                     </span>
                     <h4 className="text-xs font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                      {tip.title[lang]}
+                      {lt(tip.title)}
                     </h4>
                   </div>
                   <p className="text-[11px] text-muted leading-relaxed line-clamp-2">
-                    {tip.content[lang]}
+                    {lt(tip.content)}
                   </p>
                 </div>
 

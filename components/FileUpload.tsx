@@ -242,7 +242,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   aiProvider,
   aiModel
 }) => {
-  const { t, lang } = useAppTranslation('integration');
+  const { t, lt, lang } = useAppTranslation('integration');
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -304,7 +304,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         } else {
           // Binary file - read as base64
           const base64 = (e.target?.result as string).split(',')[1]; // Remove data URL prefix
-          const preview = `[${config.label[lang]}] ${(file.size / 1024).toFixed(1)} KB`;
+          const preview = `[${lt(config.label)}] ${(file.size / 1024).toFixed(1)} KB`;
 
           resolve({
             id: `file_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
@@ -485,7 +485,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                     <div className="flex flex-col gap-1 mt-1">
                       <div className="flex items-center gap-2">
                         <span className="text-micro px-1.5 py-0.5 rounded" style={{ color: config.color, backgroundColor: 'var(--color-bg-surface)' }}>
-                          {config.label[lang]}
+                          {lt(config.label)}
                         </span>
                         {compat.supported ? (
                           <span className="text-micro text-muted">{t('fileUpload.analyzing')}</span>
@@ -538,7 +538,7 @@ export const FileUploadButton: React.FC<{
   aiProvider?: AIProvider;  // 用于显示 provider 兼容性提示
   aiModel?: string;         // 当前选择的模型
 }> = ({ onFilesChange, files, disabled, maxSizeMB = 10, aiProvider, aiModel }) => {
-  const { t, lang } = useAppTranslation('integration');
+  const { t, lt, lang } = useAppTranslation('integration');
   const inputRef = useRef<HTMLInputElement>(null);
   const [isParsing, setIsParsing] = useState(false);
 
@@ -592,7 +592,7 @@ export const FileUploadButton: React.FC<{
           });
         } else {
           const base64 = (e.target?.result as string).split(',')[1];
-          const preview = `[${config.label[lang]}] ${(file.size / 1024).toFixed(1)} KB`;
+          const preview = `[${lt(config.label)}] ${(file.size / 1024).toFixed(1)} KB`;
 
           resolve({
             id: `file_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,

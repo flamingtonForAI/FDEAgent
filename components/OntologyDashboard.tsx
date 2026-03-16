@@ -49,7 +49,7 @@ const OntologyDashboard: React.FC<OntologyDashboardProps> = ({
   onAddLink,
   onAddAction,
 }) => {
-  const { t, lang } = useAppTranslation('modeling');
+  const { t } = useAppTranslation('modeling');
   const readiness = calculateReadiness(project);
   const allActions = getAllActions(project.objects);
   const [expandedSection, setExpandedSection] = useState<'objects' | 'links' | 'actions' | null>(null);
@@ -110,7 +110,7 @@ const OntologyDashboard: React.FC<OntologyDashboardProps> = ({
             }}
           >
             {project.objects.length === 0 ? (
-              <div className="text-xs text-muted px-2 py-1">{lang === 'cn' ? '暂无对象' : 'No objects'}</div>
+              <div className="text-xs text-muted px-2 py-1">{t('ontologyDashboard.noObjects')}</div>
             ) : (
               <div className="space-y-1 max-h-32 overflow-y-auto">
                 {project.objects.map((obj, idx) => (
@@ -172,7 +172,7 @@ const OntologyDashboard: React.FC<OntologyDashboardProps> = ({
             }}
           >
             {project.links.length === 0 ? (
-              <div className="text-xs text-muted px-2 py-1">{lang === 'cn' ? '暂无关系' : 'No links'}</div>
+              <div className="text-xs text-muted px-2 py-1">{t('ontologyDashboard.noLinks')}</div>
             ) : (
               <div className="space-y-1 max-h-32 overflow-y-auto">
                 {project.links.map((link, idx) => (
@@ -234,7 +234,7 @@ const OntologyDashboard: React.FC<OntologyDashboardProps> = ({
             }}
           >
             {allActions.length === 0 ? (
-              <div className="text-xs text-muted px-2 py-1">{lang === 'cn' ? '暂无动作' : 'No actions'}</div>
+              <div className="text-xs text-muted px-2 py-1">{t('ontologyDashboard.noActions')}</div>
             ) : (
               <div className="space-y-1 max-h-32 overflow-y-auto">
                 {allActions.map(({ action, objectName }, idx) => (

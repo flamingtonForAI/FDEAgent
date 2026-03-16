@@ -39,7 +39,10 @@
     "releaseNotes": "Release Notes",
     "releaseNotesPlaceholder": "e.g. Added approval actions and ERP mapping",
     "downloadZip": "Download ZIP Package",
-    "dataModelDoc": "Data Model Document"
+    "dataModelDoc": "Data Model Document",
+    "blockerMissingClientName": "Client name is required",
+    "blockerMissingDesignerName": "Designer name is required",
+    "blockerThreeLayerIncomplete": "Action \"{{object}}.{{action}}\" is below partial three-layer completeness"
   },
   "artifactExporter": {
     "title": "Export Artifacts",

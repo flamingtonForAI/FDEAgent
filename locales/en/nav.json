@@ -36,7 +36,16 @@
     "signIn": "Sign In",
     "cloudSync": "Sync",
     "settings": "Settings",
-    "qualityCheck": "Quality Check"
+    "qualityCheck": "Quality Check",
+    "alertSelectModel": "Please select a model in settings first",
+    "alertNoChatHistory": "No chat history, please chat first",
+    "alertNoObjects": "AI could not identify business objects. Please provide more business details in the conversation and try again.",
+    "alertProjectChanged": "Project changed during generation. Result discarded. Please regenerate in the current project.",
+    "alertDesignFailed": "Generation failed: {{error}}",
+    "ontologyGenerated": "Ontology generated: {{objects}} objects · {{actions}} actions · {{links}} links · {{integrations}} integrations",
+    "archetypeImportTitle": "📦 **Imported Archetype: {{name}}**",
+    "archetypeImportDetails": "• Industry: {{industry}}\n• Domain: {{domain}}\n• Contains: {{count}} object types",
+    "archetypeImportNote": "_Conversations below will be based on this archetype. Previous context has been archived._"
   },
   "projectDashboard": {
     "title": "My Projects",
@@ -66,7 +75,11 @@
     "emptySearch": "No projects match your search",
     "loginRequired": "Please sign in to create projects",
     "authHint": "Demo: demo@example.com / Demo123!",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "justNow": "just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago"
   },
   "newProject": {
     "title": "Create New Project",

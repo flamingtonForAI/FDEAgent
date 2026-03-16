@@ -57,7 +57,7 @@ const difficultyColors: Record<CaseDifficulty, string> = {
 };
 
 const CaseBrowser: React.FC<CaseBrowserProps> = ({ onClose }) => {
-  const { t, lang } = useAppTranslation('discovery');
+  const { t, lang, lt } = useAppTranslation('discovery');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndustry, setSelectedIndustry] = useState<Industry | 'all'>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<CaseDifficulty | 'all'>('all');
@@ -114,15 +114,15 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ onClose }) => {
           {industryIcons[caseItem.industry]}
         </div>
         <span className={`px-2 py-0.5 rounded text-micro font-medium ${difficultyColors[caseItem.difficulty]}`}>
-          {difficultyConfig[caseItem.difficulty].label[lang]}
+          {lt(difficultyConfig[caseItem.difficulty].label)}
         </span>
       </div>
 
       <h3 className="text-white font-medium mb-1 group-hover:text-amber-400 transition-colors">
-        {caseItem.title[lang]}
+        {lt(caseItem.title)}
       </h3>
       <p className="text-xs text-muted mb-3 line-clamp-2">
-        {caseItem.description[lang]}
+        {lt(caseItem.description)}
       </p>
 
       <div className="flex items-center gap-3 text-micro text-muted">
@@ -142,7 +142,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ onClose }) => {
             key={tag}
             className="px-1.5 py-0.5 rounded text-micro bg-white/[0.05] text-muted"
           >
-            {tagConfig[tag].label[lang]}
+            {lt(tagConfig[tag].label)}
           </span>
         ))}
       </div>
@@ -169,12 +169,12 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ onClose }) => {
                 {industryIcons[selectedCase.metadata.industry]}
               </div>
               <div>
-                <h2 className="text-white font-medium">{selectedCase.metadata.title[lang]}</h2>
+                <h2 className="text-white font-medium">{lt(selectedCase.metadata.title)}</h2>
                 <div className="flex items-center gap-2 text-xs text-muted">
-                  <span>{industryConfig[selectedCase.metadata.industry].label[lang]}</span>
+                  <span>{lt(industryConfig[selectedCase.metadata.industry].label)}</span>
                   <span>•</span>
                   <span className={difficultyColors[selectedCase.metadata.difficulty].split(' ')[0]}>
-                    {difficultyConfig[selectedCase.metadata.difficulty].label[lang]}
+                    {lt(difficultyConfig[selectedCase.metadata.difficulty].label)}
                   </span>
                   <span>•</span>
                   <span className="flex items-center gap-1">
@@ -190,7 +190,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ onClose }) => {
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Description */}
-          <p className="text-muted text-sm">{selectedCase.metadata.description[lang]}</p>
+          <p className="text-muted text-sm">{lt(selectedCase.metadata.description)}</p>
 
           {/* Scenario */}
           <section className="glass-surface rounded-xl p-5">
@@ -202,7 +202,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ onClose }) => {
             <div className="space-y-4">
               <div>
                 <h4 className="text-xs text-muted mb-2">{t('caseBrowser.background')}</h4>
-                <p className="text-sm text-secondary">{selectedCase.scenario.background[lang]}</p>
+                <p className="text-sm text-secondary">{lt(selectedCase.scenario.background)}</p>
               </div>
 
               <div>
@@ -237,7 +237,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ onClose }) => {
                       <Users size={12} className="text-purple-400" />
                       <div>
                         <span className="text-xs text-white">{s.role}</span>
-                        <p className="text-micro text-muted">{s.description[lang]}</p>
+                        <p className="text-micro text-muted">{lt(s.description)}</p>
                       </div>
                     </div>
                   ))}
@@ -312,8 +312,8 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ onClose }) => {
             <div className="space-y-3">
               {selectedCase.highlights.map((h, i) => (
                 <div key={i} className="glass-card rounded-lg p-3">
-                  <h4 className="text-sm text-white font-medium mb-1">{h.title[lang]}</h4>
-                  <p className="text-xs text-muted">{h.description[lang]}</p>
+                  <h4 className="text-sm text-white font-medium mb-1">{lt(h.title)}</h4>
+                  <p className="text-xs text-muted">{lt(h.description)}</p>
                 </div>
               ))}
             </div>
@@ -329,8 +329,8 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ onClose }) => {
             <div className="space-y-3">
               {selectedCase.learningPoints.map((lp, i) => (
                 <div key={i} className="glass-card rounded-lg p-3">
-                  <h4 className="text-sm text-amber-400 font-medium mb-1">{lp.concept[lang]}</h4>
-                  <p className="text-xs text-muted">{lp.explanation[lang]}</p>
+                  <h4 className="text-sm text-amber-400 font-medium mb-1">{lt(lp.concept)}</h4>
+                  <p className="text-xs text-muted">{lt(lp.explanation)}</p>
                 </div>
               ))}
             </div>
@@ -355,9 +355,9 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ onClose }) => {
                       <span className={industryColors[rc.industry].split(' ')[0]}>
                         {industryIcons[rc.industry]}
                       </span>
-                      <span className="text-sm text-white">{rc.title[lang]}</span>
+                      <span className="text-sm text-white">{lt(rc.title)}</span>
                     </div>
-                    <p className="text-micro text-muted line-clamp-1">{rc.description[lang]}</p>
+                    <p className="text-micro text-muted line-clamp-1">{lt(rc.description)}</p>
                   </div>
                 ))}
               </div>
@@ -428,7 +428,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ onClose }) => {
                     key={ind}
                     active={selectedIndustry === ind}
                     onClick={() => setSelectedIndustry(ind)}
-                    label={industryConfig[ind].label[lang]}
+                    label={lt(industryConfig[ind].label)}
                     icon={industryIcons[ind]}
                     color={industryColors[ind]}
                   />
@@ -450,7 +450,7 @@ const CaseBrowser: React.FC<CaseBrowserProps> = ({ onClose }) => {
                     key={diff}
                     active={selectedDifficulty === diff}
                     onClick={() => setSelectedDifficulty(diff)}
-                    label={difficultyConfig[diff].label[lang]}
+                    label={lt(difficultyConfig[diff].label)}
                     color={difficultyColors[diff]}
                   />
                 ))}

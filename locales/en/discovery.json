@@ -1,4 +1,28 @@
 {
+  "globalChatBar": {
+    "analyzeDocument": "Analyze document",
+    "contextAck": "I understand the current context. How can I help you?",
+    "chatHistory": "Chat History",
+    "startConversation": "Start a conversation",
+    "thinking": "Thinking...",
+    "noProjectHint": "Please create or select a project to start the design workflow",
+    "createProject": "Create Project",
+    "collapse": "Collapse",
+    "expandHistory": "Expand",
+    "phaseDiscover": "Discover: Guide conversation, extract requirements",
+    "phaseModel": "Model: Complete properties, recommend links",
+    "phaseIntegrate": "Integrate: Recommend sources, generate plans",
+    "phaseEnhance": "Enhance: Analyze opportunities, validate requirements",
+    "image": "Image",
+    "uploadTip": "Drag & drop files or click to upload",
+    "aiRequirementDetected": "Detected AI requirement",
+    "intelligentNeed": "Intelligent automation need",
+    "errorUnsupportedFiles": "Current model cannot send these files: {{files}}",
+    "errorUnsupportedFileType": "The following file types are not supported, please remove and retry: {{files}}",
+    "errorPasteUnsupported": "Current model does not support this pasted file type: {{file}}",
+    "errorGetResponse": "Failed to get response: {{details}}",
+    "defaultAnalyzePrompt": "Please analyze the following document(s), extract business objects, actions, and processes to help design the Ontology."
+  },
   "globalChatSidebar": {
     "title": "AI Assistant",
     "placeholder": "Ask me anything...",
@@ -10,7 +34,9 @@
     "discover": "Discover",
     "model": "Model",
     "integrate": "Integrate",
-    "enhance": "Enhance"
+    "enhance": "Enhance",
+    "contextAck": "I understand the current context. How can I help you?",
+    "emptyState": "How can I help you?"
   },
   "chatMessages": {
     "title": "Requirement Discovery",
@@ -22,6 +48,7 @@
     "configureApi": "Configure API",
     "configureApiDesc": "Required",
     "needMoreChat": "Chat more to generate",
+    "gettingStarted": "Getting Started",
     "tip1": "Describe your business process",
     "tip2": "Mention existing systems (ERP, CRM, etc.)",
     "tip3": "Share pain points and bottlenecks"
@@ -71,7 +98,13 @@
     "stageTip": "Stage",
     "readyStatus": "Ready",
     "partialStatus": "Partial",
-    "insufficientStatus": "Insufficient"
+    "insufficientStatus": "Insufficient",
+    "followUp": "Follow-up: ",
+    "copy": "Copy",
+    "insert": "Insert",
+    "partialMissing": "Some information missing",
+    "criticalMissing": "Critical information missing",
+    "canProceedWithIteration": "You can proceed with design, but deliverables may need iteration"
   },
   "industryDiscovery": {
     "title": "Explore New Industry",

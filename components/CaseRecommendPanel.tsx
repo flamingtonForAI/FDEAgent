@@ -44,7 +44,7 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
   onClose,
   onViewCase
 }) => {
-  const { t, lang } = useAppTranslation('discovery');
+  const { t, lt } = useAppTranslation('discovery');
   const [expandedCase, setExpandedCase] = useState<string | null>(null);
 
   // Get full case data for recommended cases
@@ -118,10 +118,10 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-medium text-white line-clamp-1">
-                      {caseData.metadata.title[lang]}
+                      {lt(caseData.metadata.title)}
                     </h4>
                     <p className="text-micro text-muted line-clamp-1 mt-0.5">
-                      {industryConfig[industry]?.label[lang] || industry}
+                      {lt(industryConfig[industry]?.label) || industry}
                     </p>
                     <div className="flex items-center gap-2 mt-1.5 text-micro text-muted">
                       <span>{caseData.ontology.objects.length} {t('caseRecommend.objects')}</span>
@@ -143,7 +143,7 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
                   <div className="px-3 pb-3 space-y-3 animate-fadeIn">
                     {/* Description */}
                     <p className="text-xs text-muted line-clamp-3">
-                      {caseData.metadata.description[lang]}
+                      {lt(caseData.metadata.description)}
                     </p>
 
                     {/* Highlights Preview */}
@@ -159,7 +159,7 @@ const CaseRecommendPanel: React.FC<CaseRecommendPanelProps> = ({
                             className="text-micro text-muted flex items-start gap-1.5"
                           >
                             <span className="text-amber-400 mt-0.5">•</span>
-                            <span className="line-clamp-1">{h.title[lang]}</span>
+                            <span className="line-clamp-1">{lt(h.title)}</span>
                           </div>
                         ))}
                       </div>

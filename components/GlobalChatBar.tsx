@@ -202,7 +202,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
   activeProjectId,
   onNavigateToProjects
 }) => {
-  const { lang } = useAppTranslation('discovery');
+  const { t, lt, lang, i18nLang } = useAppTranslation('discovery');
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -216,7 +216,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
   // Check if there's an active project
   const hasProject = !!activeProjectId;
 
-  const placeholder = phasePlaceholders[currentPhase][lang];
+  const placeholder = lt(phasePlaceholders[currentPhase]);
   const phaseColor = phaseColors[currentPhase];
   const blockedFiles = uploadedFiles.filter((file) =>
     getProviderCompatibility(
@@ -230,9 +230,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
   );
   const hasBlockedFiles = blockedFiles.length > 0;
   const sendBlockedReason = hasBlockedFiles
-    ? (lang === 'cn'
-      ? `当前模型不支持发送以下文件：${blockedFiles.map((f) => f.name).join(', ')}`
-      : `Current model cannot send these files: ${blockedFiles.map((f) => f.name).join(', ')}`)
+    ? t('globalChatBar.errorUnsupportedFiles', { files: blockedFiles.map((f) => f.name).join(', ') })
     : null;
 
   // 滚动到底部
@@ -273,26 +271,20 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
 
       if (blockedFiles.length > 0) {
         const fileNames = blockedFiles.map(f => f.name).join(', ');
-        setError(
-          lang === 'cn'
-            ? `以下文件类型不受支持，请移除后重试：${fileNames}`
-            : `The following file types are not supported, please remove and retry: ${fileNames}`
-        );
+        setError(t('globalChatBar.errorUnsupportedFileType', { files: fileNames }));
         return;
       }
     }
 
     // If no text input but has files, add a default instruction
     if (!userMessage && uploadedFiles.length > 0) {
-      userMessage = lang === 'cn'
-        ? '请分析以下文档，提取其中的业务对象、动作和流程，帮助我设计 Ontology。'
-        : 'Please analyze the following document(s), extract business objects, actions, and processes to help design the Ontology.';
+      userMessage = t('globalChatBar.defaultAnalyzePrompt');
     }
 
     // Store display content (without full file content for UI)
     const currentFiles = [...uploadedFiles];
     const displayContent = currentFiles.length > 0
-      ? `${input.trim() || (lang === 'cn' ? '分析文档' : 'Analyze document')}\n\n📎 ${currentFiles.map(f => f.name).join(', ')}`
+      ? `${input.trim() || t('globalChatBar.analyzeDocument')}\n\n📎 ${currentFiles.map(f => f.name).join(', ')}`
       : input.trim();
 
     // Store full content for AI context (include text file contents)
@@ -333,7 +325,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
       const contextPrompt = getPhaseContextPrompt(currentPhase, project, lang);
       const historyWithContext: ChatMessage[] = [
         { role: 'user', content: contextPrompt },
-        { role: 'assistant', content: lang === 'cn' ? '我理解了当前上下文，请问有什么可以帮您？' : 'I understand the current context. How can I help you?' },
+        { role: 'assistant', content: t('globalChatBar.contextAck') },
         ...chatMessages,
         { role: 'user', content: aiContent }
       ];
@@ -349,8 +341,8 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
 
       // Use multimodal chat if there are files
       const response = currentFiles.length > 0
-        ? await aiService.chatWithFiles(historyWithContext.slice(0, -1), userMessage, fileAttachments)
-        : await aiService.chat(historyWithContext.slice(0, -1), userMessage);
+        ? await aiService.chatWithFiles(historyWithContext.slice(0, -1), userMessage, fileAttachments, { lang: i18nLang })
+        : await aiService.chat(historyWithContext.slice(0, -1), userMessage, { lang: i18nLang });
 
       // 添加 AI 回复
       const aiMsg: ChatMessage = { role: 'assistant', content: response };
@@ -381,11 +373,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
 
     } catch (err) {
       const details = err instanceof Error ? err.message : String(err);
-      setError(
-        lang === 'cn'
-          ? `获取回复失败：${details}`
-          : `Failed to get response: ${details}`
-      );
+      setError(t('globalChatBar.errorGetResponse', { details }));
       console.error('Chat error:', err);
     } finally {
       setIsLoading(false);
@@ -426,11 +414,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
           lang
         );
         if (compat.blockSend) {
-          setError(
-            lang === 'cn'
-              ? `当前模型不支持粘贴该文件类型：${file.name}`
-              : `Current model does not support this pasted file type: ${file.name}`
-          );
+          setError(t('globalChatBar.errorPasteUnsupported', { file: file.name }));
           continue;
         }
 
@@ -468,7 +452,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
                 type: file.type,
                 size: file.size,
                 content: base64,
-                preview: `[${isImage ? (lang === 'cn' ? '图片' : 'Image') : file.type}]`,
+                preview: `[${isImage ? t('globalChatBar.image') : file.type}]`,
                 isBase64: true,
                 mimeType,
               });
@@ -518,7 +502,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
             <div className="flex items-center gap-2">
               <Sparkles size={16} style={{ color: phaseColor }} />
               <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {lang === 'cn' ? '对话历史' : 'Chat History'}
+                {t('globalChatBar.chatHistory')}
               </span>
               <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
                 ({chatMessages.length})
@@ -539,7 +523,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
               <div className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>
                 <Sparkles size={32} className="mx-auto mb-2 opacity-50" />
                 <p className="text-sm">
-                  {lang === 'cn' ? '开始对话吧' : 'Start a conversation'}
+                  {t('globalChatBar.startConversation')}
                 </p>
               </div>
             ) : (
@@ -589,7 +573,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
                   style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-muted)' }}
                 >
                   <Loader2 size={14} className="animate-spin" />
-                  {lang === 'cn' ? '思考中...' : 'Thinking...'}
+                  {t('globalChatBar.thinking')}
                 </div>
               </div>
             )}
@@ -624,7 +608,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
           >
             <FolderPlus size={20} style={{ color: 'var(--color-text-muted)' }} />
             <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-              {lang === 'cn' ? '请先创建或选择一个项目，才能开始设计工作流' : 'Please create or select a project to start the design workflow'}
+              {t('globalChatBar.noProjectHint')}
             </span>
             {onNavigateToProjects && (
               <button
@@ -635,7 +619,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
                   color: 'white'
                 }}
               >
-                {lang === 'cn' ? '去创建项目' : 'Create Project'}
+                {t('globalChatBar.createProject')}
               </button>
             )}
           </div>
@@ -727,7 +711,7 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
                   onClick={onToggleExpand}
                   className="p-2 rounded-lg transition-colors"
                   style={{ color: 'var(--color-text-muted)' }}
-                  title={isExpanded ? (lang === 'cn' ? '收起' : 'Collapse') : (lang === 'cn' ? '展开历史' : 'Expand')}
+                  title={isExpanded ? t('globalChatBar.collapse') : t('globalChatBar.expandHistory')}
                 >
                   {isExpanded ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
                 </button>
@@ -766,10 +750,10 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
                   style={{ backgroundColor: phaseColor }}
                 />
                 <span>
-                  {currentPhase === 'discover' && (lang === 'cn' ? '发现阶段：引导对话、提取需求' : 'Discover: Guide conversation, extract requirements')}
-                  {currentPhase === 'model' && (lang === 'cn' ? '建模阶段：补全属性、推荐关联' : 'Model: Complete properties, recommend links')}
-                  {currentPhase === 'integrate' && (lang === 'cn' ? '集成阶段：推荐数据源、生成方案' : 'Integrate: Recommend sources, generate plans')}
-                  {currentPhase === 'enhance' && (lang === 'cn' ? '智能化阶段：分析机会、验证需求' : 'Enhance: Analyze opportunities, validate requirements')}
+                  {currentPhase === 'discover' && t('globalChatBar.phaseDiscover')}
+                  {currentPhase === 'model' && t('globalChatBar.phaseModel')}
+                  {currentPhase === 'integrate' && t('globalChatBar.phaseIntegrate')}
+                  {currentPhase === 'enhance' && t('globalChatBar.phaseEnhance')}
                 </span>
               </div>
             </div>

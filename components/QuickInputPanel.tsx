@@ -35,7 +35,7 @@ interface IntegrationForm {
 }
 
 const QuickInputPanel: React.FC<Props> = ({ onSubmit, disabled, hasApiKey = true, onOpenSettings }) => {
-  const { t, lang } = useAppTranslation('modeling');
+  const { t, i18nLang } = useAppTranslation('modeling');
   const [activeModal, setActiveModal] = useState<ModalType>(null);
 
   // Object form state
@@ -77,34 +77,34 @@ const QuickInputPanel: React.FC<Props> = ({ onSubmit, disabled, hasApiKey = true
 
   const formatObjectMessage = (): string => {
     const attrs = objectForm.attributes.filter(a => a.trim());
-    return `${lang === 'cn' ? '我想添加一个业务对象' : "I'd like to add a business object"}:
+    return `${i18nLang === 'cn' ? '我想添加一个业务对象' : "I'd like to add a business object"}:
 
-**${lang === 'cn' ? '对象名称' : 'Object Name'}**: ${objectForm.name}
-**${lang === 'cn' ? '描述' : 'Description'}**: ${objectForm.description}
-${attrs.length > 0 ? `**${lang === 'cn' ? '关键属性' : 'Key Attributes'}**: ${attrs.join(', ')}` : ''}
-${objectForm.relationships ? `**${lang === 'cn' ? '关系' : 'Relationships'}**: ${objectForm.relationships}` : ''}`;
+**${i18nLang === 'cn' ? '对象名称' : 'Object Name'}**: ${objectForm.name}
+**${i18nLang === 'cn' ? '描述' : 'Description'}**: ${objectForm.description}
+${attrs.length > 0 ? `**${i18nLang === 'cn' ? '关键属性' : 'Key Attributes'}**: ${attrs.join(', ')}` : ''}
+${objectForm.relationships ? `**${i18nLang === 'cn' ? '关系' : 'Relationships'}**: ${objectForm.relationships}` : ''}`;
   };
 
   const formatActionMessage = (): string => {
     const preconds = actionForm.preconditions.filter(p => p.trim());
-    return `${lang === 'cn' ? '我想添加一个业务动作' : "I'd like to add a business action"}:
+    return `${i18nLang === 'cn' ? '我想添加一个业务动作' : "I'd like to add a business action"}:
 
-**${lang === 'cn' ? '动作名称' : 'Action Name'}**: ${actionForm.name}
-**${lang === 'cn' ? '目标对象' : 'Target Object'}**: ${actionForm.targetObject}
-**${lang === 'cn' ? '描述' : 'Description'}**: ${actionForm.description}
-**${lang === 'cn' ? '执行者' : 'Executor'}**: ${actionForm.executor}
-${preconds.length > 0 ? `**${lang === 'cn' ? '前置条件' : 'Preconditions'}**: ${preconds.join('; ')}` : ''}
-${actionForm.postconditions ? `**${lang === 'cn' ? '后置状态' : 'Postcondition'}**: ${actionForm.postconditions}` : ''}`;
+**${i18nLang === 'cn' ? '动作名称' : 'Action Name'}**: ${actionForm.name}
+**${i18nLang === 'cn' ? '目标对象' : 'Target Object'}**: ${actionForm.targetObject}
+**${i18nLang === 'cn' ? '描述' : 'Description'}**: ${actionForm.description}
+**${i18nLang === 'cn' ? '执行者' : 'Executor'}**: ${actionForm.executor}
+${preconds.length > 0 ? `**${i18nLang === 'cn' ? '前置条件' : 'Preconditions'}**: ${preconds.join('; ')}` : ''}
+${actionForm.postconditions ? `**${i18nLang === 'cn' ? '后置状态' : 'Postcondition'}**: ${actionForm.postconditions}` : ''}`;
   };
 
   const formatIntegrationMessage = (): string => {
     const data = integrationForm.dataProvided.filter(d => d.trim());
-    return `${lang === 'cn' ? '我想添加一个外部系统集成' : "I'd like to add an external system integration"}:
+    return `${i18nLang === 'cn' ? '我想添加一个外部系统集成' : "I'd like to add an external system integration"}:
 
-**${lang === 'cn' ? '系统名称' : 'System Name'}**: ${integrationForm.name}
-**${lang === 'cn' ? '类型' : 'Type'}**: ${integrationForm.type}
-**${lang === 'cn' ? '描述' : 'Description'}**: ${integrationForm.description}
-${data.length > 0 ? `**${lang === 'cn' ? '提供的数据' : 'Data Provided'}**: ${data.join(', ')}` : ''}`;
+**${i18nLang === 'cn' ? '系统名称' : 'System Name'}**: ${integrationForm.name}
+**${i18nLang === 'cn' ? '类型' : 'Type'}**: ${integrationForm.type}
+**${i18nLang === 'cn' ? '描述' : 'Description'}**: ${integrationForm.description}
+${data.length > 0 ? `**${i18nLang === 'cn' ? '提供的数据' : 'Data Provided'}**: ${data.join(', ')}` : ''}`;
   };
 
   const handleSubmit = () => {

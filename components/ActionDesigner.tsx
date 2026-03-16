@@ -16,7 +16,7 @@ interface Props {
 }
 
 const ActionDesigner: React.FC<Props> = ({ objects, onUpdateAction }) => {
-  const { t, lang } = useAppTranslation('modeling');
+  const { t } = useAppTranslation('modeling');
   const [selectedObjectId, setSelectedObjectId] = useState<string | null>(
     objects.length > 0 ? objects[0].id : null
   );
@@ -256,7 +256,7 @@ const ActionDesigner: React.FC<Props> = ({ objects, onUpdateAction }) => {
                       })}
                       className="w-full glass-surface rounded-lg px-4 py-3 text-sm text-white resize-none focus:outline-none focus:border-blue-500/30"
                       rows={3}
-                      placeholder={lang === 'cn' ? '描述这个 Action 的业务目的...' : 'Describe the business purpose of this action...'}
+                      placeholder={t('actionDesigner.descriptionPlaceholder')}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -269,7 +269,7 @@ const ActionDesigner: React.FC<Props> = ({ objects, onUpdateAction }) => {
                           businessLayer: { ...editingAction.businessLayer, description: editingAction.businessLayer?.description || '', targetObject: e.target.value, executorRole: editingAction.businessLayer?.executorRole || '' }
                         })}
                         className="w-full glass-surface rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500/30"
-                        placeholder={lang === 'cn' ? '目标对象类型' : 'Target object type'}
+                        placeholder={t('actionDesigner.targetObjectPlaceholder')}
                       />
                     </div>
                     <div>
@@ -281,7 +281,7 @@ const ActionDesigner: React.FC<Props> = ({ objects, onUpdateAction }) => {
                           businessLayer: { ...editingAction.businessLayer, description: editingAction.businessLayer?.description || '', targetObject: editingAction.businessLayer?.targetObject || '', executorRole: e.target.value }
                         })}
                         className="w-full glass-surface rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500/30"
-                        placeholder={lang === 'cn' ? '执行角色' : 'Executor role'}
+                        placeholder={t('actionDesigner.executorRolePlaceholder')}
                       />
                     </div>
                   </div>
@@ -294,7 +294,7 @@ const ActionDesigner: React.FC<Props> = ({ objects, onUpdateAction }) => {
                         businessLayer: { ...editingAction.businessLayer, description: editingAction.businessLayer?.description || '', targetObject: editingAction.businessLayer?.targetObject || '', executorRole: editingAction.businessLayer?.executorRole || '', triggerCondition: e.target.value }
                       })}
                       className="w-full glass-surface rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500/30"
-                      placeholder={lang === 'cn' ? '何时触发此 Action' : 'When to trigger this action'}
+                      placeholder={t('actionDesigner.triggerConditionPlaceholder')}
                     />
                   </div>
                 </div>
@@ -319,7 +319,7 @@ const ActionDesigner: React.FC<Props> = ({ objects, onUpdateAction }) => {
                             value={pre}
                             onChange={(e) => updateArrayItem('preconditions', idx, e.target.value)}
                             className="flex-1 glass-surface rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500/30"
-                            placeholder={lang === 'cn' ? '输入前置条件...' : 'Enter precondition...'}
+                            placeholder={t('actionDesigner.preconditionPlaceholder')}
                           />
                           <button onClick={() => removeArrayItem('preconditions', idx)} className="text-muted hover:text-red-400 p-2 transition-colors">
                             <Trash2 size={14} />
@@ -327,7 +327,7 @@ const ActionDesigner: React.FC<Props> = ({ objects, onUpdateAction }) => {
                         </div>
                       ))}
                       {(editingAction.logicLayer?.preconditions || []).length === 0 && (
-                        <p className="text-xs text-muted">{lang === 'cn' ? '暂无前置条件' : 'No preconditions yet'}</p>
+                        <p className="text-xs text-muted">{t('actionDesigner.noPreconditions')}</p>
                       )}
                     </div>
                   </div>
@@ -622,7 +622,7 @@ const ActionDesigner: React.FC<Props> = ({ objects, onUpdateAction }) => {
           <div className="h-full flex items-center justify-center text-muted">
             <div className="text-center">
               <Edit3 size={40} className="mx-auto mb-4 opacity-30" />
-              <p className="text-sm">{lang === 'cn' ? '选择一个 Action 开始编辑' : 'Select an Action to edit'}</p>
+              <p className="text-sm">{t('actionDesigner.selectToEdit')}</p>
             </div>
           </div>
         )}

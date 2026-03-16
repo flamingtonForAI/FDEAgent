@@ -77,7 +77,7 @@ type ViewType = 'main' | 'paths' | 'reference' | 'glossary';
 
 
 const Academy: React.FC<Props> = () => {
-  const { t, lang } = useAppTranslation('academy');
+  const { t, lang, lt } = useAppTranslation('academy');
   const [expandedLevel, setExpandedLevel] = useState<string | null>('level1');
   const [currentLesson, setCurrentLesson] = useState<LessonContent | null>(null);
   const [currentExercise, setCurrentExercise] = useState<ExerciseInfo | null>(null);
@@ -309,9 +309,9 @@ const Academy: React.FC<Props> = () => {
               </div>
 
               <h3 className="font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>
-                {path.role[lang]}
+                {lt(path.role)}
               </h3>
-              <p className="text-xs text-muted mb-4">{path.description[lang]}</p>
+              <p className="text-xs text-muted mb-4">{lt(path.description)}</p>
 
               <div className="flex items-center gap-2 mb-2">
                 <div className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
@@ -330,7 +330,7 @@ const Academy: React.FC<Props> = () => {
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-medium text-muted">{idx + 1}.</span>
                         <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                          {module.title[lang]}
+                          {lt(module.title)}
                         </span>
                       </div>
                       <div className="pl-4 space-y-1">
@@ -347,7 +347,7 @@ const Academy: React.FC<Props> = () => {
                                 {isComplete ? <CheckCircle size={12} /> : <Play size={12} />}
                               </span>
                               <span className="text-muted group-hover:text-primary transition-colors">
-                                {lesson.title[lang]}
+                                {lt(lesson.title)}
                               </span>
                             </button>
                           ) : null;
@@ -441,9 +441,9 @@ const Academy: React.FC<Props> = () => {
           {glossaryTerms.slice(0, 8).map((term) => (
             <div key={term.term.en} className="glass-card rounded-lg p-3">
               <h4 className="text-sm font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>
-                {term.term[lang]}
+                {lt(term.term)}
               </h4>
-              <p className="text-micro text-muted line-clamp-2">{term.definition[lang]}</p>
+              <p className="text-micro text-muted line-clamp-2">{lt(term.definition)}</p>
             </div>
           ))}
         </div>
@@ -483,9 +483,9 @@ const Academy: React.FC<Props> = () => {
               {glossaryTerms.filter(t => t.category === category).map((term) => (
                 <div key={term.term.en} className="glass-card rounded-lg p-4">
                   <h4 className="text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                    {term.term[lang]}
+                    {lt(term.term)}
                   </h4>
-                  <p className="text-sm text-muted">{term.definition[lang]}</p>
+                  <p className="text-sm text-muted">{lt(term.definition)}</p>
                 </div>
               ))}
             </div>
@@ -769,10 +769,10 @@ const Academy: React.FC<Props> = () => {
                     </div>
 
                     <h3 className="font-medium mb-1" style={{ color: unlocked ? 'var(--color-text-primary)' : 'var(--color-text-muted)' }}>
-                      {exercise.title[lang]}
+                      {lt(exercise.title)}
                     </h3>
                     <p className="text-xs text-muted mb-4">
-                      {exercise.description[lang]}
+                      {lt(exercise.description)}
                     </p>
 
                     {unlocked ? (
@@ -874,10 +874,10 @@ const Academy: React.FC<Props> = () => {
                   >
                     <div className="text-2xl mb-2">{achievement.icon}</div>
                     <h4 className="text-sm font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>
-                      {achievement.title[lang]}
+                      {lt(achievement.title)}
                     </h4>
                     <p className="text-micro text-muted">
-                      {achievement.description[lang]}
+                      {lt(achievement.description)}
                     </p>
                   </div>
                 ))}
@@ -949,7 +949,7 @@ const ReferenceCardComponent: React.FC<{
   expanded: boolean;
   onToggle: () => void;
 }> = ({ card, expanded, onToggle }) => {
-  const { lang } = useAppTranslation('academy');
+  const { lang, lt } = useAppTranslation('academy');
   return (
   <div className="glass-card rounded-xl overflow-hidden transition-all">
     <button
@@ -958,7 +958,7 @@ const ReferenceCardComponent: React.FC<{
     >
       <span className="text-xl">{card.icon}</span>
       <span className="flex-1 font-medium text-sm" style={{ color: 'var(--color-text-primary)' }}>
-        {card.title[lang]}
+        {lt(card.title)}
       </span>
       <ChevronDown
         size={16}

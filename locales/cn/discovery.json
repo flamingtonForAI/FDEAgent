@@ -1,4 +1,28 @@
 {
+  "globalChatBar": {
+    "analyzeDocument": "分析文档",
+    "contextAck": "我理解了当前上下文，请问有什么可以帮您？",
+    "chatHistory": "对话历史",
+    "startConversation": "开始对话吧",
+    "thinking": "思考中...",
+    "noProjectHint": "请先创建或选择一个项目，才能开始设计工作流",
+    "createProject": "去创建项目",
+    "collapse": "收起",
+    "expandHistory": "展开历史",
+    "phaseDiscover": "发现阶段：引导对话、提取需求",
+    "phaseModel": "建模阶段：补全属性、推荐关联",
+    "phaseIntegrate": "集成阶段：推荐数据源、生成方案",
+    "phaseEnhance": "智能化阶段：分析机会、验证需求",
+    "image": "图片",
+    "uploadTip": "拖拽文件或点击上传",
+    "aiRequirementDetected": "检测到 AI 需求",
+    "intelligentNeed": "智能自动化需求",
+    "errorUnsupportedFiles": "当前模型不支持发送以下文件：{{files}}",
+    "errorUnsupportedFileType": "以下文件类型不受支持，请移除后重试：{{files}}",
+    "errorPasteUnsupported": "当前模型不支持粘贴该文件类型：{{file}}",
+    "errorGetResponse": "获取回复失败：{{details}}",
+    "defaultAnalyzePrompt": "请分析以下文档，提取其中的业务对象、动作和流程，帮助我设计 Ontology。"
+  },
   "globalChatSidebar": {
     "title": "AI 助手",
     "placeholder": "有什么可以帮您...",
@@ -10,7 +34,9 @@
     "discover": "发现",
     "model": "建模",
     "integrate": "集成",
-    "enhance": "智能化"
+    "enhance": "智能化",
+    "contextAck": "我理解了当前上下文，请问有什么可以帮您？",
+    "emptyState": "有什么可以帮您的？"
   },
   "chatMessages": {
     "title": "需求发现",
@@ -22,6 +48,7 @@
     "configureApi": "配置 API",
     "configureApiDesc": "必需",
     "needMoreChat": "请先进行更多对话",
+    "gettingStarted": "开始提示",
     "tip1": "描述您的业务流程",
     "tip2": "提及现有系统（ERP、CRM等）",
     "tip3": "分享痛点和瓶颈"
@@ -71,7 +98,13 @@
     "stageTip": "阶段",
     "readyStatus": "信息充足",
     "partialStatus": "信息部分完整",
-    "insufficientStatus": "信息不足"
+    "insufficientStatus": "信息不足",
+    "followUp": "追问：",
+    "copy": "复制",
+    "insert": "插入对话",
+    "partialMissing": "部分信息缺失",
+    "criticalMissing": "关键信息不足",
+    "canProceedWithIteration": "可以继续生成设计，但交付物可能需要后续迭代补充"
   },
   "industryDiscovery": {
     "title": "探索新行业",

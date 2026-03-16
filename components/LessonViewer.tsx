@@ -14,13 +14,11 @@ interface Props {
 }
 
 const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted }) => {
-  const { lang } = useAppTranslation('academy');
+  const { lang, t, lt } = useAppTranslation('academy');
   const [currentSection, setCurrentSection] = useState(0);
   const [showQuiz, setShowQuiz] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
-
-  const lt = (obj: { en: string; cn: string }) => obj[lang];
   const sections = lesson.sections;
   const quiz = lesson.quiz?.[0];
 
@@ -124,7 +122,7 @@ const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted
             {exData.output && (
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl" style={{ backgroundColor: 'rgba(var(--color-accent-rgb), 0.05)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(var(--color-accent-rgb), 0.2)' }}>
-                  <div className="text-xs mb-2" style={{ color: 'var(--color-accent)' }}>{lang === 'cn' ? '提取的对象' : 'Objects'}</div>
+                  <div className="text-xs mb-2" style={{ color: 'var(--color-accent)' }}>{t('lessonViewer.objects')}</div>
                   <div className="flex flex-wrap gap-2">
                     {exData.output.objects[lang].map((obj: string, i: number) => (
                       <span key={i} className="px-2 py-1 rounded text-sm" style={{ backgroundColor: 'rgba(var(--color-accent-rgb), 0.2)', color: 'var(--color-accent)' }}>{obj}</span>
@@ -132,7 +130,7 @@ const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted
                   </div>
                 </div>
                 <div className="p-4 rounded-xl" style={{ backgroundColor: 'rgba(16, 185, 129, 0.05)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'rgba(16, 185, 129, 0.2)' }}>
-                  <div className="text-xs mb-2" style={{ color: 'var(--color-success)' }}>{lang === 'cn' ? '提取的动作' : 'Actions'}</div>
+                  <div className="text-xs mb-2" style={{ color: 'var(--color-success)' }}>{t('lessonViewer.actions')}</div>
                   <div className="flex flex-wrap gap-2">
                     {exData.output.actions[lang].map((action: string, i: number) => (
                       <span key={i} className="px-2 py-1 rounded text-sm" style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', color: 'var(--color-success)' }}>{action}</span>
@@ -297,7 +295,7 @@ const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted
             {exData.stateMachine && (
               <div className="space-y-4">
                 <div>
-                  <div className="text-xs text-muted mb-2">{lang === 'cn' ? '状态' : 'States'}</div>
+                  <div className="text-xs text-muted mb-2">{t('lessonViewer.states')}</div>
                   <div className="flex flex-wrap gap-2">
                     {(exData.stateMachine.states?.[lang] || []).map((state: string, i: number) => (
                       <span key={i} className="px-2.5 py-1 rounded-lg text-sm" style={{ backgroundColor: 'var(--color-bg-hover)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--color-border)', color: 'var(--color-text-secondary)' }}>{state}</span>
@@ -305,7 +303,7 @@ const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted mb-2">{lang === 'cn' ? '转换' : 'Transitions'}</div>
+                  <div className="text-xs text-muted mb-2">{t('lessonViewer.transitions')}</div>
                   <div className="space-y-1.5">
                     {(exData.stateMachine.transitions || []).map((trans: any, i: number) => (
                       <div key={i} className="flex items-center gap-2 text-sm">
@@ -342,7 +340,7 @@ const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted
             <div className="space-y-6">
               {/* States */}
               <div>
-                <div className="text-xs text-muted mb-3">{lang === 'cn' ? '状态' : 'States'}</div>
+                <div className="text-xs text-muted mb-3">{t('lessonViewer.states')}</div>
                 <div className="flex flex-wrap gap-2">
                   {diagData.states.map((state: any, i: number) => {
                     const colors = colorMap[state.color] || colorMap.gray;
@@ -361,7 +359,7 @@ const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted
 
               {/* Transitions */}
               <div>
-                <div className="text-xs text-muted mb-3">{lang === 'cn' ? '转换' : 'Transitions'}</div>
+                <div className="text-xs text-muted mb-3">{t('lessonViewer.transitions')}</div>
                 <div className="space-y-2">
                   {diagData.transitions.map((trans: any, i: number) => (
                     <div key={i} className="flex items-center gap-2 text-sm">
@@ -370,7 +368,7 @@ const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted
                       </span>
                       <span className="text-muted">-&gt;</span>
                       <span className="px-2 py-1 rounded text-xs font-medium" style={{ backgroundColor: 'rgba(var(--color-accent-rgb), 0.2)', color: 'var(--color-accent)' }}>
-                        {lang === 'cn' ? trans.cn_action : trans.action}
+                        {lt({ en: trans.action, cn: trans.cn_action || trans.action })}
                       </span>
                       <span className="text-muted">-&gt;</span>
                       <span className="px-2 py-1 rounded text-muted font-mono text-xs" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
@@ -414,7 +412,7 @@ const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted
                     </div>
                     <div className="grid md:grid-cols-2 gap-3 mt-3">
                       <div>
-                        <div className="text-xs text-muted mb-1.5">{lang === 'cn' ? '活动' : 'Activities'}</div>
+                        <div className="text-xs text-muted mb-1.5">{t('lessonViewer.activities')}</div>
                         <div className="flex flex-wrap gap-1.5">
                           {(phase.activities?.[lang] || []).map((act: string, j: number) => (
                             <span key={j} className="px-2 py-0.5 rounded text-xs" style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-secondary)' }}>{act}</span>
@@ -422,7 +420,7 @@ const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted
                         </div>
                       </div>
                       <div>
-                        <div className="text-xs text-muted mb-1.5">{lang === 'cn' ? '交付物' : 'Deliverables'}</div>
+                        <div className="text-xs text-muted mb-1.5">{t('lessonViewer.deliverables')}</div>
                         <div className="flex flex-wrap gap-1.5">
                           {(phase.deliverables?.[lang] || []).map((del: string, j: number) => (
                             <span key={j} className="px-2 py-0.5 rounded text-xs font-medium" style={{ backgroundColor: colorStyle.border, color: colorStyle.text }}>{del}</span>
@@ -518,12 +516,12 @@ const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted
             <h2 className="text-base font-medium" style={{ color: 'var(--color-text-primary)' }}>{lt(lesson.title)}</h2>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="text-xs text-muted">
-                {showQuiz ? (lang === 'cn' ? '测验' : 'Quiz') : `${currentSection + 1} / ${sections.length}`}
+                {showQuiz ? t('lessonViewer.quiz') : `${currentSection + 1} / ${sections.length}`}
               </span>
               {isCompleted && (
                 <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--color-success)' }}>
                   <CheckCircle size={12} />
-                  {lang === 'cn' ? '已完成' : 'Completed'}
+                  {t('lessonViewer.completed')}
                 </span>
               )}
             </div>
@@ -562,7 +560,7 @@ const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted
             <div className="animate-fadeIn">
               <div className="flex items-center gap-2 mb-6">
                 <HelpCircle size={20} style={{ color: 'var(--color-accent-secondary)' }} />
-                <h3 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{lang === 'cn' ? '课后测验' : 'Quiz'}</h3>
+                <h3 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('lessonViewer.quizTitle')}</h3>
               </div>
 
               <div className="glass-card rounded-xl p-6 mb-6">
@@ -667,8 +665,8 @@ const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted
                         style={{ color: selectedAnswer === quiz.correctIndex ? 'var(--color-success)' : 'var(--color-accent)' }}
                       >
                         {selectedAnswer === quiz.correctIndex
-                          ? (lang === 'cn' ? '正确!' : 'Correct!')
-                          : (lang === 'cn' ? '解释' : 'Explanation')}
+                          ? t('lessonViewer.correct')
+                          : t('lessonViewer.explanation')}
                       </h4>
                       <p className="text-secondary text-sm">{lt(quiz.explanation)}</p>
                     </div>
@@ -691,7 +689,7 @@ const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted
           onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
         >
           <ArrowLeft size={16} />
-          {lang === 'cn' ? '上一步' : 'Previous'}
+          {t('lessonViewer.previous')}
         </button>
 
         {(!showQuiz || !showExplanation) && (
@@ -701,10 +699,10 @@ const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted
             className="flex items-center gap-2 btn-gradient px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
           >
             {showQuiz
-              ? (lang === 'cn' ? '完成' : 'Finish')
+              ? t('lessonViewer.finish')
               : currentSection === sections.length - 1
-              ? (quiz ? (lang === 'cn' ? '开始测验' : 'Start Quiz') : (lang === 'cn' ? '完成' : 'Finish'))
-              : (lang === 'cn' ? '下一步' : 'Next')}
+              ? (quiz ? t('lessonViewer.startQuiz') : t('lessonViewer.finish'))
+              : t('lessonViewer.next')}
             <ChevronRight size={16} />
           </button>
         )}
@@ -714,7 +712,7 @@ const LessonViewer: React.FC<Props> = ({ lesson, onBack, onComplete, isCompleted
             onClick={onBack}
             className="flex items-center gap-2 btn-gradient px-5 py-2 rounded-lg text-sm font-medium"
           >
-            {lang === 'cn' ? '返回课程列表' : 'Back to Lessons'}
+            {t('lessonViewer.backToLessons')}
             <ChevronRight size={16} />
           </button>
         )}

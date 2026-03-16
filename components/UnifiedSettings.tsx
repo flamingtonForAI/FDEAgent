@@ -48,7 +48,7 @@ export default function UnifiedSettings({
   onReset,
   onClose,
 }: Props) {
-  const { t, lang, i18nLang } = useAppTranslation('settings');
+  const { t, lt, lang, i18nLang } = useAppTranslation('settings');
   // Only fall back to legacy apiKey when apiKeys map doesn't exist (old data).
   // When apiKeys exists, strictly use the current provider's key to prevent cross-provider leakage.
   const currentProviderKey = aiSettings.apiKeys
@@ -516,7 +516,7 @@ export default function UnifiedSettings({
                           {getThemeIcon(option.id)}
                         </span>
                         <span className="flex-1 text-left font-medium" style={{ color: currentThemeMode === option.id ? 'var(--color-accent)' : 'var(--color-text-primary)' }}>
-                          {option.name[lang]}
+                          {lt(option.name)}
                         </span>
                         {currentThemeMode === option.id && <Check size={16} style={{ color: 'var(--color-accent)' }} />}
                       </button>

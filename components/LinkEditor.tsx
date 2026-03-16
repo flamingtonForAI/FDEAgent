@@ -22,7 +22,7 @@ const LinkEditor: React.FC<LinkEditorProps> = ({
   onClose,
   onDelete
 }) => {
-  const { t, lang } = useAppTranslation('modeling');
+  const { t } = useAppTranslation('modeling');
   const [editingLink, setEditingLink] = useState<OntologyLink>({ ...link });
   const isNew = !link.id || link.id === '';
 
@@ -220,7 +220,7 @@ const LinkEditor: React.FC<LinkEditorProps> = ({
             {onDelete && !isNew && (
               <button
                 onClick={() => {
-                  if (window.confirm(lang === 'cn' ? '确定删除此关联？' : 'Delete this relationship?')) {
+                  if (window.confirm(t('linkEditor.confirmDelete'))) {
                     onDelete();
                     onClose();
                   }

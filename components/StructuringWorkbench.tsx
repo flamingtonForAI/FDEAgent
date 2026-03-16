@@ -117,7 +117,7 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
   onAddObject,
   onAddAction
 }) => {
-  const { t, lang } = useAppTranslation('modeling');
+  const { t } = useAppTranslation('modeling');
   const [viewMode, setViewMode] = useState<ViewMode>('cards');
   const [activeFilter, setActiveFilter] = useState<FilterType>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
@@ -636,7 +636,7 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
             color="var(--color-warning)"
           >
             {stats.linkCount === 0 ? (
-              <EmptyState message={t('structuringWorkbench.noLinks')} onAdd={setProject ? handleAddLink : undefined} addLabel={lang === 'cn' ? '添加关联' : 'Add Link'} />
+              <EmptyState message={t('structuringWorkbench.noLinks')} onAdd={setProject ? handleAddLink : undefined} addLabel={t('structuringWorkbench.addLink')} />
             ) : (
               <div className="space-y-1">
                 {project.links?.map((link, i) => {
@@ -670,7 +670,6 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
         {/* Link Recommender - show when there are at least 2 objects */}
         {(project.objects?.length || 0) >= 2 && setProject && viewMode !== 'business' && (
           <LinkRecommender
-            lang={lang}
             project={project}
             onApplyLink={handleApplyLink}
             onDismissRecommendation={handleDismissLink}
@@ -707,7 +706,7 @@ const StructuringWorkbench: React.FC<StructuringWorkbenchProps> = ({
           >
             <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
               <h2 className="text-lg font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {lang === 'cn' ? 'Action 三层设计' : 'Action Designer'}
+                {t('structuringWorkbench.actionDesignerTitle')}
               </h2>
               <button
                 onClick={() => setShowActionDesigner(false)}

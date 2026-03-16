@@ -7,7 +7,7 @@ interface ThemeSwitcherProps {
 }
 
 export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = () => {
-  const { lang } = useAppTranslation('settings');
+  const { t, lt } = useAppTranslation('common');
   const [isOpen, setIsOpen] = useState(false);
   const [currentMode, setCurrentMode] = useState<ThemeMode>(() => getSavedThemeMode());
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -62,11 +62,11 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = () => {
         }}
         onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--color-border-hover)'}
         onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--color-border)'}
-        title={lang === 'cn' ? '切换主题' : 'Switch theme'}
+        title={t('switchTheme')}
       >
         {getIcon(currentMode)}
         <span className="text-xs hidden sm:inline">
-          {currentOption.name[lang]}
+          {lt(currentOption.name)}
         </span>
         <ChevronDown
           size={12}
@@ -117,7 +117,7 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = () => {
                   {getIcon(option.id)}
                 </span>
                 <span className="flex-1 text-sm font-medium">
-                  {option.name[lang]}
+                  {lt(option.name)}
                 </span>
                 {currentMode === option.id && (
                   <Check size={16} style={{ color: 'var(--color-accent)' }} />

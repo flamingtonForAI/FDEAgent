@@ -30,7 +30,7 @@ const statusColors: Record<string, string> = {
 };
 
 export default function ProjectDashboard({ onOpenProject }: Props) {
-  const { t, lang } = useAppTranslation('nav');
+  const { t } = useAppTranslation('nav');
   const {
     projects,
     activeProjectId,
@@ -73,10 +73,10 @@ export default function ProjectDashboard({ onOpenProject }: Props) {
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return lang === 'cn' ? '刚刚' : 'just now';
-    if (diffMins < 60) return lang === 'cn' ? `${diffMins}分钟前` : `${diffMins}m ago`;
-    if (diffHours < 24) return lang === 'cn' ? `${diffHours}小时前` : `${diffHours}h ago`;
-    if (diffDays < 7) return lang === 'cn' ? `${diffDays}天前` : `${diffDays}d ago`;
+    if (diffMins < 1) return t('projectDashboard.justNow');
+    if (diffMins < 60) return t('projectDashboard.minutesAgo', { count: diffMins });
+    if (diffHours < 24) return t('projectDashboard.hoursAgo', { count: diffHours });
+    if (diffDays < 7) return t('projectDashboard.daysAgo', { count: diffDays });
     return date.toLocaleDateString();
   };
 

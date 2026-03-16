@@ -26,7 +26,7 @@ const ChatMessagesPanel: React.FC<ChatMessagesPanelProps> = ({
   onDesignTrigger,
   onOpenSettings
 }) => {
-  const { t, lang } = useAppTranslation('discovery');
+  const { t } = useAppTranslation('discovery');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // 滚动到底部
@@ -122,7 +122,7 @@ const ChatMessagesPanel: React.FC<ChatMessagesPanelProps> = ({
             <div className="flex items-center gap-2 mb-3">
               <Lightbulb size={14} style={{ color: 'var(--color-text-muted)' }} />
               <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                {lang === 'cn' ? '开始提示' : 'Getting Started'}
+                {t('chatMessages.gettingStarted')}
               </span>
             </div>
             <div className="flex flex-wrap gap-2">

@@ -37,7 +37,7 @@ const IndustryDiscovery: React.FC<Props> = ({
   onClose,
   onImported
 }) => {
-  const { t, lang } = useAppTranslation('discovery');
+  const { t, lt } = useAppTranslation('discovery');
 
   // 表单状态
   const [industryName, setIndustryName] = useState('');
@@ -234,7 +234,7 @@ const IndustryDiscovery: React.FC<Props> = ({
                 {generatedArchetype.metadata.name}
               </h3>
               <p className="text-xs text-muted">
-                {generatedArchetype.metadata.description[lang === 'cn' ? 'cn' : 'en']}
+                {lt(generatedArchetype.metadata.description)}
               </p>
             </div>
           </div>
@@ -243,7 +243,7 @@ const IndustryDiscovery: React.FC<Props> = ({
         {/* 来源信息 */}
         {generatedOrigin && (
           <div className="mb-3">
-            <SourceBadge origin={generatedOrigin} lang={lang} showDetails />
+            <SourceBadge origin={generatedOrigin} showDetails />
           </div>
         )}
 

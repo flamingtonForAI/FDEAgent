@@ -136,7 +136,7 @@ const actionDesignExercises: ActionDesignExercise[] = [
 
 
 const Exercise: React.FC<Props> = ({ exerciseType, exerciseId, onBack, onComplete }) => {
-  const { t, lang } = useAppTranslation('academy');
+  const { t, lt } = useAppTranslation('academy');
 
   // Noun-Verb state
   const [selectedNouns, setSelectedNouns] = useState<Set<string>>(new Set());
@@ -200,7 +200,7 @@ const Exercise: React.FC<Props> = ({ exerciseType, exerciseId, onBack, onComplet
         {/* Scenario */}
         <div className="glass-card rounded-xl p-5">
           <div className="text-xs text-muted mb-2">{t('exercise.scenario')}</div>
-          <p className="text-secondary leading-relaxed">{exercise.scenario[lang]}</p>
+          <p className="text-secondary leading-relaxed">{lt(exercise.scenario)}</p>
         </div>
 
         {/* Nouns Selection */}
@@ -357,10 +357,10 @@ const Exercise: React.FC<Props> = ({ exerciseType, exerciseId, onBack, onComplet
         <div className="glass-card rounded-xl p-5">
           <div className="flex items-center gap-2 mb-3">
             <Zap size={16} style={{ color: 'var(--color-accent-secondary)' }} />
-            <span className="font-medium" style={{ color: 'var(--color-accent-secondary)' }}>{exercise.actionName[lang]}</span>
+            <span className="font-medium" style={{ color: 'var(--color-accent-secondary)' }}>{lt(exercise.actionName)}</span>
           </div>
           <div className="text-xs text-muted mb-2">{t('exercise.actionContext')}</div>
-          <p className="text-secondary leading-relaxed">{exercise.context[lang]}</p>
+          <p className="text-secondary leading-relaxed">{lt(exercise.context)}</p>
         </div>
 
         {/* Fill in blanks */}
@@ -374,7 +374,7 @@ const Exercise: React.FC<Props> = ({ exerciseType, exerciseId, onBack, onComplet
             return (
               <div key={blank.field} className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm text-secondary">{blank.label[lang]}</label>
+                  <label className="text-sm text-secondary">{lt(blank.label)}</label>
                   {!submitted && !showHint && (
                     <button
                       onClick={() => setShowHints(new Set([...showHints, blank.field]))}
@@ -388,7 +388,7 @@ const Exercise: React.FC<Props> = ({ exerciseType, exerciseId, onBack, onComplet
 
                 {showHint && !submitted && (
                   <div className="text-xs px-3 py-1.5 rounded" style={{ color: 'var(--color-accent)', backgroundColor: 'var(--color-bg-hover)' }}>
-                    {t('exercise.hint')}: {blank.hint[lang]}
+                    {t('exercise.hint')}: {lt(blank.hint)}
                   </div>
                 )}
 

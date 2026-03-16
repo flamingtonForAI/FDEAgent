@@ -22,7 +22,10 @@
     "actions": "Actions",
     "links": "Links",
     "integrations": "Integrations",
-    "noObjects": "No objects yet"
+    "noObjects": "No objects yet",
+    "noLinks": "No links yet",
+    "addLink": "Add Link",
+    "actionDesignerTitle": "Action Designer"
   },
   "objectEditor": {
     "editObject": "Edit Object",
@@ -67,7 +70,8 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "selectObject": "Select an object",
-    "preview": "Preview"
+    "preview": "Preview",
+    "confirmDelete": "Delete this relationship?"
   },
   "actionDesigner": {
     "title": "Action Designer",
@@ -111,7 +115,14 @@
     "medium": "Medium",
     "high": "High",
     "apiSpec": "API Spec",
-    "toolSpec": "Agent Tool"
+    "toolSpec": "Agent Tool",
+    "descriptionPlaceholder": "Describe the business purpose of this action...",
+    "targetObjectPlaceholder": "Target object type",
+    "executorRolePlaceholder": "Executor role",
+    "triggerConditionPlaceholder": "When to trigger this action",
+    "preconditionPlaceholder": "Enter precondition...",
+    "noPreconditions": "No preconditions yet",
+    "selectToEdit": "Select an Action to edit"
   },
   "ontologyVisualizer": {
     "title": "Logical Ontology",
@@ -160,7 +171,10 @@
     "readiness": "Readiness",
     "addObj": "Add Object",
     "addLink": "Add Link",
-    "addAction": "Add Action"
+    "addAction": "Add Action",
+    "noObjects": "No objects",
+    "noLinks": "No links",
+    "noActions": "No actions"
   },
   "nounVerbPanel": {
     "title": "Extracted Elements",

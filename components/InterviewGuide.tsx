@@ -611,7 +611,7 @@ const InterviewGuide: React.FC<InterviewGuideProps> = ({
                             {q.followUp && (
                               <p className="text-xs mt-1 italic" style={{ color: 'var(--color-text-muted)' }}>
                                 <ArrowRight className="inline w-3 h-3 mr-1" />
-                                {lang === 'cn' ? '追问：' : 'Follow-up: '}{q.followUp}
+                                {t('interviewGuide.followUp')}{q.followUp}
                               </p>
                             )}
                             <div className="flex gap-2 mt-2">
@@ -621,7 +621,7 @@ const InterviewGuide: React.FC<InterviewGuideProps> = ({
                                 style={{ color: 'var(--color-text-secondary)' }}
                               >
                                 <Copy className="w-3 h-3" />
-                                {lang === 'cn' ? '\u590D\u5236' : 'Copy'}
+                                {t('interviewGuide.copy')}
                               </button>
                               {onInsertQuestion && (
                                 <button
@@ -630,7 +630,7 @@ const InterviewGuide: React.FC<InterviewGuideProps> = ({
                                   style={{ color: 'var(--color-accent)' }}
                                 >
                                   <MessageSquare className="w-3 h-3" />
-                                  {lang === 'cn' ? '插入对话' : 'Insert'}
+                                  {t('interviewGuide.insert')}
                                 </button>
                               )}
                             </div>
@@ -662,14 +662,12 @@ const InterviewGuide: React.FC<InterviewGuideProps> = ({
             />
             <div>
               <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {lang === 'cn'
-                  ? (readinessLevel === 'partial' ? '部分信息缺失' : '关键信息不足')
-                  : (readinessLevel === 'partial' ? 'Some information missing' : 'Critical information missing')}
+                {readinessLevel === 'partial'
+                  ? t('interviewGuide.partialMissing')
+                  : t('interviewGuide.criticalMissing')}
               </p>
               <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-                {lang === 'cn'
-                  ? '可以继续生成设计，但交付物可能需要后续迭代补充'
-                  : 'You can proceed with design, but deliverables may need iteration'}
+                {t('interviewGuide.canProceedWithIteration')}
               </p>
             </div>
           </div>

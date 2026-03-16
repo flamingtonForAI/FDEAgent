@@ -68,8 +68,9 @@ export const SourceBadge: React.FC<SourceBadgeProps> = ({
   showDetails = false,
   size = 'md',
 }) => {
-  const { t, lang } = useAppTranslation('integration');
+  const { t, i18nLang } = useAppTranslation('integration');
   const sizeStyle = sizeConfig[size];
+  const dateLocale = i18nLang === 'cn' ? 'zh-CN' : i18nLang === 'es' ? 'es-ES' : i18nLang === 'fr' ? 'fr-FR' : i18nLang === 'ar' ? 'ar-SA' : 'en-US';
 
   // 默认为 static 类型
   const originType: ArchetypeOriginType = origin?.type || 'static';
@@ -124,7 +125,7 @@ export const SourceBadge: React.FC<SourceBadgeProps> = ({
               <div className="flex justify-between">
                 <span className="text-muted">{t('sourceBadge.date')}:</span>
                 <span style={{ color: 'var(--color-text-primary)' }}>
-                  {new Date(origin.generationDate).toLocaleDateString(lang === 'cn' ? 'zh-CN' : 'en-US')}
+                  {new Date(origin.generationDate).toLocaleDateString(dateLocale)}
                 </span>
               </div>
             )}
@@ -165,7 +166,7 @@ export const SourceBadge: React.FC<SourceBadgeProps> = ({
               <div className="flex justify-between">
                 <span className="text-muted">{t('sourceBadge.date')}:</span>
                 <span style={{ color: 'var(--color-text-primary)' }}>
-                  {new Date(origin.fetchDate).toLocaleDateString(lang === 'cn' ? 'zh-CN' : 'en-US')}
+                  {new Date(origin.fetchDate).toLocaleDateString(dateLocale)}
                 </span>
               </div>
             )}
@@ -200,9 +201,10 @@ export const SourceIndicator: React.FC<{
   size?: number;
 }> = ({ origin, size = 16 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
-  const { t, lang } = useAppTranslation('integration');
+  const { t, i18nLang } = useAppTranslation('integration');
   const originType: ArchetypeOriginType = origin?.type || 'static';
   const config = badgeConfig[originType];
+  const dateLocale = i18nLang === 'cn' ? 'zh-CN' : i18nLang === 'es' ? 'es-ES' : i18nLang === 'fr' ? 'fr-FR' : i18nLang === 'ar' ? 'ar-SA' : 'en-US';
 
   const label = originType === 'ai-generated' ? t('sourceBadge.aiGenerated') :
                 originType === 'reference' ? t('sourceBadge.reference') :
@@ -211,7 +213,7 @@ export const SourceIndicator: React.FC<{
   // 格式化日期
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return null;
-    return new Date(dateStr).toLocaleDateString(lang === 'cn' ? 'zh-CN' : 'en-US');
+    return new Date(dateStr).toLocaleDateString(dateLocale);
   };
 
   return (

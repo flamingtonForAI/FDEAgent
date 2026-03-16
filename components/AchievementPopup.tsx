@@ -9,7 +9,7 @@ interface Props {
 }
 
 const AchievementPopup: React.FC<Props> = ({ achievement, onDismiss }) => {
-  const { lang } = useAppTranslation('academy');
+  const { t, lt } = useAppTranslation('common');
   return (
     <div className="fixed bottom-6 right-6 z-50 animate-slideUp">
       <div className="glass-card rounded-xl p-4 pr-10 border-2 shadow-xl max-w-xs" style={{ borderColor: 'var(--color-accent)', backgroundColor: 'var(--color-bg-hover)' }}>
@@ -24,13 +24,13 @@ const AchievementPopup: React.FC<Props> = ({ achievement, onDismiss }) => {
           <div className="text-3xl">{achievement.icon}</div>
           <div>
             <div className="text-xs mb-0.5" style={{ color: 'var(--color-accent)' }}>
-              {lang === 'cn' ? '成就解锁!' : 'Achievement Unlocked!'}
+              {t('achievement.unlocked')}
             </div>
             <h4 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              {achievement.title[lang]}
+              {lt(achievement.title)}
             </h4>
             <p className="text-xs text-muted mt-1">
-              {achievement.description[lang]}
+              {lt(achievement.description)}
             </p>
           </div>
         </div>

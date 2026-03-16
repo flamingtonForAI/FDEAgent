@@ -28,7 +28,7 @@ const ReadinessPanel: React.FC<ReadinessPanelProps> = ({
   onCancel,
   compact = false
 }) => {
-  const { t, lang } = useAppTranslation('modeling');
+  const { t, lang } = useAppTranslation(['common', 'modeling']);
   const report = useMemo(() => {
     return checkReadiness(project, chatMessages, lang);
   }, [project, chatMessages, lang]);
@@ -74,13 +74,13 @@ const ReadinessPanel: React.FC<ReadinessPanelProps> = ({
           {report.summary.risks > 0 && (
             <span className="flex items-center gap-1">
               <AlertTriangle className="w-3 h-3" style={{ color: 'var(--color-warning)' }} />
-              {report.summary.risks} {lang === 'cn' ? '风险' : 'risks'}
+              {report.summary.risks} {t('readinessPanel.risks')}
             </span>
           )}
           {report.summary.warnings > 0 && (
             <span className="flex items-center gap-1">
               <AlertCircle className="w-3 h-3" style={{ color: 'var(--color-accent)' }} />
-              {report.summary.warnings} {lang === 'cn' ? '警告' : 'warnings'}
+              {report.summary.warnings} {t('readinessPanel.warnings')}
             </span>
           )}
         </div>
@@ -114,13 +114,13 @@ const ReadinessPanel: React.FC<ReadinessPanelProps> = ({
           )}
           <div>
             <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              {lang === 'cn' ? '准备度检查' : 'Readiness Check'}
+              {t('readinessPanel.title')}
             </h3>
             <p className="text-sm" style={{ color: display.color }}>
               {display.label}
               {report.canProceed && report.level !== 'excellent' && (
                 <span style={{ color: 'var(--color-text-secondary)' }}>
-                  {' - '}{lang === 'cn' ? '可继续，但有待改进项' : 'Can proceed with improvements'}
+                  {' - '}{t('readinessPanel.canProceedWithImprovements')}
                 </span>
               )}
             </p>
@@ -141,10 +141,10 @@ const ReadinessPanel: React.FC<ReadinessPanelProps> = ({
       {/* Summary stats */}
       <div className="grid grid-cols-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
         {[
-          { key: 'blockers', label: lang === 'cn' ? '阻塞项' : 'Blockers', color: 'var(--color-error)' },
-          { key: 'risks', label: lang === 'cn' ? '风险项' : 'Risks', color: 'var(--color-warning)' },
-          { key: 'warnings', label: lang === 'cn' ? '警告' : 'Warnings', color: 'var(--color-accent)' },
-          { key: 'suggestions', label: lang === 'cn' ? '建议' : 'Suggestions', color: 'var(--color-text-muted)' }
+          { key: 'blockers', label: t('readinessPanel.blockers'), color: 'var(--color-error)' },
+          { key: 'risks', label: t('readinessPanel.risksLabel'), color: 'var(--color-warning)' },
+          { key: 'warnings', label: t('readinessPanel.warningsLabel'), color: 'var(--color-accent)' },
+          { key: 'suggestions', label: t('readinessPanel.suggestions'), color: 'var(--color-text-muted)' }
         ].map(item => (
           <div key={item.key} className="p-3 text-center border-r last:border-r-0" style={{ borderColor: 'var(--color-border)' }}>
             <div className="text-lg font-bold" style={{ color: item.color }}>
@@ -162,15 +162,15 @@ const ReadinessPanel: React.FC<ReadinessPanelProps> = ({
         <div className="p-4 max-h-64 overflow-y-auto space-y-2">
           {/* Blockers first */}
           {report.issues.filter(i => i.type === 'blocker').map(issue => (
-            <IssueItem key={issue.id} issue={issue} lang={lang} getIcon={getIssueIcon} getCategory={getCategoryLabel} />
+            <IssueItem key={issue.id} issue={issue} lang={lang} t={t} getIcon={getIssueIcon} getCategory={getCategoryLabel} />
           ))}
           {/* Then risks */}
           {report.issues.filter(i => i.type === 'risk').map(issue => (
-            <IssueItem key={issue.id} issue={issue} lang={lang} getIcon={getIssueIcon} getCategory={getCategoryLabel} />
+            <IssueItem key={issue.id} issue={issue} lang={lang} t={t} getIcon={getIssueIcon} getCategory={getCategoryLabel} />
           ))}
           {/* Then warnings */}
           {report.issues.filter(i => i.type === 'warning').map(issue => (
-            <IssueItem key={issue.id} issue={issue} lang={lang} getIcon={getIssueIcon} getCategory={getCategoryLabel} />
+            <IssueItem key={issue.id} issue={issue} lang={lang} t={t} getIcon={getIssueIcon} getCategory={getCategoryLabel} />
           ))}
           {/* Suggestions collapsed by default */}
           {report.issues.filter(i => i.type === 'suggestion').length > 0 && (
@@ -180,11 +180,11 @@ const ReadinessPanel: React.FC<ReadinessPanelProps> = ({
                 style={{ color: 'var(--color-text-muted)' }}
               >
                 <ChevronRight className="w-4 h-4 group-open:rotate-90 transition-transform" />
-                {lang === 'cn' ? '改进建议' : 'Suggestions'} ({report.issues.filter(i => i.type === 'suggestion').length})
+                {t('readinessPanel.suggestions')} ({report.issues.filter(i => i.type === 'suggestion').length})
               </summary>
               <div className="pl-6 space-y-2 mt-2">
                 {report.issues.filter(i => i.type === 'suggestion').map(issue => (
-                  <IssueItem key={issue.id} issue={issue} lang={lang} getIcon={getIssueIcon} getCategory={getCategoryLabel} />
+                  <IssueItem key={issue.id} issue={issue} lang={lang} t={t} getIcon={getIssueIcon} getCategory={getCategoryLabel} />
                 ))}
               </div>
             </details>
@@ -197,10 +197,10 @@ const ReadinessPanel: React.FC<ReadinessPanelProps> = ({
         <div className="p-6 text-center">
           <TrendingUp className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--color-success)' }} />
           <p className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-            {lang === 'cn' ? '准备充分！' : 'Well prepared!'}
+            {t('readinessPanel.wellPrepared')}
           </p>
           <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-            {lang === 'cn' ? '信息完整，可以生成高质量设计' : 'Information is complete for high-quality design'}
+            {t('readinessPanel.infoComplete')}
           </p>
         </div>
       )}
@@ -213,12 +213,8 @@ const ReadinessPanel: React.FC<ReadinessPanelProps> = ({
         >
           <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
             {report.canProceed
-              ? (lang === 'cn'
-                  ? '可以继续生成，后续可迭代补充'
-                  : 'Can proceed, iterate later for improvements')
-              : (lang === 'cn'
-                  ? '请先补充必要信息'
-                  : 'Please provide required information first')}
+              ? t('readinessPanel.canProceedIterate')
+              : t('readinessPanel.provideInfoFirst')}
           </p>
           <div className="flex gap-2">
             {onCancel && (
@@ -230,7 +226,7 @@ const ReadinessPanel: React.FC<ReadinessPanelProps> = ({
                   color: 'var(--color-text-secondary)'
                 }}
               >
-                {lang === 'cn' ? '取消' : 'Cancel'}
+                {t('cancel')}
               </button>
             )}
             {onProceed && (
@@ -245,9 +241,9 @@ const ReadinessPanel: React.FC<ReadinessPanelProps> = ({
               >
                 {report.canProceed
                   ? (report.level === 'risky'
-                      ? (lang === 'cn' ? '了解风险，继续生成' : 'Acknowledge risks, proceed')
-                      : (lang === 'cn' ? '生成设计' : 'Generate Design'))
-                  : (lang === 'cn' ? '无法继续' : 'Cannot proceed')}
+                      ? t('readinessPanel.acknowledgeRisks')
+                      : t('readinessPanel.generateDesign'))
+                  : t('readinessPanel.cannotProceed')}
               </button>
             )}
           </div>
@@ -261,9 +257,10 @@ const ReadinessPanel: React.FC<ReadinessPanelProps> = ({
 const IssueItem: React.FC<{
   issue: ReadinessIssue;
   lang: Language;
+  t: (key: string, options?: Record<string, unknown>) => string;
   getIcon: (type: ReadinessIssue['type']) => React.ReactNode;
   getCategory: (category: ReadinessIssue['category']) => string;
-}> = ({ issue, lang, getIcon, getCategory }) => (
+}> = ({ issue, lang, t, getIcon, getCategory }) => (
   <div
     className="flex items-start gap-3 p-3 rounded-lg"
     style={{ backgroundColor: 'var(--color-bg-surface)' }}
@@ -290,7 +287,7 @@ const IssueItem: React.FC<{
       )}
       <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
         <AlertTriangle className="inline w-3 h-3 mr-1" />
-        {lang === 'cn' ? '影响：' : 'Impact: '}{issue.impact}
+        {t('readinessPanel.impact')}{issue.impact}
       </p>
       {issue.suggestion && (
         <p className="text-xs mt-1" style={{ color: 'var(--color-accent)' }}>

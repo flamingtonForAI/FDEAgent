@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Language, ProjectState } from '../types';
+import { ProjectState } from '../types';
 import { checkActionThreeLayers } from '../utils/qualityChecker';
 import {
   Flag,
@@ -44,7 +44,7 @@ const categoryConfig = {
 };
 
 // Evaluate milestones based on project state
-function evaluateMilestones(project: ProjectState, lang: Language): Milestone[] {
+function evaluateMilestones(project: ProjectState): Milestone[] {
   const objectCount = project.objects?.length || 0;
   const linkCount = project.links?.length || 0;
   const integrationCount = project.integrations?.length || 0;
@@ -177,7 +177,7 @@ function evaluateMilestones(project: ProjectState, lang: Language): Milestone[] 
 }
 
 // Get next recommended steps
-function getNextSteps(milestones: Milestone[], lang: Language): { cn: string; en: string }[] {
+function getNextSteps(milestones: Milestone[]): { cn: string; en: string }[] {
   const steps: { cn: string; en: string }[] = [];
 
   const currentMilestone = milestones.find(m => m.status === 'in_progress');
@@ -219,11 +219,11 @@ function getNextSteps(milestones: Milestone[], lang: Language): { cn: string; en
 const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
   project
 }) => {
-  const { t, lang } = useAppTranslation('discovery');
+  const { t, lt } = useAppTranslation('discovery');
   const [expandedMilestone, setExpandedMilestone] = useState<string | null>('discovery');
 
-  const milestones = useMemo(() => evaluateMilestones(project, lang), [project, lang]);
-  const nextSteps = useMemo(() => getNextSteps(milestones, lang), [milestones, lang]);
+  const milestones = useMemo(() => evaluateMilestones(project), [project]);
+  const nextSteps = useMemo(() => getNextSteps(milestones), [milestones]);
 
   const overallProgress = Math.round(
     milestones.reduce((acc, m) => acc + m.progress, 0) / milestones.length
@@ -256,20 +256,20 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
   const exportPlan = () => {
     let md = `# ${t('milestonePlanner.title')}\n\n`;
     md += `> ${t('milestonePlanner.overallProgress')}: ${overallProgress}%\n`;
-    md += `> ${t('milestonePlanner.currentPhase')}: ${currentPhase.title[lang]}\n\n`;
+    md += `> ${t('milestonePlanner.currentPhase')}: ${lt(currentPhase.title)}\n\n`;
 
     milestones.forEach(milestone => {
       const status = getStatusLabel(milestone.status);
-      md += `## ${milestone.title[lang]} (${status} - ${milestone.progress}%)\n`;
-      md += `${milestone.description[lang]}\n\n`;
+      md += `## ${lt(milestone.title)} (${status} - ${milestone.progress}%)\n`;
+      md += `${lt(milestone.description)}\n\n`;
       md += `### ${t('milestonePlanner.deliverables')}\n`;
       milestone.deliverables.forEach(d => {
-        md += `- ${d[lang]}\n`;
+        md += `- ${lt(d)}\n`;
       });
       if (milestone.blockers?.length) {
         md += `\n### ${t('milestonePlanner.blockers')}\n`;
         milestone.blockers.forEach(b => {
-          md += `- ${b[lang]}\n`;
+          md += `- ${lt(b)}\n`;
         });
       }
       md += '\n';
@@ -278,7 +278,7 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
     if (nextSteps.length > 0) {
       md += `## ${t('milestonePlanner.nextSteps')}\n`;
       nextSteps.forEach((step, i) => {
-        md += `${i + 1}. ${step[lang]}\n`;
+        md += `${i + 1}. ${lt(step)}\n`;
       });
     }
 
@@ -356,7 +356,7 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
                 style: { color: categoryConfig[currentPhase.category].color }
               })}
               <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {currentPhase.title[lang]}
+                {lt(currentPhase.title)}
               </span>
             </div>
           </div>
@@ -431,7 +431,7 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
                 <div className="flex-1 text-left">
                   <div className="flex items-center gap-2">
                     <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                      {milestone.title[lang]}
+                      {lt(milestone.title)}
                     </span>
                     <span
                       className="text-[10px] px-1.5 py-0.5 rounded"
@@ -441,7 +441,7 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
                     </span>
                   </div>
                   <div className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
-                    {milestone.description[lang]}
+                    {lt(milestone.description)}
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -486,7 +486,7 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
                         >
                           <Circle className="w-3 h-3" style={{ color: 'var(--color-text-muted)' }} />
                           <span style={{ color: 'var(--color-text-secondary)' }}>
-                            {deliverable[lang]}
+                            {lt(deliverable)}
                           </span>
                         </div>
                       ))}
@@ -505,7 +505,7 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
                       </div>
                       {milestone.blockers.map((blocker, idx) => (
                         <div key={idx} className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                          {blocker[lang]}
+                          {lt(blocker)}
                         </div>
                       ))}
                     </div>
@@ -536,7 +536,7 @@ const MilestonePlanner: React.FC<MilestonePlannerProps> = ({
                     {idx + 1}
                   </span>
                   <span style={{ color: 'var(--color-text-secondary)' }}>
-                    {step[lang]}
+                    {lt(step)}
                   </span>
                 </div>
               ))}

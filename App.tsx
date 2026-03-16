@@ -109,7 +109,7 @@ const emptyProjectState: ProjectState = {
 };
 
 const AppContent: React.FC = () => {
-  const { t, lang } = useAppTranslation('nav');
+  const { t, lang, i18nLang } = useAppTranslation('nav');
   const setLang = useCallback((newLang: Language) => {
     i18next.changeLanguage(newLang);
   }, []);
@@ -356,14 +356,14 @@ const AppContent: React.FC = () => {
   const triggerAutoDesign = useCallback(async () => {
     // 检查是否配置了模型
     if (!aiSettings.model) {
-      alert(lang === 'cn' ? '请先在设置中选择一个模型' : 'Please select a model in settings first');
+      alert(t('app.alertSelectModel'));
       setShowSettings(true);
       return;
     }
 
     // 检查是否有聊天记录
     if (!chatHistoryRef.current || chatHistoryRef.current.length === 0) {
-      alert(lang === 'cn' ? '没有对话记录，请先进行对话' : 'No chat history, please chat first');
+      alert(t('app.alertNoChatHistory'));
       return;
     }
 
@@ -379,7 +379,7 @@ const AppContent: React.FC = () => {
 
     setIsDesigning(true);
     try {
-      const result = await aiService.current.designOntology(chatHistoryRef.current);
+      const result = await aiService.current.designOntology(chatHistoryRef.current, { lang: i18nLang });
 
       const parsed = typeof result === 'string' ? JSON.parse(result) : result;
 
@@ -393,9 +393,7 @@ const AppContent: React.FC = () => {
 
       if (objects.length === 0) {
         console.warn('AI未能识别出业务对象，可能需要更多对话信息');
-        alert(lang === 'cn'
-          ? 'AI未能识别出业务对象。请在对话中提供更多业务细节后重试。'
-          : 'AI could not identify business objects. Please provide more business details in the conversation and try again.');
+        alert(t('app.alertNoObjects'));
         return;
       }
 
@@ -419,9 +417,7 @@ const AppContent: React.FC = () => {
       // Read from ref to get the *current* value, not the stale closure value.
       if (activeProjectIdRef.current !== requestProjectId) {
         console.warn('Project changed during design generation, discarding result');
-        alert(lang === 'cn'
-          ? '生成期间项目已切换，结果已丢弃。请在当前项目中重新生成。'
-          : 'Project changed during generation. Result discarded. Please regenerate in the current project.');
+        alert(t('app.alertProjectChanged'));
         return;
       }
 
@@ -449,7 +445,8 @@ const AppContent: React.FC = () => {
       const linksSummary = links.map((l: any) => `${l.source} → ${l.target} (${l.label || l.type || ''})`).join('; ');
       const integSummary = integrations.map((i: any) => i.name || i.type || '').filter(Boolean).join(', ');
 
-      const summaryPrompt = lang === 'cn'
+      const isCn = i18nLang === 'cn';
+      const summaryPrompt = isCn
         ? `刚刚根据对话生成了 Ontology。\n\n` +
           `对象：${JSON.stringify(snapshot)}\n` +
           `关联：${linksSummary || '无'}\n` +
@@ -469,7 +466,7 @@ const AppContent: React.FC = () => {
         chatHistoryRef.current = [...chatHistoryRef.current, msg];
       };
 
-      aiService.current.chat(chatHistoryRef.current, summaryPrompt).then(summary => {
+      aiService.current.chat(chatHistoryRef.current, summaryPrompt, { lang: i18nLang }).then(summary => {
         appendSummary({
           role: 'assistant',
           content: summary,
@@ -478,9 +475,7 @@ const AppContent: React.FC = () => {
       }).catch(() => {
         appendSummary({
           role: 'assistant',
-          content: lang === 'cn'
-            ? `Ontology 已生成：${normalizedObjects.length} 个对象 · ${totalActions} 个动作 · ${links.length} 个关联 · ${integrations.length} 个集成`
-            : `Ontology generated: ${normalizedObjects.length} objects · ${totalActions} actions · ${links.length} links · ${integrations.length} integrations`,
+          content: t('app.ontologyGenerated', { objects: normalizedObjects.length, actions: totalActions, links: links.length, integrations: integrations.length }),
           metadata: { type: 'milestone', timestamp: new Date().toISOString() }
         });
       });
@@ -496,13 +491,11 @@ const AppContent: React.FC = () => {
       setActiveTab('ontology');
     } catch (error) {
       console.error('Design failed:', error);
-      alert(lang === 'cn'
-        ? `生成失败: ${error instanceof Error ? error.message : '未知错误'}`
-        : `Generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(t('app.alertDesignFailed', { error: error instanceof Error ? error.message : 'Unknown error' }));
     } finally {
       setIsDesigning(false);
     }
-  }, [lang, aiSettings.model, setProject]);
+  }, [t, i18nLang, aiSettings.model, setProject]);
 
   const handleNewSession = () => {
     if (window.confirm(t('app.confirmNewSession'))) {
@@ -594,17 +587,9 @@ const AppContent: React.FC = () => {
     // Add a system message marking the context boundary (instead of clearing everything)
     const systemMessage: ChatMessage = {
       role: 'system',
-      content: lang === 'cn'
-        ? `📦 **已导入行业原型：${archetype.metadata.name}**\n\n` +
-          `• 行业：${archetype.metadata.industry}\n` +
-          `• 领域：${archetype.metadata.domain}\n` +
-          `• 包含：${objects.length} 个对象类型\n\n` +
-          `_以下对话将基于此原型展开，之前的对话上下文已归档。_`
-        : `📦 **Imported Archetype: ${archetype.metadata.name}**\n\n` +
-          `• Industry: ${archetype.metadata.industry}\n` +
-          `• Domain: ${archetype.metadata.domain}\n` +
-          `• Contains: ${objects.length} object types\n\n` +
-          `_Conversations below will be based on this archetype. Previous context has been archived._`,
+      content: `${t('app.archetypeImportTitle', { name: archetype.metadata.name })}\n\n` +
+        `${t('app.archetypeImportDetails', { industry: archetype.metadata.industry, domain: archetype.metadata.domain, count: objects.length })}\n\n` +
+        t('app.archetypeImportNote'),
       metadata: {
         type: 'archetype_import',
         archetypeId: archetypeId,

@@ -605,7 +605,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
   onClose,
   embedded
 }) => {
-  const { t, lang } = useAppTranslation('delivery');
+  const { t, lang, i18nLang, lt } = useAppTranslation('delivery');
   const [selectedType, setSelectedType] = useState<DeliverableType | null>(null);
   const [generatedContent, setGeneratedContent] = useState<string>('');
   const [copied, setCopied] = useState(false);
@@ -626,13 +626,13 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
     if (!clientName.trim()) {
       blockers.push({
         key: 'missing-client-name',
-        message: lang === 'cn' ? '客户名称为必填项' : 'Client name is required',
+        message: t('deliverableGenerator.blockerMissingClientName'),
       });
     }
     if (!designerName.trim()) {
       blockers.push({
         key: 'missing-designer-name',
-        message: lang === 'cn' ? '方案设计人为必填项' : 'Designer name is required',
+        message: t('deliverableGenerator.blockerMissingDesignerName'),
       });
     }
 
@@ -644,7 +644,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
         const target = issue.target?.name ? ` (${issue.target.name})` : '';
         blockers.push({
           key: `quality-error-${idx}`,
-          message: `${issue.message[lang]}${target}`,
+          message: `${lt(issue.message)}${target}`,
         });
       });
 
@@ -654,9 +654,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
       .forEach((action, idx) => {
         blockers.push({
           key: `three-layer-minimal-${idx}`,
-          message: lang === 'cn'
-            ? `Action "${action.objectName}.${action.actionName}" 三层完整度低于 partial`
-            : `Action "${action.objectName}.${action.actionName}" is below partial three-layer completeness`,
+          message: t('deliverableGenerator.blockerThreeLayerIncomplete', { object: action.objectName, action: action.actionName }),
         });
       });
 
@@ -682,10 +680,10 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
     let content = '';
     switch (type) {
       case 'api-spec': content = generateAPISpec(project); break;
-      case 'data-model': content = generateDataModel(project, lang); break;
+      case 'data-model': content = generateDataModel(project, i18nLang); break;
       case 'agent-tools': content = generateAgentTools(project); break;
-      case 'brd': content = generateBRD(project, lang); break;
-      case 'integration': content = generateIntegrationGuide(project, lang); break;
+      case 'brd': content = generateBRD(project, i18nLang); break;
+      case 'integration': content = generateIntegrationGuide(project, i18nLang); break;
     }
 
     setGeneratedContent(content);
@@ -695,7 +693,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
   const buildCoverPage = (): string => {
     const now = new Date().toLocaleString();
     const totalActions = project.objects.reduce((sum, obj) => sum + (obj.actions?.length || 0), 0);
-    return lang === 'cn'
+    return i18nLang === 'cn'
       ? `# 交付封面\n\n- 项目名称: ${project.projectName || '未命名项目'}\n- 客户名称: ${clientName || '待填写'}\n- 版本号: ${deliveryVersion || 'v1.0'}\n- 设计师: ${designerName || '待填写'}\n- 生成时间: ${now}\n\n## 交付摘要\n\n- 对象数: ${project.objects.length}\n- 动作数: ${totalActions}\n- 关系数: ${project.links.length}\n- 集成数: ${project.integrations.length}\n\n## 版本变更摘要\n\n${releaseNotes || '无'}\n`
       : `# Delivery Cover\n\n- Project: ${project.projectName || 'Untitled Project'}\n- Client: ${clientName || 'TBD'}\n- Version: ${deliveryVersion || 'v1.0'}\n- Designer: ${designerName || 'TBD'}\n- Generated At: ${now}\n\n## Summary\n\n- Objects: ${project.objects.length}\n- Actions: ${totalActions}\n- Links: ${project.links.length}\n- Integrations: ${project.integrations.length}\n\n## Release Notes\n\n${releaseNotes || 'N/A'}\n`;
   };
@@ -714,10 +712,10 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
     const files: ZipTextFile[] = [
       ...(exportMode === 'client' ? [{ name: '00-cover.md', content: buildCoverPage() }] : []),
       { name: '01-api-spec.yaml', content: generateAPISpec(project) },
-      { name: '02-data-model.md', content: generateDataModel(project, lang) },
+      { name: '02-data-model.md', content: generateDataModel(project, i18nLang) },
       { name: '03-agent-tools.json', content: generateAgentTools(project) },
-      { name: '04-brd.md', content: generateBRD(project, lang) },
-      { name: '05-integration-guide.md', content: generateIntegrationGuide(project, lang) },
+      { name: '04-brd.md', content: generateBRD(project, i18nLang) },
+      { name: '05-integration-guide.md', content: generateIntegrationGuide(project, i18nLang) },
       {
         name: 'delivery-metadata.json',
         content: JSON.stringify({
@@ -822,7 +820,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
                 <ChevronRight className="w-4 h-4 rotate-180" />
               </button>
               <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                {deliverableConfigs.find(c => c.id === selectedType)?.title[lang]}
+                {lt(deliverableConfigs.find(c => c.id === selectedType)?.title)}
               </span>
               <span
                 className="text-xs px-2 py-0.5 rounded"
@@ -994,7 +992,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
                     <div className="flex-1 text-left">
                       <div className="flex items-center gap-2">
                         <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                          {config.title[lang]}
+                          {lt(config.title)}
                         </span>
                         <span
                           className="text-[10px] px-1.5 py-0.5 rounded"
@@ -1004,7 +1002,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
                         </span>
                       </div>
                       <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
-                        {config.description[lang]}
+                        {lt(config.description)}
                       </p>
                     </div>
                     <div className="flex items-center gap-2" style={{ color: config.color }}>
