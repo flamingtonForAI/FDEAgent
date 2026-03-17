@@ -5,7 +5,33 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
-- **Multi-language (i18n) support** — react-i18next integration with 5 languages (cn/en available, fr/es beta, ar hidden pending RTL). 10 namespaces across 50 locale JSON files, lazy-loaded via Vite `import.meta.glob` as separate chunks
+- **Phase 3 Integration Workbench** — upgraded from read-only display to full editing workbench
+  - `IntegrationEditor` modal — create/edit/delete integrations with system name, target object, mechanism, direction, sync policy (mode/frequency/conflict strategy/retry), and data points
+  - `FieldMappingTable` — manual field-level mapping editor with source→target property dropdown, transform type, required toggle; unresolved property detection with warning highlight
+  - `SystemMap` rewrite — clickable integration cards with edit-on-hover, direction/frequency badges, mapping completeness badge (`N/M mapped`); replaced hardcoded TechCard decorations with live stats bar (total/realtime/batch/unconfigured)
+  - `lib/integrationNormalizer.ts` — normalize/denormalize layer bridging legacy field names (`systemName` vs `sourceSystem` vs `name`, `type` vs `mechanism`, top-level `frequency` vs `syncPolicy.frequency`); `computeIntegrationStats()` helper; `WeakMap`-based stable ID generation for legacy integrations without `id`
+  - `setProject` pipeline — threaded through `App.tsx` → `IntegrationPage` → `SystemIntegration` → `SystemMap`, enabling Phase 3 to write back to project state
+- **Integration locale keys** — ~40 new keys (editor, fieldMapping, stats sections) added to all 5 languages (en/cn/fr/es/ar)
+
+### Changed
+- **`ExternalIntegration` type expanded** — added optional `direction`, `syncPolicy` (mode/frequency/retryPolicy/conflictStrategy), `fieldMappings` fields; backward-compatible with existing data
+- **`FieldMapping` type added** — sourceField, targetPropertyName, targetPropertyId (reserved), transform, transformNote, required
+- **Backend `integrationSchema` relaxed** — `mechanism` and `targetObjectId` changed from required to `.optional()` in `projects.schema.ts` (already optional in `sync.schema.ts`); allows saving incomplete integrations during incremental design
+- **Legacy frequency inference** — `inferModeFromFrequency()` maps old `frequency` values to `syncPolicy.mode`: `realtime`/`streaming`/`live` → `realtime`, `event`/`cdc`/`webhook` → `event-driven`, `on-demand`/`manual`/`ad-hoc` → `manual`, `hourly`/`daily`/`weekly` → `batch`; prevents legacy data from being uniformly misclassified as batch
+- **Arabic language visibility** — changed from `hidden` to `beta` in `lib/i18n.ts`; Arabic now appears in UI language selector
+- **AI language enforcement strengthened** — `buildLanguageHint()` in `aiService.ts` now uses explicit `MUST respond entirely in ${language}` instruction instead of soft `Please respond in that language`; new `preserveTerms` mode for `designOntology()` keeps technical identifiers (object/property names, API paths) in original language while writing descriptions in user's language
+- **AI analysis Chinese output** — `aiAnalysisService.ts` ANALYSIS_PROMPT Chinese branch now includes explicit instruction requiring all output fields (title, description, rationale, implementation, insights) in Chinese, even when input ontology data is in English
+
+### Fixed
+- **Phase 3 had no write capability** — `IntegrationPage` did not receive `setProject`, making the entire phase read-only
+- **Legacy integrations with `frequency: 'realtime'` misclassified as batch** — stats bar and card display showed incorrect sync mode for archetype-imported data
+- **Legacy `on-demand`/`manual` frequency misclassified as batch** — now correctly inferred as `manual` mode
+- **Unstable React keys for legacy integrations** — integrations without `id` generated new keys on every render via `Date.now()`, causing card remount flicker; fixed with `WeakMap`-cached stable IDs
+- **Incomplete integration breaks cloud sync** — frontend allowed saving without `targetObjectId`/`mechanism` but backend `projects.schema.ts` required them; schema relaxed to `.optional()` + editor shows warning for unconfigured integrations
+- **AI analysis outputs English when UI is set to Chinese** — AI models followed the language of English ontology input data instead of respecting user's language preference; fixed with stronger prompt instructions
+
+### Added
+- **Multi-language (i18n) support** — react-i18next integration with 5 languages (cn/en available, fr/es/ar beta). 10 namespaces across 50 locale JSON files, lazy-loaded via Vite `import.meta.glob` as separate chunks
 - **Translation completeness check** — `scripts/check-translations.mjs` reports per-language key coverage; integrated into `npm run check` pipeline (`npm run check:i18n`)
 - **AI language preference** — `chat()`, `chatWithFiles()`, `designOntology()` accept optional `{ lang }` to append a language preference hint to AI prompts
 - **Language visibility controls** — `lib/i18n.ts` exports `availableLanguages` (visible in UI selector) and `allLanguages` (includes hidden languages); status-based gating (available/beta/hidden)

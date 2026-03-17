@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { ProjectState } from '../types';
-import { ShieldCheck, Layers, FileJson, Download, Terminal, FileText, History, BookOpen, ChevronDown, ChevronRight } from 'lucide-react';
+import { ShieldCheck, Layers, FileJson, Download, Terminal, FileText, History, BookOpen, ChevronDown, ChevronRight, Info } from 'lucide-react';
 import { useAppTranslation } from '../hooks/useAppTranslation';
 import ArtifactExporter from './ArtifactExporter';
 import ChangeHistoryPanel from './ChangeHistoryPanel';
@@ -58,6 +58,17 @@ const ProjectOverview: React.FC<Props> = ({ project }) => {
 
   return (
     <div className="p-8 pb-24 h-full bg-[var(--color-bg-elevated)] space-y-12 overflow-y-auto">
+      {/* Working document hint banner */}
+      <div
+        className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm"
+        style={{ backgroundColor: 'var(--color-info)10', border: '1px solid var(--color-info)30', color: 'var(--color-info)' }}
+      >
+        <Info size={16} className="flex-shrink-0" />
+        <span style={{ color: 'var(--color-text-secondary)' }}>
+          {t('projectOverview.workingDocHint')}
+        </span>
+      </div>
+
       <div className="flex justify-between items-start">
         <div>
           <h2 className="text-3xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>{t('projectOverview.title')}</h2>

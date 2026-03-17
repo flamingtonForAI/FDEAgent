@@ -698,6 +698,16 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
       : `# Delivery Cover\n\n- Project: ${project.projectName || 'Untitled Project'}\n- Client: ${clientName || 'TBD'}\n- Version: ${deliveryVersion || 'v1.0'}\n- Designer: ${designerName || 'TBD'}\n- Generated At: ${now}\n\n## Summary\n\n- Objects: ${project.objects.length}\n- Actions: ${totalActions}\n- Links: ${project.links.length}\n- Integrations: ${project.integrations.length}\n\n## Release Notes\n\n${releaseNotes || 'N/A'}\n`;
   };
 
+  const getDraftQualityWarnings = (): string[] => {
+    const qualityReport = runQualityCheck(project);
+    return qualityReport.issues
+      .filter(issue => issue.severity === 'error')
+      .map(issue => {
+        const target = issue.target?.name ? ` (${issue.target.name})` : '';
+        return `${lt(issue.message)}${target}`;
+      });
+  };
+
   const handleDownloadZip = () => {
     if (exportMode === 'client') {
       const blockers = buildClientDeliveryBlockers();
@@ -708,14 +718,26 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
       }
     }
 
+    const draftWarnings = exportMode === 'draft' ? getDraftQualityWarnings() : [];
+
     const now = new Date().toISOString();
+
+    // For draft mode with quality issues, prepend a disclaimer to markdown files
+    const draftDisclaimer = draftWarnings.length > 0
+      ? (i18nLang === 'cn'
+        ? `> ⚠ **本文档包含未完善的设计项** (${draftWarnings.length} 个问题)\n>\n${draftWarnings.map(w => `> - ${w}`).join('\n')}\n\n---\n\n`
+        : `> ⚠ **This document contains incomplete design items** (${draftWarnings.length} issue(s))\n>\n${draftWarnings.map(w => `> - ${w}`).join('\n')}\n\n---\n\n`)
+      : '';
+
+    const wrapMd = (content: string) => draftDisclaimer ? draftDisclaimer + content : content;
+
     const files: ZipTextFile[] = [
       ...(exportMode === 'client' ? [{ name: '00-cover.md', content: buildCoverPage() }] : []),
       { name: '01-api-spec.yaml', content: generateAPISpec(project) },
-      { name: '02-data-model.md', content: generateDataModel(project, i18nLang) },
+      { name: '02-data-model.md', content: wrapMd(generateDataModel(project, i18nLang)) },
       { name: '03-agent-tools.json', content: generateAgentTools(project) },
-      { name: '04-brd.md', content: generateBRD(project, i18nLang) },
-      { name: '05-integration-guide.md', content: generateIntegrationGuide(project, i18nLang) },
+      { name: '04-brd.md', content: wrapMd(generateBRD(project, i18nLang)) },
+      { name: '05-integration-guide.md', content: wrapMd(generateIntegrationGuide(project, i18nLang)) },
       {
         name: 'delivery-metadata.json',
         content: JSON.stringify({
@@ -726,6 +748,7 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
           deliveryVersion,
           releaseNotes,
           generatedAt: now,
+          ...(draftWarnings.length > 0 && { qualityWarnings: draftWarnings }),
         }, null, 2),
       },
     ];
@@ -899,16 +922,32 @@ const DeliverableGenerator: React.FC<DeliverableGeneratorProps> = ({
                 </div>
               </div>
 
-              {exportMode === 'draft' && (
-                <button
-                  onClick={handleDownloadZip}
-                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors w-full"
-                  style={{ backgroundColor: 'var(--color-success)', color: '#fff' }}
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  {t('deliverableGenerator.downloadZip')}
-                </button>
-              )}
+              {exportMode === 'draft' && (() => {
+                const warnings = getDraftQualityWarnings();
+                return (
+                  <div>
+                    <button
+                      onClick={handleDownloadZip}
+                      className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors w-full"
+                      style={{ backgroundColor: warnings.length > 0 ? 'var(--color-warning)' : 'var(--color-success)', color: '#fff' }}
+                      title={warnings.length > 0 ? (i18nLang === 'cn'
+                        ? `⚠ ${warnings.length} 个质量问题将标注在导出文件中`
+                        : `⚠ ${warnings.length} quality issue(s) will be noted in exported files`) : undefined}
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      {t('deliverableGenerator.downloadZip')}
+                      {warnings.length > 0 && <span className="ml-1">⚠</span>}
+                    </button>
+                    {warnings.length > 0 && (
+                      <p className="text-[10px] mt-1 text-center" style={{ color: 'var(--color-warning)' }}>
+                        {i18nLang === 'cn'
+                          ? `${warnings.length} 个质量问题将标注在导出文件中`
+                          : `${warnings.length} quality issue(s) will be noted in exported files`}
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
 
               {exportMode === 'client' && (
               <div className="p-3 rounded-lg grid gap-2" style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}>

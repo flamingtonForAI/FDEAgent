@@ -13,17 +13,19 @@ type IntegrationView = 'architecture' | 'export';
 
 interface SystemIntegrationProps {
   project: ProjectState;
+  setProject: (update: ProjectState | ((prev: ProjectState) => ProjectState)) => void;
 }
 
 const SystemIntegration: React.FC<SystemIntegrationProps> = ({
-  project
+  project,
+  setProject
 }) => {
   const { t } = useAppTranslation('integration');
   const [activeView, setActiveView] = useState<IntegrationView>('architecture');
 
   const tabs: { id: IntegrationView; label: string; desc: string; icon: React.ReactNode }[] = [
     { id: 'architecture', label: t('systemIntegration.tabArchitecture'), desc: t('systemIntegration.tabArchitectureDesc'), icon: <Network size={16} /> },
-    { id: 'export', label: t('systemIntegration.tabExport'), desc: t('systemIntegration.tabExportDesc'), icon: <FileText size={16} /> },
+    { id: 'export', label: t('systemIntegration.tabTechnicalDraft'), desc: t('systemIntegration.tabTechnicalDraftDesc'), icon: <FileText size={16} /> },
   ];
 
   return (
@@ -72,7 +74,7 @@ const SystemIntegration: React.FC<SystemIntegrationProps> = ({
       {/* Content area */}
       <div className="flex-1 overflow-hidden">
         {activeView === 'architecture' && (
-          <SystemMap project={project} />
+          <SystemMap project={project} setProject={setProject} />
         )}
         {activeView === 'export' && (
           <ProjectOverview project={project} />

@@ -100,6 +100,15 @@ export interface AIPAction {
   rollbackStrategy?: RollbackStrategy;
 }
 
+export interface FieldMapping {
+  sourceField: string;
+  targetPropertyId?: string;       // Stable ID (preferred when available)
+  targetPropertyName: string;      // Display name + fallback when property has no id
+  transform?: 'direct' | 'concat' | 'unit-conversion' | 'lookup' | 'date-format' | 'custom';
+  transformNote?: string;
+  required?: boolean;
+}
+
 export interface ExternalIntegration {
   id?: string;
   name?: string;
@@ -110,9 +119,20 @@ export interface ExternalIntegration {
   dataPoints?: string[];
   syncedObjects?: string[];
   mechanism?: string;
-  frequency?: string;
+  frequency?: string;              // legacy — normalized into syncPolicy.frequency
   targetObjectId?: string;
   description?: string;
+
+  // === New fields ===
+  direction?: 'import' | 'export' | 'bidirectional';
+  syncPolicy?: {
+    mode: 'realtime' | 'batch' | 'event-driven' | 'manual';
+    frequency?: string;
+    retryPolicy?: string;          // Textual description, design-level
+    conflictStrategy?: 'source-wins' | 'target-wins' | 'manual-review' | 'last-write-wins';
+  };
+  fieldMappings?: FieldMapping[];
+
   [key: string]: unknown;
 }
 export type Integration = ExternalIntegration;

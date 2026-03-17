@@ -44,7 +44,7 @@ export interface AnalysisResult {
 const ANALYSIS_PROMPT = (ontologyJson: string, lang: string) => {
   const isEnglish = lang === 'en';
 
-  return `${isEnglish ? 'You are an AI enhancement specialist analyzing an Ontology design.' : '你是一位 AI 增强专家，正在分析 Ontology 设计。'}
+  return `${isEnglish ? 'You are an AI enhancement specialist analyzing an Ontology design.' : '你是一位 AI 增强专家，正在分析 Ontology 设计。\n\n**重要：你的所有输出内容（包括 title、description、rationale、implementation、estimatedImpact、insights）必须全部使用中文。即使输入的 Ontology 数据是英文，你也必须用中文撰写分析和建议。**'}
 
 ${isEnglish ? 'Analyze the following Ontology and identify AI enhancement opportunities:' : '分析以下 Ontology，识别 AI 增强机会：'}
 
@@ -156,7 +156,7 @@ Return JSON:
   ]
 }`}
 
-${isEnglish ? 'Generate 5-10 high-quality suggestions. Focus on practical, implementable enhancements.' : '生成 5-10 条高质量建议。聚焦于实用、可实现的增强。'}`;
+${isEnglish ? 'Generate 5-10 high-quality suggestions. Focus on practical, implementable enhancements.' : '生成 5-10 条高质量建议。聚焦于实用、可实现的增强。所有字段内容必须使用中文输出。'}`;
 };
 
 export class AIAnalysisService {

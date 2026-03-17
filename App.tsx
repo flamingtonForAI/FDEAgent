@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import i18next from './lib/i18n';
 import { useAppTranslation } from './hooks/useAppTranslation';
 import { AIService, loadAISettings, loadAISettingsAsync, saveAISettings } from './services/aiService';
@@ -24,6 +24,7 @@ import ArchetypeViewer from './components/ArchetypeViewer';
 import GlobalChatBar from './components/GlobalChatBar';
 import ErrorBoundary from './components/ErrorBoundary';
 import QualityPanel from './components/QualityPanel';
+import { runQualityCheck } from './utils/qualityChecker';
 import { getMergedArchetypeById } from './content/archetypes';
 import { MessageSquare, Database, Network, Settings as SettingsIcon, Sparkles, BrainCircuit, GraduationCap, ShieldCheck, Package, Rocket, LogIn, FolderOpen } from 'lucide-react';
 import { Theme, loadSavedTheme, applyThemeMode, getSavedThemeMode, setupSystemThemeListener } from './lib/themes';
@@ -82,6 +83,9 @@ const parseStoredMessages = (raw: string): ChatMessage[] => {
 // 有效的工作流标签页（用于恢复上次位置）
 type WorkflowTab = 'projects' | 'quickStart' | 'academy' | 'archetypes' | 'scouting' | 'workbench' | 'ontology' | 'actionDesigner' | 'systemMap' | 'aip' | 'overview' | 'aiEnhancement' | 'deliver';
 const validWorkflowTabs: WorkflowTab[] = ['projects', 'quickStart', 'academy', 'archetypes', 'scouting', 'workbench', 'ontology', 'actionDesigner', 'systemMap', 'aip', 'overview', 'aiEnhancement', 'deliver'];
+
+// 需要项目上下文的阶段标签页 — 统一来源，用于聊天栏显示判定和底部留白
+const projectPhaseTabs: WorkflowTab[] = ['scouting', 'workbench', 'ontology', 'actionDesigner', 'systemMap', 'overview', 'aiEnhancement', 'aip', 'deliver'];
 
 // 从localStorage加载上次活跃的标签页
 // Note: Workflow tabs requiring a project will be redirected by useEffect if no project exists
@@ -231,6 +235,55 @@ const AppContent: React.FC = () => {
     }
   }, [activeTab]);
 
+  // Phase readiness — computed once per render, consumed by sidebar NavItems
+  const phaseReadiness = useMemo(() => {
+    const hasObjects = project.objects.length > 0;
+
+    // Phase 2: object count
+    const p2 = hasObjects
+      ? { sublabel: t('app.readiness_objects', { count: project.objects.length }) }
+      : {};
+
+    // Phase 3: integration count + unconfigured warning
+    const intCount = project.integrations?.length || 0;
+    const unconfiguredInt = intCount > 0 ? (project.integrations || []).filter(int =>
+      !int.targetObjectId || !project.objects.some(o => o.id === int.targetObjectId || o.name === int.targetObjectId)
+    ).length : 0;
+    let p3: { sublabel?: string; sublabelColor?: string } = {};
+    if (intCount > 0 && unconfiguredInt > 0) {
+      p3 = { sublabel: t('app.readiness_integrationsPending', { count: intCount, pending: unconfiguredInt }), sublabelColor: 'var(--color-warning)' };
+    } else if (intCount > 0) {
+      p3 = { sublabel: t('app.readiness_integrations', { count: intCount }) };
+    }
+
+    // Phase 4: AI analysis status
+    let p4: { sublabel?: string; sublabelColor?: string } = {};
+    if (hasObjects && aiAnalysisResult) {
+      p4 = { sublabel: t('app.readiness_aiComplete') };
+    } else if (hasObjects && !aiAnalysisResult) {
+      p4 = { sublabel: t('app.readiness_aiPending'), sublabelColor: 'var(--color-warning)' };
+    }
+
+    // Phase 5: quality grade
+    let p5: { sublabel?: string; sublabelColor?: string } = {};
+    if (hasObjects) {
+      const qr = runQualityCheck(project);
+      const gradeKey: Record<string, string> = {
+        A: 'readiness_qualityExcellent',
+        B: 'readiness_qualityGood',
+        C: 'readiness_qualityFair',
+        D: 'readiness_qualityNeedsWork',
+        F: 'readiness_qualityNeedsWork',
+      };
+      p5 = {
+        sublabel: t(`app.${gradeKey[qr.grade] || 'readiness_qualityNeedsWork'}`),
+        ...(qr.grade === 'D' || qr.grade === 'F' ? { sublabelColor: 'var(--color-warning)' } : {}),
+      };
+    }
+
+    return { p2, p3, p4, p5 };
+  }, [project, aiAnalysisResult, t]);
+
   // Apply theme on mount and setup system theme listener
   useEffect(() => {
     // Apply saved theme mode
@@ -272,8 +325,7 @@ const AppContent: React.FC = () => {
 
   // Redirect to projects page when no active project and on workflow tab
   useEffect(() => {
-    const workflowTabs = ['scouting', 'workbench', 'ontology', 'actionDesigner', 'systemMap', 'overview', 'aiEnhancement', 'aip', 'deliver'];
-    if (!activeProjectId && workflowTabs.includes(activeTab)) {
+    if (!activeProjectId && projectPhaseTabs.includes(activeTab)) {
       setActiveTab('projects');
     }
   }, [activeProjectId, activeTab]);
@@ -646,6 +698,7 @@ const AppContent: React.FC = () => {
           />
 
           {/* Core Workflow - 4 Phases (requires project) */}
+          {/* Compute nav badges */}
           <NavSection label={t('app.sectionCoreWorkflow')} />
 
           {/* Phase 1: Discover */}
@@ -664,7 +717,7 @@ const AppContent: React.FC = () => {
             onClick={() => setActiveTab('workbench')}
             icon={<Database size={16} />}
             label={t('app.phase2')}
-            sublabel={t('app.phase2Desc')}
+            sublabel={phaseReadiness.p2.sublabel || t('app.phase2Desc')}
             disabled={!activeProjectId}
           />
 
@@ -674,7 +727,8 @@ const AppContent: React.FC = () => {
             onClick={() => setActiveTab('systemMap')}
             icon={<Network size={16} />}
             label={t('app.phase3')}
-            sublabel={t('app.phase3Desc')}
+            sublabel={phaseReadiness.p3.sublabel || t('app.phase3Desc')}
+            sublabelColor={phaseReadiness.p3.sublabelColor}
             disabled={!activeProjectId || project.objects.length === 0}
           />
 
@@ -684,7 +738,8 @@ const AppContent: React.FC = () => {
             onClick={() => setActiveTab('aiEnhancement')}
             icon={<BrainCircuit size={16} />}
             label={t('app.phase4')}
-            sublabel={t('app.phase4Desc')}
+            sublabel={phaseReadiness.p4.sublabel || t('app.phase4Desc')}
+            sublabelColor={phaseReadiness.p4.sublabelColor}
             disabled={!activeProjectId || project.objects.length === 0}
           />
 
@@ -694,7 +749,8 @@ const AppContent: React.FC = () => {
             onClick={() => setActiveTab('deliver')}
             icon={<Package size={16} />}
             label={t('app.phase5')}
-            sublabel={t('app.phase5Desc')}
+            sublabel={phaseReadiness.p5.sublabel || t('app.phase5Desc')}
+            sublabelColor={phaseReadiness.p5.sublabelColor}
             disabled={!activeProjectId || project.objects.length === 0}
           />
 
@@ -778,7 +834,9 @@ const AppContent: React.FC = () => {
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto">
+        <div className={`flex-1 overflow-y-auto ${
+          projectPhaseTabs.includes(activeTab) ? 'pb-20' : ''
+        }`}>
           <ErrorBoundary onReset={() => setActiveTab('projects')}>
             {activeTab === 'projects' && (
               <ProjectsPage
@@ -831,7 +889,7 @@ project={project}
             )}
             {/* Phase 3: System Integration */}
             {(activeTab === 'systemMap' || activeTab === 'overview') && (
-              <IntegrationPage lang={lang} project={project} />
+              <IntegrationPage lang={lang} project={project} setProject={setProject} />
             )}
             {/* Phase 4: AI Enhancement */}
             {(activeTab === 'aiEnhancement' || activeTab === 'aip') && (
@@ -909,7 +967,7 @@ project={project}
       )}
 
       {/* Global Chat Bar - 底部固定聊天栏，所有工作流阶段显示 */}
-      {(activeTab === 'scouting' || activeTab === 'workbench' || activeTab === 'ontology' || activeTab === 'actionDesigner' || activeTab === 'systemMap' || activeTab === 'overview' || activeTab === 'aiEnhancement' || activeTab === 'aip' || activeTab === 'deliver') && (
+      {projectPhaseTabs.includes(activeTab) && (
         <GlobalChatBar
           lang={lang}
           project={project}
@@ -969,8 +1027,9 @@ const NavItem: React.FC<{
   icon: React.ReactNode;
   label: string;
   sublabel?: string;
+  sublabelColor?: string;
   disabled?: boolean;
-}> = ({ active, onClick, icon, label, sublabel, disabled }) => (
+}> = ({ active, onClick, icon, label, sublabel, sublabelColor, disabled }) => (
   <button
     disabled={disabled}
     onClick={onClick}
@@ -1000,10 +1059,10 @@ const NavItem: React.FC<{
       />
     )}
     {icon}
-    <div className="flex flex-col items-start">
+    <div className="flex flex-col items-start flex-1">
       <span>{label}</span>
       {sublabel && (
-        <span className="text-[10px] text-muted font-normal">{sublabel}</span>
+        <span className="text-[10px] font-normal" style={{ color: sublabelColor || 'var(--color-text-muted)' }}>{sublabel}</span>
       )}
     </div>
   </button>

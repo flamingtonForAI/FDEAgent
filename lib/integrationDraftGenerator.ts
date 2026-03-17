@@ -99,15 +99,31 @@ const generateDataFlowDiagram = (project: ProjectState, lang: Language): string 
   });
 
   // Add external integrations
+  let hasUnconfigured = false;
   project.integrations?.forEach((integration, i) => {
     const intId = `ext_${i}`;
+    const dirArrow = integration.direction === 'export' ? ' →' : integration.direction === 'bidirectional' ? ' ⇄' : ' →';
+    const label = `${integration.mechanism || 'sync'}${dirArrow}`;
     lines.push(`    ${intId}[/"${integration.systemName}"/]`);
-    // Connect to first object as placeholder
-    if (project.objects.length > 0) {
-      const firstObj = toApiPath(project.objects[0].name);
-      lines.push(`    ${intId} -.->|${integration.mechanism || 'sync'}| ${firstObj}`);
+
+    // Connect to real targetObjectId when available
+    const targetObj = integration.targetObjectId
+      ? project.objects.find(o => o.id === integration.targetObjectId || o.name === integration.targetObjectId)
+      : undefined;
+
+    if (targetObj) {
+      const targetNodeId = toApiPath(targetObj.name);
+      lines.push(`    ${intId} -.->|${label}| ${targetNodeId}`);
+    } else {
+      hasUnconfigured = true;
+      lines.push(`    ${intId} -.->|${label}| unconfigured`);
     }
   });
+
+  if (hasUnconfigured) {
+    lines.push(`    unconfigured["⚠ Unconfigured"]:::draftNode`);
+    lines.push(`    classDef draftNode stroke-dasharray: 5 5,fill:#fff3cd,stroke:#ffc107`);
+  }
 
   return lines.join('\n');
 };
@@ -213,17 +229,34 @@ const generateRoadmap = (project: ProjectState, lang: Language): RoadmapPhase[] 
 
   // Phase 3: External Integrations
   if ((project.integrations?.length || 0) > 0) {
+    const configured = (project.integrations || []).filter(int =>
+      int.targetObjectId && project.objects.some(o => o.id === int.targetObjectId || o.name === int.targetObjectId)
+    );
+    const unconfigured = (project.integrations || []).filter(int =>
+      !int.targetObjectId || !project.objects.some(o => o.id === int.targetObjectId || o.name === int.targetObjectId)
+    );
+
+    const deliverables = configured.map(int =>
+      lang === 'cn'
+        ? `${int.systemName} 集成 (${int.mechanism})`
+        : `${int.systemName} integration (${int.mechanism})`
+    );
+
+    if (unconfigured.length > 0) {
+      deliverables.push(
+        lang === 'cn'
+          ? `⚠ 待配置项：${unconfigured.length} 条集成尚未指定目标对象 (${unconfigured.map(u => u.systemName).join(', ')})`
+          : `⚠ Pending: ${unconfigured.length} integration(s) without target object (${unconfigured.map(u => u.systemName).join(', ')})`
+      );
+    }
+
     phases.push({
       phase: 3,
       name: lang === 'cn' ? '外部系统集成' : 'External System Integration',
       description: lang === 'cn'
         ? '集成外部系统和数据源'
         : 'Integrate with external systems and data sources',
-      deliverables: project.integrations?.map(int =>
-        lang === 'cn'
-          ? `${int.systemName} 集成 (${int.mechanism})`
-          : `${int.systemName} integration (${int.mechanism})`
-      ) || [],
+      deliverables,
       dependencies: [lang === 'cn' ? '核心 API 开发' : 'Core API Development'],
       priority: 'high'
     });
@@ -346,6 +379,24 @@ const generateRisks = (project: ProjectState, lang: Language): Risk[] => {
     });
   }
 
+  // Unconfigured integrations risk
+  const unconfiguredCount = (project.integrations || []).filter(int =>
+    !int.targetObjectId || !project.objects.some(o => o.id === int.targetObjectId || o.name === int.targetObjectId)
+  ).length;
+  if (unconfiguredCount > 0) {
+    risks.push({
+      id: 'risk_unconfigured_integrations',
+      category: 'integration',
+      description: lang === 'cn'
+        ? `${unconfiguredCount} 条集成尚未配置目标对象，需在实施前完善`
+        : `${unconfiguredCount} integration(s) have no target object configured and must be finalized before implementation`,
+      impact: 'high',
+      mitigation: lang === 'cn'
+        ? '在 Phase 3 集成工作台中为每条集成指定目标对象和字段映射'
+        : 'Assign target objects and field mappings for each integration in the Phase 3 Integration Workbench'
+    });
+  }
+
   // No links risk
   if (project.links.length === 0 && project.objects.length > 1) {
     risks.push({
@@ -412,11 +463,39 @@ export const generateIntegrationDraft = (
     {
       id: 'integrations',
       title: lang === 'cn' ? '外部集成' : 'External Integrations',
-      content: (project.integrations?.length || 0) > 0
-        ? project.integrations!.map(int =>
-            `### ${int.systemName}\n- **${lang === 'cn' ? '同步方式' : 'Mechanism'}**: ${int.mechanism}\n- **${lang === 'cn' ? '数据点' : 'Data Points'}**: ${int.dataPoints?.join(', ') || 'N/A'}`
-          ).join('\n\n')
-        : lang === 'cn' ? '暂无外部系统集成' : 'No external integrations'
+      content: (() => {
+        if ((project.integrations?.length || 0) === 0) {
+          return lang === 'cn' ? '暂无外部系统集成' : 'No external integrations';
+        }
+        const allInts = project.integrations!;
+        const configuredInts = allInts.filter(int =>
+          int.targetObjectId && project.objects.some(o => o.id === int.targetObjectId || o.name === int.targetObjectId)
+        );
+        const unconfiguredInts = allInts.filter(int =>
+          !int.targetObjectId || !project.objects.some(o => o.id === int.targetObjectId || o.name === int.targetObjectId)
+        );
+
+        const formatInt = (int: typeof allInts[0]) => {
+          const targetObj = int.targetObjectId
+            ? project.objects.find(o => o.id === int.targetObjectId || o.name === int.targetObjectId)
+            : undefined;
+          const targetLabel = targetObj ? targetObj.name : (lang === 'cn' ? '未指定' : 'Not specified');
+          return `### ${int.systemName}\n- **${lang === 'cn' ? '同步方式' : 'Mechanism'}**: ${int.mechanism}\n- **${lang === 'cn' ? '目标对象' : 'Target Object'}**: ${targetLabel}\n- **${lang === 'cn' ? '数据点' : 'Data Points'}**: ${int.dataPoints?.join(', ') || 'N/A'}`;
+        };
+
+        let content = '';
+        if (configuredInts.length > 0) {
+          content += `## ${lang === 'cn' ? '已设计集成' : 'Designed Integrations'}\n\n`;
+          content += configuredInts.map(formatInt).join('\n\n');
+        }
+        if (unconfiguredInts.length > 0) {
+          if (content) content += '\n\n---\n\n';
+          content += `## ${lang === 'cn' ? '待完善集成（草稿）' : 'Pending Integrations (Draft)'}\n\n`;
+          content += `> ${lang === 'cn' ? '以下集成尚未配置目标对象，需在实施前完善。' : 'The following integrations have no target object configured and must be finalized before implementation.'}\n\n`;
+          content += unconfiguredInts.map(formatInt).join('\n\n');
+        }
+        return content;
+      })()
     }
   ];
 

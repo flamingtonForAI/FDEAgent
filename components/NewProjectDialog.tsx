@@ -114,14 +114,40 @@ export default function NewProjectDialog({ onClose, onCreated }: Props) {
               ? connector.mappedObjects.map((m: any) => m.objectId).filter(Boolean)
               : (connector.targetObjects || []);
 
+            // Preserve richer integration semantics from connector
+            const syncPolicy = connector.sync ? {
+              mode: (connector.sync.frequency === 'realtime' || connector.sync.frequency === 'streaming')
+                ? 'realtime' as const
+                : connector.sync.frequency === 'event-driven' ? 'event-driven' as const : 'batch' as const,
+              frequency: connector.sync.frequency,
+            } : undefined;
+
+            const description = connector.description || undefined;
+
+            const fieldMappings = (connector.fieldMapping || []).map((fm: any) => ({
+              sourceField: fm.source || fm.sourceField || '',
+              targetPropertyName: fm.target || fm.targetPropertyName || '',
+              transform: fm.transform || 'direct',
+              transformNote: fm.transformNote || fm.note,
+              required: fm.required,
+            })).filter((fm: any) => fm.sourceField);
+
+            const baseFields = {
+              systemName,
+              dataPoints,
+              mechanism,
+              ...(syncPolicy && { syncPolicy }),
+              ...(description && { description }),
+              ...(fieldMappings.length > 0 && { fieldMappings }),
+            };
+
             if (targetIds.length === 0) {
-              return [{ systemName, dataPoints, mechanism, targetObjectId: '' }];
+              return [{ ...baseFields, targetObjectId: '' }];
             }
 
             return targetIds.map((targetId: string) => ({
-              systemName,
+              ...baseFields,
               dataPoints: dataPoints.length > 0 ? dataPoints : [targetId],
-              mechanism,
               targetObjectId: targetId,
             }));
           });

@@ -100,8 +100,8 @@ const ontologyLinkSchema = z.object({
 const integrationSchema = z.object({
   systemName: z.string().max(200),
   dataPoints: z.array(z.string().max(200)).max(100).default([]),
-  mechanism: z.string().max(500),
-  targetObjectId: z.string().max(100),
+  mechanism: z.string().max(500).optional(),
+  targetObjectId: z.string().max(100).optional(),
 }).passthrough();
 
 // AIRequirement schema

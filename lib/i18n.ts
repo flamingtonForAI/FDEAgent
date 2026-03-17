@@ -43,7 +43,7 @@ export const allLanguages: LanguageOption[] = [
   { code: 'en', label: 'English', nativeLabel: 'English', status: 'available', dir: 'ltr' },
   { code: 'fr', label: 'French', nativeLabel: 'Français', status: 'beta', dir: 'ltr' },
   { code: 'es', label: 'Spanish', nativeLabel: 'Español', status: 'beta', dir: 'ltr' },
-  { code: 'ar', label: 'Arabic', nativeLabel: 'العربية', status: 'hidden', dir: 'rtl' },
+  { code: 'ar', label: 'Arabic', nativeLabel: 'العربية', status: 'beta', dir: 'rtl' },
 ];
 
 /** Languages visible in the UI selector (excludes hidden) */

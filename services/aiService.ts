@@ -40,11 +40,17 @@ const LANGUAGE_NAMES: Record<string, string> = {
   ar: 'Arabic (العربية)',
 };
 
-/** Build a language preference hint to append to the system prompt. */
-function buildLanguageHint(lang?: string): string {
+/** Build a language preference hint to append to the system prompt.
+ *  @param preserveTerms — when true (e.g. designOntology), instructs the model
+ *  to keep technical identifiers (object name, property name, id, API paths)
+ *  in their original language while writing descriptions in the user's language. */
+function buildLanguageHint(lang?: string, preserveTerms = false): string {
   if (!lang) return '';
   const name = LANGUAGE_NAMES[lang] || lang;
-  return `\n\nThe user's preferred language is ${name}. Please respond in that language.`;
+  if (preserveTerms) {
+    return `\n\nIMPORTANT — Language requirement: The user's preferred language is ${name}. Write all human-readable text (descriptions, explanations, business logic, comments, side effects, trigger conditions) in ${name}. However, keep technical identifiers unchanged — object name/id, property name, API endpoints, parameter names, link labels, and tool names should stay in their original language as they map to code and data schemas.`;
+  }
+  return `\n\nIMPORTANT — Language requirement: The user's preferred language is ${name}. You MUST respond entirely in ${name}, including all titles, descriptions, analysis, and suggestions. Even if the input data (object names, property names, etc.) is in another language, your response text must be in ${name}.`;
 }
 
 // System Prompt - 方法论核心
@@ -812,7 +818,7 @@ export class AIService {
 
   async designOntology(chatHistory: ChatMessage[], options?: AICallOptions): Promise<string> {
     const historyText = chatHistory.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n');
-    const prompt = DESIGN_PROMPT_TEMPLATE(historyText) + buildLanguageHint(options?.lang);
+    const prompt = DESIGN_PROMPT_TEMPLATE(historyText) + buildLanguageHint(options?.lang, true);
 
     try {
       switch (this.settings.provider) {
