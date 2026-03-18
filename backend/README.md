@@ -59,9 +59,34 @@ npm run dev
 - `POST /api/sync` - Batch sync (offline-first)
 - `GET /api/sync/full` - Get full sync state
 
+## Production Required Configuration
+
+The following environment variables **must** be set in production. The server will **refuse to start** if they are missing or invalid:
+
+| Variable | Requirement | Fail Behavior |
+|----------|-------------|---------------|
+| `JWT_SECRET` | Required, ≥ 32 characters | Startup crash with `FATAL` message |
+| `CORS_ORIGIN` | Required, no wildcards (`*`) | Startup crash with `FATAL` message |
+| `DATABASE_URL` | Required, valid PostgreSQL URL | Prisma connection failure |
+
+Generate a secure JWT secret:
+```bash
+openssl rand -base64 32
+```
+
+## Security Model
+
+- **Auth:** JWT (access 15min + refresh 7 days) + Argon2id password hashing
+- **Ownership:** All project/chat/audit endpoints verify `userId` match before read/write
+- **CSRF:** Origin header validation on all state-changing requests
+- **Rate Limiting:** Auth endpoints rate-limited (configurable via env)
+- **Headers:** Helmet security headers on all responses
+- **Sync:** Serializable isolation level for batch sync transactions
+- **Demo Mode:** Demo account (`demo@example.com`) is handled server-side only; password never appears in frontend source code
+
 ## Tech Stack
 
-- **Framework**: Fastify
+- **Framework**: Fastify 5
 - **Database**: PostgreSQL + Prisma ORM
 - **Auth**: JWT + Refresh Token
 - **Password**: Argon2id

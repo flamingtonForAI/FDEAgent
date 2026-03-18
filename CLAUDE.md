@@ -190,6 +190,17 @@ Independent Node.js app in `backend/`:
 - **Ownership:** All project operations verify `userId` match before read/write
 - **Validation:** Zod schemas on all inputs
 
+### Production Fail-Fast Rules
+`backend/src/config/index.ts` enforces hard startup checks:
+- Missing `JWT_SECRET` → **throw** (no silent fallback in production)
+- `JWT_SECRET` < 32 chars → **throw**
+- `CORS_ORIGIN` contains `*` → **throw**
+
+### Security Boundaries
+- **Demo account password** is never stored in frontend source code — only the email (`demo@example.com`) is used as a public hint. Offline demo mode checks email only; real password validation happens server-side.
+- **API keys** (Gemini, OpenAI, etc.) are stored in `sessionStorage` (cleared on tab close). Known limitation: any XSS vulnerability would expose them. Long-term fix: backend proxy or service-side key management.
+- **Never commit** `.env`, `.env.local`, or any file containing real credentials. `.gitignore` covers these — verify with `git ls-files | grep env` before push.
+
 ### API Routes
 - `POST /api/auth/{register,login,refresh,logout}`, `GET /api/auth/me`
 - `GET/POST /api/projects/*` — CRUD with ownership verification
