@@ -1,364 +1,233 @@
 # Ontology Architect
 
-![Version](https://img.shields.io/badge/version-0.4.1-blue.svg)
-![React](https://img.shields.io/badge/React-19-61dafb.svg)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
+> AI-powered enterprise system design tool — from conversation to architecture in one workflow.
 
-> 智能 Ontology 设计助手 - 从对话到架构的一站式解决方案
+Ontology Architect helps users build intelligent operating systems through natural language conversation, following Palantir's "Ontology-First" methodology. It covers the full lifecycle from requirement discovery to deliverable export.
 
-Ontology Architect 是一个基于 AI 的企业智能系统设计工具，帮助用户通过自然语言对话完成从需求发现到系统架构设计的完整流程。遵循 Palantir 的 "Ontology-First" 方法论。
+## Core Philosophy
 
-## 核心理念
+**Ontology ≠ Knowledge Graph**
 
-**Ontology ≠ 知识图谱**
+- Knowledge graphs are static (query only)
+- Ontology is dynamic (executable)
+- The key differentiator: **Actions** bridge natural language semantics to executable functions
 
-- 知识图谱是静态的（只能查询）
-- Ontology 是动态的（可以执行）
-- 核心差异：**Action（动作）** 连接自然语义到可执行函数
+**Decision-First Principle**
 
-## 新功能 (v0.4.1)
+> If an Object or Action doesn't directly support a user's operational decision, it doesn't belong in the core Ontology.
 
-### 认证与数据隔离优化
-- **未登录可浏览** - 允许查看教程、模板和案例内容
-- **登录后可创建项目** - 未登录状态禁止新建/修改项目数据
-- **用户作用域存储修复** - 注册后会正确写入用户会话，避免项目落入匿名存储空间
-- **历史数据迁移可见** - 登录后可看到自动迁移的历史项目（如“迁移项目”）
-
-### 项目管理增强
-- **项目重命名** - 在项目卡片中支持直接重命名并持久化保存
-
-### 多项目管理
-- **项目隔离** - 每个项目独立的本体设计、聊天记录和设置
-- **项目仪表盘** - 项目列表、搜索、进度跟踪
-- **新建项目向导** - 空白项目或从行业模板快速开始
-- **数据迁移** - 自动从旧版单项目格式迁移
-
-### 统一设置面板
-- **AI 配置** - 服务商、模型、API Key 集中管理
-- **Office 兼容提示** - 选择模型后会提示是否可能不支持 `.docx/.xlsx/.pptx`
-- **主题切换** - 10 款精选主题（5 暗色 + 5 浅色）
-- **语言切换** - 中文 / English
-- **数据重置** - 一键清除所有本地数据
-
-### 新用户引导
-- **快速开始** - 引导新用户创建第一个项目
-- **路径选择** - 先学习、从模板开始、对话探索
-- **进度追踪** - 5 阶段工作流可视化
-
-## 新功能 (Unreleased)
-
-### Phase 5: 交付中心
-- **侧边栏一等入口** - 交付阶段提升为第 5 个 Phase，走完设计流程后有自然终点
-- **设计完成度概览** - 对象、动作、关联、集成四维统计卡片
-- **质量摘要条** - 规则通过数 + 动作三层完整度，三态指示（未开始 / 进行中 / 已完成）
-- **嵌入式文档生成器** - 全页面内直接操作，无需经由浮动按钮进入
-
-### 交付质量与打包导出
-- **导出模式切换** - 支持”内部草稿 / 客户交付”双模式
-- **客户交付硬门槛** - 客户交付模式下，`error` 级质量问题与 Action 三层 `minimal` 状态会阻断导出
-- **交付元信息** - 导出前可填写客户名称、设计师、版本号、版本变更摘要
-- **一键 ZIP 打包** - 自动生成封面页、五类技术文档及交付元数据清单
-
-### 统一设置面板
-- **模型搜索** - 支持按模型名/ID搜索，适配 OpenRouter 大模型列表
-- **推荐模型高亮** - 默认推荐的最新 Office 兼容模型会加粗并显示 `★ 推荐`
-- **能力标签可视化** - 模型列表展示 Office/PDF 能力等级，降低误选风险
-- **动态模型刷新** - 输入 API Key 后自动拉取实时模型列表（带缓存与手动刷新）
-- **快速筛选** - 支持按 推荐/视觉/Office/长上下文 快速过滤模型
-
-### 聊天 Markdown 渲染
-- **AI 回复格式化** - AI 助手消息支持 Markdown 渲染（标题、加粗、斜体、代码块、行内代码、有序/无序列表、链接），用户消息保持纯文本
-- **内置轻量解析器** - 无需外部依赖，`MarkdownRenderer` 组件覆盖 AI 输出中常见的 Markdown 子集
-
-### 项目卡片对齐
-- **等高卡片布局** - 项目管理页面卡片统一高度，底部操作栏始终对齐
-
-### 生产构建代码分割
-- **页面级懒加载** - Academy、Archetypes、AI Enhancement、Delivery 4 个低频页面使用 React.lazy + Suspense 按需加载
-- **Archetype 数据懒加载** - 11 个行业模板数据文件（~600 KB）转为动态 `import()`，按模板粒度分 chunk；索引元数据运行时从真实数据派生，杜绝手工维护导致的数据漂移
-- **Vendor 分 chunk** - react/react-dom、lucide-react 拆分为独立缓存 chunk
-- **构建效果** - 主 chunk 从 ~1530 KB 降至 ~799 KB（减少 48%），总计 25 个独立 chunk
-
-### E2E 回归测试
-- **Playwright 测试套件** - 覆盖模板列表统计校验、Archetype 详情懒加载、从模板创建项目对话框流程
-- **CI 集成就绪** - `npm run test:e2e` 一键运行，Vite dev server 自动启停
-
-### 瘦身与技术债清理
-- **动态 import 瘦身** - `documentParser.ts` 中 mammoth/xlsx/jszip 改为按需动态加载，首屏主 chunk 减少约 2 MB
-- **共享工具抽取** - `extractJSON()` 收敛到 `lib/jsonUtils.ts`、`getProviderApiKey()`/`requireProviderApiKey()` 收敛到 `lib/apiKeyUtils.ts`，消除 3 个 service 间的重复代码
-- **废弃文件删除** - 移除零引用的 `Settings.tsx`（已由 `UnifiedSettings.tsx` 替代）和 `ChatInterface.tsx`（已由 `GlobalChatBar.tsx` 替代）
-- **Provider key 隔离修复** - `archetypeGeneratorService` 中 4 处裸用 `this.settings.apiKey` 统一改为 `requireProviderApiKey()`，补齐多 provider 场景下的 key 隔离
-
-## 功能特性
-
-### 5 阶段设计工作流
+## 5-Phase Design Workflow
 
 ```
-发现 → 建模 → 集成 → 智能化 → 交付
+Discover → Model → Integrate → AI Design → Deliver
 ```
 
-1. **发现阶段** - 对话式需求收集，提取 Objects & Actions
-2. **建模阶段** - 定义 Ontology，三层 Action 设计
-3. **集成阶段** - 映射数据源到 Ontology 属性
-4. **智能化阶段** - 设计 AI 增强点和 Agent Tools
-5. **交付阶段** - 设计完成度概览、质量摘要、文档生成与 ZIP 打包导出
+| Phase | Purpose | Key Activities |
+|-------|---------|---------------|
+| 1. Discover | Requirement scouting | Conversational entity extraction, multi-modal document upload |
+| 2. Model | Ontology modeling | Object/Action/Link definition, three-layer Action design |
+| 3. Integrate | Data source mapping | External system connections, sync mechanism planning |
+| 4. AI Design | AI enhancement | AI opportunity analysis, Agent Tool specification |
+| 5. Deliver | Export & packaging | Quality gate, document generation, ZIP export |
 
-### 需求勘察
-- **对话式需求收集** - AI 引导用户发现业务实体、操作流程和数据源
-- **智能 Noun-Verb 提取** - 自动从对话中识别对象（名词）和动作（动词）
-- **多模态输入** - 支持上传 PDF、Office、图片等文档；具体解析能力随所选模型动态提示（Gemini 支持 Office 直读）
+## Key Capabilities
 
-### 架构设计
-- **Ontology 三层架构 + AI 能力叠加**
-  - Semantic Layer（语义层）- 定义业务概念模型
-  - Kinetic Layer（动力层）- 连接概念到数据源
-  - Dynamic Layer（动态层）- 引入行为和状态管理
-  - AI Capability Overlay（AI 能力叠加）
+### Review Panel (Quality + Readiness)
+- **Quality Check** — 16 rule-based validations covering objects, actions, links, integrations, architecture
+- **Readiness Check** — Phase progress tracking, blocking issue detection, prioritized next actions
+- Accessible from the chat bar; slides out as a side panel with tab switching
 
-- **Action 三重身份**
-  - 业务层 - 自然语言描述、执行角色、触发条件
-  - 逻辑层 - 前置条件、参数、后置状态、副作用
-  - 实现层 - REST API 端点、Agent Tool 规范
+### Delivery Center (Phase 5)
+- Design completeness overview (4-dimension stats: objects, actions, links, integrations)
+- Dual export mode: internal draft vs. client delivery (with hard quality gates)
+- One-click ZIP packaging: cover page, 5 technical documents, delivery metadata
 
-### 行业模板库
-- **11 个预置行业模板** - 金融风控、智能制造、能源电力、国防情报等
-- **JSON 导入/导出** - 分享和复用模板
-- **模板应用** - 一键应用到当前项目
+### Industry Templates
+- 11 pre-built archetypes: financial AML, smart manufacturing, healthcare FHIR, defense intelligence, etc.
+- JSON import/export for sharing; one-click apply to current project
+- Lazy-loaded data chunks (~600 KB total, loaded per-template on demand)
 
-### 可视化
-- **Ontology 可视化** - Objects、Actions、Links 关系图
-- **系统架构图** - 外部系统集成拓扑
-- **AI 能力矩阵** - AI 增强点全景视图
+### Internationalization (i18n)
+- 5 languages: English, Chinese, French, Spanish, Arabic
+- 10 namespaces × 5 locales, 1,374 keys per language
+- `useAppTranslation(ns)` hook with `t()` for UI text, `lt()` for data-layer `{en,cn}` objects
 
-### 工具生成
-- **OpenAPI 规范生成** - 从 Action 自动生成 REST API 规范
-- **Agent Tool 生成** - 支持 OpenAI、LangChain、Claude、MCP 多种格式
-- **代码生成** - Python (Pydantic) 和 TypeScript 代码
+### Authentication & Cloud Sync
+- Browse tutorials/templates without login; create/edit projects after sign-in
+- JWT auth (access 15min + refresh 7 days) with Argon2id password hashing
+- Offline-first localStorage with debounced cloud sync (Serializable isolation)
 
-### 学习中心
-- **结构化课程** - 4 个 Level 的渐进式学习路径
-- **交互式练习** - Noun-Verb 提取和 Action 设计练习
-- **案例库** - 制造业、零售业、物流业真实案例
-- **成就系统** - 学习进度追踪和成就解锁
+### Multi-Provider AI
+- Supported providers: Google Gemini, OpenAI, OpenRouter, Zhipu GLM, Moonshot (Kimi), custom OpenAI-compatible
+- Multi-modal: PDF, Office documents, images (provider-dependent capabilities)
+- Methodology-driven system prompts (1000+ lines of Ontology-First guidance)
 
-### 质量保障
-- **智能提示系统** - 方法论提示、案例参考、遗漏提醒
-- **质量检查器** - 16 条规则检查 Ontology 设计完整性
-- **案例推荐** - 基于对话内容推荐相似案例
-
-## 技术栈
-
-- **前端框架**: React 19 + TypeScript
-- **构建工具**: Vite
-- **UI**: Tailwind CSS + Lucide Icons + CSS Variables 主题系统 + Plus Jakarta Sans 字体
-- **设计系统**: Perfect Fourth (1.333) 模块化字体比例 + `clamp()` 流体排版 + `data-theme-mode` 主题切换
-- **状态管理**: React Context (Auth, Sync, Project)
-- **存储**: localStorage (离线优先) + 云同步就绪
-- **AI 服务**: 多提供商支持
-  - Moonshot (Kimi)
-  - Google Gemini
-  - OpenAI / OpenRouter (GPT-4, Claude)
-  - 智谱 GLM
-  - 自定义 OpenAI 兼容 API
-
-## 快速开始
-
-### 安装
-
-```bash
-# 克隆项目
-git clone <repository-url>
-cd ontology-assistant
-
-# 安装依赖
-npm install
-
-# 启动开发服务器
-npm run dev
-```
-
-应用将在 http://localhost:3000 启动。
-
-### 配置 AI
-
-1. 启动应用后，点击左下角 **设置** 图标
-2. 在 **AI 模型** 标签页：
-   - 选择服务商（Moonshot、Gemini、OpenRouter 等）
-   - 选择模型
-   - 输入 API Key
-3. 查看连接状态确认配置成功
-
-### 创建第一个项目
-
-1. 新用户首次访问会看到 **快速开始** 引导
-2. 点击 **创建项目** 按钮
-3. 选择：
-   - **空白项目** - 从零开始，适合自定义需求
-   - **从模板开始** - 选择行业模板快速启动
-4. 填写项目名称，开始设计
-
-### 认证说明
-
-- 未登录：可浏览学习中心、模板、案例等只读内容
-- 已登录：可创建、编辑、删除项目，并进行项目级聊天与同步
-- 测试账号：`demo@example.com` / `Demo123!`
-
-## 项目结构
-
-```
-ontology-assistant/
-├── App.tsx                    # 主应用入口
-├── pages/
-│   ├── DeliveryPage.tsx       # 交付中心（Phase 5）
-│   ├── ScoutingPage.tsx       # 需求勘察（Phase 1）
-│   ├── ModelingPage.tsx       # 本体建模（Phase 2）
-│   ├── IntegrationPage.tsx    # 系统集成（Phase 3）
-│   ├── AIEnhancementPage.tsx  # AI 增强（Phase 4）
-│   ├── ProjectsPage.tsx       # 项目管理
-│   └── ...                    # 其他页面
-├── components/
-│   ├── QuickStart.tsx         # 快速开始引导
-│   ├── ProjectDashboard.tsx   # 项目管理仪表盘
-│   ├── NewProjectDialog.tsx   # 新建项目对话框
-│   ├── UnifiedSettings.tsx    # 统一设置面板
-│   ├── GlobalChatBar.tsx      # 对话式需求收集
-│   ├── OntologyVisualizer.tsx # Ontology 可视化
-│   ├── ActionDesigner.tsx     # Action 设计器
-│   ├── ArchetypeBrowser.tsx   # 行业模板浏览器
-│   ├── Academy.tsx            # 学习中心
-│   ├── QualityPanel.tsx       # 质量检查面板
-│   └── auth/                  # 认证组件
-├── contexts/
-│   ├── ProjectContext.tsx     # 多项目状态管理
-│   ├── AuthContext.tsx        # 认证状态
-│   └── SyncContext.tsx        # 云同步状态
-├── services/
-│   ├── aiService.ts           # AI 服务抽象层（多 provider）
-│   ├── aiAnalysisService.ts   # AI 增强分析（Phase 4）
-│   ├── archetypeGeneratorService.ts # 行业原型生成（含联网搜索）
-│   ├── syncService.ts         # 云同步服务
-│   └── authService.ts         # 认证服务
-├── lib/
-│   ├── storage.ts             # 混合存储（本地 + 云）
-│   ├── documentParser.ts      # Office 文档解析（动态加载 mammoth/xlsx/jszip）
-│   ├── jsonUtils.ts           # AI 响应 JSON 提取（共享）
-│   ├── apiKeyUtils.ts         # Provider API Key 解析（共享）
-│   ├── llmCapabilities.ts     # 模型能力映射（能力评分与推荐）
-│   ├── themes.ts              # 主题配置
-│   └── modelRegistry.ts       # 模型注册中心（缓存 + 实时拉取）
-├── hooks/
-│   └── useModelRegistry.ts    # 模型列表 Hook（防抖刷新 + 回退）
-├── content/
-│   ├── archetypes/            # 行业模板
-│   ├── cases/                 # 案例库
-│   └── lessons/               # 课程内容
-├── utils/
-│   ├── apiGenerator.ts        # OpenAPI 生成器
-│   ├── toolGenerator.ts       # Agent Tool 生成器
-│   └── qualityChecker.ts      # 质量检查器
-├── types.ts                   # 类型定义
-├── types/
-│   └── archetype.ts           # 模板类型定义
-├── tests/
-│   ├── e2e/
-│   │   └── archetype-lazy-load.spec.ts  # Archetype 懒加载回归测试
-│   └── cardinality.test.ts    # 基数规范化单元测试
-├── playwright.config.ts       # Playwright E2E 配置
-└── vite.config.ts             # Vite 构建配置（含 manualChunks）
-```
-
-## 设计系统
-
-### 排版
-- **字体**: Plus Jakarta Sans（正文）+ JetBrains Mono（代码）
-- **字体比例**: Perfect Fourth (1.333) 模块化比例，使用 `clamp()` 实现流体响应
-- **层级**: `text-display` → `text-heading` → `text-subheading` → body → `text-small`
-
-### CSS 工具类
-- `prose-width` / `content-width` — 内容最大宽度约束
-- `section-gap` / `group-gap` — 语义化间距
-- `btn-gradient` / `btn-secondary` / `btn-ghost` — 按钮变体
-
-### 主题切换
-- 根元素设置 `data-theme-mode="light|dark"` 属性，CSS 通过 `[data-theme-mode="light"]` 选择器实现浅色覆盖
-- 暖色调中性色代替纯灰色，提升视觉一致性
-
-## 主题
-
-内置 10 款主题：
-
-**暗色主题**
-- GitHub Dark - GitHub 官方暗色
-- One Dark - Atom 经典
-- Dracula - 吸血鬼配色
-- Nord - 北极冰雪
-- Tokyo Night - 东京霓虹
-
-**浅色主题**
-- GitHub Light - GitHub 官方浅色
-- Nord Light - Nord 浅色版
-- Alucard - Dracula 浅色版
-- Solarized Light - 经典护眼
-- One Light - Atom 浅色
-
-## 支持的文件格式
-
-| 格式 | 扩展名 | 处理方式 |
-|-----|-------|---------|
-| 文本文件 | .txt, .md, .json, .csv | 直接读取文本 |
-| PDF 文档 | .pdf | Gemini: File API; OpenRouter/OpenAI: `type:'file'` |
-| Word 文档 | .docx, .doc | Gemini: File API; 其他: 客户端 mammoth 文本提取 |
-| Excel 表格 | .xlsx, .xls | Gemini: File API; 其他: 客户端 SheetJS 文本提取 |
-| PPT 演示 | .pptx, .ppt | Gemini: File API; 其他: 客户端 JSZip XML 提取 |
-| 图片 | .png, .jpg, .gif, .webp | AI 视觉分析（所有 provider） |
-
-支持直接粘贴图片（Ctrl+V / Cmd+V）
-
-## 方法论核心
-
-### Decision-First 原则
-
-> 如果一个 Object 或 Action 不直接支持用户的操作决策，就不应该在核心 Ontology 中。
-
-设计时问自己：
-- 用户拿到这个信息后，会做什么决策？
-- 会执行什么动作？
-
-### Action 三层定义示例
+### Action Three-Layer Definition
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ 业务层：经理审批超过10万元的采购订单                      │
-│ 逻辑层：前置[status=待审批 AND amount>100000]            │
-│        参数[order_id, decision, notes]                  │
-│        后置[status→已审批/已拒绝]                        │
-│ 实现层：POST /api/orders/{id}/approve                   │
-│        Tool: approve_purchase_order(order_id, decision) │
+│ Business:  Manager approves purchase orders over ¥100k  │
+│ Logic:     Pre[status=pending AND amount>100000]        │
+│            Params[order_id, decision, notes]            │
+│            Post[status→approved/rejected]               │
+│ Implement: POST /api/orders/{id}/approve                │
+│            Tool: approve_purchase_order(order_id, ...)   │
 └─────────────────────────────────────────────────────────┘
 ```
 
-## 开发
+### Learning Center
+- 4-level progressive curriculum with interactive exercises
+- Real-world case library (manufacturing, retail, logistics)
+- Achievement system with progress tracking
+
+## Tech Stack
+
+| Layer | Stack |
+|-------|-------|
+| Frontend | React 19 + TypeScript + Vite (port 3000) |
+| Styling | Tailwind CSS + Lucide Icons + CSS Variables theme system |
+| State | React Context (Auth → Sync → Project provider hierarchy) |
+| i18n | react-i18next (5 languages, 10 namespaces) |
+| Storage | localStorage (offline-first) + cloud sync |
+| Backend | Fastify 5 + Prisma + PostgreSQL |
+| AI | Multi-provider abstraction (Gemini, OpenAI, OpenRouter, Zhipu, Moonshot, custom) |
+| Testing | Playwright (E2E) + Vitest (unit) |
+| Design | Plus Jakarta Sans + JetBrains Mono, Perfect Fourth (1.333) type scale |
+
+## Quick Start
 
 ```bash
-# 开发模式
+# Clone and install
+git clone <repository-url>
+cd ontology-assistant
+npm install
+
+# Start dev server
 npm run dev
-
-# 构建生产版本
-npm run build
-
-# 预览生产版本
-npm run preview
 ```
 
-## 许可证
+App runs at http://localhost:3000.
+
+### Configure AI
+
+1. Click **Settings** (gear icon) in the sidebar
+2. Select provider → choose model → enter API key
+3. Verify connection status
+
+### Create First Project
+
+1. New users see the **Quick Start** guide
+2. Click **Create Project** → choose blank or from industry template
+3. Start chatting to describe your business scenario
+
+### Demo Account
+
+```
+Email: demo@example.com
+Password: Demo123!
+```
+
+## Project Structure
+
+```
+ontology-assistant/
+├── App.tsx                        # Main app orchestration, Review panel, routing
+├── pages/
+│   ├── ScoutingPage.tsx           # Phase 1: Requirement discovery
+│   ├── ModelingPage.tsx           # Phase 2: Ontology modeling
+│   ├── IntegrationPage.tsx        # Phase 3: Data source integration
+│   ├── AIEnhancementPage.tsx      # Phase 4: AI enhancement analysis
+│   ├── DeliveryPage.tsx           # Phase 5: Export & packaging
+│   ├── ProjectsPage.tsx           # Project management dashboard
+│   └── QuickStartPage.tsx         # New user onboarding
+├── components/
+│   ├── GlobalChatBar.tsx          # Chat input with file upload & review button
+│   ├── QualityPanel.tsx           # Quality check (rules + three-layer)
+│   ├── ReadinessPanel.tsx         # Readiness check (progress + blockers + actions)
+│   ├── StructuringWorkbench.tsx   # Object/Action/Link editing workspace
+│   ├── OntologyVisualizer.tsx     # Ontology relationship graph
+│   ├── ActionDesigner.tsx         # Three-layer Action editor
+│   ├── DeliverableGenerator.tsx   # Document generation & ZIP export
+│   ├── UnifiedSettings.tsx        # AI config, theme, language, data management
+│   ├── ArchetypeBrowser.tsx       # Industry template browser
+│   ├── Academy.tsx                # Learning center
+│   ├── ChangeHistoryPanel.tsx     # Design change tracking
+│   └── auth/                      # Login, register, user menu
+├── contexts/
+│   ├── AuthContext.tsx             # JWT auth state
+│   ├── SyncContext.tsx             # Cloud sync state
+│   └── ProjectContext.tsx          # Multi-project state, auto-save
+├── services/
+│   ├── aiService.ts               # Multi-provider AI abstraction (~1800 lines)
+│   ├── aiAnalysisService.ts       # Phase 4 AI enhancement analysis
+│   ├── archetypeGeneratorService.ts # Industry archetype generation with web search
+│   ├── syncService.ts             # Cloud sync client
+│   └── authService.ts             # Auth API client
+├── lib/
+│   ├── storage.ts                 # User-scoped localStorage + quota management
+│   ├── i18n.ts                    # react-i18next configuration (5 languages)
+│   ├── documentParser.ts          # Office document parsing (dynamic imports)
+│   ├── jsonUtils.ts               # AI response JSON extraction (shared)
+│   ├── apiKeyUtils.ts             # Provider API key resolution (shared)
+│   ├── llmCapabilities.ts         # Model capability scoring & recommendations
+│   ├── modelRegistry.ts           # Model discovery with caching
+│   └── themes.ts                  # 10 themes (5 dark + 5 light)
+├── hooks/
+│   ├── useAppTranslation.ts       # i18n hook: t() for UI, lt() for data
+│   ├── useModelRegistry.ts        # Model list with debounced refresh
+│   └── useProjects.ts             # Project CRUD operations
+├── utils/
+│   ├── qualityChecker.ts          # 16-rule quality validation engine
+│   ├── readinessChecker.ts        # Phase progress & blocker detection
+│   ├── apiGenerator.ts            # OpenAPI spec generation from Actions
+│   └── toolGenerator.ts           # Agent Tool spec (OpenAI/LangChain/Claude/MCP)
+├── locales/
+│   ├── en/                        # English (10 namespace JSON files)
+│   ├── cn/                        # Chinese
+│   ├── fr/                        # French
+│   ├── es/                        # Spanish
+│   └── ar/                        # Arabic
+├── content/
+│   ├── archetypes/                # 11 industry templates (lazy-loaded)
+│   ├── cases/                     # Real-world case library
+│   └── lessons/                   # Learning center curriculum
+├── tests/
+│   ├── e2e/                       # Playwright E2E tests
+│   └── cardinality.test.ts        # Link normalization unit tests
+├── backend/                       # Fastify + Prisma + PostgreSQL
+│   ├── src/
+│   │   ├── modules/               # Auth, projects, sync, preferences, archetypes
+│   │   └── middleware/             # Helmet, CORS, CSRF, rate limiting
+│   ├── prisma/                    # Database schema & migrations
+│   └── tests/                     # Backend unit tests (Vitest)
+├── types.ts                       # Core type definitions
+├── types/archetype.ts             # Template type definitions
+├── vite.config.ts                 # Build config with code-splitting
+├── playwright.config.ts           # E2E test configuration
+├── GIT_CONVENTION.md              # Git commit & push standards
+├── CHANGELOG.md                   # Version history & release notes
+└── CLAUDE.md                      # Developer guide for Claude Code
+```
+
+## Development
+
+```bash
+npm run dev              # Vite dev server (localhost:3000)
+npm run build            # Production build
+npm run check            # Full quality gate: tests + tsc + build + i18n check
+npm run test:e2e         # Playwright E2E tests
+
+# Backend (from backend/ directory)
+cd backend
+npm run dev              # Watch mode
+npm run db:migrate       # Prisma migrations
+npm run db:studio        # Prisma Studio GUI
+```
+
+## Versions & Changes
+
+See [CHANGELOG.md](./CHANGELOG.md) for detailed version history and release notes.
+
+## License
 
 MIT License
-
-## 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
----
-
-**Built with AI-First Design Philosophy**
