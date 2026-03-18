@@ -288,7 +288,8 @@ export default function UnifiedSettings({
                           style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
                         />
                       </div>
-                      <div className="flex items-center gap-2 mt-1.5">
+                      <p className="text-[10px] mt-1.5" style={{ color: 'var(--color-warning)', opacity: 0.8 }}>{t('apiKeyLocalWarning')}</p>
+                      <div className="flex items-center gap-2 mt-1">
                         <p className="text-[10px] text-muted flex-1">{t('apiKeyHint')}</p>
                         <button
                           type="button"

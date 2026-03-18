@@ -7,6 +7,7 @@
   "apiKey": "API Key",
   "apiKeyPlaceholder": "Enter your API key...",
   "apiKeyHint": "Your API key is stored locally and never sent to our servers.",
+  "apiKeyLocalWarning": "Stored in browser only — do not use on shared or untrusted machines.",
   "theme": "Theme",
   "themeDesc": "Choose your preferred appearance",
   "language": "Language",

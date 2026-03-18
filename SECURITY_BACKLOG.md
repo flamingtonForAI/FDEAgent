@@ -4,24 +4,10 @@ Remaining security items for future releases, prioritized by real-world risk.
 
 ## Next Version (Should Fix)
 
-### 1. API Key Storage: Backend Proxy or Explicit Risk Disclosure
+### 1. API Key Storage: Backend Proxy (Stretch Goal)
 **Risk:** HIGH — XSS can steal all provider API keys from sessionStorage
-**Current state:** Keys stored in `sessionStorage` (plain JSON), cleared on tab close
-**Options (pick one):**
-- **A) Backend proxy** — Frontend sends requests to own backend, backend holds API keys server-side. Eliminates client-side key exposure entirely.
-- **B) Explicit UI disclosure** — Add a clear notice in UnifiedSettings: "API keys are stored locally in your browser. Do not use on shared or untrusted machines." Acceptable if this is a single-user tool.
-- **C) Encrypt at rest** — Wrap sessionStorage with a passphrase-derived key (e.g. `crypto.subtle`). Raises the bar for casual theft but does not stop a determined XSS attacker with access to the encryption key in JS memory.
-
-**Recommendation:** Option B for now (honest, zero-effort), Option A as a stretch goal.
-
-### 2. Demo Account: Server-Side Seed with Environment Toggle
-**Risk:** MEDIUM — Current offline demo checks email only (no password validation)
-**Current state:** Demo password removed from frontend. Offline fallback accepts any password with the demo email.
-**Fix:** Add `DEMO_ENABLED=true/false` env var to backend. When disabled, demo login returns 403. Seed demo account via Prisma seed script instead of hardcoded constants.
-
-### 3. Content Security Policy (CSP)
-**Risk:** MEDIUM — No CSP header means XSS has unrestricted access to DOM and storage
-**Fix:** Add `Content-Security-Policy` header in Helmet config. Start with `script-src 'self'`, iterate as needed for inline styles and external fonts.
+**Current state:** Keys stored in `sessionStorage` (plain JSON), cleared on tab close. UI risk disclosure added in UnifiedSettings (Option B completed).
+**Remaining:** Option A — backend proxy to eliminate client-side key exposure entirely.
 
 ## Later (Nice to Have)
 
@@ -40,3 +26,6 @@ Remaining security items for future releases, prioritized by real-world risk.
 - [x] `.env.example` placeholder hardening
 - [x] Demo scope ID documented
 - [x] `.env` files verified not in git history
+- [x] API key storage: UI risk disclosure in UnifiedSettings (5 languages)
+- [x] Demo account: `DEMO_ENABLED` env toggle + Prisma seed script (`prisma/seed.ts`)
+- [x] CSP: `Content-Security-Policy` meta tag in `index.html` (whitelists known CDNs + API providers)

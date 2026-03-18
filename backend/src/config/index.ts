@@ -57,6 +57,9 @@ export const config = {
     max: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10),
   },
+  demo: {
+    enabled: process.env.DEMO_ENABLED === 'true',
+  },
 } as const;
 
 export type Config = typeof config;

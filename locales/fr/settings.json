@@ -7,6 +7,7 @@
   "apiKey": "Clé API",
   "apiKeyPlaceholder": "Entrez votre clé API...",
   "apiKeyHint": "Votre clé API est stockée localement et n'est jamais envoyée à nos serveurs.",
+  "apiKeyLocalWarning": "Stockée dans le navigateur uniquement — ne pas utiliser sur des machines partagées ou non fiables.",
   "theme": "Thème",
   "themeDesc": "Choisissez votre apparence préférée",
   "language": "Langue",
