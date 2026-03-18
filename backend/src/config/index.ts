@@ -40,8 +40,9 @@ export const config = {
     isProduction,
   },
   jwt: {
-    // In development, use a default secret; in production, require explicit configuration
-    secret: jwtSecret || 'development-secret-DO-NOT-USE-IN-PRODUCTION',
+    // SECURITY: Production fail-fast is enforced above (lines 6-11).
+    // This fallback only applies in development (NODE_ENV !== 'production').
+    secret: jwtSecret || 'dev-only-secret-production-will-throw',
     accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   },

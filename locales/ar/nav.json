@@ -93,7 +93,7 @@
     "current": "Current",
     "emptySearch": "No projects match your search",
     "loginRequired": "Please sign in to create projects",
-    "authHint": "Demo: demo@example.com / Demo123!",
+    "authHint": "Demo: demo@example.com",
     "cancel": "Cancel",
     "justNow": "just now",
     "minutesAgo": "{{count}}m ago",

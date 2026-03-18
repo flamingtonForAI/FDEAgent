@@ -23,15 +23,12 @@ export interface RegisterInput {
   password: string;
 }
 
-// Demo account for offline testing
-const DEMO_ACCOUNT = {
-  email: 'demo@example.com',
-  password: 'Demo123!',
-};
+// Demo account email (public hint only — no password in frontend bundle)
+const DEMO_EMAIL = 'demo@example.com';
 
 const DEMO_USER: User = {
   id: 'demo-user-001',
-  email: 'demo@example.com',
+  email: DEMO_EMAIL,
   emailVerified: true,
   createdAt: new Date().toISOString(),
   lastLoginAt: new Date().toISOString(),
@@ -65,10 +62,9 @@ class AuthService {
    * Supports demo mode for offline testing
    */
   async login(input: LoginInput): Promise<User> {
-    // Check if this is a demo account login
-    const isDemoAccount =
-      input.email === DEMO_ACCOUNT.email &&
-      input.password === DEMO_ACCOUNT.password;
+    // SECURITY: Only check email for demo eligibility — password is never stored in frontend.
+    // Actual password validation happens server-side; offline demo mode is a local-only fallback.
+    const isDemoEmail = input.email.toLowerCase() === DEMO_EMAIL;
 
     try {
       const response = await apiClient.post<AuthResponse>('/auth/login', input);
@@ -76,8 +72,8 @@ class AuthService {
       setDemoMode(false);
       return response.user;
     } catch (err) {
-      // If backend is not available and using demo account, enable demo mode
-      if (isDemoAccount && err instanceof Error &&
+      // If backend is not available and using demo email, enable offline demo mode
+      if (isDemoEmail && err instanceof Error &&
           (err.message.includes('404') || err.message.includes('Failed to fetch') || err.message.includes('Network'))) {
         console.log('Backend not available, using demo mode');
         // SECURITY: Clear any existing tokens before entering demo mode

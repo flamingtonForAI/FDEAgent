@@ -60,7 +60,9 @@ const getCurrentUserId = (): string | null => {
       const parsed = JSON.parse(authData);
       const userId = parsed.user?.id || null;
       const email = String(parsed.user?.email || '').toLowerCase();
-      // Keep demo account storage scope stable across backend/offline mode differences.
+      // SECURITY NOTE: Fixed demo scope ID ensures demo data is isolated and
+      // predictable across backend/offline mode. This is intentional — demo data
+      // is non-sensitive by design. Do not use this pattern for real user scoping.
       if (email === 'demo@example.com') {
         return 'demo-user-001';
       }

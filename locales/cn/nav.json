@@ -93,7 +93,7 @@
     "current": "当前",
     "emptySearch": "没有匹配的项目",
     "loginRequired": "请先登录后再创建项目",
-    "authHint": "测试账号：demo@example.com / Demo123!",
+    "authHint": "测试账号：demo@example.com",
     "cancel": "取消",
     "justNow": "刚刚",
     "minutesAgo": "{{count}}分钟前",

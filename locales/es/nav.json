@@ -93,7 +93,7 @@
     "current": "Actual",
     "emptySearch": "Ningún proyecto coincide con su búsqueda",
     "loginRequired": "Por favor inicie sesión para crear proyectos",
-    "authHint": "Demo: demo@example.com / Demo123!",
+    "authHint": "Demo: demo@example.com",
     "cancel": "Cancelar",
     "justNow": "justo ahora",
     "minutesAgo": "hace {{count}}m",

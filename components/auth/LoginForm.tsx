@@ -14,10 +14,8 @@ interface LoginFormProps {
   onSuccess?: () => void;
 }
 
-const DEMO_ACCOUNT = {
-  email: 'demo@example.com',
-  password: 'Demo123!',
-};
+// SECURITY: Only email is public hint — password never in frontend bundle
+const DEMO_EMAIL = 'demo@example.com';
 
 export const LoginForm: React.FC<LoginFormProps> = ({
   onSwitchToRegister,
@@ -138,8 +136,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         <button
           type="button"
           onClick={() => {
-            setEmail(DEMO_ACCOUNT.email);
-            setPassword(DEMO_ACCOUNT.password);
+            setEmail(DEMO_EMAIL);
           }}
           className="w-full p-3 rounded-lg transition-all group"
           style={{
@@ -159,11 +156,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             <div className="text-left">
               <div className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                 <span style={{ color: 'var(--color-text-muted)' }}>Email: </span>
-                <span className="font-mono">{DEMO_ACCOUNT.email}</span>
+                <span className="font-mono">{DEMO_EMAIL}</span>
               </div>
               <div className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                 <span style={{ color: 'var(--color-text-muted)' }}>Password: </span>
-                <span className="font-mono">{DEMO_ACCOUNT.password}</span>
+                <span className="font-mono">{'••••••••'}</span>
               </div>
             </div>
             <span className="text-xs" style={{ color: 'var(--color-accent)', opacity: 0.7 }}>

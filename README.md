@@ -124,7 +124,7 @@ App runs at http://localhost:3000.
 
 ```
 Email: demo@example.com
-Password: Demo123!
+Password: (enter in the app — not published in source)
 ```
 
 ## Project Structure
