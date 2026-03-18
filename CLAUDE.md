@@ -198,6 +198,11 @@ Independent Node.js app in `backend/`:
 
 ## Git & Documentation Rules
 
+**Commit and push must follow [`GIT_CONVENTION.md`](./GIT_CONVENTION.md).** Key points:
+- Commit message format: `<type>(<scope>): <subject>` (Conventional Commits)
+- `npm run check` must pass before every push
+- One commit = one logical change; do not mix unrelated changes
+
 **Every `git push` must include corresponding documentation updates.** Before pushing, check whether the change affects any of the following and update them in the same commit or a follow-up commit before push:
 - `README.md` — Feature list, workflow description, project structure tree
 - `CLAUDE.md` — Architecture notes, workflow phases, key patterns

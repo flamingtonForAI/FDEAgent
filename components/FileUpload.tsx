@@ -43,7 +43,7 @@ export interface ProviderCompatibilityResult {
 
 /**
  * 检查文件类型是否被当前 AI provider 支持
- * @exported 供 ChatInterface 使用
+ * @exported 供 GlobalChatBar 使用
  *
  * 返回值说明：
  * - supported: true = 完全支持
