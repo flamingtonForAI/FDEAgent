@@ -2,9 +2,9 @@
  * Prisma seed script — creates demo account when DEMO_ENABLED=true
  *
  * Usage:
- *   DEMO_ENABLED=true npx tsx prisma/seed.ts
+ *   DEMO_ENABLED=true DEMO_PASSWORD=YourSecurePass1 npx tsx prisma/seed.ts
  *   — or —
- *   npm run db:seed  (reads DEMO_ENABLED from .env)
+ *   npm run db:seed  (reads from .env)
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -13,12 +13,19 @@ import argon2 from 'argon2';
 const prisma = new PrismaClient();
 
 const DEMO_EMAIL = 'demo@example.com';
-const DEMO_PASSWORD = 'Demo123!';
 
 async function main() {
   if (process.env.DEMO_ENABLED !== 'true') {
     console.log('DEMO_ENABLED is not true — skipping demo seed.');
     return;
+  }
+
+  const demoPassword = process.env.DEMO_PASSWORD;
+  if (!demoPassword || demoPassword.length < 8) {
+    throw new Error(
+      'DEMO_PASSWORD environment variable is required (≥8 chars) when DEMO_ENABLED=true. ' +
+      'Set it in .env or pass it directly: DEMO_PASSWORD=YourSecurePass1 npm run db:seed'
+    );
   }
 
   const existing = await prisma.user.findUnique({
@@ -30,7 +37,7 @@ async function main() {
     return;
   }
 
-  const passwordHash = await argon2.hash(DEMO_PASSWORD, {
+  const passwordHash = await argon2.hash(demoPassword, {
     type: argon2.argon2id,
     memoryCost: 65536,
     timeCost: 3,

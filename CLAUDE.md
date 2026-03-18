@@ -197,7 +197,7 @@ Independent Node.js app in `backend/`:
 - `CORS_ORIGIN` contains `*` → **throw**
 
 ### Security Boundaries
-- **Demo account password** is never stored in frontend source code — only the email (`demo@example.com`) is used as a public hint. Offline demo mode checks email only; real password validation happens server-side.
+- **Demo account** — all authentication goes through the backend; there is no client-side offline fallback. Demo requires `DEMO_ENABLED=true` + `DEMO_PASSWORD` env var on the server, seeded via `npm run db:seed`. The demo email (`demo@example.com`) is a public UI hint only.
 - **API keys** (Gemini, OpenAI, etc.) are stored in `sessionStorage` (cleared on tab close). Known limitation: any XSS vulnerability would expose them. Long-term fix: backend proxy or service-side key management.
 - **Never commit** `.env`, `.env.local`, or any file containing real credentials. `.gitignore` covers these — verify with `git ls-files | grep env` before push.
 

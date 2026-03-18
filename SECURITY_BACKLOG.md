@@ -28,4 +28,6 @@ Remaining security items for future releases, prioritized by real-world risk.
 - [x] `.env` files verified not in git history
 - [x] API key storage: UI risk disclosure in UnifiedSettings (5 languages)
 - [x] Demo account: `DEMO_ENABLED` env toggle + Prisma seed script (`prisma/seed.ts`)
+- [x] Demo: remove offline fallback — all auth goes through backend, no client-side bypass
+- [x] Demo: seed password read from `DEMO_PASSWORD` env var (no hardcoded credentials in repo)
 - [x] CSP: `Content-Security-Policy` meta tag in `index.html` (whitelists known CDNs + API providers)

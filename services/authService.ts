@@ -1,6 +1,10 @@
 /**
  * Authentication Service
  * Handles user registration, login, and session management
+ *
+ * SECURITY: All authentication goes through the backend.
+ * Demo mode requires DEMO_ENABLED=true on the server + seeded demo account.
+ * There is no client-side offline fallback.
  */
 
 import { apiClient, type AuthResponse } from './apiClient';
@@ -23,30 +27,6 @@ export interface RegisterInput {
   password: string;
 }
 
-// Demo account email (public hint only — no password in frontend bundle)
-const DEMO_EMAIL = 'demo@example.com';
-
-const DEMO_USER: User = {
-  id: 'demo-user-001',
-  email: DEMO_EMAIL,
-  emailVerified: true,
-  createdAt: new Date().toISOString(),
-  lastLoginAt: new Date().toISOString(),
-};
-
-// Check if demo mode is active
-function isDemoMode(): boolean {
-  return localStorage.getItem('demo-mode') === 'true';
-}
-
-function setDemoMode(enabled: boolean): void {
-  if (enabled) {
-    localStorage.setItem('demo-mode', 'true');
-  } else {
-    localStorage.removeItem('demo-mode');
-  }
-}
-
 class AuthService {
   /**
    * Register a new user
@@ -59,60 +39,24 @@ class AuthService {
 
   /**
    * Login an existing user
-   * Supports demo mode for offline testing
    */
   async login(input: LoginInput): Promise<User> {
-    // SECURITY: Only check email for demo eligibility — password is never stored in frontend.
-    // Actual password validation happens server-side; offline demo mode is a local-only fallback.
-    const isDemoEmail = input.email.toLowerCase() === DEMO_EMAIL;
-
-    try {
-      const response = await apiClient.post<AuthResponse>('/auth/login', input);
-      apiClient.setTokens(response);
-      setDemoMode(false);
-      return response.user;
-    } catch (err) {
-      // If backend is not available and using demo email, enable offline demo mode
-      if (isDemoEmail && err instanceof Error &&
-          (err.message.includes('404') || err.message.includes('Failed to fetch') || err.message.includes('Network'))) {
-        console.log('Backend not available, using demo mode');
-        // SECURITY: Clear any existing tokens before entering demo mode
-        // to prevent mixed state where UI shows demo but requests carry old tokens
-        await apiClient.logout().catch(() => {}); // Ignore errors since backend might be down
-        setDemoMode(true);
-        // Trigger auth change callback
-        this._notifyAuthChange(true);
-        return DEMO_USER;
-      }
-      throw err;
-    }
-  }
-
-  // Auth change listeners
-  private _authListeners: Set<(isAuthenticated: boolean) => void> = new Set();
-
-  private _notifyAuthChange(isAuthenticated: boolean): void {
-    this._authListeners.forEach(callback => callback(isAuthenticated));
+    const response = await apiClient.post<AuthResponse>('/auth/login', input);
+    apiClient.setTokens(response);
+    return response.user;
   }
 
   /**
    * Logout the current user
    */
   async logout(): Promise<void> {
-    // Always clear demo mode flag
-    const wasDemo = isDemoMode();
-    setDemoMode(false);
+    // Clear any stale demo-mode flag from previous versions
+    localStorage.removeItem('demo-mode');
 
-    // Always attempt to clear tokens, even in demo mode
-    // This ensures clean state when switching between demo and real auth
     try {
       await apiClient.logout();
     } catch {
       // Ignore errors - backend might be down
-    }
-
-    if (wasDemo) {
-      this._notifyAuthChange(false);
     }
   }
 
@@ -120,9 +64,6 @@ class AuthService {
    * Get the current user's info
    */
   async getCurrentUser(): Promise<User> {
-    if (isDemoMode()) {
-      return DEMO_USER;
-    }
     return apiClient.get<User>('/auth/me');
   }
 
@@ -130,9 +71,6 @@ class AuthService {
    * Check if user is authenticated
    */
   isAuthenticated(): boolean {
-    if (isDemoMode()) {
-      return true;
-    }
     return apiClient.isAuthenticated();
   }
 
@@ -140,13 +78,7 @@ class AuthService {
    * Subscribe to auth state changes
    */
   onAuthChange(callback: (isAuthenticated: boolean) => void): () => void {
-    this._authListeners.add(callback);
-    const apiUnsubscribe = apiClient.onAuthChange(callback);
-
-    return () => {
-      this._authListeners.delete(callback);
-      apiUnsubscribe();
-    };
+    return apiClient.onAuthChange(callback);
   }
 }
 
