@@ -26,6 +26,18 @@ github-config.local.json
 # Test output
 test-results/
 
+# AI tooling / internal planning docs (not part of the application)
+CLAUDE.md
+SECURITY_BACKLOG.md
+GIT_CONVENTION.md
+DESIGN_PRINCIPLES.md
+ITERATION_ROADMAP.md
+OPTIMIZATION_PLAN.md
+docs/OPTIMIZATION_SUMMARY.md
+docs/UI_OPTIMIZATION_PLAN.md
+docs/UPGRADE_PLAN_v0.5.md
+docs/ARCHETYPE_IMPORT_ENGINE.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
