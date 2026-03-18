@@ -106,8 +106,8 @@ export const qualityRules: QualityRule[] = [
             },
             target: { type: 'object', id: obj.id, name: obj.name },
             suggestion: {
-              en: 'Add a clear description explaining the business meaning of this object',
-              cn: '添加清晰的描述来解释该对象的业务含义'
+              en: `Add a description for "${obj.name}" explaining its role in the business process`,
+              cn: `为 "${obj.name}" 添加描述，说明其在业务流程中的职责`
             }
           });
         }
@@ -135,8 +135,8 @@ export const qualityRules: QualityRule[] = [
             },
             target: { type: 'object', id: obj.id, name: obj.name },
             suggestion: {
-              en: 'Define properties that describe the attributes of this object',
-              cn: '定义描述该对象特征的属性'
+              en: `Define properties for "${obj.name}" that describe its key attributes`,
+              cn: `为 "${obj.name}" 定义描述其关键特征的属性`
             }
           });
         }
@@ -168,8 +168,8 @@ export const qualityRules: QualityRule[] = [
             },
             target: { type: 'object', id: obj.id, name: obj.name },
             suggestion: {
-              en: 'Add an ID or unique identifier property',
-              cn: '添加一个 ID 或唯一标识符属性'
+              en: `Add a unique identifier property (e.g., ${obj.name.toLowerCase()}Id) to "${obj.name}"`,
+              cn: `为 "${obj.name}" 添加唯一标识属性（如 ${obj.name.toLowerCase()}Id）`
             }
           });
         }
@@ -197,8 +197,8 @@ export const qualityRules: QualityRule[] = [
             },
             target: { type: 'object', id: obj.id, name: obj.name },
             suggestion: {
-              en: 'Consider what operations can be performed on this object',
-              cn: '考虑可以对该对象执行哪些操作'
+              en: `Define actions for "${obj.name}" — what operations can users perform on it?`,
+              cn: `为 "${obj.name}" 定义动作 — 用户可以对其执行哪些操作？`
             }
           });
         }
@@ -229,8 +229,8 @@ export const qualityRules: QualityRule[] = [
               },
               target: { type: 'action', id: obj.id, name: `${obj.name}.${action.name}` },
               suggestion: {
-                en: 'Define the business description, executor role, and trigger condition',
-                cn: '定义业务描述、执行角色和触发条件'
+                en: `Define business description, executor role, and trigger condition for "${action.name}"`,
+                cn: `为 "${action.name}" 定义业务描述、执行角色和触发条件`
               }
             });
           }
@@ -260,8 +260,8 @@ export const qualityRules: QualityRule[] = [
               },
               target: { type: 'action', id: obj.id, name: `${obj.name}.${action.name}` },
               suggestion: {
-                en: 'Define what conditions must be met before this action can execute',
-                cn: '定义执行此动作前必须满足的条件'
+                en: `Define preconditions for "${obj.name}.${action.name}" — what must be true before execution?`,
+                cn: `为 "${obj.name}.${action.name}" 定义前置条件 — 执行前必须满足什么？`
               }
             });
           }
@@ -291,8 +291,8 @@ export const qualityRules: QualityRule[] = [
               },
               target: { type: 'action', id: obj.id, name: `${obj.name}.${action.name}` },
               suggestion: {
-                en: 'Define what state changes occur after this action executes',
-                cn: '定义此动作执行后的状态变更'
+                en: `Define state changes after "${obj.name}.${action.name}" executes`,
+                cn: `定义 "${obj.name}.${action.name}" 执行后的状态变更`
               }
             });
           }
@@ -324,8 +324,8 @@ export const qualityRules: QualityRule[] = [
               },
               target: { type: 'action', id: obj.id, name: `${obj.name}.${action.name}` },
               suggestion: {
-                en: 'Consider what inputs are needed to execute this action',
-                cn: '考虑执行此动作需要哪些输入'
+                en: `Define input parameters for "${action.name}" — what data does it need?`,
+                cn: `为 "${action.name}" 定义输入参数 — 它需要什么数据？`
               }
             });
           }
@@ -355,8 +355,8 @@ export const qualityRules: QualityRule[] = [
               },
               target: { type: 'action', id: obj.id, name: `${obj.name}.${action.name}` },
               suggestion: {
-                en: 'Define permission tier, approval requirements, and risk level',
-                cn: '定义权限等级、审批要求和风险等级'
+                en: `Set permission tier and approval rules for "${action.name}" on "${obj.name}"`,
+                cn: `为 "${obj.name}" 的 "${action.name}" 设置权限等级和审批规则`
               }
             });
           }
@@ -386,8 +386,8 @@ export const qualityRules: QualityRule[] = [
               },
               target: { type: 'action', id: obj.id, name: `${obj.name}.${action.name}` },
               suggestion: {
-                en: 'Define the REST API endpoint for this action',
-                cn: '为此动作定义 REST API 端点'
+                en: `Define a REST API endpoint for "${action.name}" (e.g., POST /api/${obj.name.toLowerCase()}s/${action.name.toLowerCase().replace(/\s+/g, '-')})`,
+                cn: `为 "${action.name}" 定义 REST API 端点（如 POST /api/${obj.name.toLowerCase()}s/${action.name.toLowerCase().replace(/\s+/g, '-')}）`
               }
             });
           }
@@ -426,8 +426,8 @@ export const qualityRules: QualityRule[] = [
                 },
                 target: { type: 'action', id: obj.id, name: `${obj.name}.${action.name}` },
                 suggestion: {
-                  en: 'Define a rollback strategy (compensating_action, manual, or none) for high-risk operations',
-                  cn: '为高风险操作定义回滚策略（补偿动作、手动回滚或无需回滚）'
+                  en: `Tier ${tier} action "${action.name}" is high-risk — define a rollback strategy (compensating action, manual, or none)`,
+                  cn: `Tier ${tier} 动作 "${action.name}" 为高风险 — 定义回滚策略（补偿动作、手动回滚或无需回滚）`
                 }
               });
             }
@@ -461,8 +461,8 @@ export const qualityRules: QualityRule[] = [
             },
             target: { type: 'link', id: link.id, name: `${sourceName} → ${targetName}` },
             suggestion: {
-              en: 'Add a label describing the relationship (e.g., "has", "belongs to", "contains")',
-              cn: '添加描述关系的标签（如 "包含"、"属于"、"关联"）'
+              en: `Label the relationship between "${sourceName}" and "${targetName}" (e.g., "has", "belongs to")`,
+              cn: `为 "${sourceName}" 和 "${targetName}" 之间的关系添加标签（如 "包含"、"属于"）`
             }
           });
         }
@@ -495,8 +495,8 @@ export const qualityRules: QualityRule[] = [
               },
               target: { type: 'object', id: obj.id, name: obj.name },
               suggestion: {
-                en: 'Consider how this object relates to others in the ontology',
-                cn: '考虑该对象与本体中其他对象的关系'
+                en: `Connect "${obj.name}" to related objects — how does it interact with the rest of the ontology?`,
+                cn: `将 "${obj.name}" 与相关对象连接 — 它如何与本体中的其他对象交互？`
               }
             });
           }
@@ -527,8 +527,8 @@ export const qualityRules: QualityRule[] = [
             },
             target: { type: 'integration', id: integration.targetObjectId, name: integration.systemName },
             suggestion: {
-              en: 'Specify the integration mechanism (API, Webhook, Batch, etc.)',
-              cn: '指定集成机制（API、Webhook、批量等）'
+              en: `Specify how "${integration.systemName}" syncs data (API, Webhook, Batch, etc.)`,
+              cn: `指定 "${integration.systemName}" 的数据同步方式（API、Webhook、批量等）`
             }
           });
         }
@@ -556,8 +556,8 @@ export const qualityRules: QualityRule[] = [
             },
             target: { type: 'integration', id: integration.targetObjectId, name: integration.systemName },
             suggestion: {
-              en: 'Specify what data fields are synced from this integration',
-              cn: '指定从此集成同步哪些数据字段'
+              en: `Specify what data fields "${integration.systemName}" provides or consumes`,
+              cn: `指定 "${integration.systemName}" 提供或消费的数据字段`
             }
           });
         }

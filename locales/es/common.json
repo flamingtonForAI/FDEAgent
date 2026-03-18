@@ -64,7 +64,8 @@
       "error": "Error",
       "warning": "Advertencia",
       "info": "Información"
-    }
+    },
+    "goFix": "Corregir →"
   },
   "changeHistory": {
     "title": "Historial de Cambios",
@@ -96,6 +97,39 @@
     "viewDetails": "Ver Detalles",
     "before": "Antes",
     "after": "Después"
+  },
+  "readiness": {
+    "phase": {
+      "discovery": "Descubrimiento",
+      "modeling": "Modelado",
+      "integration": "Integración",
+      "aiEnhancement": "Mejora con AI",
+      "delivery": "Entrega"
+    },
+    "progressSnapshot": "Resumen de progreso",
+    "blockingIssues": "Problemas bloqueantes",
+    "recommendedActions": "Acciones recomendadas",
+    "allClear": "¡Todo en orden! El proyecto avanza bien.",
+    "aiAnalysis": "Análisis AI",
+    "quality": "Calidad",
+    "blocker": {
+      "noObjects": "No hay objetos definidos — comience identificando las entidades de negocio principales",
+      "noActions": "No hay acciones definidas — los objetos necesitan operaciones que los usuarios puedan realizar",
+      "criticalQuality": "{{count}} problema(s) de calidad crítico(s) bloquearán la entrega al cliente",
+      "minimalActions": "{{count}} acción(es) con definición mínima — bloquearán la exportación al cliente"
+    },
+    "action": {
+      "fixCritical": "{{count}} problema(s) de calidad crítico(s) — abra la pestaña Calidad para revisar",
+      "chatToDiscover": "Converse con AI para describir su escenario de negocio e identificar entidades",
+      "specifyIndustry": "Especifique su industria para obtener recomendaciones personalizadas",
+      "addDescriptions": "Agregue descripciones a {{count}} objeto(s): {{names}}",
+      "defineLinks": "Defina relaciones entre objetos en el grafo de ontología",
+      "defineActions": "Defina las acciones clave para sus objetos de negocio",
+      "addIntegrations": "Agregue integraciones de fuentes de datos para conectar su ontología",
+      "completeIntegrations": "Complete {{count}} integración(es) — agregue mecanismo de sincronización y puntos de datos",
+      "runAIAnalysis": "Ejecute el análisis AI para identificar oportunidades de mejora",
+      "completeActionDefs": "Complete las definiciones de acciones — {{count}} acción(es) necesitan más detalle antes de exportar"
+    }
   },
   "achievement": {
     "unlocked": "¡Logro Desbloqueado!"

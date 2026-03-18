@@ -11,7 +11,8 @@ import {
   X,
   Sparkles,
   FolderPlus,
-  AlertTriangle
+  AlertTriangle,
+  ClipboardCheck
 } from 'lucide-react';
 import { Language, ProjectState, ChatMessage, AISettings, AIProvider } from '../types';
 import { FileUploadButton, UploadedFile, getProviderCompatibility } from './FileUpload';
@@ -42,6 +43,8 @@ interface GlobalChatBarProps {
   activeProjectId?: string | null;
   // 导航到项目页面的回调
   onNavigateToProjects?: () => void;
+  // 打开质量检查面板
+  onOpenQualityPanel?: () => void;
 }
 
 // 根据阶段的占位符
@@ -200,7 +203,8 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
   onLoadingChange,
   historyRef,
   activeProjectId,
-  onNavigateToProjects
+  onNavigateToProjects,
+  onOpenQualityPanel
 }) => {
   const { t, lt, lang, i18nLang } = useAppTranslation('discovery');
   const [input, setInput] = useState('');
@@ -730,6 +734,17 @@ const GlobalChatBar: React.FC<GlobalChatBarProps> = ({
               >
                 {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
               </button>
+              {/* 质量检查按钮 */}
+              {onOpenQualityPanel && (
+                <button
+                  onClick={onOpenQualityPanel}
+                  className="p-2 rounded-lg transition-colors hover:bg-[var(--color-bg-hover)]"
+                  style={{ color: 'var(--color-text-muted)' }}
+                  title={t('review', { ns: 'nav' })}
+                >
+                  <ClipboardCheck size={18} />
+                </button>
+              )}
             </div>
 
             {(error || sendBlockedReason) && (

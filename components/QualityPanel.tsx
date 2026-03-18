@@ -10,21 +10,19 @@ import {
   checkActionThreeLayers
 } from '../utils/qualityChecker';
 import ActionThreeLayerPanel from './ActionThreeLayerPanel';
-import MilestonePlanner from './MilestonePlanner';
-import DeliverableGenerator from './DeliverableGenerator';
 import {
   ShieldCheck, AlertTriangle, AlertCircle, Info,
-  ChevronDown, ChevronRight, X, RefreshCw,
-  Box, Zap, Link2, Database, Layers, Flag, Download
+  ChevronDown, ChevronRight, RefreshCw,
+  Box, Zap, Link2, Database, Layers, ExternalLink
 } from 'lucide-react';
 import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface QualityPanelProps {
   project: ProjectState;
-  onClose?: () => void;
+  onNavigate?: (tab: string) => void;
 }
 
-type TabType = 'quality' | 'threelayer' | 'milestones' | 'deliverables';
+type TabType = 'quality' | 'threelayer';
 
 
 const severityConfig: Record<Severity, { icon: React.ReactNode; colorVar: string; bgVar: string }> = {
@@ -63,9 +61,25 @@ const gradeColorVars: Record<string, { color: string; bg: string }> = {
 
 const QualityPanel: React.FC<QualityPanelProps> = ({
   project,
-  onClose
+  onNavigate
 }) => {
   const { t, lt } = useAppTranslation('common');
+
+  const getTargetTab = (issue: QualityIssue): string | null => {
+    if (!issue.target) return null;
+    switch (issue.target.type) {
+      case 'object':
+      case 'action':
+        return 'workbench';
+      case 'link':
+        return 'ontology';
+      case 'integration':
+        return 'systemMap';
+      default:
+        return null;
+    }
+  };
+
   const [activeTab, setActiveTab] = useState<TabType>('quality');
   const [report, setReport] = useState<QualityReport | null>(null);
   const [isChecking, setIsChecking] = useState(false);
@@ -130,42 +144,9 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
   }, [filteredIssues]);
 
   return (
-    <div className="glass-card rounded-2xl overflow-hidden h-full flex flex-col">
-      {/* Header */}
-      <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
-            <ShieldCheck size={20} style={{ color: 'var(--color-success)' }} />
-          </div>
-          <div>
-            <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('qualityPanel.title')}</h3>
-            <p className="text-xs text-muted">{t('qualityPanel.subtitle')}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {activeTab === 'quality' && (
-            <button
-              onClick={handleRunCheck}
-              disabled={isChecking}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium btn-gradient disabled:opacity-50 transition-all"
-            >
-              <RefreshCw size={12} className={isChecking ? 'animate-spin' : ''} />
-              {t('qualityPanel.runCheck')}
-            </button>
-          )}
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="text-muted hover:text-primary transition-colors"
-            >
-              <X size={18} />
-            </button>
-          )}
-        </div>
-      </div>
-
+    <div className="overflow-hidden h-full flex flex-col">
       {/* Tab Switcher */}
-      <div className="flex px-4" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
+      <div className="flex items-center px-4" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--color-border)' }}>
         <button
           onClick={() => setActiveTab('quality')}
           className="px-4 py-2.5 text-sm font-medium transition-colors relative"
@@ -192,40 +173,20 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
             <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--color-accent-secondary)' }} />
           )}
         </button>
-        <button
-          onClick={() => setActiveTab('milestones')}
-          className="px-4 py-2.5 text-sm font-medium transition-colors relative"
-          style={{ color: activeTab === 'milestones' ? 'var(--color-accent-secondary)' : 'var(--color-text-muted)' }}
-        >
-          <div className="flex items-center gap-2">
-            <Flag size={14} />
-            {t('qualityPanel.tabMilestones')}
-          </div>
-          {activeTab === 'milestones' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--color-accent-secondary)' }} />
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab('deliverables')}
-          className="px-4 py-2.5 text-sm font-medium transition-colors relative"
-          style={{ color: activeTab === 'deliverables' ? 'var(--color-warning)' : 'var(--color-text-muted)' }}
-        >
-          <div className="flex items-center gap-2">
-            <Download size={14} />
-            {t('qualityPanel.tabDeliverables')}
-          </div>
-          {activeTab === 'deliverables' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--color-warning)' }} />
-          )}
-        </button>
+        {activeTab === 'quality' && (
+          <button
+            onClick={handleRunCheck}
+            disabled={isChecking}
+            className="ml-auto flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium btn-gradient disabled:opacity-50 transition-all"
+          >
+            <RefreshCw size={11} className={isChecking ? 'animate-spin' : ''} />
+            {t('qualityPanel.runCheck')}
+          </button>
+        )}
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'deliverables' ? (
-        <DeliverableGenerator project={project} />
-      ) : activeTab === 'milestones' ? (
-        <MilestonePlanner project={project} />
-      ) : activeTab === 'threelayer' ? (
+      {activeTab === 'threelayer' ? (
         <div className="flex-1 overflow-y-auto p-4">
           <ActionThreeLayerPanel project={project} />
         </div>
@@ -361,6 +322,16 @@ const QualityPanel: React.FC<QualityPanelProps> = ({
                                     <span style={{ color: 'var(--color-accent)' }}>{t('qualityPanel.suggestion')}:</span> {lt(issue.suggestion)}
                                   </p>
                                 </div>
+                              )}
+                              {onNavigate && getTargetTab(issue) && (
+                                <button
+                                  onClick={() => onNavigate(getTargetTab(issue)!)}
+                                  className="mt-2 flex items-center gap-1 text-xs transition-colors hover:opacity-80"
+                                  style={{ color: 'var(--color-accent)' }}
+                                >
+                                  <ExternalLink size={10} />
+                                  {t('qualityPanel.goFix')}
+                                </button>
                               )}
                             </div>
                           </div>

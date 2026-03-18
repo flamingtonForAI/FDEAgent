@@ -24,9 +24,10 @@ import ArchetypeViewer from './components/ArchetypeViewer';
 import GlobalChatBar from './components/GlobalChatBar';
 import ErrorBoundary from './components/ErrorBoundary';
 import QualityPanel from './components/QualityPanel';
+import ReadinessPanel from './components/ReadinessPanel';
 import { runQualityCheck } from './utils/qualityChecker';
 import { getMergedArchetypeById } from './content/archetypes';
-import { MessageSquare, Database, Network, Settings as SettingsIcon, Sparkles, BrainCircuit, GraduationCap, ShieldCheck, Package, Rocket, LogIn, FolderOpen } from 'lucide-react';
+import { MessageSquare, Database, Network, Settings as SettingsIcon, Sparkles, BrainCircuit, GraduationCap, Package, Rocket, LogIn, FolderOpen, ShieldCheck, Compass, X } from 'lucide-react';
 import { Theme, loadSavedTheme, applyThemeMode, getSavedThemeMode, setupSystemThemeListener } from './lib/themes';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SyncProvider, useSync } from './contexts/SyncContext';
@@ -150,6 +151,8 @@ const AppContent: React.FC = () => {
   const [aiSettings, setAiSettings] = useState<AISettings>(loadAISettings);
   const [showSettings, setShowSettings] = useState(false);
   const [showQualityPanel, setShowQualityPanel] = useState(false);
+  const [reviewTab, setReviewTab] = useState<'quality' | 'readiness'>('quality');
+  const canShowQualityPanel = !!activeProjectId && projectPhaseTabs.includes(activeTab);
 
   // Theme state - using new simplified theme mode
   const [currentTheme, setCurrentTheme] = useState<Theme>(loadSavedTheme);
@@ -329,6 +332,13 @@ const AppContent: React.FC = () => {
       setActiveTab('projects');
     }
   }, [activeProjectId, activeTab]);
+
+  // Auto-close quality panel when navigating away from project phases
+  useEffect(() => {
+    if (showQualityPanel && !canShowQualityPanel) {
+      setShowQualityPanel(false);
+    }
+  }, [canShowQualityPanel, showQualityPanel]);
 
   // Project state is now saved automatically by ProjectContext
   // Cloud sync for authenticated users
@@ -912,7 +922,7 @@ project={project}
               <React.Suspense fallback={<PageLoadingFallback />}>
                 <DeliveryPage
     project={project}
-                  onOpenQualityPanel={() => setShowQualityPanel(true)}
+                  onOpenQualityPanel={() => { setReviewTab('quality'); setShowQualityPanel(true); }}
                 />
               </React.Suspense>
             )}
@@ -920,35 +930,83 @@ project={project}
         </div>
       </main>
 
-      {/* Quality Check Floating Button */}
-      {!showQualityPanel && (
-        <button
-          onClick={() => setShowQualityPanel(true)}
-          className="fixed bottom-6 right-6 w-12 h-12 rounded-xl flex items-center justify-center hover:scale-105 transition-transform z-40"
-          style={{
-            backgroundColor: 'var(--color-accent)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
-          }}
-          title={t('app.qualityCheck')}
-          aria-label={t('app.qualityCheck')}
-        >
-          <ShieldCheck size={20} style={{ color: 'var(--color-bg-base)' }} />
-        </button>
-      )}
-
-      {/* Quality Panel Slide-out */}
-      {showQualityPanel && (
+      {/* Review Panel Slide-out (Quality + Readiness) */}
+      {showQualityPanel && canShowQualityPanel && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div
             className="absolute inset-0 bg-[var(--color-bg-base)]/60 backdrop-blur-sm"
             onClick={() => setShowQualityPanel(false)}
           />
-          <div className="relative w-full max-w-lg h-full glass-surface animate-slide-in-right">
-            <QualityPanel
-              lang={lang}
-              project={project}
-              onClose={() => setShowQualityPanel(false)}
-            />
+          <div className="relative w-full max-w-lg h-full glass-surface animate-slide-in-right flex flex-col">
+            {/* Review Panel Header */}
+            <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid var(--color-border)' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
+                  <Compass size={20} style={{ color: 'var(--color-accent)' }} />
+                </div>
+                <div>
+                  <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('review')}</h3>
+                  <p className="text-xs text-muted">{t('reviewSubtitle')}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowQualityPanel(false)}
+                className="text-muted hover:text-primary transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Review Tab Switcher */}
+            <div className="flex px-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+              <button
+                onClick={() => setReviewTab('quality')}
+                className="px-4 py-2.5 text-sm font-medium transition-colors relative"
+                style={{ color: reviewTab === 'quality' ? 'var(--color-success)' : 'var(--color-text-muted)' }}
+              >
+                <div className="flex items-center gap-2">
+                  <ShieldCheck size={14} />
+                  {t('quality')}
+                </div>
+                {reviewTab === 'quality' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--color-success)' }} />
+                )}
+              </button>
+              <button
+                onClick={() => setReviewTab('readiness')}
+                className="px-4 py-2.5 text-sm font-medium transition-colors relative"
+                style={{ color: reviewTab === 'readiness' ? 'var(--color-accent)' : 'var(--color-text-muted)' }}
+              >
+                <div className="flex items-center gap-2">
+                  <Compass size={14} />
+                  {t('readiness')}
+                </div>
+                {reviewTab === 'readiness' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--color-accent)' }} />
+                )}
+              </button>
+            </div>
+
+            {/* Review Tab Content */}
+            <div className="flex-1 overflow-hidden flex flex-col">
+              {reviewTab === 'quality' ? (
+                <QualityPanel
+                  project={project}
+                  onNavigate={(tab) => {
+                    setShowQualityPanel(false);
+                    setActiveTab(tab as any);
+                  }}
+                />
+              ) : (
+                <ReadinessPanel
+                  project={project}
+                  onNavigate={(tab) => {
+                    setShowQualityPanel(false);
+                    setActiveTab(tab as any);
+                  }}
+                />
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -984,6 +1042,7 @@ project={project}
           historyRef={chatHistoryRef}
           activeProjectId={activeProjectId}
           onNavigateToProjects={() => setActiveTab('projects')}
+          onOpenQualityPanel={canShowQualityPanel ? () => setShowQualityPanel(true) : undefined}
         />
       )}
 

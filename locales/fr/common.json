@@ -64,7 +64,8 @@
       "error": "Erreur",
       "warning": "Avertissement",
       "info": "Info"
-    }
+    },
+    "goFix": "Corriger →"
   },
   "changeHistory": {
     "title": "Historique des modifications",
@@ -96,6 +97,39 @@
     "viewDetails": "Voir les détails",
     "before": "Avant",
     "after": "Après"
+  },
+  "readiness": {
+    "phase": {
+      "discovery": "Découverte",
+      "modeling": "Modélisation",
+      "integration": "Intégration",
+      "aiEnhancement": "Amélioration AI",
+      "delivery": "Livraison"
+    },
+    "progressSnapshot": "Aperçu de la progression",
+    "blockingIssues": "Problèmes bloquants",
+    "recommendedActions": "Actions recommandées",
+    "allClear": "Tout est en ordre ! Le projet avance bien.",
+    "aiAnalysis": "Analyse AI",
+    "quality": "Qualité",
+    "blocker": {
+      "noObjects": "Aucun objet défini — commencez par identifier les entités métier principales",
+      "noActions": "Aucune action définie — les objets nécessitent des opérations utilisateur",
+      "criticalQuality": "{{count}} problème(s) qualité critique(s) bloqueront la livraison client",
+      "minimalActions": "{{count}} action(s) à définition minimale — bloqueront l'export client"
+    },
+    "action": {
+      "fixCritical": "{{count}} problème(s) qualité critique(s) — ouvrez l'onglet Qualité pour examiner",
+      "chatToDiscover": "Discutez avec l'AI pour décrire votre scénario métier et identifier les entités",
+      "specifyIndustry": "Précisez votre industrie pour des recommandations personnalisées",
+      "addDescriptions": "Ajoutez des descriptions à {{count}} objet(s) : {{names}}",
+      "defineLinks": "Définissez les relations entre objets dans le graphe d'ontologie",
+      "defineActions": "Définissez les actions clés pour vos objets métier",
+      "addIntegrations": "Ajoutez des intégrations de sources de données pour connecter votre ontologie",
+      "completeIntegrations": "Complétez {{count}} intégration(s) — ajoutez le mécanisme de synchronisation et les points de données",
+      "runAIAnalysis": "Lancez l'analyse AI pour identifier les opportunités d'amélioration",
+      "completeActionDefs": "Complétez les définitions d'actions — {{count}} action(s) nécessitent plus de détails avant l'export"
+    }
   },
   "achievement": {
     "unlocked": "Succès débloqué !"

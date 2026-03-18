@@ -1,302 +1,165 @@
 import React, { useMemo } from 'react';
-import { Language, ProjectState, ChatMessage } from '../types';
-import { checkReadiness, getReadinessDisplay, ReadinessIssue, ReadinessReport } from '../lib/readinessChecker';
+import { ProjectState } from '../types';
+import { checkReadiness, ReadinessReport, ReadinessMessage } from '../utils/readinessChecker';
 import {
-  AlertTriangle,
-  AlertCircle,
-  Info,
-  Lightbulb,
-  ChevronRight,
-  CheckCircle2,
-  XCircle,
-  TrendingUp
+  Box, Zap, Link2, Database, Brain, ShieldCheck,
+  AlertCircle, ArrowRight, ExternalLink, Target, TrendingUp
 } from 'lucide-react';
 import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface ReadinessPanelProps {
   project: ProjectState;
-  chatMessages: ChatMessage[];
-  onProceed?: () => void;
-  onCancel?: () => void;
-  compact?: boolean;  // 紧凑模式用于嵌入
+  onNavigate?: (tab: string) => void;
 }
 
-const ReadinessPanel: React.FC<ReadinessPanelProps> = ({
-  project,
-  chatMessages,
-  onProceed,
-  onCancel,
-  compact = false
-}) => {
-  const { t, lang } = useAppTranslation(['common', 'modeling']);
-  const report = useMemo(() => {
-    return checkReadiness(project, chatMessages, lang);
-  }, [project, chatMessages, lang]);
+const ReadinessPanel: React.FC<ReadinessPanelProps> = ({ project, onNavigate }) => {
+  const { t } = useAppTranslation('common');
 
-  const display = getReadinessDisplay(report.level, lang);
+  const report = useMemo<ReadinessReport>(() => checkReadiness(project), [project]);
 
-  const getIssueIcon = (type: ReadinessIssue['type']) => {
-    switch (type) {
-      case 'blocker':
-        return <XCircle className="w-4 h-4" style={{ color: 'var(--color-error)' }} />;
-      case 'risk':
-        return <AlertTriangle className="w-4 h-4" style={{ color: 'var(--color-warning)' }} />;
-      case 'warning':
-        return <AlertCircle className="w-4 h-4" style={{ color: 'var(--color-accent)' }} />;
-      case 'suggestion':
-        return <Lightbulb className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} />;
-    }
-  };
+  /** Resolve a ReadinessMessage to a display string */
+  const rm = (msg: ReadinessMessage): string => t(msg.key, msg.params);
 
-  const getCategoryLabel = (category: ReadinessIssue['category']) => {
-    return t(`readinessPanel.${category}`);
-  };
+  // Progress bar color based on percentage
+  const progressColor = report.phaseProgress >= 80 ? 'var(--color-success)'
+    : report.phaseProgress >= 40 ? 'var(--color-warning)'
+    : 'var(--color-accent)';
 
-  // 紧凑模式 - 用于嵌入到其他组件
-  if (compact) {
-    return (
-      <div
-        className="flex items-center gap-3 px-4 py-3 rounded-lg"
-        style={{ backgroundColor: display.bgColor }}
-      >
-        <div className="flex items-center gap-2">
-          {report.canProceed ? (
-            <CheckCircle2 className="w-5 h-5" style={{ color: display.color }} />
-          ) : (
-            <XCircle className="w-5 h-5" style={{ color: display.color }} />
-          )}
-          <span className="font-medium" style={{ color: display.color }}>
-            {display.label}
+  const snapshotItems = [
+    { icon: <Box size={16} />, labelKey: 'objects', value: report.snapshot.objects, color: 'var(--color-accent)' },
+    { icon: <Zap size={16} />, labelKey: 'actions', value: report.snapshot.actions, color: 'var(--color-success)' },
+    { icon: <Link2 size={16} />, labelKey: 'links', value: report.snapshot.links, color: 'var(--color-accent-secondary)' },
+    { icon: <Database size={16} />, labelKey: 'integrations', value: report.snapshot.integrations, color: 'var(--color-warning)' },
+    { icon: <Brain size={16} />, labelKey: 'readiness.aiAnalysis', value: report.snapshot.aiAnalysisComplete ? '✓' : '-', color: 'var(--color-accent-secondary)' },
+    { icon: <ShieldCheck size={16} />, labelKey: 'readiness.quality', value: report.snapshot.qualityGrade, color: report.snapshot.qualityGrade === 'A' ? 'var(--color-success)' : report.snapshot.qualityGrade === 'F' ? 'var(--color-error)' : 'var(--color-warning)' },
+  ];
+
+  return (
+    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      {/* Current Stage */}
+      <div className="glass-surface rounded-xl p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Target size={16} style={{ color: 'var(--color-accent)' }} />
+          <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+            {t(report.currentPhaseKey)}
+          </span>
+          <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-muted)' }}>
+            {report.phaseProgress}%
           </span>
         </div>
-
-        <div className="flex-1 flex items-center gap-4 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-          {report.summary.risks > 0 && (
-            <span className="flex items-center gap-1">
-              <AlertTriangle className="w-3 h-3" style={{ color: 'var(--color-warning)' }} />
-              {report.summary.risks} {t('readinessPanel.risks')}
-            </span>
-          )}
-          {report.summary.warnings > 0 && (
-            <span className="flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" style={{ color: 'var(--color-accent)' }} />
-              {report.summary.warnings} {t('readinessPanel.warnings')}
-            </span>
-          )}
-        </div>
-
-        <div
-          className="px-2 py-1 rounded text-xs font-medium"
-          style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-secondary)' }}
-        >
-          {report.score}/100
-        </div>
-      </div>
-    );
-  }
-
-  // 完整模式 - 用于生成前确认
-  return (
-    <div className="rounded-xl border overflow-hidden" style={{
-      borderColor: 'var(--color-border)',
-      backgroundColor: 'var(--color-bg-elevated)'
-    }}>
-      {/* Header */}
-      <div
-        className="p-4 border-b flex items-center justify-between"
-        style={{ borderColor: 'var(--color-border)', backgroundColor: display.bgColor }}
-      >
-        <div className="flex items-center gap-3">
-          {report.canProceed ? (
-            <CheckCircle2 className="w-6 h-6" style={{ color: display.color }} />
-          ) : (
-            <XCircle className="w-6 h-6" style={{ color: display.color }} />
-          )}
-          <div>
-            <h3 className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              {t('readinessPanel.title')}
-            </h3>
-            <p className="text-sm" style={{ color: display.color }}>
-              {display.label}
-              {report.canProceed && report.level !== 'excellent' && (
-                <span style={{ color: 'var(--color-text-secondary)' }}>
-                  {' - '}{t('readinessPanel.canProceedWithImprovements')}
-                </span>
-              )}
-            </p>
-          </div>
-        </div>
-
-        {/* Score */}
-        <div className="text-right">
-          <div className="text-2xl font-bold" style={{ color: display.color }}>
-            {report.score}
-          </div>
-          <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-            /100
-          </div>
+        <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--color-bg-hover)' }}>
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{ width: `${report.phaseProgress}%`, backgroundColor: progressColor }}
+          />
         </div>
       </div>
 
-      {/* Summary stats */}
-      <div className="grid grid-cols-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
-        {[
-          { key: 'blockers', label: t('readinessPanel.blockers'), color: 'var(--color-error)' },
-          { key: 'risks', label: t('readinessPanel.risksLabel'), color: 'var(--color-warning)' },
-          { key: 'warnings', label: t('readinessPanel.warningsLabel'), color: 'var(--color-accent)' },
-          { key: 'suggestions', label: t('readinessPanel.suggestions'), color: 'var(--color-text-muted)' }
-        ].map(item => (
-          <div key={item.key} className="p-3 text-center border-r last:border-r-0" style={{ borderColor: 'var(--color-border)' }}>
-            <div className="text-lg font-bold" style={{ color: item.color }}>
-              {report.summary[item.key as keyof typeof report.summary]}
-            </div>
-            <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-              {item.label}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Issues list */}
-      {report.issues.length > 0 && (
-        <div className="p-4 max-h-64 overflow-y-auto space-y-2">
-          {/* Blockers first */}
-          {report.issues.filter(i => i.type === 'blocker').map(issue => (
-            <IssueItem key={issue.id} issue={issue} lang={lang} t={t} getIcon={getIssueIcon} getCategory={getCategoryLabel} />
-          ))}
-          {/* Then risks */}
-          {report.issues.filter(i => i.type === 'risk').map(issue => (
-            <IssueItem key={issue.id} issue={issue} lang={lang} t={t} getIcon={getIssueIcon} getCategory={getCategoryLabel} />
-          ))}
-          {/* Then warnings */}
-          {report.issues.filter(i => i.type === 'warning').map(issue => (
-            <IssueItem key={issue.id} issue={issue} lang={lang} t={t} getIcon={getIssueIcon} getCategory={getCategoryLabel} />
-          ))}
-          {/* Suggestions collapsed by default */}
-          {report.issues.filter(i => i.type === 'suggestion').length > 0 && (
-            <details className="group">
-              <summary
-                className="flex items-center gap-2 text-sm cursor-pointer py-2"
-                style={{ color: 'var(--color-text-muted)' }}
-              >
-                <ChevronRight className="w-4 h-4 group-open:rotate-90 transition-transform" />
-                {t('readinessPanel.suggestions')} ({report.issues.filter(i => i.type === 'suggestion').length})
-              </summary>
-              <div className="pl-6 space-y-2 mt-2">
-                {report.issues.filter(i => i.type === 'suggestion').map(issue => (
-                  <IssueItem key={issue.id} issue={issue} lang={lang} t={t} getIcon={getIssueIcon} getCategory={getCategoryLabel} />
-                ))}
+      {/* Progress Snapshot */}
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <TrendingUp size={14} style={{ color: 'var(--color-text-muted)' }} />
+          <span className="text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
+            {t('readiness.progressSnapshot')}
+          </span>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {snapshotItems.map((item, idx) => (
+            <div key={idx} className="glass-surface rounded-lg p-3 text-center">
+              <div className="flex justify-center mb-1" style={{ color: item.color }}>
+                {item.icon}
               </div>
-            </details>
-          )}
+              <div className="text-lg font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                {item.value}
+              </div>
+              <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
+                {t(item.labelKey)}
+              </div>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
 
-      {/* Excellent state */}
-      {report.level === 'excellent' && (
-        <div className="p-6 text-center">
-          <TrendingUp className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--color-success)' }} />
-          <p className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-            {t('readinessPanel.wellPrepared')}
-          </p>
-          <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-            {t('readinessPanel.infoComplete')}
-          </p>
-        </div>
-      )}
-
-      {/* Actions */}
-      {(onProceed || onCancel) && (
-        <div
-          className="p-4 border-t flex items-center justify-between gap-4"
-          style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-surface)' }}
-        >
-          <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-            {report.canProceed
-              ? t('readinessPanel.canProceedIterate')
-              : t('readinessPanel.provideInfoFirst')}
-          </p>
-          <div className="flex gap-2">
-            {onCancel && (
-              <button
-                onClick={onCancel}
-                className="px-4 py-2 rounded-lg text-sm transition-colors"
-                style={{
-                  backgroundColor: 'var(--color-bg-hover)',
-                  color: 'var(--color-text-secondary)'
-                }}
-              >
-                {t('cancel')}
-              </button>
-            )}
-            {onProceed && (
-              <button
-                onClick={onProceed}
-                disabled={!report.canProceed}
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  backgroundColor: report.canProceed ? 'var(--color-accent)' : 'var(--color-bg-hover)',
-                  color: report.canProceed ? '#fff' : 'var(--color-text-muted)'
-                }}
-              >
-                {report.canProceed
-                  ? (report.level === 'risky'
-                      ? t('readinessPanel.acknowledgeRisks')
-                      : t('readinessPanel.generateDesign'))
-                  : t('readinessPanel.cannotProceed')}
-              </button>
-            )}
+      {/* Blocking Issues */}
+      {report.blockers.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <AlertCircle size={14} style={{ color: 'var(--color-error)' }} />
+            <span className="text-xs font-medium" style={{ color: 'var(--color-error)' }}>
+              {t('readiness.blockingIssues')}
+            </span>
           </div>
+          <div className="space-y-2">
+            {report.blockers.map((blocker, idx) => (
+              <div key={idx} className="glass-surface rounded-lg p-3 flex items-start gap-2"
+                style={{ borderLeft: '2px solid var(--color-error)' }}>
+                <div className="flex-1">
+                  <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                    {rm(blocker.message)}
+                  </p>
+                </div>
+                {onNavigate && blocker.targetTab && (
+                  <button
+                    onClick={() => onNavigate(blocker.targetTab!)}
+                    className="flex-shrink-0 p-1 rounded transition-colors hover:bg-[var(--color-bg-hover)]"
+                    style={{ color: 'var(--color-accent)' }}
+                  >
+                    <ExternalLink size={12} />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recommended Next Actions */}
+      {report.nextActions.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <ArrowRight size={14} style={{ color: 'var(--color-accent)' }} />
+            <span className="text-xs font-medium" style={{ color: 'var(--color-accent)' }}>
+              {t('readiness.recommendedActions')}
+            </span>
+          </div>
+          <div className="space-y-2">
+            {report.nextActions.map((action, idx) => (
+              <div key={idx} className="glass-surface rounded-lg p-3 flex items-start gap-3">
+                <span
+                  className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
+                  style={{ backgroundColor: 'var(--color-accent)', color: '#fff' }}
+                >
+                  {idx + 1}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                    {rm(action.message)}
+                  </p>
+                </div>
+                {onNavigate && action.targetTab && (
+                  <button
+                    onClick={() => onNavigate(action.targetTab!)}
+                    className="flex-shrink-0 p-1 rounded transition-colors hover:bg-[var(--color-bg-hover)]"
+                    style={{ color: 'var(--color-accent)' }}
+                  >
+                    <ExternalLink size={12} />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Empty state */}
+      {report.blockers.length === 0 && report.nextActions.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-8" style={{ color: 'var(--color-success)' }}>
+          <ShieldCheck size={32} className="mb-2" />
+          <p className="text-sm">{t('readiness.allClear')}</p>
         </div>
       )}
     </div>
   );
 };
-
-// Issue item component
-const IssueItem: React.FC<{
-  issue: ReadinessIssue;
-  lang: Language;
-  t: (key: string, options?: Record<string, unknown>) => string;
-  getIcon: (type: ReadinessIssue['type']) => React.ReactNode;
-  getCategory: (category: ReadinessIssue['category']) => string;
-}> = ({ issue, lang, t, getIcon, getCategory }) => (
-  <div
-    className="flex items-start gap-3 p-3 rounded-lg"
-    style={{ backgroundColor: 'var(--color-bg-surface)' }}
-  >
-    <div className="flex-shrink-0 mt-0.5">
-      {getIcon(issue.type)}
-    </div>
-    <div className="flex-1 min-w-0">
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-          {issue.message}
-        </span>
-        <span
-          className="text-[10px] px-1.5 py-0.5 rounded"
-          style={{ backgroundColor: 'var(--color-bg-hover)', color: 'var(--color-text-muted)' }}
-        >
-          {getCategory(issue.category)}
-        </span>
-      </div>
-      {issue.detail && (
-        <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-          {issue.detail}
-        </p>
-      )}
-      <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
-        <AlertTriangle className="inline w-3 h-3 mr-1" />
-        {t('readinessPanel.impact')}{issue.impact}
-      </p>
-      {issue.suggestion && (
-        <p className="text-xs mt-1" style={{ color: 'var(--color-accent)' }}>
-          <Lightbulb className="inline w-3 h-3 mr-1" />
-          {issue.suggestion}
-        </p>
-      )}
-    </div>
-  </div>
-);
 
 export default ReadinessPanel;

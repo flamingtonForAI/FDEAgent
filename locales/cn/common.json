@@ -64,7 +64,8 @@
       "error": "错误",
       "warning": "警告",
       "info": "提示"
-    }
+    },
+    "goFix": "去修复 →"
   },
   "changeHistory": {
     "title": "变更历史",
@@ -96,6 +97,39 @@
     "viewDetails": "查看详情",
     "before": "之前",
     "after": "之后"
+  },
+  "readiness": {
+    "phase": {
+      "discovery": "发现",
+      "modeling": "建模",
+      "integration": "集成",
+      "aiEnhancement": "智能化",
+      "delivery": "交付"
+    },
+    "progressSnapshot": "进度概览",
+    "blockingIssues": "阻塞项",
+    "recommendedActions": "推荐下一步",
+    "allClear": "一切就绪！项目进展顺利。",
+    "aiAnalysis": "AI 分析",
+    "quality": "质量",
+    "blocker": {
+      "noObjects": "尚未定义对象 — 请先识别核心业务实体",
+      "noActions": "尚未定义动作 — 对象需要用户可执行的操作",
+      "criticalQuality": "{{count}} 个严重质量问题将阻止客户交付",
+      "minimalActions": "{{count}} 个动作定义不完整 — 将阻止客户交付导出"
+    },
+    "action": {
+      "fixCritical": "{{count}} 个严重质量问题 — 打开质量检查查看详情",
+      "chatToDiscover": "与 AI 对话，描述业务场景并识别实体",
+      "specifyIndustry": "指定行业以获取定制化建议",
+      "addDescriptions": "为 {{count}} 个对象补充描述：{{names}}",
+      "defineLinks": "在关系图谱中定义对象间的关联",
+      "defineActions": "为业务对象定义关键动作",
+      "addIntegrations": "添加数据源集成，将本体连接到外部系统",
+      "completeIntegrations": "完善 {{count}} 条集成 — 添加同步机制和数据点",
+      "runAIAnalysis": "运行 AI 分析以识别增强机会",
+      "completeActionDefs": "完善动作定义 — {{count}} 个动作需要补充细节才能导出"
+    }
   },
   "achievement": {
     "unlocked": "成就解锁!"

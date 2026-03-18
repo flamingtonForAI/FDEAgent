@@ -64,7 +64,8 @@
       "error": "Error",
       "warning": "Warning",
       "info": "Info"
-    }
+    },
+    "goFix": "Go fix →"
   },
   "changeHistory": {
     "title": "Change History",
@@ -96,6 +97,39 @@
     "viewDetails": "View Details",
     "before": "Before",
     "after": "After"
+  },
+  "readiness": {
+    "phase": {
+      "discovery": "Discovery",
+      "modeling": "Modeling",
+      "integration": "Integration",
+      "aiEnhancement": "AI Enhancement",
+      "delivery": "Delivery"
+    },
+    "progressSnapshot": "Progress Snapshot",
+    "blockingIssues": "Blocking Issues",
+    "recommendedActions": "Recommended Next Actions",
+    "allClear": "All clear! Project is on track.",
+    "aiAnalysis": "AI Analysis",
+    "quality": "Quality",
+    "blocker": {
+      "noObjects": "No objects defined — start by identifying core business entities",
+      "noActions": "No actions defined — objects need operations users can perform",
+      "criticalQuality": "{{count}} critical quality issue(s) will block client delivery",
+      "minimalActions": "{{count}} action(s) have minimal definition — will block client export"
+    },
+    "action": {
+      "fixCritical": "{{count}} critical quality issue(s) — open Quality tab to review",
+      "chatToDiscover": "Chat with AI to describe your business scenario and identify entities",
+      "specifyIndustry": "Specify your industry to get tailored recommendations",
+      "addDescriptions": "Add descriptions to {{count}} object(s): {{names}}",
+      "defineLinks": "Define relationships between objects in the ontology graph",
+      "defineActions": "Define key actions for your business objects",
+      "addIntegrations": "Add data source integrations to connect your ontology to external systems",
+      "completeIntegrations": "Complete {{count}} integration(s) — add sync mechanism and data points",
+      "runAIAnalysis": "Run AI analysis to identify enhancement opportunities",
+      "completeActionDefs": "Complete action definitions — {{count}} action(s) need more detail before export"
+    }
   },
   "achievement": {
     "unlocked": "Achievement Unlocked!"
