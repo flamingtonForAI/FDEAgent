@@ -1,5 +1,5 @@
 
-export type Language = 'en' | 'cn' | 'fr' | 'ar' | 'es';
+export type Language = 'en' | 'cn' | 'fr' | 'ar' | 'es' | 'ja';
 
 export enum AIPComponentType {
   OBJECT = 'OBJECT',

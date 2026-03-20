@@ -44,6 +44,7 @@ export const allLanguages: LanguageOption[] = [
   { code: 'fr', label: 'French', nativeLabel: 'Français', status: 'beta', dir: 'ltr' },
   { code: 'es', label: 'Spanish', nativeLabel: 'Español', status: 'beta', dir: 'ltr' },
   { code: 'ar', label: 'Arabic', nativeLabel: 'العربية', status: 'beta', dir: 'rtl' },
+  { code: 'ja', label: 'Japanese', nativeLabel: '日本語', status: 'beta', dir: 'ltr' },
 ];
 
 /** Languages visible in the UI selector (excludes hidden) */
@@ -58,7 +59,7 @@ export function getLanguageOption(code: string): LanguageOption | undefined {
 i18next.on('languageChanged', (lng: string) => {
   const langOption = getLanguageOption(lng);
   document.documentElement.dir = langOption?.dir || 'ltr';
-  document.documentElement.lang = lng === 'cn' ? 'zh-CN' : lng;
+  document.documentElement.lang = lng === 'cn' ? 'zh-CN' : lng === 'ja' ? 'ja' : lng;
 });
 
 // Initialize i18next
