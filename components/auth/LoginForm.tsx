@@ -130,45 +130,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         </p>
       </div>
 
-      {/* Demo Account Section */}
-      <div className="mt-8 pt-6" style={{ borderTop: '1px solid var(--color-border)' }}>
-        <p className="text-xs text-center mb-3" style={{ color: 'var(--color-text-muted)' }}>{t('auth.login.demoAccount')}</p>
-        <button
-          type="button"
-          onClick={() => {
-            setEmail(DEMO_EMAIL);
-          }}
-          className="w-full p-3 rounded-lg transition-all group"
-          style={{
-            backgroundColor: 'var(--color-bg-surface)',
-            border: '1px solid var(--color-border)'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
-            e.currentTarget.style.borderColor = 'var(--color-accent)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--color-bg-surface)';
-            e.currentTarget.style.borderColor = 'var(--color-border)';
-          }}
-        >
-          <div className="flex items-center justify-between">
-            <div className="text-left">
-              <div className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                <span style={{ color: 'var(--color-text-muted)' }}>Email: </span>
-                <span className="font-mono">{DEMO_EMAIL}</span>
-              </div>
-              <div className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                <span style={{ color: 'var(--color-text-muted)' }}>Password: </span>
-                <span className="font-mono">{'••••••••'}</span>
-              </div>
-            </div>
-            <span className="text-xs" style={{ color: 'var(--color-accent)', opacity: 0.7 }}>
-              {t('auth.login.demoHint')}
-            </span>
-          </div>
-        </button>
-      </div>
     </div>
   );
 };

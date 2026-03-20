@@ -534,17 +534,19 @@ export default function UnifiedSettings({
                       <button
                         key={option.code}
                         onClick={() => onLanguageChange(option.code as Language)}
-                        className={`flex-1 min-w-[120px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-all ${i18nLang === option.code ? 'ring-2' : ''}`}
+                        className={`flex-1 min-w-[120px] flex flex-col items-center justify-center gap-0.5 px-3 py-2.5 rounded-lg text-sm transition-all ${i18nLang === option.code ? 'ring-2' : ''}`}
                         style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)', ringColor: 'var(--color-accent)' }}
                       >
-                        <Globe size={14} />
-                        {option.nativeLabel}
+                        <span className="flex items-center gap-1.5">
+                          <Globe size={14} />
+                          {option.nativeLabel}
+                          {i18nLang === option.code && <Check size={14} style={{ color: 'var(--color-accent)' }} />}
+                        </span>
                         {option.status === 'beta' && (
-                          <span className="text-[10px] px-1 py-0.5 rounded" style={{ backgroundColor: 'var(--color-warning)', color: 'var(--color-bg-base)' }}>
+                          <span className="text-[9px] leading-none" style={{ color: 'var(--color-text-quaternary)' }}>
                             {t('betaLabel')}
                           </span>
                         )}
-                        {i18nLang === option.code && <Check size={14} style={{ color: 'var(--color-accent)' }} />}
                       </button>
                     ))}
                   </div>
