@@ -14,7 +14,7 @@ import { useAppTranslation } from '../hooks/useAppTranslation';
 import {
   FolderOpen, Plus, Search, Trash2, Clock, Package,
   GitBranch, Layers, Zap, MoreVertical, Star, Edit2,
-  ArrowRight, AlertCircle
+  ArrowRight, AlertCircle, Users, History
 } from 'lucide-react';
 import NewProjectDialog from './NewProjectDialog';
 
@@ -357,6 +357,17 @@ export default function ProjectDashboard({ onOpenProject }: Props) {
                   {formatRelativeTime(project.updatedAt)}
                 </span>
                 <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // sharing panel is accessible via project detail
+                    }}
+                    className="p-1.5 rounded transition-colors"
+                    style={{ color: 'var(--color-text-muted)' }}
+                    title={t('sharing.title')}
+                  >
+                    <Users size={14} />
+                  </button>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();

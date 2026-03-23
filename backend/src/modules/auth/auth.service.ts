@@ -2,7 +2,6 @@ import { prisma } from '../../config/database.js';
 import { hashPassword, verifyPassword } from '../../utils/password.js';
 import { generateTokenPair, TokenPair } from '../../utils/jwt.js';
 import { AppError } from '../../middleware/error.middleware.js';
-import { authConfig } from '../../config/auth.js';
 import type { RegisterInput, LoginInput } from './auth.schema.js';
 
 export interface AuthResponse {

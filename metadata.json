@@ -1,6 +1,6 @@
 {
-  "name": "Copy of Copy of Ontology Architect - Intelligent OS Designer",
-  "description": "A universal platform for designing high-fidelity data ontologies augmented with AI capabilities. Move from static data silos to intelligent systems that reason, predict, and act.",
+  "name": "Ontology Architect",
+  "description": "AI-powered ontology design tool — model objects, actions, and AI interfaces from conversation to export-ready deliverables.",
   "requestFramePermissions": [
     "camera"
   ]

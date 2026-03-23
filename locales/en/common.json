@@ -183,5 +183,25 @@
       "passwordRequired": "Password is required",
       "passwordWeak": "Password does not meet requirements"
     }
+  },
+  "versionHistory": {
+    "title": "Version History",
+    "versions": "versions",
+    "noVersions": "No versions recorded yet",
+    "noSummary": "No change summary",
+    "restore": "Restore",
+    "confirmRestore": "Are you sure you want to restore this version? Current state will be overwritten."
+  },
+  "sharing": {
+    "title": "Team Members",
+    "invite": "Invite",
+    "emailPlaceholder": "Enter email address",
+    "viewer": "Viewer",
+    "editor": "Editor",
+    "owner": "Owner",
+    "send": "Send Invite",
+    "remove": "Remove",
+    "confirmRemove": "Remove this member from the project?",
+    "noMembers": "No members yet. Invite someone to collaborate."
   }
 }

@@ -15,9 +15,11 @@ import {
 } from '../lib/llmCapabilities';
 import {
   X, Settings, Cpu, Palette, Globe, RotateCcw, AlertTriangle,
-  Check, Moon, Sun, Monitor, Key, Search, RefreshCw, Loader2, Plug
+  Check, Moon, Sun, Monitor, Key, Search, RefreshCw, Loader2, Plug, Shield
 } from 'lucide-react';
 import { useAppTranslation } from '../hooks/useAppTranslation';
+import { type AIMode, getAIMode } from '../services/ai/mode';
+import { apiClient } from '../services/apiClient';
 
 interface Props {
   aiSettings: AISettings;
@@ -63,6 +65,11 @@ export default function UnifiedSettings({
   const [showAllOpenRouterModels, setShowAllOpenRouterModels] = useState(false);
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'failed'>('idle');
   const [testMessage, setTestMessage] = useState('');
+  const [aiMode, setAiMode] = useState<AIMode | null>(null);
+
+  useEffect(() => {
+    getAIMode().then(setAiMode);
+  }, []);
 
   const {
     models,
@@ -274,6 +281,19 @@ export default function UnifiedSettings({
                       </select>
                     </div>
 
+                    {aiMode === 'proxy' && apiClient.isAuthenticated() ? (
+                      <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.35)' }}>
+                        <Shield size={14} style={{ color: 'var(--color-success)' }} className="mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs font-medium" style={{ color: 'var(--color-success)' }}>
+                            {t('proxyModeTitle') === 'proxyModeTitle' ? 'API keys managed by server' : t('proxyModeTitle')}
+                          </p>
+                          <p className="text-[10px] mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                            {t('proxyModeDesc') === 'proxyModeDesc' ? 'AI requests are routed through the backend proxy. No API keys are stored in the browser.' : t('proxyModeDesc')}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
                     <div>
                       <label className="block text-xs font-medium text-muted mb-1.5">{t('apiKey')}</label>
                       <div className="relative">
@@ -323,6 +343,7 @@ export default function UnifiedSettings({
                         </div>
                       )}
                     </div>
+                    )}
 
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
@@ -389,7 +410,7 @@ export default function UnifiedSettings({
                           {modelError}
                         </div>
                       )}
-                      {!localApiKey && (
+                      {!localApiKey && !(aiMode === 'proxy' && apiClient.isAuthenticated()) && (
                         <div className="text-xs mb-2 px-3 py-2 rounded-lg" style={{ color: 'var(--color-warning)', backgroundColor: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.35)' }}>
                           {t('fallbackHint')}
                         </div>
@@ -482,8 +503,8 @@ export default function UnifiedSettings({
                     )}
 
                     <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: localApiKey ? 'var(--color-success)' : 'var(--color-warning)' }} />
-                      <span className="text-xs text-muted">{localApiKey ? t('connected') : t('notConfigured')}</span>
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: ((aiMode === 'proxy' && apiClient.isAuthenticated()) || localApiKey) ? 'var(--color-success)' : 'var(--color-warning)' }} />
+                      <span className="text-xs text-muted">{aiMode === 'proxy' && apiClient.isAuthenticated() ? (t('proxyConnected') === 'proxyConnected' ? 'Proxy connected' : t('proxyConnected')) : (localApiKey ? t('connected') : t('notConfigured'))}</span>
                       {selectedModelInfo && (
                         <>
                           <span className="text-muted">•</span>

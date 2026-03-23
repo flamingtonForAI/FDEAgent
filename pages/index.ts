@@ -5,5 +5,5 @@
 export { ProjectsPage } from './ProjectsPage';
 export { QuickStartPage } from './QuickStartPage';
 export { ScoutingPage } from './ScoutingPage';
-export { ModelingPage } from './ModelingPage';
-export { IntegrationPage } from './IntegrationPage';
+// ModelingPage and IntegrationPage are now lazy-loaded via React.lazy()
+// in MainContent.tsx and must NOT be re-exported from this barrel.

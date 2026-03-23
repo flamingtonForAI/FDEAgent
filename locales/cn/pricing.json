@@ -1,0 +1,65 @@
+{
+  "title": "选择您的方案",
+  "subtitle": "社区版永久免费，按需升级。",
+  "community": {
+    "name": "社区版",
+    "price": "免费",
+    "priceNote": "自托管，永久免费",
+    "description": "适合个人和小型团队开始本体设计。",
+    "cta": "开始使用",
+    "features": {
+      "projects": "最多 10 个项目",
+      "export": "JSON、Markdown、YAML 导出",
+      "ai": "自带密钥（BYOK）",
+      "collaboration": "单用户",
+      "support": "社区支持"
+    }
+  },
+  "cloud": {
+    "name": "云专业版",
+    "price": "$29",
+    "priceUnit": "/月",
+    "priceNote": "托管云服务",
+    "description": "适合需要托管 AI、全格式导出和实时协作的团队。",
+    "cta": "试用云版",
+    "popular": "最受欢迎",
+    "features": {
+      "projects": "无限项目",
+      "export": "所有导出格式，包括 HTML、ZIP、Mermaid",
+      "ai": "托管 AI 服务商",
+      "collaboration": "团队协作",
+      "support": "优先邮件支持"
+    }
+  },
+  "enterprise": {
+    "name": "企业版",
+    "price": "联系我们",
+    "priceNote": "定制部署",
+    "description": "适合需要 SSO、RBAC、审计追踪和专属支持的组织。",
+    "cta": "联系销售",
+    "features": {
+      "projects": "无限项目",
+      "export": "所有导出格式",
+      "ai": "托管 + 自定义 AI 服务商",
+      "collaboration": "高级协作（含 RBAC）",
+      "sso": "SSO / SAML 集成",
+      "audit": "完整审计追踪",
+      "support": "专属客户经理"
+    }
+  },
+  "faq": {
+    "title": "常见问题",
+    "byok": {
+      "q": "什么是 BYOK？",
+      "a": "BYOK（自带密钥）意味着您使用自己的 AI 服务商 API 密钥。这让您完全掌控成本和服务商选择。"
+    },
+    "selfHost": {
+      "q": "可以自托管云版功能吗？",
+      "a": "社区版完全支持自托管。云版功能需要我们的托管平台来实现实时同步和协作。"
+    },
+    "trial": {
+      "q": "云专业版有免费试用吗？",
+      "a": "有！云专业版提供 14 天免费试用，可使用全部功能。"
+    }
+  }
+}

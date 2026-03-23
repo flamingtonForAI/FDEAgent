@@ -171,6 +171,114 @@ class ProjectService {
       `/projects/${projectId}/audit?page=${page}&limit=${limit}`
     );
   }
+
+  // ─── Version History ─────────────────────────────────────────
+
+  /**
+   * List versions for a project
+   */
+  async listVersions(
+    projectId: string,
+    limit = 50,
+  ): Promise<Array<{
+    id: string;
+    version: number;
+    changeSummary: string | null;
+    createdBy: string | null;
+    createdAt: string;
+  }>> {
+    return apiClient.get(`/projects/${projectId}/versions?limit=${limit}`);
+  }
+
+  /**
+   * Get a specific version snapshot
+   */
+  async getVersion(
+    projectId: string,
+    version: number,
+  ): Promise<{
+    id: string;
+    version: number;
+    snapshot: unknown;
+    changeSummary: string | null;
+    createdAt: string;
+  }> {
+    return apiClient.get(`/projects/${projectId}/versions/${version}`);
+  }
+
+  /**
+   * Compute diff between two versions
+   */
+  async diffVersions(
+    projectId: string,
+    v1: number,
+    v2: number,
+  ): Promise<{
+    before: number;
+    after: number;
+    objects: Array<{ type: string; id: string; name: string; details?: string }>;
+    links: Array<{ type: string; id: string; name: string; details?: string }>;
+    actions: Array<{ type: string; id: string; name: string; details?: string }>;
+    summary: string;
+  }> {
+    return apiClient.get(`/projects/${projectId}/versions/${v1}/diff/${v2}`);
+  }
+
+  /**
+   * Restore a version
+   */
+  async restoreVersion(
+    projectId: string,
+    version: number,
+  ): Promise<{ restored: boolean; fromVersion: number }> {
+    return apiClient.post(`/projects/${projectId}/versions/${version}/restore`);
+  }
+
+  // ─── Members ────────────────────────────────────────────────
+
+  /**
+   * List project members
+   */
+  async listMembers(projectId: string): Promise<{
+    owner: { id: string; email: string; role: string } | null;
+    members: Array<{
+      userId: string;
+      email: string;
+      role: string;
+      invitedBy?: string;
+      createdAt: string;
+    }>;
+  }> {
+    return apiClient.get(`/projects/${projectId}/members`);
+  }
+
+  /**
+   * Add a member
+   */
+  async addMember(
+    projectId: string,
+    data: { email: string; role?: string },
+  ): Promise<{ userId: string; email: string; role: string }> {
+    return apiClient.post(`/projects/${projectId}/members`, data);
+  }
+
+  /**
+   * Update member role
+   */
+  async updateMemberRole(
+    projectId: string,
+    userId: string,
+    role: string,
+  ): Promise<{ userId: string; role: string }> {
+    return apiClient.put(`/projects/${projectId}/members/${userId}`, { role });
+  }
+
+  /**
+   * Remove a member
+   */
+  async removeMember(projectId: string, userId: string): Promise<void> {
+    return apiClient.delete(`/projects/${projectId}/members/${userId}`);
+  }
 }
 
 export const projectService = new ProjectService();

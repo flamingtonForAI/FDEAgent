@@ -183,5 +183,25 @@
       "passwordRequired": "请输入密码",
       "passwordWeak": "密码不符合要求"
     }
+  },
+  "versionHistory": {
+    "title": "版本历史",
+    "versions": "个版本",
+    "noVersions": "暂无版本记录",
+    "noSummary": "无变更摘要",
+    "restore": "恢复",
+    "confirmRestore": "确定要恢复此版本吗？当前状态将被覆盖。"
+  },
+  "sharing": {
+    "title": "团队成员",
+    "invite": "邀请",
+    "emailPlaceholder": "输入邮箱地址",
+    "viewer": "查看者",
+    "editor": "编辑者",
+    "owner": "所有者",
+    "send": "发送邀请",
+    "remove": "移除",
+    "confirmRemove": "确定要从项目中移除此成员吗？",
+    "noMembers": "暂无成员。邀请他人一起协作。"
   }
 }

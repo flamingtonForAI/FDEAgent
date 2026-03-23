@@ -5,7 +5,20 @@
     "tabWorkbench": "Atelier",
     "tabGraph": "Graphe",
     "tabWorkbenchDesc": "Modifier les éléments",
-    "tabGraphDesc": "Relations"
+    "tabGraphDesc": "Relations",
+    "tabTopology": "Topologie",
+    "tabTopologyDesc": "Graphe noeuds-arcs"
+  },
+  "ontologyGraph": {
+    "empty": "Aucun objet. Ajoutez-en dans l'Atelier.",
+    "startEditing": "Commencer l'édition",
+    "editMode": "Mode édition",
+    "editingHint": "Double-clic pour ajouter un noeud. Glissez les poignées pour lier. Suppr pour supprimer.",
+    "save": "Enregistrer",
+    "discard": "Annuler",
+    "unsavedChanges": "Modifications non enregistrées",
+    "newObjectPrompt": "Nom de l'objet :",
+    "newLinkPrompt": "Libellé du lien (ex. \"possède\", \"appartient à\") :"
   },
   "structuringWorkbench": {
     "title": "Atelier de structuration",

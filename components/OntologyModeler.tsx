@@ -4,12 +4,13 @@
  */
 import React, { useState } from 'react';
 import { ProjectState } from '../types';
-import { ClipboardList, GitFork } from 'lucide-react';
+import { ClipboardList, GitFork, Share2 } from 'lucide-react';
 import StructuringWorkbench from './StructuringWorkbench';
 import OntologyVisualizer from './OntologyVisualizer';
+import OntologyGraph from './OntologyGraph';
 import { useAppTranslation } from '../hooks/useAppTranslation';
 
-type ModelingView = 'workbench' | 'graph';
+type ModelingView = 'workbench' | 'graph' | 'topology';
 
 interface OntologyModelerProps {
   project: ProjectState;
@@ -32,6 +33,7 @@ const OntologyModeler: React.FC<OntologyModelerProps> = ({
   const tabs: { id: ModelingView; label: string; desc: string; icon: React.ReactNode }[] = [
     { id: 'workbench', label: t('ontologyModeler.tabWorkbench'), desc: t('ontologyModeler.tabWorkbenchDesc'), icon: <ClipboardList size={16} /> },
     { id: 'graph', label: t('ontologyModeler.tabGraph'), desc: t('ontologyModeler.tabGraphDesc'), icon: <GitFork size={16} /> },
+    { id: 'topology', label: t('ontologyModeler.tabTopology'), desc: t('ontologyModeler.tabTopologyDesc'), icon: <Share2 size={16} /> },
   ];
 
   return (
@@ -92,6 +94,14 @@ const OntologyModeler: React.FC<OntologyModelerProps> = ({
           <OntologyVisualizer
             objects={project.objects}
             links={project.links}
+          />
+        )}
+        {activeView === 'topology' && (
+          <OntologyGraph
+            objects={project.objects}
+            links={project.links}
+            editable
+            setProject={setProject}
           />
         )}
       </div>

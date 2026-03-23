@@ -183,5 +183,25 @@
       "passwordRequired": "Le mot de passe est requis",
       "passwordWeak": "Le mot de passe ne satisfait pas les exigences"
     }
+  },
+  "versionHistory": {
+    "title": "Historique des versions",
+    "versions": "versions",
+    "noVersions": "Aucune version enregistrée",
+    "noSummary": "Aucun résumé des modifications",
+    "restore": "Restaurer",
+    "confirmRestore": "Voulez-vous vraiment restaurer cette version ? L'état actuel sera écrasé."
+  },
+  "sharing": {
+    "title": "Membres de l'équipe",
+    "invite": "Inviter",
+    "emailPlaceholder": "Entrez l'adresse e-mail",
+    "viewer": "Lecteur",
+    "editor": "Éditeur",
+    "owner": "Propriétaire",
+    "send": "Envoyer l'invitation",
+    "remove": "Supprimer",
+    "confirmRemove": "Supprimer ce membre du projet ?",
+    "noMembers": "Aucun membre. Invitez quelqu'un à collaborer."
   }
 }

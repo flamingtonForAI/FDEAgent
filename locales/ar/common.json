@@ -183,5 +183,25 @@
       "passwordRequired": "Password is required",
       "passwordWeak": "Password does not meet requirements"
     }
+  },
+  "versionHistory": {
+    "title": "سجل الإصدارات",
+    "versions": "إصدارات",
+    "noVersions": "لا توجد إصدارات مسجلة",
+    "noSummary": "لا يوجد ملخص للتغييرات",
+    "restore": "استعادة",
+    "confirmRestore": "هل أنت متأكد أنك تريد استعادة هذا الإصدار؟ سيتم الكتابة فوق الحالة الحالية."
+  },
+  "sharing": {
+    "title": "أعضاء الفريق",
+    "invite": "دعوة",
+    "emailPlaceholder": "أدخل عنوان البريد الإلكتروني",
+    "viewer": "مشاهد",
+    "editor": "محرر",
+    "owner": "المالك",
+    "send": "إرسال الدعوة",
+    "remove": "إزالة",
+    "confirmRemove": "إزالة هذا العضو من المشروع؟",
+    "noMembers": "لا يوجد أعضاء. قم بدعوة شخص ما للتعاون."
   }
 }

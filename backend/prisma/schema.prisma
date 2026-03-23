@@ -19,11 +19,14 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   lastLoginAt   DateTime?
+  tier          String    @default("community")
 
   projects      Project[]
   preferences   UserPreferences?
   archetypes    ImportedArchetype[]
   refreshTokens RefreshToken[]
+  aiAuditLogs   AIAuditLog[]
+  memberships   ProjectMember[]
 
   @@index([email])
 }
@@ -63,6 +66,8 @@ model Project {
 
   chatMessages ChatMessage[]
   auditLogs    AuditLog[]
+  versions     OntologyVersion[]
+  members      ProjectMember[]
 
   @@index([userId])
   @@index([userId, updatedAt])
@@ -124,6 +129,25 @@ model ImportedArchetype {
   @@index([userId])
 }
 
+// === AI Audit Logs ===
+model AIAuditLog {
+  id            String   @id @default(cuid())
+  userId        String
+  provider      String
+  model         String
+  endpoint      String   // "chat" | "design" | "models"
+  inputTokens   Int?
+  outputTokens  Int?
+  latencyMs     Int
+  success       Boolean
+  errorMessage  String?
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+}
+
 // === Audit Logs ===
 model AuditLog {
   id        String  @id @default(cuid())
@@ -145,4 +169,33 @@ model AuditLog {
 
   @@index([projectId])
   @@index([projectId, createdAt])
+}
+
+// === Ontology Versioning ===
+model OntologyVersion {
+  id            String   @id @default(cuid())
+  projectId     String
+  version       Int
+  snapshot      Json
+  changeSummary String?
+  createdBy     String?
+  createdAt     DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  @@index([projectId, version])
+  @@unique([projectId, version])
+}
+
+// === Project Collaboration ===
+model ProjectMember {
+  id        String   @id @default(cuid())
+  projectId String
+  userId    String
+  role      String   @default("viewer")
+  invitedBy String?
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+  @@unique([projectId, userId])
 }

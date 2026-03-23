@@ -12,6 +12,9 @@ import { projectRoutes } from './modules/projects/projects.routes.js';
 import { preferencesRoutes } from './modules/preferences/preferences.routes.js';
 import { archetypeRoutes } from './modules/archetypes/archetypes.routes.js';
 import { syncRoutes } from './modules/sync/sync.routes.js';
+import { aiRoutes } from './modules/ai/ai.routes.js';
+import { versionRoutes } from './modules/versions/versions.routes.js';
+import { memberRoutes } from './modules/members/members.routes.js';
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -85,6 +88,9 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(preferencesRoutes, { prefix: '/api/preferences' });
   await app.register(archetypeRoutes, { prefix: '/api/archetypes' });
   await app.register(syncRoutes, { prefix: '/api/sync' });
+  await app.register(aiRoutes, { prefix: '/api/ai' });
+  await app.register(versionRoutes, { prefix: '/api/projects/:projectId/versions' });
+  await app.register(memberRoutes, { prefix: '/api/projects/:projectId/members' });
 
   // Log registered routes in development
   if (config.server.nodeEnv === 'development') {

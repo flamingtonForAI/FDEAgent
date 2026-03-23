@@ -1,6 +1,7 @@
 import { prisma } from '../../config/database.js';
 import { Prisma } from '@prisma/client';
 import { AppError } from '../../middleware/error.middleware.js';
+import { deserializeProjectState, serializeProjectState } from '../../domain/serializer.js';
 import type {
   CreateProjectInput,
   UpdateProjectInput,
@@ -8,45 +9,128 @@ import type {
   PaginationInput,
 } from './projects.schema.js';
 
+/**
+ * Reconstruct a ProjectState from separate Prisma JSONB columns,
+ * then validate/migrate via the domain deserializer.
+ */
+function deserializeColumns(row: {
+  industry?: string | null;
+  useCase?: string | null;
+  status?: string | null;
+  objects: unknown;
+  links: unknown;
+  integrations: unknown;
+  aiRequirements: unknown;
+}) {
+  return deserializeProjectState({
+    industry: row.industry ?? '',
+    useCase: row.useCase ?? '',
+    status: row.status ?? 'scouting',
+    objects: row.objects,
+    links: row.links,
+    integrations: row.integrations,
+    aiRequirements: row.aiRequirements,
+  });
+}
+
+/**
+ * Serialize validated domain arrays back to Prisma InputJsonValue columns.
+ * Accepts partial input for update operations.
+ */
+function serializeColumns(input: {
+  objects?: unknown[];
+  links?: unknown[];
+  integrations?: unknown[];
+  aiRequirements?: unknown[];
+}): Record<string, Prisma.InputJsonValue> {
+  const cols: Record<string, Prisma.InputJsonValue> = {};
+  if (input.objects !== undefined) cols.objects = input.objects as Prisma.InputJsonValue;
+  if (input.links !== undefined) cols.links = input.links as Prisma.InputJsonValue;
+  if (input.integrations !== undefined) cols.integrations = input.integrations as Prisma.InputJsonValue;
+  if (input.aiRequirements !== undefined) cols.aiRequirements = input.aiRequirements as Prisma.InputJsonValue;
+  return cols;
+}
+
 export class ProjectsService {
   /**
    * List all projects for a user
    */
   async listProjects(userId: string) {
     return prisma.project.findMany({
-      where: { userId },
+      where: {
+        OR: [
+          { userId },
+          { members: { some: { userId } } },
+        ],
+      },
       orderBy: { updatedAt: 'desc' },
       select: {
         id: true,
+        userId: true,
         name: true,
         industry: true,
         useCase: true,
         status: true,
         createdAt: true,
         updatedAt: true,
+        members: {
+          where: { userId },
+          select: { role: true },
+          take: 1,
+        },
       },
     });
   }
 
   /**
-   * Get a single project with full data
+   * Get a single project with full data.
+   * JSONB columns are validated through the domain deserializer.
    */
   async getProject(projectId: string, userId: string) {
     const project = await prisma.project.findFirst({
-      where: { id: projectId, userId },
+      where: {
+        id: projectId,
+        OR: [
+          { userId },
+          { members: { some: { userId } } },
+        ],
+      },
     });
 
     if (!project) {
       throw new AppError(404, 'Project not found');
     }
 
-    return project;
+    // Validate/migrate JSONB columns through the domain serializer
+    const state = deserializeColumns(project);
+    const serialized = serializeProjectState(state);
+    const stateObj = serialized as Record<string, unknown>;
+
+    return {
+      ...project,
+      objects: stateObj['objects'],
+      links: stateObj['links'],
+      integrations: stateObj['integrations'],
+      aiRequirements: stateObj['aiRequirements'],
+    };
   }
 
   /**
-   * Create a new project
+   * Create a new project.
+   * Incoming JSONB arrays are validated through the domain deserializer.
    */
   async createProject(userId: string, input: CreateProjectInput) {
+    // Validate incoming data through the domain layer
+    const state = deserializeProjectState({
+      industry: input.industry ?? '',
+      useCase: input.useCase ?? '',
+      status: input.status,
+      objects: input.objects ?? [],
+      links: input.links ?? [],
+      integrations: input.integrations ?? [],
+      aiRequirements: input.aiRequirements ?? [],
+    });
+
     return prisma.project.create({
       data: {
         userId,
@@ -54,16 +138,14 @@ export class ProjectsService {
         industry: input.industry,
         useCase: input.useCase,
         status: input.status,
-        objects: (input.objects ?? []) as Prisma.InputJsonValue,
-        links: (input.links ?? []) as Prisma.InputJsonValue,
-        integrations: (input.integrations ?? []) as Prisma.InputJsonValue,
-        aiRequirements: (input.aiRequirements ?? []) as Prisma.InputJsonValue,
+        ...serializeColumns(state),
       },
     });
   }
 
   /**
-   * Update a project
+   * Update a project.
+   * Only JSONB fields that are present in the input are validated.
    */
   async updateProject(
     projectId: string,
@@ -73,6 +155,14 @@ export class ProjectsService {
     // Verify ownership
     const project = await this.getProject(projectId, userId);
 
+    // Validate any JSONB arrays present in the update
+    const jsonbUpdate = serializeColumns({
+      objects: input.objects,
+      links: input.links,
+      integrations: input.integrations,
+      aiRequirements: input.aiRequirements,
+    });
+
     return prisma.project.update({
       where: { id: project.id },
       data: {
@@ -80,10 +170,7 @@ export class ProjectsService {
         ...(input.industry !== undefined && { industry: input.industry }),
         ...(input.useCase !== undefined && { useCase: input.useCase }),
         ...(input.status !== undefined && { status: input.status }),
-        ...(input.objects !== undefined && { objects: input.objects as Prisma.InputJsonValue }),
-        ...(input.links !== undefined && { links: input.links as Prisma.InputJsonValue }),
-        ...(input.integrations !== undefined && { integrations: input.integrations as Prisma.InputJsonValue }),
-        ...(input.aiRequirements !== undefined && { aiRequirements: input.aiRequirements as Prisma.InputJsonValue }),
+        ...jsonbUpdate,
       },
     });
   }

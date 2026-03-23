@@ -1,4 +1,7 @@
 
+// Tier system
+export type { Tier, TierFeatures } from './lib/tiers';
+
 export type Language = 'en' | 'cn' | 'fr' | 'ar' | 'es' | 'ja';
 
 export enum AIPComponentType {

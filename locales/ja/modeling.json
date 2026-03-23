@@ -5,7 +5,20 @@
     "tabWorkbench": "ワークベンチ",
     "tabGraph": "グラフ",
     "tabWorkbenchDesc": "要素を編集",
-    "tabGraphDesc": "リレーションシップ"
+    "tabGraphDesc": "リレーションシップ",
+    "tabTopology": "トポロジー",
+    "tabTopologyDesc": "ノード・エッジグラフ"
+  },
+  "ontologyGraph": {
+    "empty": "オブジェクトがありません。ワークベンチで追加してください。",
+    "startEditing": "編集開始",
+    "editMode": "編集モード",
+    "editingHint": "ダブルクリックでノード追加。ハンドルをドラッグで接続。Deleteで削除。",
+    "save": "保存",
+    "discard": "破棄",
+    "unsavedChanges": "未保存の変更があります",
+    "newObjectPrompt": "オブジェクト名を入力:",
+    "newLinkPrompt": "リンクラベルを入力（例：「持つ」「属する」）:"
   },
   "structuringWorkbench": {
     "title": "構造化ワークベンチ",

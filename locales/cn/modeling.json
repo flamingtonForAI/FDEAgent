@@ -5,7 +5,20 @@
     "tabWorkbench": "建模工作台",
     "tabGraph": "关系图谱",
     "tabWorkbenchDesc": "编辑元素",
-    "tabGraphDesc": "可视化关系"
+    "tabGraphDesc": "可视化关系",
+    "tabTopology": "拓扑视图",
+    "tabTopologyDesc": "节点连线图"
+  },
+  "ontologyGraph": {
+    "empty": "暂无对象。请在建模工作台中添加。",
+    "startEditing": "开始编辑",
+    "editMode": "编辑模式",
+    "editingHint": "双击空白添加节点，拖拽手柄连线，Delete 删除。",
+    "save": "保存",
+    "discard": "放弃",
+    "unsavedChanges": "有未保存的更改",
+    "newObjectPrompt": "请输入对象名称：",
+    "newLinkPrompt": "请输入链接标签（如\"拥有\"、\"属于\"）："
   },
   "structuringWorkbench": {
     "title": "结构化工作台",

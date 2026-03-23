@@ -1,0 +1,65 @@
+{
+  "title": "Choisissez votre formule",
+  "subtitle": "Commencez gratuitement avec l'édition Community. Passez à la version supérieure quand vous en avez besoin.",
+  "community": {
+    "name": "Community",
+    "price": "Gratuit",
+    "priceNote": "Auto-hébergé, gratuit pour toujours",
+    "description": "Idéal pour les particuliers et les petites équipes qui débutent en conception ontologique.",
+    "cta": "Commencer",
+    "features": {
+      "projects": "Jusqu'à 10 projets",
+      "export": "Export JSON, Markdown, YAML",
+      "ai": "Apportez votre propre clé (BYOK)",
+      "collaboration": "Utilisateur unique",
+      "support": "Support communautaire"
+    }
+  },
+  "cloud": {
+    "name": "Cloud Pro",
+    "price": "29 $",
+    "priceUnit": "/mois",
+    "priceNote": "Service cloud géré",
+    "description": "Pour les équipes qui souhaitent une IA gérée, tous les formats d'export et la collaboration en temps réel.",
+    "cta": "Essayer Cloud",
+    "popular": "Le plus populaire",
+    "features": {
+      "projects": "Projets illimités",
+      "export": "Tous les formats d'export dont HTML, ZIP, Mermaid",
+      "ai": "Fournisseurs IA gérés inclus",
+      "collaboration": "Collaboration en équipe",
+      "support": "Support par e-mail prioritaire"
+    }
+  },
+  "enterprise": {
+    "name": "Entreprise",
+    "price": "Contactez-nous",
+    "priceNote": "Déploiement personnalisé",
+    "description": "Pour les organisations nécessitant SSO, RBAC, pistes d'audit et support dédié.",
+    "cta": "Contacter les ventes",
+    "features": {
+      "projects": "Projets illimités",
+      "export": "Tous les formats d'export",
+      "ai": "Fournisseurs IA gérés + personnalisés",
+      "collaboration": "Collaboration avancée avec RBAC",
+      "sso": "Intégration SSO / SAML",
+      "audit": "Piste d'audit complète",
+      "support": "Responsable de compte dédié"
+    }
+  },
+  "faq": {
+    "title": "Questions fréquentes",
+    "byok": {
+      "q": "Qu'est-ce que BYOK ?",
+      "a": "BYOK (Bring Your Own Key) signifie que vous utilisez vos propres clés API de fournisseur IA. Cela vous donne un contrôle total sur les coûts et le choix du fournisseur."
+    },
+    "selfHost": {
+      "q": "Puis-je auto-héberger les fonctionnalités Cloud ?",
+      "a": "L'édition Community est entièrement auto-hébergeable. Les fonctionnalités Cloud nécessitent notre plateforme gérée pour la synchronisation en temps réel et la collaboration."
+    },
+    "trial": {
+      "q": "Y a-t-il un essai gratuit pour Cloud Pro ?",
+      "a": "Oui ! Cloud Pro inclut un essai gratuit de 14 jours avec accès complet à toutes les fonctionnalités."
+    }
+  }
+}

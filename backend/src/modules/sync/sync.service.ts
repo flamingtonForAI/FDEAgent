@@ -1,7 +1,18 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '../../config/database.js';
 import { logger } from '../../utils/logger.js';
+import { deserializeProjectState } from '../../domain/serializer.js';
+import { createVersion } from '../../domain/versioning.js';
+import type { ProjectState } from '../../domain/types.js';
 import type { BatchSyncInput, ProjectSyncInput, ChatMessageSyncInput } from './sync.schema.js';
+
+export interface SyncConflict {
+  projectId: string;
+  projectName: string;
+  cloudUpdatedAt: string;
+  localUpdatedAt: string;
+  resolution: 'cloud_wins';
+}
 
 export interface SyncResult {
   success: boolean;
@@ -11,6 +22,7 @@ export interface SyncResult {
       created: string[];
       updated: string[];
       failed: string[];
+      conflicts: SyncConflict[];
       mappings?: Array<{
         localId: string;
         cloudId: string;
@@ -117,11 +129,13 @@ export class SyncService {
     created: string[];
     updated: string[];
     failed: string[];
+    conflicts: SyncConflict[];
     mappings: Array<{ localId: string; cloudId: string }>;
   }> {
     const created: string[] = [];
     const updated: string[] = [];
     const failed: string[] = [];
+    const conflicts: SyncConflict[] = [];
     const mappings: Array<{ localId: string; cloudId: string }> = [];
 
     // Extract project IDs that need to be checked
@@ -129,24 +143,78 @@ export class SyncService {
       .map(p => p.id)
       .filter((id): id is string => id !== undefined && id !== null);
 
-    // Batch load all existing projects in a single query (fixes N+1)
+    // Batch load all existing projects where user is owner OR member (with updatedAt for conflict detection)
     const existingProjects = projectIds.length > 0
       ? await tx.project.findMany({
           where: {
             id: { in: projectIds },
-            userId,
+            OR: [
+              { userId },
+              { members: { some: { userId } } },
+            ],
           },
-          select: { id: true },
+          select: { id: true, userId: true, name: true, updatedAt: true, members: { where: { userId }, select: { role: true }, take: 1 } },
         })
       : [];
 
-    // Create a Set for O(1) lookup
-    const existingProjectIds = new Set(existingProjects.map(p => p.id));
+    // Create Maps for O(1) lookup
+    const existingProjectMap = new Map(existingProjects.map(p => [p.id, p]));
 
     for (const project of projects) {
       try {
-        if (project.id && existingProjectIds.has(project.id)) {
-          // Update existing project
+        // Validate/migrate JSONB data through the domain serializer
+        const state = deserializeProjectState({
+          industry: project.industry ?? '',
+          useCase: project.useCase ?? '',
+          status: project.status,
+          objects: project.objects ?? [],
+          links: project.links ?? [],
+          integrations: project.integrations ?? [],
+          aiRequirements: project.aiRequirements ?? [],
+        });
+
+        const jsonbData = {
+          objects: state.objects as unknown as Prisma.InputJsonValue,
+          links: state.links as unknown as Prisma.InputJsonValue,
+          integrations: state.integrations as unknown as Prisma.InputJsonValue,
+          aiRequirements: state.aiRequirements as unknown as Prisma.InputJsonValue,
+        };
+
+        const existing = project.id ? existingProjectMap.get(project.id) : undefined;
+
+        if (project.id && existing) {
+          // Write permission check: only owner or editor can update via sync
+          const isOwner = existing.userId === userId;
+          const memberRole = existing.members?.[0]?.role;
+          if (!isOwner && memberRole !== 'editor') {
+            logger.warn({ projectId: project.id, userId, role: memberRole }, 'Sync skipped — insufficient permissions');
+            failed.push(project.id);
+            continue;
+          }
+
+          // Conflict detection: compare timestamps (LWW — cloud wins)
+          if (project.localUpdatedAt) {
+            const localTime = new Date(project.localUpdatedAt);
+            const cloudTime = existing.updatedAt;
+            if (cloudTime > localTime) {
+              // Cloud is newer — record conflict, skip update
+              conflicts.push({
+                projectId: project.id,
+                projectName: existing.name ?? project.name,
+                cloudUpdatedAt: cloudTime.toISOString(),
+                localUpdatedAt: project.localUpdatedAt,
+                resolution: 'cloud_wins',
+              });
+              logger.warn({
+                projectId: project.id,
+                cloudUpdatedAt: cloudTime.toISOString(),
+                localUpdatedAt: project.localUpdatedAt,
+              }, 'Sync conflict detected — cloud wins (LWW)');
+              continue;
+            }
+          }
+
+          // Update existing project (local is newer or no timestamp provided)
           await tx.project.update({
             where: { id: project.id },
             data: {
@@ -154,13 +222,21 @@ export class SyncService {
               industry: project.industry,
               useCase: project.useCase,
               status: project.status,
-              objects: (project.objects ?? []) as Prisma.InputJsonValue,
-              links: (project.links ?? []) as Prisma.InputJsonValue,
-              integrations: (project.integrations ?? []) as Prisma.InputJsonValue,
-              aiRequirements: (project.aiRequirements ?? []) as Prisma.InputJsonValue,
+              ...jsonbData,
             },
           });
           updated.push(project.id);
+
+          // Auto-version: compute change summary and create a version snapshot
+          try {
+            const changeSummary = this.computeChangeSummary(existing, state);
+            await createVersion(project.id, state, userId, changeSummary, tx);
+          } catch (versionError) {
+            logger.warn({
+              projectId: project.id,
+              error: versionError instanceof Error ? versionError.message : 'Unknown',
+            }, 'Auto-versioning failed (non-fatal)');
+          }
         } else {
           // Create new project (no ID or ID doesn't exist for this user)
           const newProject = await tx.project.create({
@@ -170,10 +246,7 @@ export class SyncService {
               industry: project.industry,
               useCase: project.useCase,
               status: project.status,
-              objects: (project.objects ?? []) as Prisma.InputJsonValue,
-              links: (project.links ?? []) as Prisma.InputJsonValue,
-              integrations: (project.integrations ?? []) as Prisma.InputJsonValue,
-              aiRequirements: (project.aiRequirements ?? []) as Prisma.InputJsonValue,
+              ...jsonbData,
             },
           });
           created.push(newProject.id);
@@ -197,7 +270,7 @@ export class SyncService {
       }
     }
 
-    return { created, updated, failed, mappings };
+    return { created, updated, failed, conflicts, mappings };
   }
 
   /**
@@ -214,25 +287,28 @@ export class SyncService {
     // Extract unique project IDs
     const projectIds = [...new Set(chatMessages.map(batch => batch.projectId))];
 
-    // Batch verify all project ownership in a single query (fixes N+1)
-    const ownedProjects = await tx.project.findMany({
+    // Batch verify project access (owner OR editor member) in a single query
+    const accessibleProjects = await tx.project.findMany({
       where: {
         id: { in: projectIds },
-        userId,
+        OR: [
+          { userId },
+          { members: { some: { userId, role: 'editor' } } },
+        ],
       },
       select: { id: true },
     });
 
     // Create a Set for O(1) lookup
-    const ownedProjectIds = new Set(ownedProjects.map(p => p.id));
+    const accessibleProjectIds = new Set(accessibleProjects.map(p => p.id));
 
     for (const batch of chatMessages) {
-      // Skip if project doesn't exist or doesn't belong to user
-      if (!ownedProjectIds.has(batch.projectId)) {
+      // Skip if project doesn't exist or user lacks write access
+      if (!accessibleProjectIds.has(batch.projectId)) {
         logger.warn({
           projectId: batch.projectId,
           userId,
-        }, 'Chat message sync skipped - project not owned');
+        }, 'Chat message sync skipped - no write access');
         continue;
       }
 
@@ -254,12 +330,42 @@ export class SyncService {
   }
 
   /**
-   * Get full sync state for a user (for initial load)
+   * Compute a human-readable change summary by comparing old project metadata
+   * with the new state.
+   */
+  private computeChangeSummary(
+    _existing: { id: string; name: string; updatedAt: Date },
+    newState: ProjectState,
+  ): string {
+    const parts: string[] = [];
+    const objCount = newState.objects?.length ?? 0;
+    const linkCount = newState.links?.length ?? 0;
+    const actionCount = newState.objects?.reduce(
+      (sum, o) => sum + (o.actions?.length ?? 0), 0,
+    ) ?? 0;
+
+    if (objCount > 0) parts.push(`${objCount} objects`);
+    if (linkCount > 0) parts.push(`${linkCount} links`);
+    if (actionCount > 0) parts.push(`${actionCount} actions`);
+
+    return parts.length > 0
+      ? `Synced: ${parts.join(', ')}`
+      : 'Synced (no entities)';
+  }
+
+  /**
+   * Get full sync state for a user (for initial load).
+   * JSONB columns are validated/migrated through the domain deserializer.
    */
   async getFullState(userId: string) {
-    const [projects, preferences, archetypes] = await Promise.all([
+    const [rawProjects, preferences, archetypes] = await Promise.all([
       prisma.project.findMany({
-        where: { userId },
+        where: {
+          OR: [
+            { userId },
+            { members: { some: { userId } } },
+          ],
+        },
         orderBy: { updatedAt: 'desc' },
         include: {
           chatMessages: {
@@ -276,6 +382,26 @@ export class SyncService {
         orderBy: { updatedAt: 'desc' },
       }),
     ]);
+
+    // Validate/migrate JSONB columns on each project
+    const projects = rawProjects.map(project => {
+      const state = deserializeProjectState({
+        industry: project.industry ?? '',
+        useCase: project.useCase ?? '',
+        status: project.status,
+        objects: project.objects,
+        links: project.links,
+        integrations: project.integrations,
+        aiRequirements: project.aiRequirements,
+      });
+      return {
+        ...project,
+        objects: state.objects,
+        links: state.links,
+        integrations: state.integrations,
+        aiRequirements: state.aiRequirements,
+      };
+    });
 
     return {
       projects,

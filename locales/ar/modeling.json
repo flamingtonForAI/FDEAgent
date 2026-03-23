@@ -5,7 +5,20 @@
     "tabWorkbench": "Workbench",
     "tabGraph": "Graph",
     "tabWorkbenchDesc": "Edit Elements",
-    "tabGraphDesc": "Relationships"
+    "tabGraphDesc": "Relationships",
+    "tabTopology": "Topology",
+    "tabTopologyDesc": "Node-Edge Graph"
+  },
+  "ontologyGraph": {
+    "empty": "No objects to display. Add objects in the Workbench view.",
+    "startEditing": "Start Editing",
+    "editMode": "Edit Mode",
+    "editingHint": "Double-click to add node. Drag handles to link. Delete to remove.",
+    "save": "Save",
+    "discard": "Discard",
+    "unsavedChanges": "Unsaved changes",
+    "newObjectPrompt": "Enter object name:",
+    "newLinkPrompt": "Enter link label (e.g., \"has\", \"belongs to\"):"
   },
   "structuringWorkbench": {
     "title": "Structuring Workbench",

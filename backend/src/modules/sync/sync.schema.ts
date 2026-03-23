@@ -11,13 +11,6 @@ const propertySchema = z.object({
   description: z.string().max(500).optional(),
 }).passthrough();
 
-const actionParameterSchema = z.object({
-  name: z.string().max(100),
-  type: z.enum(['string', 'number', 'boolean', 'date', 'object', 'array']).optional(),
-  required: z.boolean().optional(),
-  description: z.string().max(500).optional(),
-}).passthrough();
-
 const actionSchema = z.object({
   name: z.string().max(200),
   type: z.enum(['traditional', 'generative']).optional(),

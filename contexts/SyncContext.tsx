@@ -11,8 +11,9 @@ import React, {
   useEffect,
   type ReactNode,
 } from 'react';
-import { syncService, type FullSyncState, type BatchSyncInput } from '../services/syncService';
+import { syncService, type FullSyncState, type BatchSyncInput, type SyncConflict } from '../services/syncService';
 import { useAuth } from './AuthContext';
+import ConflictToast from '../components/ConflictToast';
 
 export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'error' | 'offline';
 
@@ -21,6 +22,8 @@ interface SyncContextType {
   lastSyncedAt: Date | null;
   error: string | null;
   hasPendingChanges: boolean;
+  conflicts: SyncConflict[];
+  dismissConflicts: () => void;
   sync: (data: BatchSyncInput) => void;
   forceSync: () => Promise<void>;
   fetchFullState: () => Promise<FullSyncState | null>;
@@ -38,6 +41,7 @@ export function SyncProvider({ children }: SyncProviderProps) {
   const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
+  const [conflicts, setConflicts] = useState<SyncConflict[]>([]);
 
   // Check online status
   useEffect(() => {
@@ -69,6 +73,10 @@ export function SyncProvider({ children }: SyncProviderProps) {
     };
   }, [status, hasPendingChanges]);
 
+  const dismissConflicts = useCallback(() => {
+    setConflicts([]);
+  }, []);
+
   useEffect(() => {
     const unsubscribe = syncService.subscribe((result, syncError) => {
       if (result) {
@@ -76,6 +84,20 @@ export function SyncProvider({ children }: SyncProviderProps) {
         setLastSyncedAt(new Date(result.syncedAt));
         setHasPendingChanges(false);
         setError(null);
+
+        // Detect sync conflicts — store in state and persist to localStorage for diagnostics
+        const projectConflicts = result.results.projects?.conflicts;
+        if (projectConflicts && projectConflicts.length > 0) {
+          setConflicts(prev => [...prev, ...projectConflicts]);
+          try {
+            const key = 'ontology:sync-conflict-log';
+            const existing = JSON.parse(localStorage.getItem(key) || '[]') as unknown[];
+            const entries = projectConflicts.map(c => ({ ...c, detectedAt: new Date().toISOString() }));
+            // Keep last 50 conflict records
+            const updated = [...existing, ...entries].slice(-50);
+            localStorage.setItem(key, JSON.stringify(updated));
+          } catch { /* localStorage may be unavailable */ }
+        }
         return;
       }
 
@@ -157,12 +179,19 @@ export function SyncProvider({ children }: SyncProviderProps) {
     lastSyncedAt,
     error,
     hasPendingChanges,
+    conflicts,
+    dismissConflicts,
     sync,
     forceSync,
     fetchFullState,
   };
 
-  return <SyncContext.Provider value={value}>{children}</SyncContext.Provider>;
+  return (
+    <SyncContext.Provider value={value}>
+      {children}
+      <ConflictToast conflicts={conflicts} onDismiss={dismissConflicts} />
+    </SyncContext.Provider>
+  );
 }
 
 export function useSync(): SyncContextType {

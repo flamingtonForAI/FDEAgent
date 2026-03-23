@@ -1,7 +1,16 @@
 import path from 'path';
 import fs from 'fs';
+import { execSync } from 'child_process';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+
+let gitHash = 'dev';
+try {
+  gitHash = execSync('git rev-parse --short HEAD').toString().trim();
+} catch { /* not a git repo or git not available */ }
+
+const pkgJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8'));
+const appVersion: string = pkgJson.version;
 
 const CONFIG_FILE = 'api-config.local.json';
 
@@ -75,7 +84,9 @@ export default defineConfig(({ mode }) => {
       plugins: [react(), localConfigPlugin()],
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+        '__BUILD_HASH__': JSON.stringify(gitHash),
+        '__APP_VERSION__': JSON.stringify(appVersion),
       },
       resolve: {
         alias: {
@@ -85,9 +96,22 @@ export default defineConfig(({ mode }) => {
       build: {
         rollupOptions: {
           output: {
-            manualChunks: {
-              'vendor': ['react', 'react-dom'],
-              'vendor-icons': ['lucide-react'],
+            manualChunks(id: string) {
+              if (id.includes('node_modules/react-dom/') || id.includes('node_modules/react/')) {
+                return 'vendor';
+              }
+              if (id.includes('node_modules/lucide-react/')) {
+                return 'vendor-icons';
+              }
+              if (id.includes('node_modules/@xyflow/') || id.includes('node_modules/@dagrejs/')) {
+                return 'vendor-graph';
+              }
+              if (id.includes('node_modules/@google/genai/')) {
+                return 'vendor-gemini';
+              }
+              if (id.includes('node_modules/i18next') || id.includes('node_modules/react-i18next')) {
+                return 'vendor-i18n';
+              }
             },
           },
         },

@@ -5,7 +5,20 @@
     "tabWorkbench": "Banco de trabajo",
     "tabGraph": "Grafo",
     "tabWorkbenchDesc": "Editar elementos",
-    "tabGraphDesc": "Relaciones"
+    "tabGraphDesc": "Relaciones",
+    "tabTopology": "Topologia",
+    "tabTopologyDesc": "Grafo nodos-aristas"
+  },
+  "ontologyGraph": {
+    "empty": "Sin objetos. Agregue objetos en el Banco de trabajo.",
+    "startEditing": "Empezar a editar",
+    "editMode": "Modo edición",
+    "editingHint": "Doble clic para agregar nodo. Arrastre conectores para enlazar. Supr para eliminar.",
+    "save": "Guardar",
+    "discard": "Descartar",
+    "unsavedChanges": "Cambios sin guardar",
+    "newObjectPrompt": "Nombre del objeto:",
+    "newLinkPrompt": "Etiqueta del enlace (ej. \"tiene\", \"pertenece a\"):"
   },
   "structuringWorkbench": {
     "title": "Banco de estructuración",

@@ -70,7 +70,7 @@ i18next
     lng: 'cn',
     fallbackLng: ['en', 'cn'],
     defaultNS: 'common',
-    ns: ['common', 'nav', 'academy'],
+    ns: ['common', 'nav', 'academy', 'pricing'],
     partialBundledLanguages: true,
     interpolation: { escapeValue: false },
     react: { useSuspense: false },

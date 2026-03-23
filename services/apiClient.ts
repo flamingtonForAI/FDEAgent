@@ -113,6 +113,14 @@ class ApiClient {
   }
 
   /**
+   * Check if the access token has expired
+   */
+  isTokenExpired(): boolean {
+    if (!this.tokens.expiresAt) return false;
+    return new Date() >= this.tokens.expiresAt;
+  }
+
+  /**
    * Subscribe to auth state changes
    */
   onAuthChange(callback: AuthChangeCallback): () => void {

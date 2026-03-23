@@ -12,7 +12,7 @@ import React, {
   useRef,
   type ReactNode,
 } from 'react';
-import { storage } from '../lib/storage';
+import { storage } from '../lib/storageFacade';
 import { useAuth } from './AuthContext';
 import type { ProjectState, ChatMessage, Project, ProjectListItem } from '../types';
 

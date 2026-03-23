@@ -1,0 +1,65 @@
+{
+  "title": "Elige tu plan",
+  "subtitle": "Empieza gratis con la edición Community. Actualiza cuando lo necesites.",
+  "community": {
+    "name": "Community",
+    "price": "Gratis",
+    "priceNote": "Autoalojado, gratis para siempre",
+    "description": "Perfecto para individuos y equipos pequeños que comienzan con el diseño de ontologías.",
+    "cta": "Comenzar",
+    "features": {
+      "projects": "Hasta 10 proyectos",
+      "export": "Exportación JSON, Markdown, YAML",
+      "ai": "Trae tu propia clave (BYOK)",
+      "collaboration": "Usuario único",
+      "support": "Soporte comunitario"
+    }
+  },
+  "cloud": {
+    "name": "Cloud Pro",
+    "price": "$29",
+    "priceUnit": "/mes",
+    "priceNote": "Servicio en la nube gestionado",
+    "description": "Para equipos que quieren IA gestionada, todos los formatos de exportación y colaboración en tiempo real.",
+    "cta": "Probar Cloud",
+    "popular": "Más popular",
+    "features": {
+      "projects": "Proyectos ilimitados",
+      "export": "Todos los formatos de exportación incluyendo HTML, ZIP, Mermaid",
+      "ai": "Proveedores de IA gestionados incluidos",
+      "collaboration": "Colaboración en equipo",
+      "support": "Soporte por correo prioritario"
+    }
+  },
+  "enterprise": {
+    "name": "Enterprise",
+    "price": "Contáctanos",
+    "priceNote": "Despliegue personalizado",
+    "description": "Para organizaciones que requieren SSO, RBAC, registros de auditoría y soporte dedicado.",
+    "cta": "Contactar ventas",
+    "features": {
+      "projects": "Proyectos ilimitados",
+      "export": "Todos los formatos de exportación",
+      "ai": "Proveedores de IA gestionados + personalizados",
+      "collaboration": "Colaboración avanzada con RBAC",
+      "sso": "Integración SSO / SAML",
+      "audit": "Registro de auditoría completo",
+      "support": "Gerente de cuenta dedicado"
+    }
+  },
+  "faq": {
+    "title": "Preguntas frecuentes",
+    "byok": {
+      "q": "¿Qué es BYOK?",
+      "a": "BYOK (Bring Your Own Key) significa que usas tus propias claves API de proveedor de IA. Esto te da control total sobre los costos y la elección del proveedor."
+    },
+    "selfHost": {
+      "q": "¿Puedo autoalojar las funciones de Cloud?",
+      "a": "La edición Community es completamente autoalojable. Las funciones de Cloud requieren nuestra plataforma gestionada para la sincronización en tiempo real y la colaboración."
+    },
+    "trial": {
+      "q": "¿Hay una prueba gratuita de Cloud Pro?",
+      "a": "¡Sí! Cloud Pro incluye una prueba gratuita de 14 días con acceso completo a todas las funciones."
+    }
+  }
+}

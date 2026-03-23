@@ -14,9 +14,6 @@ interface LoginFormProps {
   onSuccess?: () => void;
 }
 
-// SECURITY: Only email is public hint — password never in frontend bundle
-const DEMO_EMAIL = 'demo@example.com';
-
 export const LoginForm: React.FC<LoginFormProps> = ({
   onSwitchToRegister,
   onSuccess,

@@ -10,6 +10,7 @@ import {
   type ChatMessageInput,
 } from './projects.schema.js';
 import { authenticate } from '../../middleware/auth.middleware.js';
+import { requireProjectRole } from '../../middleware/project-access.js';
 import { z } from 'zod';
 
 export async function projectRoutes(app: FastifyInstance): Promise<void> {
@@ -47,9 +48,10 @@ export async function projectRoutes(app: FastifyInstance): Promise<void> {
     }
   );
 
-  // PUT /api/projects/:id - Update a project
+  // PUT /api/projects/:id - Update a project (editor+)
   app.put<{ Params: { id: string }; Body: UpdateProjectInput }>(
     '/:id',
+    { preHandler: requireProjectRole('editor') },
     async (
       request: FastifyRequest<{ Params: { id: string }; Body: UpdateProjectInput }>,
       reply: FastifyReply
@@ -64,9 +66,10 @@ export async function projectRoutes(app: FastifyInstance): Promise<void> {
     }
   );
 
-  // DELETE /api/projects/:id - Delete a project
+  // DELETE /api/projects/:id - Delete a project (owner only)
   app.delete<{ Params: { id: string } }>(
     '/:id',
+    { preHandler: requireProjectRole('owner') },
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
       await projectsService.deleteProject(request.params.id, request.user!.userId);
       return reply.status(204).send();
@@ -93,9 +96,10 @@ export async function projectRoutes(app: FastifyInstance): Promise<void> {
     }
   );
 
-  // POST /api/projects/:id/chat - Add a chat message
+  // POST /api/projects/:id/chat - Add a chat message (editor+)
   app.post<{ Params: { id: string }; Body: ChatMessageInput }>(
     '/:id/chat',
+    { preHandler: requireProjectRole('editor') },
     async (
       request: FastifyRequest<{ Params: { id: string }; Body: ChatMessageInput }>,
       reply: FastifyReply
@@ -110,9 +114,10 @@ export async function projectRoutes(app: FastifyInstance): Promise<void> {
     }
   );
 
-  // POST /api/projects/:id/chat/batch - Add multiple chat messages
+  // POST /api/projects/:id/chat/batch - Add multiple chat messages (editor+)
   app.post<{ Params: { id: string }; Body: ChatMessageInput[] }>(
     '/:id/chat/batch',
+    { preHandler: requireProjectRole('editor') },
     async (
       request: FastifyRequest<{ Params: { id: string }; Body: ChatMessageInput[] }>,
       reply: FastifyReply

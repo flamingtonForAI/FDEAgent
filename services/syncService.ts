@@ -6,6 +6,14 @@
 import { apiClient } from './apiClient';
 import type { ProjectState, ChatMessage } from '../types';
 
+export interface SyncConflict {
+  projectId: string;
+  projectName: string;
+  cloudUpdatedAt: string;
+  localUpdatedAt: string;
+  resolution: 'cloud_wins';
+}
+
 export interface SyncResult {
   success: boolean;
   syncedAt: string;
@@ -14,6 +22,7 @@ export interface SyncResult {
       created: string[];
       updated: string[];
       failed: string[];
+      conflicts: SyncConflict[];
       mappings?: Array<{
         localId: string;
         cloudId: string;
@@ -85,6 +94,7 @@ export interface BatchSyncInput {
     links?: ProjectState['links'];
     integrations?: ProjectState['integrations'];
     aiRequirements?: ProjectState['aiRequirements'];
+    localUpdatedAt?: string;
   }>;
   chatMessages?: Array<{
     projectId: string;

@@ -1,0 +1,65 @@
+{
+  "title": "プランを選択",
+  "subtitle": "Community版は無料でスタート。必要に応じてアップグレード。",
+  "community": {
+    "name": "Community",
+    "price": "無料",
+    "priceNote": "セルフホスト、永久無料",
+    "description": "オントロジー設計を始める個人や小規模チームに最適です。",
+    "cta": "始める",
+    "features": {
+      "projects": "最大10プロジェクト",
+      "export": "JSON、Markdown、YAMLエクスポート",
+      "ai": "自分のキーを使用（BYOK）",
+      "collaboration": "シングルユーザー",
+      "support": "コミュニティサポート"
+    }
+  },
+  "cloud": {
+    "name": "Cloud Pro",
+    "price": "$29",
+    "priceUnit": "/月",
+    "priceNote": "マネージドクラウドサービス",
+    "description": "マネージドAI、全エクスポート形式、リアルタイムコラボレーションが必要なチーム向け。",
+    "cta": "Cloudを試す",
+    "popular": "一番人気",
+    "features": {
+      "projects": "無制限のプロジェクト",
+      "export": "HTML、ZIP、Mermaidを含む全エクスポート形式",
+      "ai": "マネージドAIプロバイダー込み",
+      "collaboration": "チームコラボレーション",
+      "support": "優先メールサポート"
+    }
+  },
+  "enterprise": {
+    "name": "Enterprise",
+    "price": "お問い合わせ",
+    "priceNote": "カスタムデプロイメント",
+    "description": "SSO、RBAC、監査証跡、専任サポートが必要な組織向け。",
+    "cta": "営業に問い合わせ",
+    "features": {
+      "projects": "無制限のプロジェクト",
+      "export": "全エクスポート形式",
+      "ai": "マネージド＋カスタムAIプロバイダー",
+      "collaboration": "RBACを含む高度なコラボレーション",
+      "sso": "SSO / SAML統合",
+      "audit": "完全な監査証跡",
+      "support": "専任アカウントマネージャー"
+    }
+  },
+  "faq": {
+    "title": "よくある質問",
+    "byok": {
+      "q": "BYOKとは何ですか？",
+      "a": "BYOK（Bring Your Own Key）とは、ご自身のAIプロバイダーAPIキーを使用することです。コストとプロバイダーの選択を完全にコントロールできます。"
+    },
+    "selfHost": {
+      "q": "Cloud機能をセルフホストできますか？",
+      "a": "Community版は完全にセルフホスト可能です。Cloud機能はリアルタイム同期とコラボレーションのためにマネージドプラットフォームが必要です。"
+    },
+    "trial": {
+      "q": "Cloud Proに無料トライアルはありますか？",
+      "a": "はい！Cloud Proには全機能にフルアクセスできる14日間の無料トライアルが含まれています。"
+    }
+  }
+}

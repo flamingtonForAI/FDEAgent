@@ -1,0 +1,65 @@
+{
+  "title": "Choose Your Plan",
+  "subtitle": "Start free with Community edition. Upgrade when you need more.",
+  "community": {
+    "name": "Community",
+    "price": "Free",
+    "priceNote": "Self-hosted, forever free",
+    "description": "Perfect for individuals and small teams getting started with ontology design.",
+    "cta": "Get Started",
+    "features": {
+      "projects": "Up to 10 projects",
+      "export": "JSON, Markdown, YAML export",
+      "ai": "Bring Your Own Key (BYOK)",
+      "collaboration": "Single user",
+      "support": "Community support"
+    }
+  },
+  "cloud": {
+    "name": "Cloud Pro",
+    "price": "$29",
+    "priceUnit": "/month",
+    "priceNote": "Managed cloud service",
+    "description": "For teams who want managed AI, full export formats, and real-time collaboration.",
+    "cta": "Try Cloud",
+    "popular": "Most Popular",
+    "features": {
+      "projects": "Unlimited projects",
+      "export": "All export formats including HTML, ZIP, Mermaid",
+      "ai": "Managed AI providers included",
+      "collaboration": "Team collaboration",
+      "support": "Priority email support"
+    }
+  },
+  "enterprise": {
+    "name": "Enterprise",
+    "price": "Contact Us",
+    "priceNote": "Custom deployment",
+    "description": "For organizations requiring SSO, RBAC, audit trails, and dedicated support.",
+    "cta": "Contact Sales",
+    "features": {
+      "projects": "Unlimited projects",
+      "export": "All export formats",
+      "ai": "Managed + custom AI providers",
+      "collaboration": "Advanced collaboration with RBAC",
+      "sso": "SSO / SAML integration",
+      "audit": "Full audit trail",
+      "support": "Dedicated account manager"
+    }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "byok": {
+      "q": "What is BYOK?",
+      "a": "Bring Your Own Key means you use your own AI provider API keys. This gives you full control over costs and provider choice."
+    },
+    "selfHost": {
+      "q": "Can I self-host the Cloud features?",
+      "a": "The Community edition is fully self-hostable. Cloud features require our managed platform for real-time sync and collaboration."
+    },
+    "trial": {
+      "q": "Is there a free trial for Cloud Pro?",
+      "a": "Yes! Cloud Pro includes a 14-day free trial with full access to all features."
+    }
+  }
+}

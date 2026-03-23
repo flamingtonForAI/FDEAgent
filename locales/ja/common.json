@@ -183,5 +183,25 @@
       "passwordRequired": "パスワードは必須です",
       "passwordWeak": "パスワードが要件を満たしていません"
     }
+  },
+  "versionHistory": {
+    "title": "バージョン履歴",
+    "versions": "件のバージョン",
+    "noVersions": "バージョン記録がありません",
+    "noSummary": "変更概要なし",
+    "restore": "復元",
+    "confirmRestore": "このバージョンを復元しますか？現在の状態は上書きされます。"
+  },
+  "sharing": {
+    "title": "チームメンバー",
+    "invite": "招待",
+    "emailPlaceholder": "メールアドレスを入力",
+    "viewer": "閲覧者",
+    "editor": "編集者",
+    "owner": "オーナー",
+    "send": "招待を送信",
+    "remove": "削除",
+    "confirmRemove": "このメンバーをプロジェクトから削除しますか？",
+    "noMembers": "メンバーがいません。誰かを招待して共同作業しましょう。"
   }
 }

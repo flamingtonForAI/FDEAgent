@@ -7,13 +7,17 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "npm run -s test:cardinality && npx tsc --noEmit && npm run -s build && npm run -s check:i18n",
+    "check": "npm run -s test:cardinality && npm run -s test && npm run -s test:backend && npx tsc --noEmit && npm run -s build && npm run -s check:i18n",
+    "test:backend": "cd backend && npx vitest run",
     "check:i18n": "node scripts/check-translations.mjs",
     "test:cardinality": "rm -rf .tmp-tests && tsc --pretty false --noEmit false --module esnext --moduleResolution bundler --target es2022 --outDir .tmp-tests tests/cardinality.test.ts lib/cardinality.ts types.ts && node --experimental-specifier-resolution=node .tmp-tests/tests/cardinality.test.js && rm -rf .tmp-tests",
+    "test": "vitest run",
     "test:e2e": "npx playwright test"
   },
   "dependencies": {
+    "@dagrejs/dagre": "^2.0.4",
     "@google/genai": "^1.35.0",
+    "@xyflow/react": "^12.10.1",
     "i18next": "^25.8.18",
     "jszip": "^3.10.1",
     "lucide-react": "^0.562.0",
@@ -30,6 +34,7 @@
     "@vitejs/plugin-react": "^5.0.0",
     "playwright": "^1.58.1",
     "typescript": "~5.8.2",
-    "vite": "^6.2.0"
+    "vite": "^6.2.0",
+    "vitest": "^4.1.0"
   }
 }
