@@ -1,9 +1,11 @@
 import React, { useMemo } from 'react';
 import DeliverableGenerator from '../components/DeliverableGenerator';
+import VersionHistory from '../components/VersionHistory';
 import { runQualityCheck, checkActionThreeLayers, qualityRules } from '../utils/qualityChecker';
 import type { ProjectState } from '../types';
 import { Package, Boxes, Zap, Link2, Network, CheckCircle2, AlertTriangle, Minus, ArrowRight } from 'lucide-react';
 import { useAppTranslation } from '../hooks/useAppTranslation';
+import { useProject } from '../contexts/ProjectContext';
 
 interface DeliveryPageProps {
   project: ProjectState;
@@ -19,6 +21,7 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({
   onOpenQualityPanel,
 }) => {
   const { t } = useAppTranslation('delivery');
+  const { activeProjectId } = useProject();
 
   // Compute stats
   const stats = useMemo(() => {
@@ -159,6 +162,13 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({
           )}
         </div>
       </div>
+
+      {/* Version History */}
+      {activeProjectId && (
+        <div className="px-6 pb-4">
+          <VersionHistory projectId={activeProjectId} />
+        </div>
+      )}
 
       {/* Embedded DeliverableGenerator */}
       <div className="flex-1 px-6 pb-6 min-h-0">

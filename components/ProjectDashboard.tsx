@@ -17,6 +17,7 @@ import {
   ArrowRight, AlertCircle, Users, History
 } from 'lucide-react';
 import NewProjectDialog from './NewProjectDialog';
+import ProjectMembers from './ProjectMembers';
 
 interface Props {
   onOpenProject?: () => void;
@@ -44,6 +45,7 @@ export default function ProjectDashboard({ onOpenProject }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showNewDialog, setShowNewDialog] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [sharingProjectId, setSharingProjectId] = useState<string | null>(null);
 
   const handleOpenCreateDialog = () => {
     if (!isAuthenticated) {
@@ -360,7 +362,7 @@ export default function ProjectDashboard({ onOpenProject }: Props) {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      // sharing panel is accessible via project detail
+                      setSharingProjectId(project.id);
                     }}
                     className="p-1.5 rounded transition-colors"
                     style={{ color: 'var(--color-text-muted)' }}
@@ -467,6 +469,25 @@ export default function ProjectDashboard({ onOpenProject }: Props) {
             onOpenProject?.();
           }}
         />
+      )}
+
+      {/* Sharing / Members Modal */}
+      {sharingProjectId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[110] p-4" onClick={() => setSharingProjectId(null)}>
+          <div
+            className="w-full max-w-md max-h-[70vh] rounded-xl overflow-auto"
+            style={{ backgroundColor: 'var(--color-bg-elevated)', border: '1px solid var(--color-border)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('sharing.title')}</h3>
+                <button onClick={() => setSharingProjectId(null)} className="text-sm" style={{ color: 'var(--color-text-muted)' }}>✕</button>
+              </div>
+            </div>
+            <ProjectMembers projectId={sharingProjectId} isOwner={true} />
+          </div>
+        </div>
       )}
     </div>
   );
