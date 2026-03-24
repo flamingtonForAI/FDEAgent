@@ -56,5 +56,6 @@
   "testing": "测试中...",
   "testSuccess": "连接成功！",
   "testFailed": "连接失败",
-  "confirm": "确认"
+  "confirm": "确认",
+  "accountTab": "账户"
 }

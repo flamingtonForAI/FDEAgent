@@ -64,3 +64,22 @@ export const syncRateLimitConfig = {
     timeWindow: 60 * 1000,
   },
 };
+
+export const accountRateLimitConfig = {
+  changePassword: {
+    max: 5,
+    timeWindow: 60 * 1000,
+  },
+  logoutAll: {
+    max: 5,
+    timeWindow: 60 * 1000,
+  },
+  deletionCheck: {
+    max: 10,
+    timeWindow: 60 * 1000,
+  },
+  deleteAccount: {
+    max: 3,
+    timeWindow: 60 * 1000,
+  },
+};

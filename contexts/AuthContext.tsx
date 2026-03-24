@@ -11,7 +11,7 @@ import React, {
   useCallback,
   type ReactNode,
 } from 'react';
-import { authService, type User, type LoginInput, type RegisterInput } from '../services/authService';
+import { authService, type User, type LoginInput, type RegisterInput, type DeletionCheckResponse } from '../services/authService';
 
 interface AuthContextType {
   user: User | null;
@@ -21,6 +21,10 @@ interface AuthContextType {
   login: (input: LoginInput) => Promise<void>;
   register: (input: RegisterInput) => Promise<void>;
   logout: () => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  logoutAll: () => Promise<void>;
+  getDeletionCheck: () => Promise<DeletionCheckResponse>;
+  deleteAccount: (password: string, confirmEmail: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -131,6 +135,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+    await authService.changePassword(currentPassword, newPassword);
+  }, []);
+
+  const logoutAll = useCallback(async () => {
+    try {
+      await authService.logoutAll();
+    } finally {
+      setUser(null);
+      persistStorageSession(null);
+    }
+  }, []);
+
+  const getDeletionCheck = useCallback(async () => {
+    return authService.getDeletionCheck();
+  }, []);
+
+  const deleteAccount = useCallback(async (password: string, confirmEmail: string) => {
+    await authService.deleteAccount(password, confirmEmail);
+    setUser(null);
+    persistStorageSession(null);
+  }, []);
+
   const clearError = useCallback(() => {
     setError(null);
   }, []);
@@ -143,6 +170,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     login,
     register,
     logout,
+    changePassword,
+    logoutAll,
+    getDeletionCheck,
+    deleteAccount,
     clearError,
   };
 

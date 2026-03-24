@@ -9,6 +9,17 @@
 
 import { apiClient, type AuthResponse } from './apiClient';
 
+export interface DeletionCheckResponse {
+  canDelete: boolean;
+  blockers: string[];
+  impact: {
+    ownedProjects: number;
+    sharedMemberships: number;
+    versions: number;
+    chatMessages: number;
+  };
+}
+
 export interface User {
   id: string;
   email: string;
@@ -65,6 +76,44 @@ class AuthService {
    */
   async getCurrentUser(): Promise<User> {
     return apiClient.get<User>('/auth/me');
+  }
+
+  /**
+   * Change password
+   */
+  async changePassword(currentPassword: string, newPassword: string): Promise<AuthResponse> {
+    const response = await apiClient.put<AuthResponse>('/auth/password', {
+      currentPassword,
+      newPassword,
+    });
+    apiClient.setTokens(response);
+    return response;
+  }
+
+  /**
+   * Logout from all devices
+   */
+  async logoutAll(): Promise<void> {
+    try {
+      await apiClient.post('/auth/logout-all');
+    } finally {
+      await apiClient.logout();
+    }
+  }
+
+  /**
+   * Check if account can be deleted
+   */
+  async getDeletionCheck(): Promise<DeletionCheckResponse> {
+    return apiClient.get<DeletionCheckResponse>('/auth/account/deletion-check');
+  }
+
+  /**
+   * Delete account
+   */
+  async deleteAccount(password: string, confirmEmail: string): Promise<void> {
+    await apiClient.post('/auth/account/delete', { password, confirmEmail });
+    await apiClient.logout();
   }
 
   /**

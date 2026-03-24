@@ -15,11 +15,12 @@ import {
 } from '../lib/llmCapabilities';
 import {
   X, Settings, Cpu, Palette, Globe, RotateCcw, AlertTriangle,
-  Check, Moon, Sun, Monitor, Key, Search, RefreshCw, Loader2, Plug, Shield
+  Check, Moon, Sun, Monitor, Key, Search, RefreshCw, Loader2, Plug, Shield, User as UserIcon
 } from 'lucide-react';
 import { useAppTranslation } from '../hooks/useAppTranslation';
 import { type AIMode, getAIMode } from '../services/ai/mode';
 import { apiClient } from '../services/apiClient';
+import AccountTab from './account/AccountTab';
 
 interface Props {
   aiSettings: AISettings;
@@ -29,11 +30,12 @@ interface Props {
   onLanguageChange: (lang: Language) => void;
   onReset: () => void;
   onClose: () => void;
+  initialTab?: SettingsTab;
 }
 
 type QuickFilter = 'all' | 'recommended' | 'vision' | 'office' | 'longContext';
 
-type SettingsTab = 'ai' | 'appearance' | 'reset';
+type SettingsTab = 'account' | 'ai' | 'appearance' | 'reset';
 
 function capabilityText(level: 'full' | 'partial' | 'none', t: (key: string) => string): string {
   if (level === 'full') return t('full');
@@ -49,6 +51,7 @@ export default function UnifiedSettings({
   onLanguageChange,
   onReset,
   onClose,
+  initialTab,
 }: Props) {
   const { t, lt, lang, i18nLang } = useAppTranslation('settings');
   // Only fall back to legacy apiKey when apiKeys map doesn't exist (old data).
@@ -56,7 +59,10 @@ export default function UnifiedSettings({
   const currentProviderKey = aiSettings.apiKeys
     ? (aiSettings.apiKeys[aiSettings.provider as AIProvider] ?? '')
     : (aiSettings.apiKey || '');
-  const [activeTab, setActiveTab] = useState<SettingsTab>('ai');
+  const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab || 'ai');
+  useEffect(() => {
+    if (initialTab) setActiveTab(initialTab);
+  }, [initialTab]);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [localApiKey, setLocalApiKey] = useState(currentProviderKey);
   const [currentThemeMode, setCurrentThemeMode] = useState<ThemeMode>(getSavedThemeMode);
@@ -221,6 +227,7 @@ export default function UnifiedSettings({
   };
 
   const tabs = [
+    { id: 'account' as const, icon: <UserIcon size={16} />, label: t('accountTab') },
     { id: 'ai' as const, icon: <Cpu size={16} />, label: t('aiSettings') },
     { id: 'appearance' as const, icon: <Palette size={16} />, label: t('theme') },
     { id: 'reset' as const, icon: <RotateCcw size={16} />, label: t('reset') },
@@ -258,6 +265,8 @@ export default function UnifiedSettings({
           </div>
 
           <div className="flex-1 p-6 overflow-y-auto">
+            {activeTab === 'account' && <AccountTab />}
+
             {activeTab === 'ai' && (
               <div className="space-y-6">
                 <div>

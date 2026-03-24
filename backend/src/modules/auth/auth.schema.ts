@@ -25,7 +25,25 @@ export const logoutSchema = z.object({
   refreshToken: z.string().optional(),
 });
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z
+    .string()
+    .min(authConfig.password.minLength, `Password must be at least ${authConfig.password.minLength} characters`)
+    .max(authConfig.password.maxLength, `Password must be at most ${authConfig.password.maxLength} characters`)
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number'),
+});
+
+export const deleteAccountSchema = z.object({
+  password: z.string().min(1, 'Password is required'),
+  confirmEmail: z.string().email('Invalid email address'),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RefreshInput = z.infer<typeof refreshSchema>;
 export type LogoutInput = z.infer<typeof logoutSchema>;
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+export type DeleteAccountInput = z.infer<typeof deleteAccountSchema>;

@@ -56,5 +56,6 @@
   "testing": "Testing...",
   "testSuccess": "Connection successful!",
   "testFailed": "Connection failed",
-  "confirm": "Confirm"
+  "confirm": "Confirm",
+  "accountTab": "Account"
 }

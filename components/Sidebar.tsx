@@ -26,12 +26,13 @@ interface SidebarProps {
   onOpenSettings: () => void;
   onOpenAuthModal: () => void;
   onResetArchetype: () => void;
+  onOpenAccountSettings?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab, setActiveTab, activeProjectId, hasObjects,
   phaseReadiness, activeProviderApiKey, getCurrentModelName,
-  onOpenSettings, onOpenAuthModal, onResetArchetype,
+  onOpenSettings, onOpenAuthModal, onResetArchetype, onOpenAccountSettings,
 }) => {
   const { t, lang } = useAppTranslation('nav');
   const { isAuthenticated } = useAuth();
@@ -68,7 +69,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <div className="p-3 space-y-1.5" style={{ borderTop: '1px solid var(--color-border)' }}>
         {isAuthenticated ? (
-          <UserMenu lang={lang} />
+          <UserMenu onOpenAccountSettings={onOpenAccountSettings} />
         ) : (
           <button
             onClick={onOpenAuthModal}

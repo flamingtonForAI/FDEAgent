@@ -74,11 +74,17 @@ const AppContent: React.FC = () => {
   const [isChatExpanded, setIsChatExpanded] = useState(false);
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [settingsInitialTab, setSettingsInitialTab] = useState<'ai' | 'account'>('ai');
   const [showQualityPanel, setShowQualityPanel] = useState(false);
   const [reviewTab, setReviewTab] = useState<'quality' | 'readiness'>('quality');
   const canShowQualityPanel = !!activeProjectId && projectPhaseTabs.includes(activeTab as WorkflowTab);
 
   // Auth-related effects
+  const handleOpenAccountSettings = useCallback(() => {
+    setSettingsInitialTab('account');
+    setShowSettings(true);
+  }, [setShowSettings]);
+
   useEffect(() => { storage.setAuthCheck(() => isAuthenticated); }, [isAuthenticated]);
   useEffect(() => {
     if (isAuthenticated) {
@@ -155,6 +161,7 @@ const AppContent: React.FC = () => {
         onOpenSettings={() => setShowSettings(true)}
         onOpenAuthModal={() => setShowAuthModal(true)}
         onResetArchetype={() => setSelectedArchetypeId(null)}
+        onOpenAccountSettings={handleOpenAccountSettings}
       />
 
       <MainContent
@@ -201,7 +208,8 @@ const AppContent: React.FC = () => {
           onThemeChange={setCurrentTheme}
           onLanguageChange={setLang}
           onReset={handleNewSession}
-          onClose={() => setShowSettings(false)}
+          onClose={() => { setShowSettings(false); setSettingsInitialTab('ai'); }}
+          initialTab={settingsInitialTab}
         />
       )}
 

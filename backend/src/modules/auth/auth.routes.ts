@@ -5,13 +5,17 @@ import {
   loginSchema,
   refreshSchema,
   logoutSchema,
+  changePasswordSchema,
+  deleteAccountSchema,
   type RegisterInput,
   type LoginInput,
   type RefreshInput,
   type LogoutInput,
+  type ChangePasswordInput,
+  type DeleteAccountInput,
 } from './auth.schema.js';
 import { authenticate } from '../../middleware/auth.middleware.js';
-import { authRateLimitConfig } from '../../middleware/rate-limit.middleware.js';
+import { authRateLimitConfig, accountRateLimitConfig } from '../../middleware/rate-limit.middleware.js';
 
 export async function authRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/auth/register - Register a new user
@@ -72,6 +76,68 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     async (request: FastifyRequest, reply: FastifyReply) => {
       const user = await authService.getCurrentUser(request.user!.userId);
       return reply.send(user);
+    }
+  );
+
+  // PUT /api/auth/password - Change password
+  app.put<{ Body: ChangePasswordInput }>(
+    '/password',
+    {
+      preHandler: [authenticate],
+      config: { rateLimit: accountRateLimitConfig.changePassword },
+    },
+    async (request, reply) => {
+      const input = changePasswordSchema.parse(request.body);
+      const result = await authService.changePassword(
+        request.user!.userId,
+        input.currentPassword,
+        input.newPassword
+      );
+      return reply.send(result);
+    }
+  );
+
+  // POST /api/auth/logout-all - Logout from all devices
+  app.post(
+    '/logout-all',
+    {
+      preHandler: [authenticate],
+      config: { rateLimit: accountRateLimitConfig.logoutAll },
+    },
+    async (request, reply) => {
+      await authService.logoutAll(request.user!.userId);
+      return reply.status(204).send();
+    }
+  );
+
+  // GET /api/auth/account/deletion-check - Check if account can be deleted
+  app.get(
+    '/account/deletion-check',
+    {
+      preHandler: [authenticate],
+      config: { rateLimit: accountRateLimitConfig.deletionCheck },
+    },
+    async (request, reply) => {
+      const result = await authService.getDeletionCheck(request.user!.userId);
+      return reply.send(result);
+    }
+  );
+
+  // POST /api/auth/account/delete - Delete account
+  app.post<{ Body: DeleteAccountInput }>(
+    '/account/delete',
+    {
+      preHandler: [authenticate],
+      config: { rateLimit: accountRateLimitConfig.deleteAccount },
+    },
+    async (request, reply) => {
+      const input = deleteAccountSchema.parse(request.body);
+      await authService.deleteAccount(
+        request.user!.userId,
+        input.password,
+        input.confirmEmail
+      );
+      return reply.status(204).send();
     }
   );
 }

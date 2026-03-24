@@ -223,6 +223,105 @@ export class AuthService {
     return user;
   }
 
+  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<AuthResponse> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new AppError(404, 'User not found');
+
+    const isValid = await verifyPassword(currentPassword, user.passwordHash);
+    if (!isValid) throw new AppError(401, 'Current password is incorrect');
+
+    const passwordHash = await hashPassword(newPassword);
+    const tokenPair = generateTokenPair(user.id, user.email);
+
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({ where: { id: userId }, data: { passwordHash } });
+      await tx.refreshToken.deleteMany({ where: { userId } });
+      await tx.refreshToken.create({
+        data: {
+          token: tokenPair.refreshToken,
+          userId: user.id,
+          expiresAt: tokenPair.refreshTokenExpiresAt,
+        },
+      });
+    });
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        emailVerified: user.emailVerified,
+        createdAt: user.createdAt,
+      },
+      tokens: {
+        accessToken: tokenPair.accessToken,
+        refreshToken: tokenPair.refreshToken,
+        expiresAt: tokenPair.accessTokenExpiresAt,
+      },
+    };
+  }
+
+  async logoutAll(userId: string): Promise<void> {
+    await prisma.refreshToken.deleteMany({ where: { userId } });
+  }
+
+  async getDeletionCheck(userId: string) {
+    const [ownedProjects, sharedMemberships, versions, chatMessages] = await Promise.all([
+      prisma.project.count({ where: { userId } }),
+      prisma.projectMember.count({ where: { userId } }),
+      prisma.ontologyVersion.count({
+        where: { project: { userId } },
+      }),
+      prisma.chatMessage.count({
+        where: { project: { userId } },
+      }),
+    ]);
+
+    const canDelete = ownedProjects === 0;
+    const blockers: string[] = [];
+    if (!canDelete) {
+      blockers.push(`You own ${ownedProjects} project(s). Transfer or delete them first.`);
+    }
+
+    return {
+      canDelete,
+      blockers,
+      impact: {
+        ownedProjects,
+        sharedMemberships,
+        versions,
+        chatMessages,
+      },
+    };
+  }
+
+  async deleteAccount(userId: string, password: string, confirmEmail: string): Promise<void> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new AppError(404, 'User not found');
+
+    // Verify email matches
+    if (user.email.toLowerCase() !== confirmEmail.toLowerCase()) {
+      throw new AppError(400, 'Email does not match');
+    }
+
+    // Verify password
+    const isValid = await verifyPassword(password, user.passwordHash);
+    if (!isValid) throw new AppError(401, 'Password is incorrect');
+
+    // Check demo account
+    if (user.email.toLowerCase() === 'demo@example.com') {
+      throw new AppError(403, 'Demo account cannot be deleted');
+    }
+
+    // Check if can delete (no owned projects)
+    const ownedProjects = await prisma.project.count({ where: { userId } });
+    if (ownedProjects > 0) {
+      throw new AppError(409, 'Cannot delete account while owning projects');
+    }
+
+    // Cascade delete handles: refreshTokens, preferences, memberships
+    await prisma.user.delete({ where: { id: userId } });
+  }
+
   /**
    * Store refresh token in database
    */

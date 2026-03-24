@@ -56,5 +56,6 @@
   "testing": "Test en cours...",
   "testSuccess": "Connexion réussie !",
   "testFailed": "Échec de la connexion",
-  "confirm": "Confirmer"
+  "confirm": "Confirmer",
+  "accountTab": "Compte"
 }
